@@ -71,18 +71,19 @@ Fetches a short docs page served as HTML. The page is known to have
 substantial inline CSS before the content begins. Logs the raw `input_tokens`
 count to establish the default behavior when `max_content_tokens` isn't set.
 
-### Test 2 - Same page, markdown version
+### Test 2 - Same page, Markdown version
 
-_Does the API tool request/prefer markdown? How much smaller is
-the token footprint of the markdown version?_
+_Does the API tool request/prefer Markdown? How much smaller is
+the token footprint of the Markdown version?_
 
-Fetches the `.md` URL variant of the same page. Compares `input_tokens` to Test 1.
+Fetches the `.md` URL variant of the same page.
+Compares `input_tokens` to Test 1.
 
 ### Test 3 - Long page, no token limit
 
 _At what point does the content get truncated? Does the API tool behave
-differently than Claude Code (which truncated to ~100KB and passed through a
-summarization model)?_
+differently than Claude Code - which truncated to ~100KB and passed through a
+summarization model?_
 
 Fetches a long tabbed tutorial page without a `max_content_tokens` limit.
 

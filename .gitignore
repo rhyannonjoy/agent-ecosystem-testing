@@ -1,5 +1,27 @@
-# Dependencies
+# Environment and secrets
+.env
+.env.*
 venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Test results (optional — remove this line if you want to commit results)
+# claude-api/results/
 
 # Vale — ignore downloaded styles and cache, keep config
 .vale/
