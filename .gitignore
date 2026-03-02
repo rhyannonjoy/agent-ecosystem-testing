@@ -1,1 +1,7 @@
+# Dependencies
 venv
+
+# Vale — ignore downloaded styles and cache, keep config
+.vale/
+*.vale-cache
+styles/
