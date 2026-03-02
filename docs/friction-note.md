@@ -1,0 +1,35 @@
+# Friction
+
+This note includes descriptions to any roadblocks
+while testing.
+
+## Anthropic API key
+
+The Claude docs AI assistant didn't return any results
+when asked how to obtain an API key to test the
+[Web fetch tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool#how-to-use-web-fetch).
+
+```markdown
+I don't have information about how to obtain an API key in the available sources. The documentation shows examples using the web fetch tool with an API key, but doesn't explain the process for acquiring one.
+
+Check out these potentially useful sources that might help: Web fetch tool
+
+Would you like me to try to provide a general answer based on my knowledge instead?
+```
+
+**Instructions**:
+
+1. Go to [console.anthropic.com](https://platform.claude.com/dashboard) and sign up and/or log in
+2. Once you're in, look for "API Keys" in the left sidebar
+3. Click `Create Key`, give it a name like `web-fetch-testing`, and copy it immediately -
+you won't be able to see it again after you close that dialog
+4. Add key and secret value to the `.env` file
+5. Run `source .env`
+6. Run `python claude-api/web_fetch_test.py`
+
+>_The name you give the key in the Claude console and your `.env` don't need to
+match. The name you gave it in the console - `"agent-ecosystem-testing-claude-web-fetch"` -
+is just a human-readable label to help you remember what it's for - it has no effect on how
+the key works. `ANTHROPIC_API_KEY` is just the variable name the script uses to look it up
+on your machine. Those are two completely separate things: one is Anthropic's label in their
+dashboard, the other is your local environment variable name. The script will find it correctly._
