@@ -33,3 +33,15 @@ is just a human-readable label to help you remember what it's for - it has no ef
 the key works. `ANTHROPIC_API_KEY` is just the variable name the script uses to look it up
 on your machine. Those are two completely separate things: one is Anthropic's label in their
 dashboard, the other is your local environment variable name. The script will find it correctly._
+
+## Rebuild `venv`
+
+```bash
+deactivate
+rm -rf venv
+/opt/homebrew/bin/python3.14 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+source .env
+python claude-api/web_fetch_test.py
+```
