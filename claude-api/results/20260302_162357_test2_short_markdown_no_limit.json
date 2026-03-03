@@ -1,0 +1,13 @@
+{
+  "url": "https://www.mongodb.com/docs/manual/reference/change-events/create.md",
+  "max_content_tokens_param": null,
+  "usage": {
+    "input_tokens": 4236,
+    "output_tokens": 433,
+    "web_fetch_requests": 1
+  },
+  "fetch_content_length_chars": 0,
+  "fetch_content_preview": "",
+  "claude_assessment": "Here's a full breakdown of the fetched content:\n\n---\n\n### 1. \ud83d\udccf Character Count\nThe content received is approximately **4,900 characters** (roughly 4,906 characters including whitespace and markup).\n\n---\n\n### 2. \ud83d\udd24 First 200 Characters\n```\n# create Event\n\nce-create## Summary\n\n`create`\nA `create` event occurs when a collection is created on a watched database and the change stream has the [showExpandedEv\n```\n\n---\n\n### 3. \ud83d\udcc4 CSS/Boilerplate vs. Actual Documentation\nThis is **actual, substantive documentation content** \u2014 not CSS or boilerplate. It contains:\n- A structured Markdown/HTML page describing MongoDB's `create` change stream event\n- A field-by-field reference table (e.g., `_id`, `clusterTime`, `collectionUUID`, `operationType`, etc.) with types and descriptions\n- A concrete JSON example of a `create` change event\n\n---\n\n### 4. \ud83d\udd22 Estimated Fraction of the Full Page Received\nIt appears you received **most or all of the meaningful content** for this specific documentation page. The `create` change event page is a relatively focused reference page, and the fetched content includes the Summary, full Description table, and the Example section \u2014 which are all the major sections typically on such a page. I'd estimate this represents **~90\u2013100%** of the actual documentation content (the rendered page may have navigation chrome/headers/footers not included, but the core docs content appears complete).",
+  "stop_reason": "end_turn"
+}

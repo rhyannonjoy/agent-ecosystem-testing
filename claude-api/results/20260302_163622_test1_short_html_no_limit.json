@@ -1,0 +1,13 @@
+{
+  "url": "https://www.mongodb.com/docs/manual/reference/change-events/create/",
+  "max_content_tokens_param": null,
+  "usage": {
+    "input_tokens": 9935,
+    "output_tokens": 546,
+    "web_fetch_requests": 1
+  },
+  "fetch_content_length_chars": 0,
+  "fetch_content_preview": "",
+  "claude_assessment": "Here's a full breakdown of what was received:\n\n---\n\n### 1. \ud83d\udccf Character Count\nThe total content received is approximately **14,200 characters** (including all navigation, boilerplate, and actual documentation).\n\n---\n\n### 2. \ud83d\udd24 First 200 Characters\n```\ncreate Event - Database Manual - MongoDB Docs\n\n[![MongoDB logo](https://webimages.mongodb.com/_com_assets/cms/kuyjf3vea2hg34taa-horizontal_default_sl\n```\n(This is the page title followed immediately by the start of a navigation logo/link.)\n\n---\n\n### 3. \ud83d\udcc4 CSS/Boilerplate vs. Actual Documentation\nThe content is **a mix \u2014 heavily front-loaded with boilerplate, but containing real documentation toward the end**. Specifically:\n- The **first ~10,000 characters** are navigation boilerplate: the site header/nav bar is actually rendered **twice** (once for light mode, once for dark mode), followed by a repeated sidebar/menu with links to all change event types.\n- The **last ~4,000 characters** contain the actual documentation content: the `create` event summary, a description table of all fields (`_id`, `clusterTime`, `collectionUUID`, `operationType`, etc.), and a concrete example JSON document.\n\n---\n\n### 4. \ud83d\udd22 Estimated Fraction of the Page Received\nIt appears that **~100% of the meaningful page content was received**. The documentation for this particular page is relatively short (a summary, one table, and one example), and all three sections (`Summary`, `Description`, `Example`) are fully present in the fetched content. The only \"missing\" things are rendered CSS/JS assets, which wouldn't appear in a plain-text fetch anyway.\n\n---\n\n**Summary:** The fetch was successful and complete. The signal-to-noise ratio is low at the start (lots of repeated nav/boilerplate), but the actual `create` change event documentation \u2014 including all field descriptions and the example \u2014 is fully intact at the end.",
+  "stop_reason": "end_turn"
+}

@@ -1,0 +1,13 @@
+{
+  "url": "https://www.mongodb.com/docs/atlas/atlas-search/tutorial/",
+  "max_content_tokens_param": 5000,
+  "usage": {
+    "input_tokens": 7382,
+    "output_tokens": 553,
+    "web_fetch_requests": 1
+  },
+  "fetch_content_length_chars": 0,
+  "fetch_content_preview": "",
+  "claude_assessment": "Here's what I can tell you about the fetch result:\n\n---\n\n### 1. \ud83d\udce6 How Much Content Was Received\nThe content returned is **quite substantial in raw character volume**, but the vast majority of it is **repetitive navigation/menu HTML** \u2014 specifically, the MongoDB.com top navigation bar is rendered **twice** (once for light mode, once for dark mode), each containing the full product/resources/solutions/company menus with icon image URLs. The actual **page body content** (the tutorial itself) was **not included** in what was returned \u2014 the fetch cut off before reaching it.\n\n---\n\n### 2. \u2702\ufe0f Does the Content End Cleanly or Mid-Sentence?\nIt ends **mid-sentence / mid-element**. The last line is an incomplete link element:\n\n> `+ [Overview](/docs/current`\n\nThis is clearly a truncated URL \u2014 it should read something like `/docs/current/` \u2014 and the list of sidebar navigation items was still ongoing when the content was cut off.\n\n---\n\n### 3. \ud83d\udd1a What Is the Last Thing Visible?\nThe very last thing visible is a **partial sidebar navigation link**:\n\n```\n+ [Overview](/docs/current\n```\n\nThis appears to be part of the **\"Database Manual\"** section in the left-hand sidebar, where it was in the middle of listing navigation links (like Overview, Documents, Databases & Collections, etc.). The content was cut off right inside that URL, mid-link.\n\n---\n\n### \ud83d\udd11 Key Takeaway\nThe page is **very heavy with repeated navigation markup** (the full nav bar appears at least twice due to responsive/dark-mode rendering), which consumed most of the returned content budget before the actual tutorial body text was ever reached. The `web_fetch` tool does not support custom token limits \u2014 it returns what it returns, and in this case the page's boilerplate crowded out the real content.",
+  "stop_reason": "end_turn"
+}

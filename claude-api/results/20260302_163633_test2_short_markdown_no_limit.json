@@ -1,0 +1,13 @@
+{
+  "url": "https://www.mongodb.com/docs/manual/reference/change-events/create.md",
+  "max_content_tokens_param": null,
+  "usage": {
+    "input_tokens": 4236,
+    "output_tokens": 431,
+    "web_fetch_requests": 1
+  },
+  "fetch_content_length_chars": 0,
+  "fetch_content_preview": "",
+  "claude_assessment": "Here's a full breakdown of what was fetched:\n\n---\n\n### 1. \ud83d\udccf Character Count\nThe content received is approximately **5,600 characters** (roughly 5,620 including whitespace and markup).\n\n---\n\n### 2. \ud83d\udd24 First 200 Characters\n```\n# create Event\n\nce-create## Summary\n\n`create`\nA `create` event occurs when a collection is created on a watched database and the change stream has the [showExpandedEv\n```\n\n---\n\n### 3. \ud83d\udcc4 CSS/Boilerplate vs. Actual Documentation\nThis is **actual, substantive documentation content** \u2014 not CSS or boilerplate. It contains:\n- A clear heading (`# create Event`)\n- A summary explaining what the `create` change stream event is\n- A structured table describing all fields (`_id`, `clusterTime`, `collectionUUID`, `lsid`, `ns`, `operationType`, `txnNumber`, `wallTime`, etc.)\n- A concrete JSON example of a `create` event\n\nThe `.md` extension caused the server to return the raw Markdown/structured text version of the page, which is clean and content-rich.\n\n---\n\n### 4. \ud83d\udcca Estimated Fraction of the Page Received\nIt appears you received **~100% of this specific page's content**. The document is self-contained and ends naturally with a complete JSON example and closing code block. There are no signs of truncation \u2014 the page is simply not very long (this is a focused reference page for a single event type).",
+  "stop_reason": "end_turn"
+}

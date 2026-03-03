@@ -1,0 +1,90 @@
+[
+  {
+    "url": "https://www.mongodb.com/docs/manual/reference/change-events/create/",
+    "max_content_tokens_param": null,
+    "usage": {
+      "input_tokens": 9811,
+      "output_tokens": 201,
+      "web_fetch_requests": 1
+    },
+    "fetch_error": null,
+    "raw_content_chars": 25925,
+    "analysis": {
+      "total_chars": 25925,
+      "first_500_chars": "create Event - Database Manual - MongoDB Docs\n\n[![MongoDB logo](https://webimages.mongodb.com/_com_assets/cms/kuyjf3vea2hg34taa-horizontal_default_slate_blue.svg?auto=format%252Ccompress)](https://www.mongodb.com)\n\n* Products\n\n  Platform\n\n  [![atlas_product_family](https://webimages.mongodb.com/_com_assets/icons/atlas_product_family.svg)AtlasBuild and scale with an AI-ready platform](https://www.mongodb.com/atlas)\n\n  Platform Services\n\n  [![atlas_database](https://webimages.mongodb.com/_com_asse",
+      "last_200_chars": "tion\")\n\nRate this page\n\nOn this page\n\n* [Summary](#summary)\n* [Description](#description)\n* [Example](#example)\n\nOn this page\n\n* [Summary](#summary)\n* [Description](#description)\n* [Example](#example)",
+      "css_indicators_in_first_2000_chars": [],
+      "css_indicator_count": 0,
+      "first_heading_position": 21009,
+      "boilerplate_pct_before_first_heading": 81.0,
+      "ends_cleanly": true,
+      "last_char": "')'"
+    }
+  },
+  {
+    "url": "https://www.mongodb.com/docs/manual/reference/change-events/create.md",
+    "max_content_tokens_param": null,
+    "usage": {
+      "input_tokens": 4112,
+      "output_tokens": 202,
+      "web_fetch_requests": 1
+    },
+    "fetch_error": null,
+    "raw_content_chars": 6024,
+    "analysis": {
+      "total_chars": 6024,
+      "first_500_chars": "# create Event\n\nce-create## Summary\n\n`create`\nA `create` event occurs when a collection is created on a watched database and the change stream has the [showExpandedEvents](https://mongodbcom-cdn.staging.corp.mongodb.com/docs/reference/change-events/#std-label-change-streams-expanded-events) option set to `true`.\n\n## Description\n\n<table>\n<tr>\n<th id=\"Field\">\nField\n\n</th>\n<th id=\"Type\">\nType\n\n</th>\n<th id=\"Description\">\nDescription\n\n</th>\n</tr>\n<tr>\n<td headers=\"Field\">\n`_id`\n\n</td>\n<td headers=\"T",
+      "last_200_chars": "ISODate(\"2022-06-10T20:55:47.947Z\"),\n   \"ns\": {\n      \"db\": \"test\",\n      \"coll\": \"names\"\n   },\n   \"operationDescription\": {\n      \"idIndex\": { \"v\": 2, \"key\": { _id: 1 }, \"name\": \"_id_\" }\n   }\n}\n```\n\n",
+      "css_indicators_in_first_2000_chars": [],
+      "css_indicator_count": 0,
+      "first_heading_position": 314,
+      "boilerplate_pct_before_first_heading": 5.2,
+      "ends_cleanly": true,
+      "last_char": "'\\n'"
+    }
+  },
+  {
+    "url": "https://www.mongodb.com/docs/atlas/atlas-search/tutorial/",
+    "max_content_tokens_param": null,
+    "usage": {
+      "input_tokens": 8268,
+      "output_tokens": 199,
+      "web_fetch_requests": 1
+    },
+    "fetch_error": null,
+    "raw_content_chars": 20696,
+    "analysis": {
+      "total_chars": 20696,
+      "first_500_chars": "MongoDB Search Quick Start - Atlas - MongoDB Docs\n\n[![MongoDB logo](https://webimages.mongodb.com/_com_assets/cms/kuyjf3vea2hg34taa-horizontal_default_slate_blue.svg?auto=format%252Ccompress)](https://www.mongodb.com)\n\n* Products\n\n  Platform\n\n  [![atlas_product_family](https://webimages.mongodb.com/_com_assets/icons/atlas_product_family.svg)AtlasBuild and scale with an AI-ready platform](https://www.mongodb.com/atlas)\n\n  Platform Services\n\n  [![atlas_database](https://webimages.mongodb.com/_com_",
+      "last_200_chars": "t Type\n\nSelect\n\n[Back\n\nSearch](/docs/atlas/atlas-search/ \"Previous Section\")\n\n[Next\n\nAutocomplete and Partial Matching](/docs/atlas/atlas-search/tutorial/partial-match/ \"Next Section\")\n\nRate this page",
+      "css_indicators_in_first_2000_chars": [],
+      "css_indicator_count": 0,
+      "first_heading_position": 20178,
+      "boilerplate_pct_before_first_heading": 97.5,
+      "ends_cleanly": false,
+      "last_char": "'e'"
+    }
+  },
+  {
+    "url": "https://www.mongodb.com/docs/atlas/atlas-search/tutorial/",
+    "max_content_tokens_param": 5000,
+    "usage": {
+      "input_tokens": 7230,
+      "output_tokens": 198,
+      "web_fetch_requests": 1
+    },
+    "fetch_error": null,
+    "raw_content_chars": 17186,
+    "analysis": {
+      "total_chars": 17186,
+      "first_500_chars": "MongoDB Search Quick Start - Atlas - MongoDB Docs\n\n[![MongoDB logo](https://webimages.mongodb.com/_com_assets/cms/kuyjf3vea2hg34taa-horizontal_default_slate_blue.svg?auto=format%252Ccompress)](https://www.mongodb.com)\n\n* Products\n\n  Platform\n\n  [![atlas_product_family](https://webimages.mongodb.com/_com_assets/icons/atlas_product_family.svg)AtlasBuild and scale with an AI-ready platform](https://www.mongodb.com/atlas)\n\n  Platform Services\n\n  [![atlas_database](https://webimages.mongodb.com/_com_",
+      "last_200_chars": "Tools](/docs/tools-and-connectors/)\n* [AI Models](/docs/voyageai/)\n* [Atlas Architecture Center](/docs/atlas/architecture/current/)\n\n* Database Manual\n\n  Select a version\n\n  + [Overview](/docs/current",
+      "css_indicators_in_first_2000_chars": [],
+      "css_indicator_count": 0,
+      "first_heading_position": -1,
+      "boilerplate_pct_before_first_heading": null,
+      "ends_cleanly": false,
+      "last_char": "'t'"
+    }
+  }
+]

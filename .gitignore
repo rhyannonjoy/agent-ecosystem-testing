@@ -20,9 +20,6 @@ dist/
 build/
 .pytest_cache/
 
-# Test results (optional — remove this line if you want to commit results)
-claude-api/results/
-
 # Vale — ignore downloaded styles and cache, keep config
 .vale/
 *.vale-cache

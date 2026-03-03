@@ -1,0 +1,13 @@
+{
+  "url": "https://www.mongodb.com/docs/atlas/atlas-search/tutorial/",
+  "max_content_tokens_param": null,
+  "usage": {
+    "input_tokens": 8406,
+    "output_tokens": 547,
+    "web_fetch_requests": 1
+  },
+  "fetch_content_length_chars": 0,
+  "fetch_content_preview": "",
+  "claude_assessment": "Here is a full report on what was returned:\n\n---\n\n### 1. Approximate Character Count\nThe fetched content is approximately **12,000\u201313,000 characters** in total. However, the vast majority of that is **navigation/header/footer boilerplate** \u2014 repeated twice (once for light mode, once for dark mode), including the full site navigation menus, sidebar links, product lists, etc. The actual *tutorial page content* itself is extremely minimal.\n\n---\n\n### 2. Drivers / Platforms Covered\n**None were visible in the fetched content.** The page body returned essentially nothing beyond:\n- The page title: *\"MongoDB Search Quick Start\"*\n- A short preview notice about MongoDB Search being in Preview\n- A **\"Deployment Type \u2014 Select\"** dropdown placeholder\n- Navigation links (Back to Search, Next to Autocomplete and Partial Matching)\n\nThe tabbed sections for drivers/platforms (e.g., `mongosh`, Python, Node.js, Java, C#, Go, etc.) **did not appear at all** in the fetched text. This is almost certainly because those tabs are rendered dynamically via JavaScript, which the `web_fetch` tool cannot execute.\n\n---\n\n### 3. Is the Content Truncated?\n**Yes, effectively \u2014 though not due to a character limit cutoff.** The content is not truncated in the sense of being cut off mid-stream; rather, it appears that the page relies heavily on **client-side JavaScript rendering** (React or a similar framework) to populate the tutorial steps and driver-specific tab content. Since `web_fetch` retrieves only the raw HTML/server-rendered text, all of the dynamic tabbed content (mongosh, Python, Node.js, and any other driver variants) is simply **absent** from the response. You are only seeing the static shell of the page.\n\n---\n\n**Summary:** The fetch retrieved the page's static scaffold (~12\u201313k characters, mostly nav boilerplate), but the core tutorial content \u2014 including all driver/platform tabs \u2014 was not present because it is dynamically rendered by JavaScript and therefore inaccessible to this tool.",
+  "stop_reason": "end_turn"
+}

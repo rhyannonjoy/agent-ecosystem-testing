@@ -1,0 +1,13 @@
+{
+  "url": "https://www.mongodb.com/docs/atlas/atlas-search/tutorial/",
+  "max_content_tokens_param": 5000,
+  "usage": {
+    "input_tokens": 7342,
+    "output_tokens": 435,
+    "web_fetch_requests": 1
+  },
+  "fetch_content_length_chars": 0,
+  "fetch_content_preview": "",
+  "claude_assessment": "Here's what I can tell you about the fetched content:\n\n---\n\n### 1. \ud83d\udce6 How Much Content Was Received\nThe content returned is quite **large in raw characters**, but the vast majority of it is **navigation/header boilerplate** \u2014 specifically, the MongoDB website's top navigation menu is repeated **twice** in full (once for light mode, once for dark mode), along with a left-hand sidebar navigation. Very little of the actual tutorial page content itself was returned within this token budget.\n\n---\n\n### 2. \u2702\ufe0f Does the Content End Cleanly or Mid-Sentence?\nThe content ends **mid-item** \u2014 it cuts off abruptly in the middle of a sidebar navigation link list. It does **not** end cleanly.\n\n---\n\n### 3. \ud83d\udd0d What Is the Last Thing Visible in the Content?\nThe last visible text is:\n\n> `+ [Overview](/docs/current`\n\nThis is a truncated hyperlink inside the left-hand sidebar navigation menu, under the \"Database Manual \u2013 Select a version\" section. The URL itself is cut off mid-string (missing the closing parenthesis and bracket), confirming the content was truncated before the actual tutorial body was ever reached.\n\n---\n\n### Summary\nIn short, the 5,000-token budget was almost entirely consumed by **duplicate navigation menus and boilerplate UI chrome**, and the actual tutorial content on the page never appeared in the response. To get to the substantive tutorial content, a much higher token limit (or a more targeted fetch of a specific section anchor) would be needed.",
+  "stop_reason": "end_turn"
+}

@@ -1,0 +1,13 @@
+{
+  "url": "https://www.mongodb.com/docs/manual/reference/change-events/create.md",
+  "max_content_tokens_param": null,
+  "usage": {
+    "input_tokens": 4236,
+    "output_tokens": 459,
+    "web_fetch_requests": 1
+  },
+  "fetch_content_length_chars": 0,
+  "fetch_content_preview": "",
+  "claude_assessment": "Here's a full breakdown of what was fetched:\n\n---\n\n### 1. \ud83d\udccf Character Count\nThe content received is approximately **5,150 characters** in total.\n\n---\n\n### 2. \ud83d\udd24 First 200 Characters\n```\n# create Event\n\nce-create## Summary\n\n`create`\nA `create` event occurs when a collection is created on a watched database and the change stream has the [showExpandedEv\n```\n\n---\n\n### 3. \ud83d\udcc4 CSS/Boilerplate vs. Actual Documentation\nThis is **genuine, substantive documentation content** \u2014 not CSS or boilerplate. It contains:\n- A structured Markdown/HTML document describing the MongoDB `create` change stream event\n- A description table with fields like `_id`, `clusterTime`, `collectionUUID`, `operationType`, etc., along with their types and descriptions\n- A concrete JSON example of a `create` event\n\n---\n\n### 4. \ud83d\udd22 Estimated Fraction of the Full Page Received\nThe `.md` URL likely targets the **raw Markdown/structured content source** rather than the full rendered HTML page (which would include navigation menus, headers, footers, scripts, styles, etc.). As a result:\n- If compared to the **full rendered HTML page**, this is probably roughly **20\u201335%** of the total bytes.\n- If compared to just the **main documentation body content**, this appears to be very close to **~100%** \u2014 the content looks complete, starting with the title and ending with a full example.\n\nIn short, the fetch appears to have captured the **entire core documentation article** for the `create` change event, just without surrounding page furniture.",
+  "stop_reason": "end_turn"
+}

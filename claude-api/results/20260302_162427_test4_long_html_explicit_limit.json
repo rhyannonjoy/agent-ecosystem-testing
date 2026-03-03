@@ -1,0 +1,13 @@
+{
+  "url": "https://www.mongodb.com/docs/atlas/atlas-search/tutorial/",
+  "max_content_tokens_param": 5000,
+  "usage": {
+    "input_tokens": 7428,
+    "output_tokens": 493,
+    "web_fetch_requests": 1
+  },
+  "fetch_content_length_chars": 0,
+  "fetch_content_preview": "",
+  "claude_assessment": "Here are the answers to your three questions:\n\n---\n\n### (1) How much content was received?\nThe content returned is **substantial but clearly incomplete** \u2014 it appears to be the top portion of the page, consisting almost entirely of **navigation/header markup**: the MongoDB top nav bar (products, resources, solutions, company menus), repeated twice (likely once for light mode and once for dark mode), followed by the beginning of a left-hand sidebar navigation. The actual tutorial article body content was **not included** in what was returned.\n\n---\n\n### (2) Does the content end cleanly or mid-sentence?\n**No \u2014 it ends abruptly mid-content.** It cuts off in the middle of the sidebar navigation list, right in the middle of a link entry.\n\n---\n\n### (3) What is the last thing visible in the content?\nThe very last thing in the returned content is a truncated link/list item:\n\n> `+ [Overview](/docs/current`\n\n...which is cut off mid-URL, inside a sidebar nav item under the \"Database Manual\" section. It never even reaches the main tutorial article content on the page.\n\n---\n\n### Summary\nThe `web_fetch` tool returned only the page's **navigation chrome** (header menus + the start of the sidebar), and was cut off before delivering any of the actual tutorial content. This is likely due to an internal content/token limit applied by the tool itself on the backend \u2014 not something controllable via a parameter on my end.",
+  "stop_reason": "end_turn"
+}

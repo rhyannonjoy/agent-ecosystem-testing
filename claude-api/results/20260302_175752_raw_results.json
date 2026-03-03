@@ -1,0 +1,14 @@
+[
+  {
+    "url": "https://www.mongodb.com/docs/manual/reference/change-events/create/",
+    "max_content_tokens_param": null,
+    "usage": {
+      "input_tokens": 9811,
+      "output_tokens": 201,
+      "web_fetch_requests": 1
+    },
+    "fetch_error": null,
+    "raw_content_chars": null,
+    "analysis": null
+  }
+]

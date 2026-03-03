@@ -1,0 +1,50 @@
+[
+  {
+    "url": "https://www.mongodb.com/docs/manual/reference/change-events/create/",
+    "max_content_tokens_param": null,
+    "usage": {
+      "input_tokens": 9811,
+      "output_tokens": 201,
+      "web_fetch_requests": 1
+    },
+    "fetch_error": null,
+    "raw_content_chars": null,
+    "analysis": null
+  },
+  {
+    "url": "https://www.mongodb.com/docs/manual/reference/change-events/create.md",
+    "max_content_tokens_param": null,
+    "usage": {
+      "input_tokens": 4112,
+      "output_tokens": 202,
+      "web_fetch_requests": 1
+    },
+    "fetch_error": null,
+    "raw_content_chars": null,
+    "analysis": null
+  },
+  {
+    "url": "https://www.mongodb.com/docs/atlas/atlas-search/tutorial/",
+    "max_content_tokens_param": null,
+    "usage": {
+      "input_tokens": 8268,
+      "output_tokens": 199,
+      "web_fetch_requests": 1
+    },
+    "fetch_error": null,
+    "raw_content_chars": null,
+    "analysis": null
+  },
+  {
+    "url": "https://www.mongodb.com/docs/atlas/atlas-search/tutorial/",
+    "max_content_tokens_param": 5000,
+    "usage": {
+      "input_tokens": 7230,
+      "output_tokens": 199,
+      "web_fetch_requests": 1
+    },
+    "fetch_error": null,
+    "raw_content_chars": null,
+    "analysis": null
+  }
+]
