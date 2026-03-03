@@ -11,6 +11,11 @@ Usage:
     python claude-api/web_fetch_test.py
 
 Results are printed to the console and saved to claude-api/results/.
+
+Workflow:
+1. Call the API with the web_fetch tool enabled
+2. Give Claude a URL and ask it to fetch the page and describe what it got
+3. Claude fetches the page, then reports back what it received
 """
 
 import anthropic
@@ -92,9 +97,11 @@ def fetch_url(
     usage = {
         "input_tokens": response.usage.input_tokens,
         "output_tokens": response.usage.output_tokens,
-        "web_fetch_requests": getattr(response.usage, "server_tool_use", {}).get(
-            "web_fetch_requests", "unavailable"
-        ) if hasattr(response.usage, "server_tool_use") else "unavailable",
+        "web_fetch_requests": getattr(
+            getattr(response.usage, "server_tool_use", None),
+            "web_fetch_requests",
+            "unavailable"
+        ),
     }
 
     # Extract Claude's text response and any fetch result metadata
@@ -148,6 +155,82 @@ def print_result(result: dict):
     print(f"  Claude's assessment:")
     for line in result["claude_assessment"].splitlines():
         print(f"    {line}")
+
+
+def save_markdown_report(results: list[dict], run_timestamp: str):
+    """
+    Generate a human-readable markdown summary of all test results
+    and save it to claude-api/results/<timestamp>_summary.md
+    """
+    results_dir = Path(__file__).parent / "results"
+    results_dir.mkdir(exist_ok=True)
+    filename = results_dir / f"{run_timestamp}_summary.md"
+
+    r1, r2, r3, r4 = results
+
+    t1 = r1["usage"]["input_tokens"]
+    t2 = r2["usage"]["input_tokens"]
+    diff = t1 - t2
+    pct = (diff / t1 * 100) if t1 else 0
+
+    lines = [
+        "# Claude API `web_fetch` Test Results",
+        "",
+        f"**Run at:** {run_timestamp}  ",
+        f"**Model:** claude-sonnet-4-6  ",
+        f"**Beta header:** web-fetch-2025-09-10  ",
+        "",
+        "---",
+        "",
+        "## Token Usage Summary",
+        "",
+        "| Test | URL | max_content_tokens | input_tokens | output_tokens |",
+        "|------|-----|--------------------|--------------|---------------|",
+        f"| 1: Short HTML | {r1['url']} | not set | {r1['usage']['input_tokens']} | {r1['usage']['output_tokens']} |",
+        f"| 2: Short Markdown | {r2['url']} | not set | {r2['usage']['input_tokens']} | {r2['usage']['output_tokens']} |",
+        f"| 3: Long HTML | {r3['url']} | not set | {r3['usage']['input_tokens']} | {r3['usage']['output_tokens']} |",
+        f"| 4: Long HTML - limited | {r4['url']} | 5000 | {r4['usage']['input_tokens']} | {r4['usage']['output_tokens']} |",
+        "",
+        "---",
+        "",
+        "## HTML vs Markdown Comparison - short page",
+        "",
+        f"- **HTML input_tokens**: {t1}",
+        f"- **Markdown input_tokens**: {t2}",
+        f"- **Difference**: {diff} tokens - **{pct:.1f}% reduction** with Markdown",
+        "",
+        "---",
+        "",
+    ]
+
+    test_labels = [
+        "Test 1: Short HTML page, no token limit",
+        "Test 2: Short Markdown page, no token limit",
+        "Test 3: Long HTML page, no token limit",
+        "Test 4: Long HTML page, max_content_tokens=5000",
+    ]
+
+    for label, result in zip(test_labels, results):
+        lines += [
+            f"## {label}",
+            "",
+            f"**URL**: {result['url']}  ",
+            f"**max_content_tokens**: {result['max_content_tokens_param'] or 'not set'}  ",
+            f"**input_tokens**: {result['usage']['input_tokens']}  ",
+            f"**output_tokens**: {result['usage']['output_tokens']}  ",
+            "",
+            "**Claude's Assessment**:",
+            "",
+            result["claude_assessment"],
+            "",
+            "---",
+            "",
+        ]
+
+    with open(filename, "w") as f:
+        f.write("\n".join(lines))
+
+    print(f"  Markdown report saved to: {filename}")
 
 
 # ---------------------------------------------------------------------------
@@ -243,10 +326,12 @@ def test_5_compare_html_vs_md_tokens(result1, result2):
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
+    run_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
     print("Claude API web_fetch empirical tests")
     print("Model: claude-sonnet-4-6")
     print("Beta header: web-fetch-2025-09-10")
-    print(f"Run at: {datetime.now().isoformat()}")
+    print(f"Run at: {run_timestamp}")
 
     client = make_client()
 
@@ -256,5 +341,9 @@ if __name__ == "__main__":
     r4 = test_4_long_html_explicit_limit(client)
 
     test_5_compare_html_vs_md_tokens(r1, r2)
+
+    print("\n" + "="*60)
+    print("Generating markdown report...")
+    save_markdown_report([r1, r2, r3, r4], run_timestamp)
 
     print("\nAll tests complete. Results saved to claude-api/results/")

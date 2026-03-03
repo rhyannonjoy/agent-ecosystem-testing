@@ -23,7 +23,7 @@ Would you like me to try to provide a general answer based on my knowledge inste
 2. Once you're in, look for "API Keys" in the left sidebar
 3. Click `Create Key`, give it a name like `web-fetch-testing`, and copy it immediately -
 you won't be able to see it again after you close that dialog
-4. Add key and secret value to the `.env` file
+4. Add key and value to the `.env` file
 5. Run `source .env`
 6. Run `python claude-api/web_fetch_test.py`
 
@@ -31,8 +31,20 @@ you won't be able to see it again after you close that dialog
 match. The name you gave it in the console - `"agent-ecosystem-testing-claude-web-fetch"` -
 is just a human-readable label to help you remember what it's for - it has no effect on how
 the key works. `ANTHROPIC_API_KEY` is just the variable name the script uses to look it up
-on your machine. Those are two completely separate things: one is Anthropic's label in their
-dashboard, the other is your local environment variable name. The script will find it correctly._
+on your machine. These labels are two completely separate things: one is Anthropic's label
+in their dashboard, the other is your local environment variable name. The script selects
+the correct secret._
+
+**API not available on the free-tier**:
+
+This API requires a paid credit balance as there isn't a free tier for API access - which is
+separate from the free tier on claude.ai. This API is pay-as-you-go, not a subscription. Add a
+small amount of credits at [console.anthropic.com](https://platform.claude.com/dashboard);
+otherwise you'll run into the following error:
+
+```bash
+anthropic.BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_01...'}
+```
 
 ## Rebuild `venv`
 
