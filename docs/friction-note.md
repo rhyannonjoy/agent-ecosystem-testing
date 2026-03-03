@@ -1,4 +1,4 @@
-# Friction
+# Friction note
 
 This note includes descriptions to any roadblocks
 while testing.
