@@ -1,7 +1,13 @@
-# Claude-interpreted vs Raw
+---
+layout: default
+title: Claude-interpreted vs Raw
+permalink: /claude-interpreted-vs-raw/
+---
 
-The conclusions are similar: both confirm no CSS, boilerplate is heavy, markdown is cleaner,
-and max_content_tokens cuts mid-content, but the two scripts produce meaningfully different
+**Claude-interpreted vs Raw**
+
+The conclusions are similar: both confirm no CSS, boilerplate is heavy, Markdown is cleaner,
+and `max_content_tokens` cuts mid-content, but the two scripts produce meaningfully different
 data in three ways:
 
 1. Measurement accuracy is completely different. The Claude-interpreted script estimated

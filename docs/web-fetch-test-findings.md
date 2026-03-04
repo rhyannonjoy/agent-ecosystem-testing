@@ -1,6 +1,19 @@
-# Key Findings: Web fetch tool - Claude interpreted
+---
+layout: default
+title: Key Findings web fetch tool - Claude interpreted
+permalink: /web-fetch-test-findings/
+---
 
-Summary from [web_fetch_test.py](../claude-api/web_fetch_test.py) results —
+**[Claude-interpreted Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/claude-api/web_fetch_test.py)**:
+
+    1. Call Claude's API with the web fetch tool enabled
+    2. Give Claude a URL and ask it to fetch the page and describe what it got
+    3. Claude fetches the page, then reports back what it received
+    4. Results are saved to `claude-api/results/`
+
+---
+
+**Results Summary**:
 
 | Finding | Detail |
 | --------- | -------- |

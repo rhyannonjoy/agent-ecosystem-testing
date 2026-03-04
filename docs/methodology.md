@@ -1,10 +1,14 @@
-# Methodology
+---
+layout: default
+title: Methodology
+permalink: /methodology/
+---
 
 ## How this testing differs from Dachary's spelunking
 
 [Dachary Carey's Agent Web Fetch Spelunking](https://dacharycarey.com/2026/02/19/agent-web-fetch-spelunking/)
-article documented Claude Code's web fetch behavior by interacting with Claude directly in a chat
-interface. This testing took a different approach, targeting a different tool.
+documented Claude Code's web fetch behavior by interacting with Claude directly in a chat
+interface. _This testing took a different approach, targeting a different tool_.
 
 **Dachary** talked to Claude Code directly in a chat interface, asked it to fetch pages
 and report back what it received, then observed the outputs. Claude Code's web fetch has a
@@ -12,15 +16,15 @@ summarization model in the middle - so what Dachary was measuring was what the s
 Claude 3.5 Haiku, reported back after processing the fetched content. The data was filtered through
 two layers of AI interpretation before Dachary saw it.
 
-**This testing** uses a Python script to call the Anthropic API directly, with the
-`web_fetch` tool enabled. The API tool doesn't have an intermediate summarization model; the
+**This testing** uses a Python script to call the Anthropic API directly with the
+web fetch tool enabled. The API tool doesn't have an intermediate summarization model. The
 fetched content goes straight into the main model's context as a document block. The second script,
 `web_fetch_raw.py`, goes one step further and extracts the raw content directly from the response
 object in Python, bypassing Claude's interpretation entirely. Character counts and boilerplate
 percentages are measured by Python string operations, not estimated by a model.
 
 **Why this matters for the spec**: Dachary was documenting Claude Code's behavior. This testing
-documents the Claude API `web_fetch` tool's behavior. These are genuinely different implementations
+documents the Claude API web fetch tool's behavior. These are genuinely different implementations
 with different pipelines, which is exactly the gap in
 [the Known Platform Limits table](https://github.com/agent-ecosystem/agent-docs-spec/blob/main/SPEC.md#known-platform-limits)
 that this testing fills. Dachary's CSS problem - the summarization model seeing only CSS -

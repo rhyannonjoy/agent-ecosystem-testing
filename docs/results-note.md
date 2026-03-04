@@ -1,4 +1,8 @@
-# `/results` note
+---
+layout: default
+title: results note
+permalink: /results-note/
+---
 
 `/results` is a directory that gets created automatically
 when you run the script - it likely doesn't exist yet.
@@ -21,6 +25,8 @@ so you have a record of exactly what came back.
 **Should `/results` be committed?** These are likely more helpful
 published for contributors to review, but reconsider as you test.
 
+---
+
 ## First iteration limits
 
 Claude is interpreting what it received, not a raw dump. That's why the
@@ -34,9 +40,11 @@ raw fetch result directly. The script does try to capture the raw content length
 from the web_fetch_tool_result block, but that part isn't working reliably -
 `fetch_content_length_chars` is showing 0 in the results.
 
+---
+
 ## Second iteration differences
 
-Claude's role is minimal. The prompt is just `"Fetch this URL: {url}" with max_tokens=128` —
+Claude's role is minimal. The prompt is just `"Fetch this URL: {url}" with max_tokens=128` -
 we only need Claude to trigger the fetch, not describe anything. This also makes
 it much cheaper to run.
 
