@@ -8,6 +8,11 @@ venv/
 .vscode/
 .idea/
 
+# Jekyll - HTML, Ruby
+_site/
+.jekyll-cache/
+.jekyll-metadata
+
 # OS
 .DS_Store
 Thumbs.db

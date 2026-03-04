@@ -1,6 +1,24 @@
-# Key Findings: Web fetch tool - raw
+---
+layout: default
+title: Key Findings web fetch tool - raw
+permalink: /web-fetch-test-findings-raw/
+---
 
-Summary from [web_fetch_test_raw.py](../claude-api/web_fetch_test_raw.py) results -
+**[Raw Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/claude-api/web_fetch_test.py)**:
+
+    1. Call Claude's API with the web fetch tool enabled
+    2. Give Claude a minimal prompt — just enough to trigger the fetch
+    3. Claude fetches the page, but isn't asked to interpret or describe it
+    4. Extract the raw content directly from the `web_fetch_tool_result` block
+       in the response object
+    5. Run analysis in Python: character counts, CSS indicator detection,
+       boilerplate estimation, truncation detection
+    6. Claude never sees or interprets the content
+    7. Results are saved to `claude-api/results/`
+
+---
+
+**Results Summary**:
 
 | Finding | Detail |
 | --------- | -------- |

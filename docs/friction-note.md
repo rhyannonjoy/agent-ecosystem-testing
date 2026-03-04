@@ -1,9 +1,13 @@
-# Friction note
+---
+layout: default
+title: Friction note
+permalink: /friction-note/
+---
 
-This note includes descriptions to any roadblocks
+_Friction_: this note includes descriptions to any roadblocks
 while testing.
 
-## Anthropic API key
+### Anthropic API key
 
 The Claude docs AI assistant didn't return any results
 when asked how to obtain an API key to test the
@@ -46,7 +50,7 @@ otherwise you'll run into the following error:
 anthropic.BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_01...'}
 ```
 
-## Rebuild `venv`
+### Rebuild `venv`
 
 ```bash
 deactivate

@@ -1,7 +1,7 @@
 """
-Claude API web_fetch empirical tests
+Claude API web fetch empirical tests
 =====================================
-Tests the behavior of Anthropic's API-level web_fetch tool to document
+Tests the behavior of Anthropic's API-level web fetch tool to document
 platform limits for the Agent-Friendly Docs Spec.
 
 See: https://github.com/agent-ecosystem/agent-docs-spec
@@ -10,12 +10,11 @@ Usage:
     export ANTHROPIC_API_KEY="your-key-here"
     python claude-api/web_fetch_test.py
 
-Results are printed to the console and saved to claude-api/results/.
-
 Workflow:
-1. Call the API with the web_fetch tool enabled
+1. Call the API with the web fetch tool enabled
 2. Give Claude a URL and ask it to fetch the page and describe what it got
 3. Claude fetches the page, then reports back what it received
+4. Results are saved to `claude-api/results/`
 """
 
 import anthropic
