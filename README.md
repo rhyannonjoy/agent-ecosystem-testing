@@ -4,7 +4,7 @@
 [Agent-Friendly Documentation Spec](https://github.com/agent-ecosystem/agent-docs-spec)
 and specifically contributes data to the
 [Known Platform Limits](https://github.com/agent-ecosystem/agent-docs-spec/blob/main/SPEC.md#known-platform-limits). More details available in the
-[testing methodology and results documentation](https://rhyannonjoy.github.io/agent-ecosystem-testing/).
+[testing methodology and results docs](https://rhyannonjoy.github.io/agent-ecosystem-testing/).
 
 **Origin**: extension of Dachary Carey's
 [Agent Web Fetch Spelunking](https://dacharycarey.com/2026/02/19/agent-web-fetch-spelunking/),
