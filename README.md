@@ -1,20 +1,20 @@
 # Agent Ecosystem Testing
 
-Empirical tests of web fetch behavior across AI agent platforms, in support of the
+**Overview**: Empirical tests of web fetch behavior across AI agent platforms, in support of the
 [Agent-Friendly Documentation Spec](https://github.com/agent-ecosystem/agent-docs-spec)
 and specifically contributes data to the
 [Known Platform Limits](https://github.com/agent-ecosystem/agent-docs-spec/blob/main/SPEC.md#known-platform-limits). More details available in the
 [testing methodology and results documentation](https://rhyannonjoy.github.io/agent-ecosystem-testing/).
-
-**Goal**: measure what actually happens between "agent fetches URL" and
-"model sees content" - truncation limits, HTML processing, content
-negotiation - for platforms that don't document these details.
 
 **Origin**: extension of Dachary Carey's
 [Agent Web Fetch Spelunking](https://dacharycarey.com/2026/02/19/agent-web-fetch-spelunking/),
 which documented Claude Code's web fetch pipeline in detail. This repo stores
 tests and results summaries for
 [Claude API's web fetch tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool), which is a distinct implementation from Claude Code's client-side fetch.
+
+**Goal**: measure what actually happens between "agent fetches URL" and
+"model sees content" - truncation limits, HTML processing, content
+negotiation - for platforms that don't document these details.
 
 ---
 
@@ -98,6 +98,6 @@ Same long page but with `max_content_tokens=5000` set explicitly.
 ## Contributing
 
 If you run these tests and get results, please open an issue or
-PR with your findings. _Especially useful_: running the same tests
-from different network locations or at different times to check for
-caching behavior.
+PR with your findings. _Especially useful_: run the same tests
+from different network locations or at different times to check
+for caching behavior.
