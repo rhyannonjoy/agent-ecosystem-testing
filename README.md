@@ -95,7 +95,7 @@ Same long page but with `max_content_tokens=5000` set explicitly.
 
 ---
 
-## Contributing
+## Contribute
 
 If you run these tests and get results, please open an issue or
 PR with your findings. _Especially useful_: run the same tests
