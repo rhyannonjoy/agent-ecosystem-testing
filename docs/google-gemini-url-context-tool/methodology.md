@@ -25,3 +25,23 @@ API actually returns.
 | ------ | ----- | ------- |
 | `url_context_test.py` | Gemini-interpreted | Gemini reflects on what it retrieved |
 | `url_context_test_raw.py` | Raw | Python measures `url_context_metadata` directly |
+
+---
+
+## Measurement Constraints
+
+Gemini's URL context tool pre-fetches content before generation: retrieved content is injected
+into the model's context window rather than returned as a testable field in the API response.
+_There's no direct equivalent_ to
+[the Claude API web fetch track's](../anthropic-claude-api-web-fetch-tool/methodology.md)
+character-level truncation measurement. The API doesn't expose the text injection or where
+truncation occurred.
+
+`tool_use_prompt_token_count` from `usage_metadata` is the closest available proxy: it measures how
+many tokens the retrieved content consumed, which is useful for cost estimation but doesn't
+identify a truncation boundary. The 34 MB documented limit is a fetch ceiling; how much of that
+content survives into the context window isn't documented and not empirically measurable with the
+current API surface.
+
+The `content.parts` field exposes what the model generated in response to the retrieved content,
+_not the retrieved content itself_. There is no API field that returns the fetched text directly.
