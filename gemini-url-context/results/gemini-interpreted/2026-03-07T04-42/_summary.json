@@ -1,0 +1,328 @@
+[
+  {
+    "test_id": "test_1_single_html",
+    "label": "Single HTML page (docs)",
+    "model": "gemini-2.5-flash",
+    "track": "gemini-interpreted",
+    "timestamp": "2026-03-07T04:42:31.886173Z",
+    "urls_requested": [
+      "https://ai.google.dev/gemini-api/docs/url-context"
+    ],
+    "url_count_requested": 1,
+    "prompt": "Fetch the content at the URL I've provided. Tell me: what content did you retrieve? How long was it? Did anything appear to be missing or truncated? Describe the structure of what you received.",
+    "gemini_interpreted_response": "The content retrieved from the URL `https://ai.google.dev/gemini-api/docs/url-context` is a web page detailing the \"URL context\" tool for the Gemini API. This tool allows users to provide URLs to the Gemini models to enhance their responses by accessing content from those pages.\n\nThe content retrieved is 10,950 characters long.\n\nBased on the browsing output, nothing appears to be missing or truncated; the entire content of the web page seems to have been retrieved.\n\nThe structure of the retrieved content is that of a typical documentation web page. It begins with navigation elements, a header, and options for language and theme. The main content includes an introduction to the URL context tool, its uses (e.g., extract data, compare documents, synthesize content, analyze code), and code examples in Python, Javascript, and REST to demonstrate its usage. It further explains how the tool works, how it can be combined with other tools like Google Search, how to understand the response (including `url_context_metadata`), safety checks, and token counting. The document also outlines supported models, best practices for using the tool, limitations (e.g., request limit, content size, public accessibility), and supported/unsupported content types. The page concludes with a \"What's next\" section and feedback options. The content is well-organized with clear headings and subheadings, and it includes code snippets for practical application.",
+    "url_context_metadata": [
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/url-context",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      }
+    ],
+    "urls_successfully_retrieved": 1,
+    "usage_metadata": {
+      "prompt_token_count": 65,
+      "candidates_token_count": 326,
+      "tool_use_prompt_token_count": 3142,
+      "thoughts_token_count": 89,
+      "total_token_count": 3622
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_2_single_pdf",
+    "label": "Single PDF",
+    "model": "gemini-2.5-flash",
+    "track": "gemini-interpreted",
+    "timestamp": "2026-03-07T04:42:33.781451Z",
+    "urls_requested": [
+      "https://www.w3.org/WAI/WCAG21/wcag21.pdf"
+    ],
+    "url_count_requested": 1,
+    "prompt": "Fetch the PDF at the URL I've provided. Tell me: what content did you retrieve? How long was it? Did anything appear truncated or missing?",
+    "gemini_interpreted_response": "I was unable to retrieve the content of the PDF at the provided URL. The browsing tool reported an error during the fetching process, indicating that the URL could not be accessed. Therefore, I cannot tell you what content was retrieved, its length, or if anything appeared truncated or missing.",
+    "url_context_metadata": [
+      {
+        "retrieved_url": "https://www.w3.org/WAI/WCAG21/wcag21.pdf",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_ERROR"
+      }
+    ],
+    "urls_successfully_retrieved": 0,
+    "usage_metadata": {
+      "prompt_token_count": 60,
+      "candidates_token_count": 87,
+      "tool_use_prompt_token_count": 147,
+      "thoughts_token_count": 83,
+      "total_token_count": 377
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_3_multi_url_5",
+    "label": "5 URLs",
+    "model": "gemini-2.5-flash",
+    "track": "gemini-interpreted",
+    "timestamp": "2026-03-07T04:42:38.337577Z",
+    "urls_requested": [
+      "https://ai.google.dev/gemini-api/docs/url-context",
+      "https://ai.google.dev/gemini-api/docs/google-search",
+      "https://ai.google.dev/gemini-api/docs/function-calling",
+      "https://ai.google.dev/gemini-api/docs/code-execution",
+      "https://ai.google.dev/gemini-api/docs/long-context"
+    ],
+    "url_count_requested": 5,
+    "prompt": "Fetch the content at all the URLs I've provided. For each URL, tell me: did the fetch succeed? Roughly how much content did you receive? Was anything truncated or unavailable?",
+    "gemini_interpreted_response": "\nThe following is the information you requested for each URL:\n\n**1. https://ai.google.dev/gemini-api/docs/url-context**\n*   **Fetch succeeded:** Yes\n*   **Content received:** Approximately 11,360 characters.\n*   **Truncated or unavailable:** No.\n\n**2. https://ai.google.dev/gemini-api/docs/google-search**\n*   **Fetch succeeded:** Yes\n*   **Content received:** Approximately 11,280 characters.\n*   **Truncated or unavailable:** No.\n\n**3. https://ai.google.dev/gemini-api/docs/function-calling**\n*   **Fetch succeeded:** Yes\n*   **Content received:** Approximately 43,180 characters.\n*   **Truncated or unavailable:** No.\n\n**4. https://ai.google.dev/gemini-api/docs/code-execution**\n*   **Fetch succeeded:** Yes\n*   **Content received:** Approximately 16,360 characters.\n*   **Truncated or unavailable:** No.\n\n**5. https://ai.google.dev/gemini-api/docs/long-context**\n*   **Fetch succeeded:** Yes\n*   **Content received:** Approximately 14,060 characters.\n*   **Truncated or unavailable:** No.\nI have fetched the content from all the provided URLs and here is the summary of each:\n\n1.  **URL:** https://ai.google.dev/gemini-api/docs/url-context\n    *   **Fetch succeeded:** Yes\n    *   **Content received:** Approximately 11,360 characters.\n    *   **Truncated or unavailable:** No.\n\n2.  **URL:** https://ai.google.dev/gemini-api/docs/google-search\n    *   **Fetch succeeded:** Yes\n    *   **Content received:** Approximately 11,280 characters.\n    *   **Truncated or unavailable:** No.\n\n3.  **URL:** https://ai.google.dev/gemini-api/docs/function-calling\n    *   **Fetch succeeded:** Yes\n    *   **Content received:** Approximately 43,180 characters.\n    *   **Truncated or unavailable:** No.\n\n4.  **URL:** https://ai.google.dev/gemini-api/docs/code-execution\n    *   **Fetch succeeded:** Yes\n    *   **Content received:** Approximately 16,360 characters.\n    *   **Truncated or unavailable:** No.\n\n5.  **URL:** https://ai.google.dev/gemini-api/docs/long-context\n    *   **Fetch succeeded:** Yes\n    *   **Content received:** Approximately 14,060 characters.\n    *   **Truncated or unavailable:** No.",
+    "url_context_metadata": [
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/function-calling",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/url-context",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/google-search",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/long-context",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/code-execution",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      }
+    ],
+    "urls_successfully_retrieved": 5,
+    "usage_metadata": {
+      "prompt_token_count": 137,
+      "candidates_token_count": 768,
+      "tool_use_prompt_token_count": 27564,
+      "thoughts_token_count": 73,
+      "total_token_count": 28542
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_4_multi_url_20",
+    "label": "20 URLs (at limit)",
+    "model": "gemini-2.5-flash",
+    "track": "gemini-interpreted",
+    "timestamp": "2026-03-07T04:42:46.534777Z",
+    "urls_requested": [
+      "https://ai.google.dev/gemini-api/docs/url-context",
+      "https://ai.google.dev/gemini-api/docs/google-search",
+      "https://ai.google.dev/gemini-api/docs/function-calling",
+      "https://ai.google.dev/gemini-api/docs/code-execution",
+      "https://ai.google.dev/gemini-api/docs/long-context",
+      "https://ai.google.dev/gemini-api/docs/text-generation",
+      "https://ai.google.dev/gemini-api/docs/image-understanding",
+      "https://ai.google.dev/gemini-api/docs/audio",
+      "https://ai.google.dev/gemini-api/docs/video-understanding",
+      "https://ai.google.dev/gemini-api/docs/document-processing",
+      "https://ai.google.dev/gemini-api/docs/structured-output",
+      "https://ai.google.dev/gemini-api/docs/thinking",
+      "https://ai.google.dev/gemini-api/docs/embeddings",
+      "https://ai.google.dev/gemini-api/docs/caching",
+      "https://ai.google.dev/gemini-api/docs/files",
+      "https://ai.google.dev/gemini-api/docs/tokens",
+      "https://ai.google.dev/gemini-api/docs/safety-settings",
+      "https://ai.google.dev/gemini-api/docs/rate-limits",
+      "https://ai.google.dev/gemini-api/docs/pricing",
+      "https://ai.google.dev/gemini-api/docs/models"
+    ],
+    "url_count_requested": 20,
+    "prompt": "Fetch the content at all 20 URLs I've provided. For each URL, report whether it succeeded or failed. Did any URLs fail to load? Were any silently skipped? How much total content did you receive across all URLs?",
+    "gemini_interpreted_response": "All 20 URLs were successfully loaded. There were no silently skipped URLs.\n\nHere's the breakdown:\n\n**Successful URLs (20):**\n*   https://ai.google.dev/gemini-api/docs/url-context\n*   https://ai.google.dev/gemini-api/docs/google-search\n*   https://ai.google.dev/gemini-api/docs/function-calling\n*   https://ai.google.dev/gemini-api/docs/code-execution\n*   https://ai.google.dev/gemini-api/docs/long-context\n*   https://ai.google.dev/gemini-api/docs/text-generation\n*   https://ai.google.dev/gemini-api/docs/image-understanding\n*   https://ai.google.dev/gemini-api/docs/audio\n*   https://ai.google.dev/gemini-api/docs/video-understanding\n*   https://ai.google.dev/gemini-api/docs/document-processing\n*   https://ai.google.dev/gemini-api/docs/structured-output\n*   https://ai.google.dev/gemini-api/docs/thinking\n*   https://ai.google.dev/gemini-api/docs/embeddings\n*   https://ai.google.dev/gemini-api/docs/caching\n*   https://ai.google.dev/gemini-api/docs/files\n*   https://ai.google.dev/gemini-api/docs/tokens\n*   https://ai.google.dev/gemini-api/docs/safety-settings\n*   https://ai.google.dev/gemini-api/docs/rate-limits\n*   https://ai.google.dev/gemini-api/docs/pricing\n*   https://ai.google.dev/gemini-api/docs/models\n\n**Failed URLs (0):** None.\n\n**Silently Skipped URLs (0):** None.\n\n**Total content received across all URLs:** 337,422 characters.",
+    "url_context_metadata": [
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/audio",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/code-execution",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/google-search",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/url-context",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/function-calling",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/long-context",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/rate-limits",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/pricing",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/document-processing",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/files",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/models",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/text-generation",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/image-understanding",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/structured-output",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/tokens",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/thinking",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/embeddings",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/video-understanding",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/caching",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      },
+      {
+        "retrieved_url": "https://ai.google.dev/gemini-api/docs/safety-settings",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      }
+    ],
+    "urls_successfully_retrieved": 20,
+    "usage_metadata": {
+      "prompt_token_count": 417,
+      "candidates_token_count": 918,
+      "tool_use_prompt_token_count": 111401,
+      "thoughts_token_count": 248,
+      "total_token_count": 112984
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_5_multi_url_21",
+    "label": "21 URLs (over limit)",
+    "model": "gemini-2.5-flash",
+    "track": "gemini-interpreted",
+    "timestamp": "2026-03-07T04:42:49.090077Z",
+    "urls_requested": [
+      "https://ai.google.dev/gemini-api/docs/url-context",
+      "https://ai.google.dev/gemini-api/docs/google-search",
+      "https://ai.google.dev/gemini-api/docs/function-calling",
+      "https://ai.google.dev/gemini-api/docs/code-execution",
+      "https://ai.google.dev/gemini-api/docs/long-context",
+      "https://ai.google.dev/gemini-api/docs/text-generation",
+      "https://ai.google.dev/gemini-api/docs/image-understanding",
+      "https://ai.google.dev/gemini-api/docs/audio",
+      "https://ai.google.dev/gemini-api/docs/video-understanding",
+      "https://ai.google.dev/gemini-api/docs/document-processing",
+      "https://ai.google.dev/gemini-api/docs/structured-output",
+      "https://ai.google.dev/gemini-api/docs/thinking",
+      "https://ai.google.dev/gemini-api/docs/embeddings",
+      "https://ai.google.dev/gemini-api/docs/caching",
+      "https://ai.google.dev/gemini-api/docs/files",
+      "https://ai.google.dev/gemini-api/docs/tokens",
+      "https://ai.google.dev/gemini-api/docs/safety-settings",
+      "https://ai.google.dev/gemini-api/docs/rate-limits",
+      "https://ai.google.dev/gemini-api/docs/pricing",
+      "https://ai.google.dev/gemini-api/docs/models",
+      "https://ai.google.dev/gemini-api/docs/quickstart"
+    ],
+    "url_count_requested": 21,
+    "prompt": "Fetch the content at all 21 URLs I've provided. For each URL, report whether it succeeded or failed. Did any URLs fail to load? Were any silently skipped or dropped? Report exactly how many URLs you were able to retrieve.",
+    "gemini_interpreted_response": null,
+    "url_context_metadata": [],
+    "urls_successfully_retrieved": 0,
+    "usage_metadata": {},
+    "error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'Number of urls to lookup exceeds the limit (21 > 20). Please reduce the number of urls in the request.', 'status': 'INVALID_ARGUMENT'}}"
+  },
+  {
+    "test_id": "test_6_unsupported_youtube",
+    "label": "Unsupported content type: YouTube",
+    "model": "gemini-2.5-flash",
+    "track": "gemini-interpreted",
+    "timestamp": "2026-03-07T04:42:50.658677Z",
+    "urls_requested": [
+      "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    ],
+    "url_count_requested": 1,
+    "prompt": "Fetch the content at the URL I've provided. What did you receive? Did the fetch succeed or fail? If it failed, what reason were you given?",
+    "gemini_interpreted_response": "The fetch succeeded, and I received the content of the YouTube page for \"Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)\". The content includes the video title, a note about the browser's ability to play the video, information about the song's history, the video's director, its milestone of 1 billion YouTube views, and the lyrics.",
+    "url_context_metadata": [
+      {
+        "retrieved_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+      }
+    ],
+    "urls_successfully_retrieved": 1,
+    "usage_metadata": {
+      "prompt_token_count": 58,
+      "candidates_token_count": 108,
+      "tool_use_prompt_token_count": 1288,
+      "thoughts_token_count": 40,
+      "total_token_count": 1494
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_7_unsupported_google_doc",
+    "label": "Unsupported content type: Google Doc",
+    "model": "gemini-2.5-flash",
+    "track": "gemini-interpreted",
+    "timestamp": "2026-03-07T04:42:50.822755Z",
+    "urls_requested": [
+      "https://docs.google.com/document/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms/edit"
+    ],
+    "url_count_requested": 1,
+    "prompt": "Fetch the content at the URL I've provided. What did you receive? Did the fetch succeed or fail? If it failed, what reason were you given?",
+    "gemini_interpreted_response": null,
+    "url_context_metadata": [],
+    "urls_successfully_retrieved": 0,
+    "usage_metadata": {},
+    "error": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details.', 'status': 'RESOURCE_EXHAUSTED'}}"
+  },
+  {
+    "test_id": "test_8_json_content",
+    "label": "JSON content type",
+    "model": "gemini-2.5-flash",
+    "track": "gemini-interpreted",
+    "timestamp": "2026-03-07T04:42:50.998677Z",
+    "urls_requested": [
+      "https://api.github.com/repos/agent-ecosystem/agent-docs-spec"
+    ],
+    "url_count_requested": 1,
+    "prompt": "Fetch the JSON at the URL I've provided. What content did you retrieve? How was it structured? Was it complete or truncated?",
+    "gemini_interpreted_response": null,
+    "url_context_metadata": [],
+    "urls_successfully_retrieved": 0,
+    "usage_metadata": {},
+    "error": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details.', 'status': 'RESOURCE_EXHAUSTED'}}"
+  }
+]

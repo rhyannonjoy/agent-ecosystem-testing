@@ -1,0 +1,28 @@
+{
+  "test_id": "test_6_unsupported_youtube",
+  "label": "Unsupported content type: YouTube",
+  "model": "gemini-2.5-flash",
+  "track": "gemini-interpreted",
+  "timestamp": "2026-03-07T05:45:47.496418Z",
+  "urls_requested": [
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+  ],
+  "url_count_requested": 1,
+  "prompt": "Fetch the content at the URL I've provided. What did you receive? Did the fetch succeed or fail? If it failed, what reason were you given?",
+  "gemini_interpreted_response": "\n\nThe fetch succeeded. I received the content of the YouTube page for \"Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)\". The content includes the title of the video, a description, links to Rick Astley's social media and music platforms, lyrics, and related videos. The page also indicates that the video has 1.7 billion views and was uploaded 16 years ago.",
+  "url_context_metadata": [
+    {
+      "retrieved_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    }
+  ],
+  "urls_successfully_retrieved": 1,
+  "usage_metadata": {
+    "prompt_token_count": 58,
+    "candidates_token_count": 114,
+    "tool_use_prompt_token_count": 1291,
+    "thoughts_token_count": 43,
+    "total_token_count": 1506
+  },
+  "error": null
+}

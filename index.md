@@ -22,5 +22,6 @@ Findings contribute to the [agent-docs-spec Known Platform Limits](https://githu
 
 - [Methodology](/docs/google-gemini-url-context-tool/methodology.md)
 - [Gemini-interpreted vs Raw](/docs/google-gemini-url-context-tool/gemini-interpreted-vs-raw.md)
-- Key Findings: Gemini-interpreted
+- [Key Findings: Gemini-interpreted](/docs/google-gemini-url-context-tool/gemini-url-context-test-findings.md)
 - Key Findings: Raw
+- [friction note](/docs/google-gemini-url-context-tool/friction-note.md)

@@ -25,11 +25,12 @@ Workflow:
 6. Run all analysis in Python: URL counts, status enum enumeration,
    success/failure rates, token breakdowns
 7. Gemini never interprets or reflects on the retrieval results
-8. Results are saved to `gemini-url-context/results/raw/`
+8. Results are saved to `google-gemini-url-context/results/raw/`
 """
 
 import os
 import json
+import time
 import datetime
 from pathlib import Path
 from dotenv import load_dotenv
@@ -38,10 +39,18 @@ from google.genai.types import GenerateContentConfig
 
 load_dotenv()
 
-client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+client = genai.Client(api_key=os.environ["GOOGLE_GEMINI_API_KEY"])
 MODEL = "gemini-2.5-flash"
-RESULTS_DIR = Path("gemini-url-context/results/raw")
+# Each run gets its own timestamped subdirectory — matches the claude-api track convention.
+# Format: results/raw/YYYY-MM-DDTHH-MM/
+_RUN_TS = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H-%M")
+RESULTS_DIR = Path(f"google-gemini-url-context/results/raw/{_RUN_TS}")
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Free tier limit: 5 requests per minute for gemini-2.5-flash.
+# 13s between requests keeps us safely under that ceiling.
+# Set to 0 if you are on a paid tier.
+RATE_LIMIT_SLEEP_SECONDS = 13
 
 # ---------------------------------------------------------------------------
 # Minimal prompts — we want signal, not model verbosity.
@@ -286,7 +295,10 @@ def main():
     print(f"Results dir: {RESULTS_DIR}\n")
 
     all_results = []
-    for test in TEST_CASES:
+    for i, test in enumerate(TEST_CASES):
+        if i > 0 and RATE_LIMIT_SLEEP_SECONDS > 0:
+            print(f"  Waiting {RATE_LIMIT_SLEEP_SECONDS}s (rate limit)...")
+            time.sleep(RATE_LIMIT_SLEEP_SECONDS)
         result = run_test(test)
         all_results.append(result)
 

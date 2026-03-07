@@ -1,0 +1,28 @@
+{
+  "test_id": "test_7_unsupported_google_doc",
+  "label": "Unsupported content type: Google Doc",
+  "model": "gemini-2.5-flash",
+  "track": "gemini-interpreted",
+  "timestamp": "2026-03-07T06:12:15.027812Z",
+  "urls_requested": [
+    "https://docs.google.com/document/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms/edit"
+  ],
+  "url_count_requested": 1,
+  "prompt": "Fetch the content at the URL I've provided. What did you receive? Did the fetch succeed or fail? If it failed, what reason were you given?",
+  "gemini_interpreted_response": "\n\nI attempted to fetch the content at the URL `https://docs.google.com/document/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms/edit`. The fetch failed, and the reason given was \"Not able to fetch the provided URL. There is error in the process of fetching the URL.\"",
+  "url_context_metadata": [
+    {
+      "retrieved_url": "https://docs.google.com/document/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms/edit",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_ERROR"
+    }
+  ],
+  "urls_successfully_retrieved": 0,
+  "usage_metadata": {
+    "prompt_token_count": 80,
+    "candidates_token_count": 131,
+    "tool_use_prompt_token_count": 192,
+    "thoughts_token_count": 43,
+    "total_token_count": 446
+  },
+  "error": null
+}

@@ -1,0 +1,48 @@
+{
+  "test_id": "test_3_multi_url_5",
+  "label": "5 URLs",
+  "model": "gemini-2.5-flash",
+  "track": "gemini-interpreted",
+  "timestamp": "2026-03-07T06:11:09.285956Z",
+  "urls_requested": [
+    "https://ai.google.dev/gemini-api/docs/url-context",
+    "https://ai.google.dev/gemini-api/docs/google-search",
+    "https://ai.google.dev/gemini-api/docs/function-calling",
+    "https://ai.google.dev/gemini-api/docs/code-execution",
+    "https://ai.google.dev/gemini-api/docs/long-context"
+  ],
+  "url_count_requested": 5,
+  "prompt": "Fetch the content at all the URLs I've provided. For each URL, tell me: did the fetch succeed? Roughly how much content did you receive? Was anything truncated or unavailable?",
+  "gemini_interpreted_response": "Here's a summary of the content fetched from the provided URLs:\n\nFor each URL, the fetch succeeded, and the content was not truncated or unavailable.\n\n1.  **URL:** https://ai.google.dev/gemini-api/docs/url-context\n    *   **Fetch Status:** Succeeded.\n    *   **Content Size:** Approximately 11,500 characters.\n    *   **Truncation/Availability:** None.\n    *   **Summary:** This page describes the URL context tool, which allows providing URLs as additional context to Gemini models. It details how the tool works, how to combine it with other tools like Google Search, and explains the response structure, safety checks, token count, supported models, best practices, and limitations. The tool supports various content types including text, images, and PDFs.\n\n2.  **URL:** https://ai.google.dev/gemini-api/docs/google-search\n    *   **Fetch Status:** Succeeded.\n    *   **Content Size:** Approximately 10,500 characters.\n    *   **Truncation/Availability:** None.\n    *   **Summary:** This document explains Grounding with Google Search, a feature that connects the Gemini model to real-time web content for more accurate answers and verifiable sources. It covers how the grounding process works, understanding the grounding response with `groundingMetadata`, attributing sources with inline citations, pricing, supported models, and tool combinations.\n\n3.  **URL:** https://ai.google.dev/gemini-api/docs/function-calling\n    *   **Fetch Status:** Succeeded.\n    *   **Content Size:** Approximately 35,000 characters.\n    *   **Truncation/Availability:** None.\n    *   **Summary:** This page details function calling with the Gemini API, enabling models to interact with external tools and APIs. It outlines the process of defining function declarations, calling the model, executing function code, and creating user-friendly responses. The document also covers parallel and compositional function calling, different function calling modes, automatic function calling in Python, multi-tool use, multimodal function responses, and structured output.\n\n4.  **URL:** https://ai.google.dev/gemini-api/docs/code-execution\n    *   **Fetch Status:** Succeeded.\n    *   **Content Size:** Approximately 17,500 characters.\n    *   **Truncation/Availability:** None.\n    *   **Summary:** This document describes the code execution tool within the Gemini API, which allows the model to generate and run Python code. It explains how to enable code execution, its use in chat, input/output capabilities (including file input and graph output), billing, limitations, supported tool combinations, and the libraries included in the execution environment. It also highlights \"Code Execution with images\" for Gemini 3 models.\n\n5.  **URL:** https://ai.google.dev/gemini-api/docs/long-context\n    *   **Fetch Status:** Succeeded.\n    *   **Content Size:** Approximately 13,000 characters.\n    *   **Truncation/Availability:** None.\n    *   **Summary:** This page provides an overview of Gemini models' large context windows (1 million or more tokens), which unlock new use cases for long-form text, video, and audio. It explains the concept of a context window, discusses long-context optimizations like context caching, and addresses limitations and frequently asked questions regarding query placement, performance with more tokens, cost reduction, and latency.",
+  "url_context_metadata": [
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/code-execution",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/google-search",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/url-context",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/function-calling",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/long-context",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    }
+  ],
+  "urls_successfully_retrieved": 5,
+  "usage_metadata": {
+    "prompt_token_count": 137,
+    "candidates_token_count": 883,
+    "tool_use_prompt_token_count": 27572,
+    "thoughts_token_count": 86,
+    "total_token_count": 28678
+  },
+  "error": null
+}
