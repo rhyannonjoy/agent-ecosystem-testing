@@ -80,7 +80,7 @@ python gemini-url-context/url_context_test_raw.py
 > _**Free tier limits**: Claude API not available on the free-tier, the API is pay-as-you-go;
 5 RPM and 20 RPD limits for `gemini-2.5-flash`- running both tracks in the same day will exhaust
 the daily quota; plan runs across days or use a paid tier; set `RATE_LIMIT_SLEEP_SECONDS = 0`
-in the scripts if you are on a paid tier_
+in the scripts if you're on a paid tier_
 
 ---
 
@@ -91,7 +91,7 @@ in the scripts if you are on a paid tier_
 | 1: Short HTML, no token limit | _Does the API tool have the same CSS-eating-content problem Dachary found in Claude Code? What's the effective default token limit?_ | Short docs page with substantial inline CSS before content begins |
 | 2: Same page, Markdown version | _Does the API tool request or prefer Markdown? How much smaller is the token footprint?_ | `.md` URL variant of Test 1 - compares `input_tokens` directly |
 | 3: Long page, no token limit | _At what point does content get truncated? Does the API tool behave differently than Claude Code, which truncated to ~100KB?_ | Long tabbed tutorial page, no `max_content_tokens` set |
-| 4: Long page, explicit token limit | _Does `max_content_tokens=5000` work as documented? Is truncation clean or mid-sentence?_ | Same long page as Test 3, with `max_content_tokens=5000` |
+| 4: Long page, explicit token limit | _Does `max_content_tokens=5000` work as documented? Is truncation clean or mid-sentence?_ | Same page as Test 3, with `max_content_tokens=5000` |
 
 ---
 
