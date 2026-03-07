@@ -1,5 +1,5 @@
 """
-Claude API web_fetch raw content analysis
+Claude API web fetch tool, raw content analysis
 ==========================================
 Companion to `web_fetch_test.py`. Instead of asking Claude to describe
 what it received, this script inspects the raw `web_fetch_tool_result`
