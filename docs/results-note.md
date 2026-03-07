@@ -37,7 +37,7 @@ metadata and don't pass through Claude's interpretation at all.
 
 We're relying on Claude to tell us what it received, rather than inspecting the
 raw fetch result directly. The script does try to capture the raw content length
-from the web_fetch_tool_result block, but that part isn't working reliably -
+from the `web_fetch_tool_result` block, but that part isn't working reliably -
 `fetch_content_length_chars` is showing 0 in the results.
 
 ---
