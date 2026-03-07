@@ -5,7 +5,7 @@
 and specifically contributes data to the
 [Known Platform Limits](https://github.com/agent-ecosystem/agent-docs-spec/blob/main/SPEC.md#known-platform-limits).
 Full methodology and findings:
-[testing methodology and results docs](https://rhyannonjoy.github.io/agent-ecosystem-testing/).
+[testing results docs](https://rhyannonjoy.github.io/agent-ecosystem-testing/).
 
 **Origin**: extension of Dachary Carey's
 [Agent Web Fetch Spelunking](https://dacharycarey.com/2026/02/19/agent-web-fetch-spelunking/),
