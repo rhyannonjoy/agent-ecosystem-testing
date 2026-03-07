@@ -19,7 +19,7 @@ two layers of AI interpretation before Dachary saw it.
 **This testing** uses a Python script to call the Anthropic API directly with the
 web fetch tool enabled. The API tool doesn't have an intermediate summarization model. The
 fetched content goes straight into the main model's context as a document block. The second script,
-`web_fetch_raw.py`, goes one step further and extracts the raw content directly from the response
+`web_fetch_test_raw.py`, goes one step further and extracts the raw content directly from the response
 object in Python, bypassing Claude's interpretation entirely. Character counts and boilerplate
 percentages are measured by Python string operations, not estimated by a model.
 
@@ -37,7 +37,7 @@ using one or the other.
 ## Claude-interpreted vs Raw
 
 Two scripts were used to test the same URLs: `web_fetch_test.py` - Claude-interpreted - and
-`web_fetch_raw.py` - raw programmatic measurement. The conclusions are similar: both confirm no CSS
+`web_fetch_test_raw.py` - raw programmatic measurement. The conclusions are similar: both confirm no CSS
 indicators, heavy boilerplate, cleaner markdown, and mid-content truncation from `max_content_tokens`
 — but the two scripts produce meaningfully different data in three ways:
 
@@ -64,7 +64,7 @@ noting.
 
 ## Script comparison
 
-| | `web_fetch_test.py` | `web_fetch_raw.py` |
+| | `web_fetch_test.py` | `web_fetch_test_raw.py` |
 | - | --------------------- | --------------------- |
 | What it measures | Claude's interpretation of fetched content | Raw content extracted directly from response object |
 | Character counts | Claude estimates - vary between runs - | Python `len()` on raw string - exact, reproducible |

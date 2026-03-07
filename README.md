@@ -48,7 +48,10 @@ export ANTHROPIC_API_KEY="your-key-here"
 
 ```bash
 # Results print to the console, live in `claude-api/results/`
+# Claude-interpreted
 python claude-api/web_fetch_test.py
+# Raw
+python claude-api/web_fetch_test_raw.py
 ```
 
 ---
