@@ -95,7 +95,7 @@ in the scripts if you're on a paid tier_
 
 ---
 
-### Gemini URL context test details
+## Gemini URL context test details
 
 | Test | Question | URLs / content |
 | ---- | -------- | -------------- |
