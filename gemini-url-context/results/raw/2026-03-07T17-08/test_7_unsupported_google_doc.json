@@ -1,0 +1,38 @@
+{
+  "test_id": "test_7_unsupported_google_doc",
+  "label": "Unsupported: Google Doc",
+  "model": "gemini-2.5-flash",
+  "track": "raw",
+  "timestamp": "2026-03-07T17:10:12.380629Z",
+  "urls_requested": [
+    "https://docs.google.com/document/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms/edit"
+  ],
+  "url_count_requested": 1,
+  "prompt": "Summarize the content at the URL provided in one sentence.",
+  "response_text_char_count": 118,
+  "response_text_word_count": 22,
+  "url_metadata": [
+    {
+      "retrieved_url": "https://docs.google.com/document/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms/edit",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_ERROR"
+    }
+  ],
+  "urls_retrieved_count": 1,
+  "retrieval_status_counts": {
+    "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_ERROR": 1
+  },
+  "all_succeeded": false,
+  "any_unsafe": false,
+  "any_error": true,
+  "usage_metadata": {
+    "prompt_token_count": 59,
+    "candidates_token_count": 73,
+    "tool_use_prompt_token_count": 156,
+    "thoughts_token_count": 82,
+    "total_token_count": 370
+  },
+  "tool_use_prompt_tokens": 156,
+  "total_tokens": 370,
+  "finish_reason": "FinishReason.STOP",
+  "error": null
+}

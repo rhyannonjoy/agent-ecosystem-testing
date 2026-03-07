@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Key Findings web fetch tool - Claude interpreted
+title: Key Findings Claude's web fetch tool - Claude-interpreted
 permalink: /web-fetch-test-findings/
 ---
 

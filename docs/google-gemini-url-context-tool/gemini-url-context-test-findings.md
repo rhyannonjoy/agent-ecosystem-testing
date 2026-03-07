@@ -1,12 +1,12 @@
 ---
 layout: default
-title: Key Findings URL context - Gemini interpreted
+title: Key Findings Gemini's URL context tool - Gemini-interpreted
 permalink: /gemini-url-context-test-findings/
 nav_order: 3
 parent: Google Gemini URL Context
 ---
 
-**Gemini-interpreted Test Workflow**:
+**[Gemini-interpreted Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/gemini-url-context/url_context_test.py)**:
 
     1. Call the Gemini API with the URL context tool enabled
     2. Give Gemini a detailed prompt asking it to describe what it retrieved:

@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Key Findings web fetch tool - raw
+title: Key Findings Claude's web fetch tool - Raw
 permalink: /web-fetch-test-findings-raw/
 ---
 

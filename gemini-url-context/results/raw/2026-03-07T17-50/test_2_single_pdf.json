@@ -1,0 +1,38 @@
+{
+  "test_id": "test_2_single_pdf",
+  "label": "Single PDF",
+  "model": "gemini-2.5-flash",
+  "track": "raw",
+  "timestamp": "2026-03-07T17:50:49.888575Z",
+  "urls_requested": [
+    "https://www.w3.org/WAI/WCAG21/wcag21.pdf"
+  ],
+  "url_count_requested": 1,
+  "prompt": "Summarize the document at the URL provided in one sentence.",
+  "response_text_char_count": 85,
+  "response_text_word_count": 17,
+  "url_metadata": [
+    {
+      "retrieved_url": "https://www.w3.org/WAI/WCAG21/wcag21.pdf",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_ERROR"
+    }
+  ],
+  "urls_retrieved_count": 1,
+  "retrieval_status_counts": {
+    "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_ERROR": 1
+  },
+  "all_succeeded": false,
+  "any_unsafe": false,
+  "any_error": true,
+  "usage_metadata": {
+    "prompt_token_count": 40,
+    "candidates_token_count": 48,
+    "tool_use_prompt_token_count": 120,
+    "thoughts_token_count": 59,
+    "total_token_count": 267
+  },
+  "tool_use_prompt_tokens": 120,
+  "total_tokens": 267,
+  "finish_reason": "FinishReason.STOP",
+  "error": null
+}

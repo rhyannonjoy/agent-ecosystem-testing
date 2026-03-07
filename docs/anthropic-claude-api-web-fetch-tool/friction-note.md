@@ -4,8 +4,9 @@ title: Friction note
 permalink: /friction-note/
 ---
 
-_Friction_: this note includes descriptions to any roadblocks
-while testing.
+>_Friction: this note describes roadblocks while refining testing methodology_
+
+---
 
 ### Anthropic API key
 
@@ -39,7 +40,9 @@ on your machine. These labels are two completely separate things: one is Anthrop
 in their dashboard, the other is your local environment variable name. The script selects
 the correct secret._
 
-**API not available on the free-tier**:
+---
+
+## API not available on the free-tier
 
 This API requires a paid credit balance as there isn't a free tier for API access - which is
 separate from the free tier on claude.ai. This API is pay-as-you-go, not a subscription. Add a
@@ -50,7 +53,9 @@ otherwise you'll run into the following error:
 anthropic.BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_01...'}
 ```
 
-### Rebuild `venv`
+---
+
+## Rebuild `venv`
 
 ```bash
 deactivate
