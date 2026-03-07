@@ -10,18 +10,18 @@ permalink: /methodology/
 documented Claude Code's web fetch behavior by interacting with Claude directly in a chat
 interface. _This testing took a different approach, targeting a different tool_.
 
-**Dachary** talked to Claude Code directly in a chat interface, asked it to fetch pages
+**Dachary talked to Claude Code directly** in a chat interface, asked it to fetch pages
 and report back what it received, then observed the outputs. Claude Code's web fetch has a
 summarization model in the middle - so what Dachary was measuring was what the summarization model,
-Claude 3.5 Haiku, reported back after processing the fetched content. The data was filtered through
-two layers of AI interpretation before Dachary saw it.
+Claude 3.5 Haiku, reported back after processing the fetched content. Two layers of AI interpretation
+filtered data before Dachary saw it.
 
-**This testing** uses a Python script to call the Anthropic API directly with the
+**This testing uses a Python script** to call the Claude API directly with the
 web fetch tool enabled. The API tool doesn't have an intermediate summarization model. The
 fetched content goes straight into the main model's context as a document block. The second script,
 `web_fetch_test_raw.py`, goes one step further and extracts the raw content directly from the response
-object in Python, bypassing Claude's interpretation entirely. Character counts and boilerplate
-percentages are measured by Python string operations, not estimated by a model.
+object in Python, bypassing Claude's interpretation entirely. Python string operations measure character counts
+and boilerplate percentages and not estimated by a model.
 
 **Why this matters for the spec**: Dachary was documenting Claude Code's behavior. This testing
 documents the Claude API web fetch tool's behavior. These are genuinely different implementations
@@ -34,35 +34,10 @@ using one or the other.
 
 ---
 
-## Claude-interpreted vs Raw
+## Script Comparison
 
-Two scripts were used to test the same URLs: `web_fetch_test.py` - Claude-interpreted - and
-`web_fetch_test_raw.py` - raw programmatic measurement. The conclusions are similar: both confirm no CSS
-indicators, heavy boilerplate, cleaner markdown, and mid-content truncation from `max_content_tokens`
-— but the two scripts produce meaningfully different data in three ways:
-
-1. **Measurement accuracy is completely different.** The Claude-interpreted script estimated
-13,700–14,200 chars for the short HTML page. The raw script measured 25,925 chars, nearly double.
-Claude was significantly underestimating. For the spec, only the raw numbers are citable.
-
-2. **The raw script found something the interpreted script missed.** The default truncation limit
-finding - that Test 3 truncated at 20,696 chars even with no `max_content_tokens` set - only appears
-in the raw results. Claude attributed the missing content to JavaScript rendering rather than a
-character limit. Both were actually happening simultaneously, but Claude only noticed one cause.
-
-3. **The raw script quantifies boilerplate precisely.** "81% boilerplate before the first heading" and
-"97.5%" are exact, reproducible measurements. Claude's equivalent estimates - "~60-65%" - varied between
-runs of the same test. For the spec PR, the raw numbers are what belongs in the Known Platform Limits
-table.
-
-The interpreted script is still useful as a record of what the model _perceives_ it received, which
-is arguably what matters most for tech writers. A model that receives 25,925 chars but estimates
-13,700 is working with a distorted picture of the content, and that gap itself is a finding worth
-noting.
-
----
-
-## Script comparison
+This two-track approach surfaces gaps between model perception and API reality -
+[Claude-interpreted vs Raw](/claude-interpreted-vs-raw/) compares findings from both -
 
 | | `web_fetch_test.py` | `web_fetch_test_raw.py` |
 | - | --------------------- | --------------------- |

@@ -26,8 +26,6 @@ API actually returns.
 | `url_context_test.py` | Gemini-interpreted | Gemini reflects on what it retrieved |
 | `url_context_test_raw.py` | Raw | Python measures `url_context_metadata` directly |
 
----
-
 ## Measurement Constraints
 
 Gemini's URL context tool pre-fetches content before generation: retrieved content is injected
