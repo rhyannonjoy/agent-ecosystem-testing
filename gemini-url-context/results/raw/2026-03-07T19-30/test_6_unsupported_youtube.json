@@ -1,0 +1,38 @@
+{
+  "test_id": "test_6_unsupported_youtube",
+  "label": "Unsupported: YouTube",
+  "model": "gemini-2.5-flash",
+  "track": "raw",
+  "timestamp": "2026-03-07T19:31:28.140238Z",
+  "urls_requested": [
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+  ],
+  "url_count_requested": 1,
+  "prompt": "Summarize the content at the URL provided in one sentence.",
+  "response_text_char_count": 234,
+  "response_text_word_count": 38,
+  "url_metadata": [
+    {
+      "retrieved_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    }
+  ],
+  "urls_retrieved_count": 1,
+  "retrieval_status_counts": {
+    "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS": 1
+  },
+  "all_succeeded": true,
+  "any_unsafe": false,
+  "any_error": false,
+  "usage_metadata": {
+    "prompt_token_count": 37,
+    "candidates_token_count": 79,
+    "tool_use_prompt_token_count": 1570,
+    "thoughts_token_count": 38,
+    "total_token_count": 1724
+  },
+  "tool_use_prompt_tokens": 1570,
+  "total_tokens": 1724,
+  "finish_reason": "FinishReason.STOP",
+  "error": null
+}

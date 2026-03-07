@@ -1,0 +1,133 @@
+{
+  "test_id": "test_4_multi_url_20",
+  "label": "20 URLs (at limit)",
+  "model": "gemini-2.5-flash",
+  "track": "raw",
+  "timestamp": "2026-03-07T19:30:57.524178Z",
+  "urls_requested": [
+    "https://ai.google.dev/gemini-api/docs/url-context",
+    "https://ai.google.dev/gemini-api/docs/google-search",
+    "https://ai.google.dev/gemini-api/docs/function-calling",
+    "https://ai.google.dev/gemini-api/docs/code-execution",
+    "https://ai.google.dev/gemini-api/docs/long-context",
+    "https://ai.google.dev/gemini-api/docs/text-generation",
+    "https://ai.google.dev/gemini-api/docs/image-understanding",
+    "https://ai.google.dev/gemini-api/docs/audio",
+    "https://ai.google.dev/gemini-api/docs/video-understanding",
+    "https://ai.google.dev/gemini-api/docs/document-processing",
+    "https://ai.google.dev/gemini-api/docs/structured-output",
+    "https://ai.google.dev/gemini-api/docs/thinking",
+    "https://ai.google.dev/gemini-api/docs/embeddings",
+    "https://ai.google.dev/gemini-api/docs/caching",
+    "https://ai.google.dev/gemini-api/docs/files",
+    "https://ai.google.dev/gemini-api/docs/tokens",
+    "https://ai.google.dev/gemini-api/docs/safety-settings",
+    "https://ai.google.dev/gemini-api/docs/rate-limits",
+    "https://ai.google.dev/gemini-api/docs/pricing",
+    "https://ai.google.dev/gemini-api/docs/models"
+  ],
+  "url_count_requested": 20,
+  "prompt": "List the title of each page at the URLs provided.",
+  "response_text_char_count": 1278,
+  "response_text_word_count": 233,
+  "url_metadata": [
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/caching",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/image-understanding",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/safety-settings",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/google-search",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/text-generation",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/long-context",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/video-understanding",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/document-processing",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/structured-output",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/rate-limits",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/function-calling",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/url-context",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/models",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/code-execution",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/files",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/pricing",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/thinking",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/embeddings",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/tokens",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/audio",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    }
+  ],
+  "urls_retrieved_count": 20,
+  "retrieval_status_counts": {
+    "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS": 20
+  },
+  "all_succeeded": true,
+  "any_unsafe": false,
+  "any_error": false,
+  "usage_metadata": {
+    "prompt_token_count": 380,
+    "candidates_token_count": 711,
+    "tool_use_prompt_token_count": 111326,
+    "thoughts_token_count": 84,
+    "total_token_count": 112501
+  },
+  "tool_use_prompt_tokens": 111326,
+  "total_tokens": 112501,
+  "finish_reason": "FinishReason.STOP",
+  "error": null
+}
