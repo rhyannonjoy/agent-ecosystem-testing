@@ -37,7 +37,7 @@ using one or the other.
 ## Script Comparison
 
 This two-track approach surfaces gaps between model perception and API reality -
-[Claude-interpreted vs Raw](/claude-interpreted-vs-raw/) compares findings from both -
+[Claude-interpreted vs Raw](claude-interpreted-vs-raw.md) compares findings from both -
 
 | | `web_fetch_test.py` | `web_fetch_test_raw.py` |
 | - | --------------------- | --------------------- |
