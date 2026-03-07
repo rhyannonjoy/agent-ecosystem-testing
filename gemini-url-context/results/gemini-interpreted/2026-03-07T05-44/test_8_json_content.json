@@ -1,0 +1,28 @@
+{
+  "test_id": "test_8_json_content",
+  "label": "JSON content type",
+  "model": "gemini-2.5-flash",
+  "track": "gemini-interpreted",
+  "timestamp": "2026-03-07T05:46:16.479396Z",
+  "urls_requested": [
+    "https://api.github.com/repos/agent-ecosystem/agent-docs-spec"
+  ],
+  "url_count_requested": 1,
+  "prompt": "Fetch the JSON at the URL I've provided. What content did you retrieve? How was it structured? Was it complete or truncated?",
+  "gemini_interpreted_response": "I was unable to retrieve the JSON content from the provided URL due to an error during the fetching process. Therefore, I cannot describe its content, structure, or completeness.",
+  "url_context_metadata": [
+    {
+      "retrieved_url": "https://api.github.com/repos/agent-ecosystem/agent-docs-spec",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_ERROR"
+    }
+  ],
+  "urls_successfully_retrieved": 0,
+  "usage_metadata": {
+    "prompt_token_count": 53,
+    "candidates_token_count": 61,
+    "tool_use_prompt_token_count": 133,
+    "thoughts_token_count": 66,
+    "total_token_count": 313
+  },
+  "error": null
+}

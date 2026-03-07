@@ -1,0 +1,28 @@
+{
+  "test_id": "test_2_single_pdf",
+  "label": "Single PDF",
+  "model": "gemini-2.5-flash",
+  "track": "gemini-interpreted",
+  "timestamp": "2026-03-07T05:44:21.278054Z",
+  "urls_requested": [
+    "https://www.w3.org/WAI/WCAG21/wcag21.pdf"
+  ],
+  "url_count_requested": 1,
+  "prompt": "Fetch the PDF at the URL I've provided. Tell me: what content did you retrieve? How long was it? Did anything appear truncated or missing?",
+  "gemini_interpreted_response": "I was unable to fetch the PDF from the URL you provided. The browsing tool reported an error during the retrieval process. Therefore, I cannot tell you what content was retrieved, its length, or if anything appeared truncated or missing.",
+  "url_context_metadata": [
+    {
+      "retrieved_url": "https://www.w3.org/WAI/WCAG21/wcag21.pdf",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_ERROR"
+    }
+  ],
+  "urls_successfully_retrieved": 0,
+  "usage_metadata": {
+    "prompt_token_count": 60,
+    "candidates_token_count": 76,
+    "tool_use_prompt_token_count": 151,
+    "thoughts_token_count": 106,
+    "total_token_count": 393
+  },
+  "error": null
+}

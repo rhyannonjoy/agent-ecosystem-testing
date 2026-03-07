@@ -1,1 +1,6 @@
+# Claude API web fetch tool
 anthropic>=0.40.0
+python-dotenv
+
+# Google Gemini URL context tool
+google-genai

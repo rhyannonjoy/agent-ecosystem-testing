@@ -1,0 +1,28 @@
+{
+  "test_id": "test_1_single_html",
+  "label": "Single HTML page (docs)",
+  "model": "gemini-2.5-flash",
+  "track": "gemini-interpreted",
+  "timestamp": "2026-03-07T05:44:06.228842Z",
+  "urls_requested": [
+    "https://ai.google.dev/gemini-api/docs/url-context"
+  ],
+  "url_count_requested": 1,
+  "prompt": "Fetch the content at the URL I've provided. Tell me: what content did you retrieve? How long was it? Did anything appear to be missing or truncated? Describe the structure of what you received.",
+  "gemini_interpreted_response": "\n\nThe content retrieved from the URL \"https://ai.google.dev/gemini-api/docs/url-context\" is a documentation page titled \"URL context | Gemini API | Google AI for Developers\".\n\nThe raw content has a length of 17,476 characters.\n\nBased on the browsing output, the content appears to be complete and not truncated. The output starts with the title and includes various sections of the documentation, concluding with licensing information and a \"Last updated\" date.\n\nThe structure of the content is typical for a documentation page:\n*   **Header:** It begins with \"URL context | Gemini API | Google AI for Developers\" and includes navigation links for \"Skip to main content\", language selection, and API key/community links.\n*   **Table of Contents/Navigation:** On the left side, there's a detailed navigation menu for the Gemini API, covering topics like \"Get started\", \"Models\", \"Core capabilities\", \"Tools and agents\", \"Guides\", \"File input\", \"Context caching\", \"Safety\", and \"Frameworks\". There's also an \"On this page\" section providing quick links to sections within the current document.\n*   **Main Content:** The central part of the page explains the URL context tool, its purpose, and use cases. It includes code examples in Python, JavaScript, and REST for demonstrating how to use the tool.\n*   **Sections within Main Content:** The content is organized into logical sections such as \"How it works\", \"Combining with other tools\", \"Grounding with search\", \"Understanding the response\", \"Safety checks\", \"Token count\", \"Supported models\", \"Best Practices\", \"Limitations\", and \"Supported and unsupported content types\".\n*   **Code Examples:** Throughout the document, there are code snippets demonstrating the API usage in different languages (Python, Javascript, REST).\n*   **Footer:** The page concludes with \"What's next\", feedback options, licensing information (Creative Commons Attribution 4.0 License and Apache 2.0 License for code samples), and a \"Last updated\" timestamp.\n\nThe overall structure is well-defined and hierarchical, making it easy to navigate and understand the documentation about the Gemini API's URL context tool.",
+  "url_context_metadata": [
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/url-context",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    }
+  ],
+  "urls_successfully_retrieved": 1,
+  "usage_metadata": {
+    "prompt_token_count": 65,
+    "candidates_token_count": 489,
+    "tool_use_prompt_token_count": 3151,
+    "thoughts_token_count": 55,
+    "total_token_count": 3760
+  },
+  "error": null
+}

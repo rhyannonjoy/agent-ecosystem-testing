@@ -1,0 +1,48 @@
+{
+  "test_id": "test_3_multi_url_5",
+  "label": "5 URLs",
+  "model": "gemini-2.5-flash",
+  "track": "gemini-interpreted",
+  "timestamp": "2026-03-07T05:44:38.381599Z",
+  "urls_requested": [
+    "https://ai.google.dev/gemini-api/docs/url-context",
+    "https://ai.google.dev/gemini-api/docs/google-search",
+    "https://ai.google.dev/gemini-api/docs/function-calling",
+    "https://ai.google.dev/gemini-api/docs/code-execution",
+    "https://ai.google.dev/gemini-api/docs/long-context"
+  ],
+  "url_count_requested": 5,
+  "prompt": "Fetch the content at all the URLs I've provided. For each URL, tell me: did the fetch succeed? Roughly how much content did you receive? Was anything truncated or unavailable?",
+  "gemini_interpreted_response": "Here's a summary of the content fetched from each URL:\n\n*   **https://ai.google.dev/gemini-api/docs/url-context**\n    *   **Fetch Success:** Succeeded.\n    *   **Content Size:** Approximately 20,400 characters.\n    *   **Truncated/Unavailable:** No. This page describes the URL context tool, which allows Gemini models to access content from provided URLs to inform and enhance responses.\n\n*   **https://ai.google.dev/gemini-api/docs/google-search**\n    *   **Fetch Success:** Succeeded.\n    *   **Content Size:** Approximately 25,600 characters.\n    *   **Truncated/Unavailable:** No. This document explains how grounding with Google Search connects the Gemini model to real-time web content for more accurate answers and verifiable sources.\n\n*   **https://ai.google.dev/gemini-api/docs/function-calling**\n    *   **Fetch Success:** Succeeded.\n    *   **Content Size:** Approximately 50,000 characters.\n    *   **Truncated/Unavailable:** No. This page details how function calling enables models to connect to external tools and APIs, allowing them to perform real-world actions or access external information.\n\n*   **https://ai.google.dev/gemini-api/docs/code-execution**\n    *   **Fetch Success:** Succeeded.\n    *   **Content Size:** Approximately 29,700 characters.\n    *   **Truncated/Unavailable:** No. This document describes the code execution tool, which allows the Gemini model to generate and run Python code and iteratively learn from the results.\n\n*   **https://ai.google.dev/gemini-api/docs/long-context**\n    *   **Fetch Success:** Succeeded.\n    *   **Content Size:** Approximately 17,200 characters.\n    *   **Truncated/Unavailable:** No. This page provides an overview of Gemini models' large context windows, which can handle 1 million or more tokens, unlocking new use cases and developer paradigms.",
+  "url_context_metadata": [
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/google-search",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/url-context",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/function-calling",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/long-context",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    },
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/code-execution",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    }
+  ],
+  "urls_successfully_retrieved": 5,
+  "usage_metadata": {
+    "prompt_token_count": 137,
+    "candidates_token_count": 593,
+    "tool_use_prompt_token_count": 27579,
+    "thoughts_token_count": 88,
+    "total_token_count": 28397
+  },
+  "error": null
+}

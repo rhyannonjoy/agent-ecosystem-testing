@@ -1,5 +1,5 @@
 """
-Claude API web fetch empirical tests
+Claude API web fetch tool, Claude-interpreted content analysis
 =====================================
 Tests the behavior of Anthropic's API-level web fetch tool to document
 platform limits for the Agent-Friendly Docs Spec.
