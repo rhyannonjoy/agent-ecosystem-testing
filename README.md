@@ -55,7 +55,7 @@ pip install -r requirements.txt
 
 # Set your API key
 export ANTHROPIC_API_KEY="your-key-here"
-export GEMINI_API_KEY="your-key-here"  
+export GOOGLE_GEMINI_API_KEY="your-key-here"  
 ```
 
 ### Run Tests
@@ -77,12 +77,10 @@ python gemini-url-context/url_context_test_raw.py
 # gemini-url-context/results/raw/YYYY-MM-DDTHH-MM/
 ```
 
-> **Free tier limits**:
-
-- Claude API not available on the free-tier; the API is pay-as-you-go
-- 5 RPM and 20 RPD limits for `gemini-2.5-flash`- running both tracks in the same day will exhaust
+> _**Free tier limits**: Claude API not available on the free-tier, the API is pay-as-you-go;
+5 RPM and 20 RPD limits for `gemini-2.5-flash`- running both tracks in the same day will exhaust
 the daily quota; plan runs across days or use a paid tier; set `RATE_LIMIT_SLEEP_SECONDS = 0`
-in the scripts if you are on a paid tier
+in the scripts if you are on a paid tier_
 
 ---
 
@@ -114,12 +112,9 @@ in the scripts if you are on a paid tier
 
 ## Contribute
 
-If you run these tests and get results, please open an issue or
-PR with your findings.
+If you run these tests and get results, please open an issue or PR with your findings.
 
->_Especially useful_:
-
-- Run the same tests from different network locations or at different times to check for caching behavior
-vs live-fetch variation
-- Run PDF tests against different source URLs to distinguish server-blocking from tool limitations
-- Run Gemini tests on a paid tier to get a complete 8-test run without hitting the daily quota
+>_Especially useful: Run the same tests from different network locations or at different times to
+check for caching behavior vs live-fetch variation; run PDF tests against different source URLs to
+distinguish server-blocking from tool limitations; run Gemini tests on a paid tier to get a complete
+8-test run without hitting the daily quota_
