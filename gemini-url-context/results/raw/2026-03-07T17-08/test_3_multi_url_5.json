@@ -1,0 +1,35 @@
+{
+  "test_id": "test_3_multi_url_5",
+  "label": "5 URLs",
+  "model": "gemini-2.5-flash",
+  "track": "raw",
+  "timestamp": "2026-03-07T17:08:41.857315Z",
+  "urls_requested": [
+    "https://ai.google.dev/gemini-api/docs/url-context",
+    "https://ai.google.dev/gemini-api/docs/google-search",
+    "https://ai.google.dev/gemini-api/docs/function-calling",
+    "https://ai.google.dev/gemini-api/docs/code-execution",
+    "https://ai.google.dev/gemini-api/docs/long-context"
+  ],
+  "url_count_requested": 5,
+  "prompt": "List the title of each page at the URLs provided.",
+  "response_text_char_count": 10,
+  "response_text_word_count": 3,
+  "url_metadata": [],
+  "urls_retrieved_count": 0,
+  "retrieval_status_counts": {},
+  "all_succeeded": false,
+  "any_unsafe": false,
+  "any_error": false,
+  "usage_metadata": {
+    "prompt_token_count": 110,
+    "candidates_token_count": 137,
+    "tool_use_prompt_token_count": 577,
+    "thoughts_token_count": 225,
+    "total_token_count": 1049
+  },
+  "tool_use_prompt_tokens": 577,
+  "total_tokens": 1049,
+  "finish_reason": "FinishReason.MAX_TOKENS",
+  "error": null
+}

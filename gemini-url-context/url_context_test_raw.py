@@ -54,8 +54,11 @@ RATE_LIMIT_SLEEP_SECONDS = 13
 
 # ---------------------------------------------------------------------------
 # Minimal prompts — we want signal, not model verbosity.
-# The raw track uses max_tokens=128 to minimize model output cost and noise,
-# mirroring the approach used in web_fetch_test_raw.py.
+# The raw track uses max_tokens=1024 to minimize model output cost and noise,
+# mirroring the approach used in `web_fetch_test_raw.py`.
+# 128 was the original ceiling, but multi-URL tests hit `FinishReason.MAX_TOKENS`
+# before `url_context_metadata`` was populated — bumping to 512 resolves the
+# 5-URL case, while bumping to 1,024 resolves the 20-URL case.
 # ---------------------------------------------------------------------------
 TEST_CASES = [
     {
@@ -163,16 +166,20 @@ TEST_CASES = [
 # ---------------------------------------------------------------------------
 
 def extract_url_metadata(candidate) -> list[dict]:
-    metadata = candidate.url_context_metadata
+    metadata = getattr(candidate, "url_context_metadata", None)
+    if not metadata:
+        return []
+    url_metadata = getattr(metadata, "url_metadata", None)
+    if not url_metadata:
+        return []
+    
     results = []
-    if metadata and hasattr(metadata, "url_metadata"):
-        for entry in metadata.url_metadata:
-            results.append({
-                "retrieved_url": entry.retrieved_url,
-                "url_retrieval_status": str(entry.url_retrieval_status),
-            })
+    for entry in url_metadata:
+        results.append({
+            "retrieved_url": entry.retrieved_url,
+            "url_retrieval_status": str(entry.url_retrieval_status),
+        })
     return results
-
 
 def extract_usage(usage_metadata) -> dict:
     return {
@@ -183,14 +190,14 @@ def extract_usage(usage_metadata) -> dict:
         "total_token_count": getattr(usage_metadata, "total_token_count", None),
     }
 
-
 def extract_text(candidate) -> str:
+    if not candidate.content or not candidate.content.parts:
+        return ""
     parts = []
     for part in candidate.content.parts:
         if hasattr(part, "text") and part.text:
             parts.append(part.text)
     return "\n".join(parts)
-
 
 def measure_response(candidate, response) -> dict:
     """All measurements derived programmatically from the response object."""
@@ -217,7 +224,6 @@ def measure_response(candidate, response) -> dict:
         "total_tokens": usage.get("total_token_count"),
     }
 
-
 # ---------------------------------------------------------------------------
 # Test runner
 # ---------------------------------------------------------------------------
@@ -233,11 +239,19 @@ def run_test(test: dict) -> dict:
             contents=contents,
             config=GenerateContentConfig(
                 tools=[{"url_context": {}}],
-                max_output_tokens=128,  # minimize model verbosity; we want metadata, not prose
+                max_output_tokens=1024,  # minimize model verbosity; we want metadata, not prose
             ),
         )
+        
+        if not response.candidates:
+            raise ValueError(
+                f"No candidates returned. "
+                f"Possible cause: TOO_MANY_TOOL_CALLS or SAFETY block. "
+                f"Prompt feedback: {getattr(response, 'prompt_feedback', None)}"
+            )
 
         candidate = response.candidates[0]
+        finish_reason = str(getattr(candidate, "finish_reason", None))
         measurements = measure_response(candidate, response)
 
         result = {
@@ -250,6 +264,7 @@ def run_test(test: dict) -> dict:
             "url_count_requested": len(test["urls"]),
             "prompt": test["prompt"],
             **measurements,
+            "finish_reason": finish_reason,
             "error": None,
         }
 
@@ -288,7 +303,6 @@ def run_test(test: dict) -> dict:
 
     return result
 
-
 def main():
     print(f"=== Gemini URL Context Test: Raw track ===")
     print(f"Model: {MODEL}")
@@ -322,7 +336,6 @@ def main():
             f"{str(r.get('total_tokens') or '—'):>9} "
             f"{statuses}{error}"
         )
-
 
 if __name__ == "__main__":
     main()

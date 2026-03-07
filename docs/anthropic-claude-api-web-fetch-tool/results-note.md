@@ -1,7 +1,11 @@
 ---
 layout: default
-title: results note
+title: "results Note"
 permalink: /results-note/
+---
+
+> _`/results`: this note describes how testing data is captured_
+
 ---
 
 `/results` is a directory that gets created automatically
@@ -27,7 +31,7 @@ published for contributors to review, but reconsider as you test.
 
 ---
 
-## First iteration limits
+## First Iteration Limits
 
 Claude is interpreting what it received, not a raw dump. That's why the
 character counts vary slightly between runs - Claude is estimating, not
@@ -42,7 +46,7 @@ from the `web_fetch_tool_result` block, but that part isn't working reliably -
 
 ---
 
-## Second iteration differences
+## Second Iteration Differences
 
 Claude's role is minimal. The prompt is just `"Fetch this URL: {url}" with max_tokens=128` -
 we only need Claude to trigger the fetch, not describe anything. This also makes

@@ -1,0 +1,28 @@
+{
+  "test_id": "test_3_multi_url_5",
+  "label": "5 URLs",
+  "model": "gemini-2.5-flash",
+  "track": "raw",
+  "timestamp": "2026-03-07T16:32:06.258321Z",
+  "urls_requested": [
+    "https://ai.google.dev/gemini-api/docs/url-context",
+    "https://ai.google.dev/gemini-api/docs/google-search",
+    "https://ai.google.dev/gemini-api/docs/function-calling",
+    "https://ai.google.dev/gemini-api/docs/code-execution",
+    "https://ai.google.dev/gemini-api/docs/long-context"
+  ],
+  "url_count_requested": 5,
+  "prompt": "List the title of each page at the URLs provided.",
+  "response_text_char_count": null,
+  "response_text_word_count": null,
+  "url_metadata": [],
+  "urls_retrieved_count": 0,
+  "retrieval_status_counts": {},
+  "all_succeeded": false,
+  "any_unsafe": false,
+  "any_error": true,
+  "usage_metadata": {},
+  "tool_use_prompt_tokens": null,
+  "total_tokens": null,
+  "error": "'NoneType' object is not iterable"
+}

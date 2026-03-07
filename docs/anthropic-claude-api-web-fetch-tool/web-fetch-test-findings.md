@@ -1,7 +1,11 @@
 ---
 layout: default
-title: Key Findings web fetch tool - Claude interpreted
+title: "Key Findings Claude's Web Fetch Tool - Claude-interpreted"
 permalink: /web-fetch-test-findings/
+---
+
+## Key Findings for Claude's Web Fetch Tool, Claude-interpreted
+
 ---
 
 **[Claude-interpreted Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/claude-api/web_fetch_test.py)**:

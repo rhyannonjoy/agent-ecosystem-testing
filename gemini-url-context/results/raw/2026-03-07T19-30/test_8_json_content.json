@@ -1,0 +1,38 @@
+{
+  "test_id": "test_8_json_content",
+  "label": "JSON content type",
+  "model": "gemini-2.5-flash",
+  "track": "raw",
+  "timestamp": "2026-03-07T19:31:58.450072Z",
+  "urls_requested": [
+    "https://api.github.com/repos/agent-ecosystem/agent-docs-spec"
+  ],
+  "url_count_requested": 1,
+  "prompt": "Summarize the content at the URL provided in one sentence.",
+  "response_text_char_count": 88,
+  "response_text_word_count": 16,
+  "url_metadata": [
+    {
+      "retrieved_url": "https://api.github.com/repos/agent-ecosystem/agent-docs-spec",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_ERROR"
+    }
+  ],
+  "urls_retrieved_count": 1,
+  "retrieval_status_counts": {
+    "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_ERROR": 1
+  },
+  "all_succeeded": false,
+  "any_unsafe": false,
+  "any_error": true,
+  "usage_metadata": {
+    "prompt_token_count": 37,
+    "candidates_token_count": 45,
+    "tool_use_prompt_token_count": 112,
+    "thoughts_token_count": 59,
+    "total_token_count": 253
+  },
+  "tool_use_prompt_tokens": 112,
+  "total_tokens": 253,
+  "finish_reason": "FinishReason.STOP",
+  "error": null
+}
