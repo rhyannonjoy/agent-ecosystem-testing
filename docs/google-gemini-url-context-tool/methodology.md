@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Methodology
+title: "Methodology"
 nav_order: 1
 parent: Google Gemini URL Context
 ---

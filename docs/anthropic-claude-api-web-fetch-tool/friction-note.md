@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Friction note
+title: "Friction Note"
 permalink: /friction-note/
 ---
 

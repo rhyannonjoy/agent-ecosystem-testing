@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Methodology
+title: "Methodology"
 permalink: /methodology/
 ---
 

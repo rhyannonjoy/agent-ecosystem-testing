@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Key Findings Gemini's URL context tool - Gemini-interpreted
+title: "Key Findings Gemini's URL Context Tool - Gemini-interpreted"
 permalink: /gemini-url-context-test-findings/
 nav_order: 3
 parent: Google Gemini URL Context

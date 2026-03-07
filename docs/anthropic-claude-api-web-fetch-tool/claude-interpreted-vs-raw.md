@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Claude-interpreted vs Raw
+title: "Claude-interpreted vs Raw"
 permalink: /claude-interpreted-vs-raw/
 ---
 

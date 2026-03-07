@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Friction Note
+title: "Friction Note"
 nav_order: 5
 parent: Google Gemini URL Context
 ---
