@@ -4,7 +4,7 @@ title: Claude-interpreted vs Raw
 permalink: /claude-interpreted-vs-raw/
 ---
 
-**Claude-interpreted vs Raw**
+## Claude-interpreted vs Raw
 
 The conclusions are similar: both confirm no CSS, boilerplate is heavy, Markdown is cleaner,
 and `max_content_tokens` cuts mid-content, but the two scripts produce meaningfully different

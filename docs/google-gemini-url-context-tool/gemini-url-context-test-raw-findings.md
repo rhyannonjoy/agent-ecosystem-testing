@@ -6,6 +6,10 @@ nav_order: 4
 parent: Google Gemini URL Context
 ---
 
+## Key Findings for Gemini's URL Context Tool, Raw
+
+---
+
 **[Raw Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/gemini-url-context/url_context_test_raw.py)**:
 
 1. Call the Gemini API with the URL context tool enabled

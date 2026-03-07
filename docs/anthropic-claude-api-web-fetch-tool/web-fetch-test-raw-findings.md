@@ -4,6 +4,10 @@ title: Key Findings Claude's web fetch tool - Raw
 permalink: /web-fetch-test-findings-raw/
 ---
 
+## Key Findings for Claude's Web Fetch Tool, Raw
+
+---
+
 **[Raw Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/claude-api/web_fetch_test_raw.py)**:
 
     1. Call Claude's API with the web fetch tool enabled

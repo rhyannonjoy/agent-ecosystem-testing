@@ -30,7 +30,7 @@ The gap between these two tracks is itself a finding. If Gemini reports a succes
 
 ## Key differences from the Claude web fetch track
 
-[The Claude API web fetch track](../../claude-api/) tests a tool where Claude _is_ the model doing the fetching
+[The Claude API web fetch track](../anthropic-claude-api-web-fetch-tool/methodology.md) tests a tool where Claude _is_ the model doing the fetching
 and the interpretation. Here, the architecture is slightly different:
 
 - **URL context tool** is a pre-retrieval step; Gemini fetches content before generating a response, rather than

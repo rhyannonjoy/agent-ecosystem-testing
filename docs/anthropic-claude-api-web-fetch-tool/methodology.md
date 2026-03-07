@@ -4,7 +4,7 @@ title: Methodology
 permalink: /methodology/
 ---
 
-## How this testing differs from Dachary's spelunking
+## Methodology
 
 [Dachary Carey's Agent Web Fetch Spelunking](https://dacharycarey.com/2026/02/19/agent-web-fetch-spelunking/)
 documented Claude Code's web fetch behavior by interacting with Claude directly in a chat
