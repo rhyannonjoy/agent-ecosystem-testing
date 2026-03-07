@@ -1,0 +1,38 @@
+{
+  "test_id": "test_1_single_html",
+  "label": "Single HTML page (docs)",
+  "model": "gemini-2.5-flash",
+  "track": "raw",
+  "timestamp": "2026-03-07T19:11:23.485505Z",
+  "urls_requested": [
+    "https://ai.google.dev/gemini-api/docs/url-context"
+  ],
+  "url_count_requested": 1,
+  "prompt": "Summarize the page at the URL provided in one sentence.",
+  "response_text_char_count": 459,
+  "response_text_word_count": 70,
+  "url_metadata": [
+    {
+      "retrieved_url": "https://ai.google.dev/gemini-api/docs/url-context",
+      "url_retrieval_status": "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS"
+    }
+  ],
+  "urls_retrieved_count": 1,
+  "retrieval_status_counts": {
+    "UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS": 1
+  },
+  "all_succeeded": true,
+  "any_unsafe": false,
+  "any_error": false,
+  "usage_metadata": {
+    "prompt_token_count": 35,
+    "candidates_token_count": 104,
+    "tool_use_prompt_token_count": 3099,
+    "thoughts_token_count": 33,
+    "total_token_count": 3271
+  },
+  "tool_use_prompt_tokens": 3099,
+  "total_tokens": 3271,
+  "finish_reason": "FinishReason.STOP",
+  "error": null
+}

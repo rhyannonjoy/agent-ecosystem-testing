@@ -54,11 +54,11 @@ RATE_LIMIT_SLEEP_SECONDS = 13
 
 # ---------------------------------------------------------------------------
 # Minimal prompts — we want signal, not model verbosity.
-# The raw track uses max_tokens=512 to minimize model output cost and noise,
+# The raw track uses max_tokens=1024 to minimize model output cost and noise,
 # mirroring the approach used in `web_fetch_test_raw.py`.
 # 128 was the original ceiling, but multi-URL tests hit `FinishReason.MAX_TOKENS`
-# before `url_context_metadata`` was populated — bumping to 512 gives multi-URL
-# cases enough headroom without meaningfully increasing output cost.
+# before `url_context_metadata`` was populated — bumping to 512 resolves the
+# 5-URL case, while bumping to 1,024 resolves the 20-URL case.
 # ---------------------------------------------------------------------------
 TEST_CASES = [
     {
@@ -239,7 +239,7 @@ def run_test(test: dict) -> dict:
             contents=contents,
             config=GenerateContentConfig(
                 tools=[{"url_context": {}}],
-                max_output_tokens=512,  # minimize model verbosity; we want metadata, not prose
+                max_output_tokens=1024,  # minimize model verbosity; we want metadata, not prose
             ),
         )
         

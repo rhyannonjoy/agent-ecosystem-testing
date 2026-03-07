@@ -54,12 +54,14 @@ limit: 20, model: gemini-2.5-flash. Please retry in Xs.
 
    **Fix**: guard both helpers against `None` content before iterating
 
-2. **`max_output_tokens=128` truncates multi-URL metadata**, `test_3_multi_url_5` -
-   5-URL test hit `FinishReason.MAX_TOKENS` with only 577 tool tokens and zero
-   `url_metadata` entries; output cap truncates the response before populating metadata
+2. **`max_output_tokens` ceiling interferes with multi-URL metadata**,
+   `test_3_multi_url_5`, `test_4_multi_url_20` - `max_output_tokens=128` caused `test_3`
+   to return `FinishReason.MAX_TOKENS` with zero `url_metadata` entries; initially appeared in
+   r1 as a silent metadata gap on `test_4`: 4,233 tool tokens firing but `url_metadata: []`, no error;
+   was the same root cause: response truncated before metadata populated
 
-   **Fix**: raise `max_output_tokens` to at least 512 for multi-URL cases, or globally - the raw
-   track measures metadata, not prose, so the original 128 ceiling was unnecessarily tight
+   **Fix**: raising to 512 resolved `test_3`; `test_4` hit the ceiling at r4 (`FinishReason.MAX_TOKENS`,
+   111,326 tool tokens); raising to 1,024 resolved both
 
 3. **Missing candidates guard**, `test_3_multi_url_5`, `test_5_multi_url_21` -
    when Gemini hits an internal tool call budget, it returns `response.candidates = None`
@@ -70,24 +72,16 @@ limit: 20, model: gemini-2.5-flash. Please retry in Xs.
    **Fix**: check `if not response.candidates` before accessing the candidate, raise a
    `ValueError` with the prompt feedback, record `finish_reason` in all result branches
 
-4. **Silent metadata gap**, `test_4_multi_url_20` -
-   20 URLs at the documented limit returned `url_metadata: []` despite tool tokens firing
-   4,233; no error was raised and `any_error` is `false`; Gemini appears to process
-   URLs internally without populating metadata or silently drops the batch
+4. **`test_8_json_content` inconsistent retrieval status across runs** - GitHub API endpoint
+   succeeded in r1 and r2:`URL_RETRIEVAL_STATUS_SUCCESS`, ~2,490 tool tokens, but returned
+   `URL_RETRIEVAL_STATUS_ERROR` in r4, 116 tool tokens; the near-zero token count on the failed
+   run suggests the retriever received an empty or rejected response, likely GitHub API rate
+   limiting or auth requirements on unauthenticated requests
 
-   **Fix**: needs a follow-up run to determine if this is consistent
+   **Fix**: result is non-deterministic; treat as unreliable for the raw track
 
 5. **Transient `503 UNAVAILABLE`**, `test_4_multi_url_20`, r2 - Gemini returned a `503` on
    the 20-URL test, citing high demand: infrastructure-level noise, not a behavioral finding;
    error is caught and recorded correctly
 
    **Fix**: re-run required to get a clean result for this test case
-
----
-
-## Confirmed Behavior
-
-1. `test_5_multi_url_21` returned a clean `400 INVALID_ARGUMENT` on r3:
-   `"Number of urls to lookup exceeds the limit (21 > 20). Please reduce the
-   number of urls in the request."` - confirming the hard URL cap enforced at
-   the API level; no further runs needed for this test case
