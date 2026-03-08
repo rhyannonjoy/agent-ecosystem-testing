@@ -28,17 +28,32 @@ The gap between these two tracks is itself a finding. If Gemini reports a succes
 | Token cost per run | Higher - Gemini writes long self-assessments | Lower - minimal prompt, capped output |
 | Best used for | Understanding what the model perceives it received | Citable measurements for the spec |
 
-## Key differences from the Claude web fetch track
+## Gemini URL Context vs Claude Web Fetch
 
-[The Claude API web fetch track](../anthropic-claude-api-web-fetch-tool/methodology.md) tests a tool where Claude _is_ the model doing the fetching
-and the interpretation. Here, the architecture is slightly different:
+[The Claude API web fetch track](../anthropic-claude-api-web-fetch-tool/methodology.md) tests a tool where
+Claude _is_ the model doing the fetching and the interpretation. Here, the architecture is slightly different:
 
 - **URL context tool** is a pre-retrieval step; Gemini fetches content before generating a response, rather than
 as a tool call mid-generation
 - **`url_context_metadata`** object is a first-class response field, not something extracted from tool use blocks;
-this makes the raw track cleaner to implement.
-- **Token accounting is split**: `prompt_token_count` covers the text prompt, while `tool_use_prompt_token_count`
+this makes the raw track cleaner to implement
+- **Token accounting is split** - `prompt_token_count` covers the text prompt, while `tool_use_prompt_token_count`
 covers retrieved URL content; the raw script records both separately
+
+### Character Count Estimation Variation Hypothesis
+
+Unlike Claude Code, where Haiku summarizes before the main model sees the content, Gemini doesn't use
+a named intermediate model; `gemini-2.5-flash` is doing _both the retrieval orchestration and the generation_ -
+receives the retrieved content directly and summarizes in one step. The URL context docs list summarization
+as a use case rather than a pipeline step.
+
+Without a field exposing content injected into the context window, run-to-run differences can't be
+definitively attributed;
+[Gemini's two-step retrieval process](https://ai.google.dev/gemini-api/docs/url-context#how-it-works)
+means internal cache vs. live fetch could deliver different content across runs. But the raw token
+counts being stable - <1% variance - suggest the retrieved content was consistent, pointing to
+`gemini-2.5-flash` summarizing the same content differently across runs rather than receiving
+different content.
 
 ---
 
