@@ -53,10 +53,15 @@ separated in the response object.
 
 ### Character Count Estimation Variation Hypothesis
 
-Unlike Claude Code, where Haiku summarizes before the main model sees the content, Gemini doesn't use
-a named intermediate model; `gemini-2.5-flash` is doing _both the retrieval orchestration and the generation_ -
-receives the retrieved content directly and summarizes in one step. The URL context docs list summarization
-as a use case rather than a pipeline step.
+Unlike Claude Code, where Haiku summarizes before the main model sees the content,
+Claude's web fetch and Gemini's URL context handle summarization in-model.
+In this test suite, `gemini-2.5-flash` is doing _both the retrieval orchestration and the
+generation_ - receives the retrieved content directly and summarizes in one step. Claude's web fetch
+similarly filters fetched content via code execution rather than delegating to a separate model
+and exposes truncation behavior through observable cutoffs and `max_content_tokens`.
+Gemini's URL context, by contrast, treats summarization as a use case rather than a pipeline stage -
+with no equivalent parameter or cutoff boundary - making it harder to test whether summarization is
+truncating characters or simply rephrasing them.
 
 Without a field exposing content injected into the context window, run-to-run differences can't be
 definitively attributed;
