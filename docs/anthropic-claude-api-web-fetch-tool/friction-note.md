@@ -8,7 +8,7 @@ permalink: /friction-note/
 
 ---
 
-### Anthropic API key
+## Anthropic API key
 
 The Claude docs AI assistant didn't return any results
 when asked how to obtain an API key to test the
