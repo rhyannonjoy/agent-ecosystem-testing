@@ -61,9 +61,3 @@ parent: Google Gemini URL Context
 | `test_1_single_html` | 1 | 3,145 | 65 | ~86.7% |
 | `test_3_multi_url_5` | 5 | 27,572 | 137 | ~96.6% |
 | `test_4_multi_url_20` | 20 | 111,497 | 417 | ~98.6% |
-
-## Pending
-
-- **Raw track**: Not yet run. Daily quota, 20 RPD, exhausted after 3 interpreted runs. Run on a separate day.
-- **`test_8_json_content`**: Only completed once, r2. A second clean result would strengthen the finding.
-- **PDF follow-up**: Test a different publicly accessible PDF to distinguish server-blocking from tool limitation.
