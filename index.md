@@ -7,7 +7,7 @@ Findings contribute to the [Agent Docs Spec, Known Platform Limits](https://gith
 
 ---
 
-## Claude API Web Fetch Tool
+## Anthropic Claude API Web Fetch
 
 - [Methodology](/docs/anthropic-claude-api-web-fetch-tool/methodology.md)
 - [Claude-interpreted vs Raw](/docs/anthropic-claude-api-web-fetch-tool/claude-interpreted-vs-raw.md)
@@ -18,7 +18,7 @@ Findings contribute to the [Agent Docs Spec, Known Platform Limits](https://gith
 
 ---
 
-## Google Gemini URL Context Tool
+## Google Gemini API URL Context
 
 - [Methodology](/docs/google-gemini-url-context-tool/methodology.md)
 - [Gemini-interpreted vs Raw](/docs/google-gemini-url-context-tool/gemini-interpreted-vs-raw.md)

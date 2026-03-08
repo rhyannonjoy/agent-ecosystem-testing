@@ -30,15 +30,26 @@ The gap between these two tracks is itself a finding. If Gemini reports a succes
 
 ## Gemini URL Context vs Claude Web Fetch
 
-[The Claude API web fetch track](../anthropic-claude-api-web-fetch-tool/methodology.md) tests a tool where
-Claude _is_ the model doing the fetching and the interpretation. Here, the architecture is slightly different:
+[The Claude web fetch track](../anthropic-claude-api-web-fetch-tool/methodology.md) tests
+`web_fetch` - a [mid-generation tool call](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool#how-web-fetch-works):
 
-- **URL context tool** is a pre-retrieval step; Gemini fetches content before generating a response, rather than
-as a tool call mid-generation
-- **`url_context_metadata`** object is a first-class response field, not something extracted from tool use blocks;
-this makes the raw track cleaner to implement
-- **Token accounting is split** - `prompt_token_count` covers the text prompt, while `tool_use_prompt_token_count`
-covers retrieved URL content; the raw script records both separately
+    1. Claude decides when to fetch based on prompts and/or URL availability
+    2. Claude API retrieves the content
+    3. The content comes back as a tool result
+    4. Claude continues generation, interpreting the tool result
+
+Gemini's URL context tool completes retrieval _before_ generation begins:
+
+    1. Gemini API attempts to fetch each URL from an internal index cache
+    2. If not cached, the API falls back to a live fetch
+    3. URL context tool injects retrieved content into the `gemini-2.5-flash` context window
+    4. `gemini-2.5-flash` generates a response from the pre-loaded content
+
+This architecture makes the raw track cleaner to implement than the Claude track —
+`url_context_metadata` is a first-class response field rather than something extracted from tool use
+blocks, and token accounting splits between text prompt: `prompt_token_count` and
+retrieved URL content: `tool_use_prompt_token_count`; the two cost components are already
+separated in the response object.
 
 ### Character Count Estimation Variation Hypothesis
 
