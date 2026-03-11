@@ -11,8 +11,8 @@ Findings contribute to the [Agent Docs Spec, Known Platform Limits](https://gith
 
 - [Methodology](/docs/anthropic-claude-api-web-fetch-tool/methodology.md)
 - [Claude-interpreted vs Raw](/docs/anthropic-claude-api-web-fetch-tool/claude-interpreted-vs-raw.md)
-- [Key Findings: Claude's Web Fetch Tool - Claude-interpreted](/docs/anthropic-claude-api-web-fetch-tool/web-fetch-test-findings.md)
-- [Key Findings: Claude's Web Fetch Tool - Raw](/docs/anthropic-claude-api-web-fetch-tool/web-fetch-test-raw-findings.md)
+- [Key Findings: Claude's Web Fetch Tool, Claude-interpreted](/docs/anthropic-claude-api-web-fetch-tool/web-fetch-test-findings.md)
+- [Key Findings: Claude's Web Fetch Tool, Raw](/docs/anthropic-claude-api-web-fetch-tool/web-fetch-test-raw-findings.md)
 - [Friction Note](/docs/anthropic-claude-api-web-fetch-tool/friction-note.md)
 - [`/results` Note](/docs/anthropic-claude-api-web-fetch-tool/results-note.md)
 
@@ -22,6 +22,16 @@ Findings contribute to the [Agent Docs Spec, Known Platform Limits](https://gith
 
 - [Methodology](/docs/google-gemini-url-context-tool/methodology.md)
 - [Gemini-interpreted vs Raw](/docs/google-gemini-url-context-tool/gemini-interpreted-vs-raw.md)
-- [Key Findings: Gemini's URL Context Tool - Gemini-interpreted](/docs/google-gemini-url-context-tool/gemini-url-context-test-findings.md)
-- [Key Findings: Gemini's URL Context Tool - Raw](/docs/google-gemini-url-context-tool/gemini-url-context-test-raw-findings.md)
+- [Key Findings: Gemini's URL Context Tool, Gemini-interpreted](/docs/google-gemini-url-context-tool/gemini-url-context-test-findings.md)
+- [Key Findings: Gemini's URL Context Tool, Raw](/docs/google-gemini-url-context-tool/gemini-url-context-test-raw-findings.md)
 - [Friction Note](/docs/google-gemini-url-context-tool/friction-note.md)
+
+---
+
+## OpenAI Web Search
+
+- [Methodology](/docs/open-ai-web-search-tool/methodology.md)
+- [ChatGPT-interpreted vs Raw](/docs/open-ai-web-search-tool/chatgpt-interpreted-vs-raw.md)
+- [Key Findings: OpenAI Web Search Tool, ChatGPT-interpreted](/docs/open-ai-web-search-tool/open-ai-web-search-test-findings.md)
+- [Key Findings: OpenAI Web Search Tool, Raw](/docs/open-ai-web-search-tool/open-ai-web-search-test-raw-findings.md)
+- [Friction Note](/docs/open-ai-web-search-tool/friction-note.md)
