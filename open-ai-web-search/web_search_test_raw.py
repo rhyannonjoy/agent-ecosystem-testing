@@ -44,7 +44,7 @@ MODEL = "gpt-4o"
 
 # Each run gets its own timestamped subdirectory — matches the gemini-url-context track convention.
 # Format: results/raw/YYYY-MM-DDTHH-MM/
-_RUN_TS = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H-%M")
+_RUN_TS = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H-%M")
 RESULTS_DIR = Path(f"open-ai-web-search/results/raw/{_RUN_TS}")
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 

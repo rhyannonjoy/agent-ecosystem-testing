@@ -1,0 +1,16 @@
+{
+  "test_id": "test_1_live_data",
+  "label": "Live data (should always search)",
+  "model": "gpt-4o-mini-search-preview",
+  "track": "chatgpt-interpreted",
+  "timestamp": "2026-03-11T19:46:55.304914Z",
+  "prompt": "Search for the current price of Bitcoin in USD. Tell me: what did you find? How recent was the data? Did anything appear to be missing or stale?",
+  "web_search_options": null,
+  "interpreted_response": null,
+  "citations": [],
+  "citation_count": 0,
+  "finish_reason": null,
+  "latency_ms": null,
+  "usage": {},
+  "error": "Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}"
+}

@@ -1,0 +1,20 @@
+{
+  "test_id": "test_3_static_fact",
+  "label": "Static fact (may not need search)",
+  "model": "gpt-4o-mini-search-preview",
+  "track": "chatgpt-interpreted",
+  "timestamp": "2026-03-11T20:24:18.098174Z",
+  "prompt": "What is the capital of France? Tell me: did you search for this or answer from memory? If you searched, what did you find and was it necessary?",
+  "web_search_options": null,
+  "interpreted_response": "Paris is the capital of France. I provided this answer from memory, as it is a well-known fact. I did not need to search for this information. ",
+  "citations": [],
+  "citation_count": 0,
+  "finish_reason": "stop",
+  "latency_ms": 2257.1,
+  "usage": {
+    "prompt_tokens": 33,
+    "completion_tokens": 33,
+    "total_tokens": 66
+  },
+  "error": null
+}

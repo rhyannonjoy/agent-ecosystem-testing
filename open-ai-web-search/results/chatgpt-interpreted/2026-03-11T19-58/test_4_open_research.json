@@ -1,0 +1,57 @@
+{
+  "test_id": "test_4_open_research",
+  "label": "Open-ended research query",
+  "model": "gpt-4o-mini-search-preview",
+  "track": "chatgpt-interpreted",
+  "timestamp": "2026-03-11T19:59:26.422511Z",
+  "prompt": "Search for the latest developments in EU AI regulation. Tell me: how many distinct sources did you draw from? How recent were they? Was any information contradictory across sources?",
+  "web_search_options": null,
+  "interpreted_response": "I have reviewed information from multiple sources to provide an overview of the latest developments in EU AI regulation. The sources include:\n\n1. **Artificial Intelligence Act (AI Act)**: The AI Act, adopted in June 2024, entered into force on August 1, 2024. It establishes a comprehensive regulatory framework for AI within the EU, with provisions becoming applicable between 2025 and 2027. ([europarl.europa.eu](https://www.europarl.europa.eu/news/en/headlines/society/20230601STO93804/eu-ai-act-first-regulation-on-artificial-intelligence?at_advertiser=Webcomm&at_audience=artificial+intelligence+act&at_campaign=20226-Digi-tal&at_creation=RSA&at_goal=TR_G&at_location=DE&at_medium=Google_Ads&at_platform=Search&at_topic=Artificial_intelligence_Act&utm_source=openai))\n\n2. **General-Purpose AI Code of Practice (GPAI CoP)**: Released by the European Commission on July 10, 2025, the GPAI CoP is a voluntary tool designed to assist providers of general-purpose AI models in complying with the AI Act. It offers operational guidance on transparency, copyright, and safety and security. ([en.wikipedia.org](https://en.wikipedia.org/wiki/General-Purpose_AI_Code_of_Practice?utm_source=openai))\n\n3. **Framework Convention on Artificial Intelligence**: Adopted under the auspices of the Council of Europe and signed on September 5, 2024, this international treaty aims to ensure that AI development aligns with fundamental human rights, democratic values, and the rule of law. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Framework_Convention_on_Artificial_Intelligence?utm_source=openai))\n\n4. **Digital Markets Act (DMA)**: Enacted on November 1, 2022, the DMA seeks to promote fair competition in the digital economy by regulating large digital platforms. While not exclusively focused on AI, it has implications for AI systems operating within the EU. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Digital_Markets_Act?utm_source=openai))\n\n5. **Cyber Solidarity Act (CSA)**: Adopted on January 15, 2025, the CSA aims to enhance the EU's preparedness and response to cyber threats and incidents, which is relevant to AI systems' cybersecurity. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Cyber_Solidarity_Act?utm_source=openai))\n\nThese sources are recent, with the latest developments occurring in 2025. The information across these sources is consistent, with no significant contradictions identified.\n\nFor a more detailed overview, you might find the following video informative:\n\n[EU's landmark AI Act enters new phase](https://www.youtube.com/watch?v=UmELbWc4lUc&utm_source=openai)\n ",
+  "citations": [
+    {
+      "url": "https://www.europarl.europa.eu/news/en/headlines/society/20230601STO93804/eu-ai-act-first-regulation-on-artificial-intelligence?at_advertiser=Webcomm&at_audience=artificial+intelligence+act&at_campaign=20226-Digi-tal&at_creation=RSA&at_goal=TR_G&at_location=DE&at_medium=Google_Ads&at_platform=Search&at_topic=Artificial_intelligence_Act&utm_source=openai",
+      "title": "EU AI Act: first regulation on artificial intelligence | Topics | European Parliament",
+      "start_index": 393,
+      "end_index": 772
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/General-Purpose_AI_Code_of_Practice?utm_source=openai",
+      "title": "General-Purpose AI Code of Practice",
+      "start_index": 1088,
+      "end_index": 1193
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Framework_Convention_on_Artificial_Intelligence?utm_source=openai",
+      "title": "Framework Convention on Artificial Intelligence",
+      "start_index": 1475,
+      "end_index": 1592
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Digital_Markets_Act?utm_source=openai",
+      "title": "Digital Markets Act",
+      "start_index": 1858,
+      "end_index": 1947
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Cyber_Solidarity_Act?utm_source=openai",
+      "title": "Cyber Solidarity Act",
+      "start_index": 2152,
+      "end_index": 2242
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=UmELbWc4lUc&utm_source=openai",
+      "title": "EU's landmark AI Act enters new phase",
+      "start_index": 2497,
+      "end_index": 2599
+    }
+  ],
+  "citation_count": 6,
+  "finish_reason": "stop",
+  "latency_ms": 4416.8,
+  "usage": {
+    "prompt_tokens": 34,
+    "completion_tokens": 607,
+    "total_tokens": 641
+  },
+  "error": null
+}

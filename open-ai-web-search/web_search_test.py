@@ -17,17 +17,17 @@ Usage:
     python open-ai-web-search/web_search_test.py
 
 Workflow:
-1. Call the Chat Completions API with gpt-4o-search-preview
+1. Call the Chat Completions API with `gpt-4o-mini-search-preview`
 2. Give the model a detailed prompt asking it to describe what it retrieved —
    result quality, recency, completeness, any failures
-3. The model always searches before generating a response; no tool plumbing
+3. The model "always searches" before generating a response; no tool plumbing
    is exposed to the caller
 4. Capture the model's full text response as the interpreted finding
-5. Also capture inline url_citation annotations from message.annotations
+5. Also capture inline `url_citation` annotations from `message.annotations`
    for cross-referencing against the raw track
 6. The gap between the model's self-report and raw citation counts is itself
    a finding — discrepancies belong in the spec
-7. Results are saved to open-ai-web-search/results/chatgpt-interpreted/
+7. Results are saved to `open-ai-web-search/results/chatgpt-interpreted/`
 """
 
 import os
@@ -40,12 +40,12 @@ from openai import OpenAI
 
 load_dotenv()
 
-client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
-MODEL = "gpt-4o-search-preview"
+client = OpenAI(api_key=os.environ["OPEN_AI_API_KEY"])
+MODEL = "gpt-4o-mini-search-preview"
 
 # Each run gets its own timestamped subdirectory — matches the gemini-url-context track convention.
 # Format: results/chatgpt-interpreted/YYYY-MM-DDTHH-MM/
-_RUN_TS = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H-%M")
+_RUN_TS = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H-%M")
 RESULTS_DIR = Path(f"open-ai-web-search/results/chatgpt-interpreted/{_RUN_TS}")
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -136,7 +136,6 @@ TEST_CASES = [
     },
 ]
 
-
 def run_test(test: dict) -> dict:
     """Run a single ChatGPT-interpreted web search test."""
     print(f"\nRunning: {test['id']} — {test['label']}")
@@ -220,7 +219,6 @@ def run_test(test: dict) -> dict:
 
     return result
 
-
 def main():
     print(f"=== OpenAI Web Search Test: ChatGPT-interpreted track ===")
     print(f"Model: {MODEL}")
@@ -252,7 +250,6 @@ def main():
             f"{str(tokens):>7} "
             f"{error[:30]}"
         )
-
 
 if __name__ == "__main__":
     main()

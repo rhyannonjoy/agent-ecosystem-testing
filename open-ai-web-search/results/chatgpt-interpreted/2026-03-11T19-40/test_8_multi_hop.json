@@ -1,0 +1,16 @@
+{
+  "test_id": "test_8_multi_hop",
+  "label": "Multi-hop research (requires synthesizing across sources)",
+  "model": "gpt-4o-search-preview",
+  "track": "chatgpt-interpreted",
+  "timestamp": "2026-03-11T19:41:29.147973Z",
+  "prompt": "Search for which countries have passed national AI laws, and for each one, search for when the law took effect. Tell me: how many sources did you draw from? Were you able to find dates for all countries? What gaps or uncertainties remain?",
+  "web_search_options": null,
+  "interpreted_response": null,
+  "citations": [],
+  "citation_count": 0,
+  "finish_reason": null,
+  "latency_ms": null,
+  "usage": {},
+  "error": "Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}"
+}
