@@ -23,10 +23,11 @@ negotiation - for platforms that don't document these details.
 | -------- | ---- | ------- | ------- |
 | Anthropic Claude API | web fetch tool | `claude-api/` | `claude-api/results/` |
 | Google Gemini API | URL context tool | `gemini-url-context/` | `gemini-url-context/results/` |
+| OpenAI: Chat Completions API, Responses API | web search tool | `open-ai-web-search/` | `open-ai-web-search/results/` |
 
 Each platform has two tracks:
 
-- **Interpreted** - the model is asked to reflect on what it retrieved; captures self-perception and estimation variance
+- **Interpreted** - ask the model to reflect on what it retrieved; captures self-perception and estimation variance
 - **Raw** - Python extracts measurements directly from the response object; produces citable, reproducible numbers
 
 ---
@@ -53,9 +54,10 @@ source venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Set your API key
-export ANTHROPIC_API_KEY="your-key-here"
-export GOOGLE_GEMINI_API_KEY="your-key-here"  
+# Set API keys
+export ANTHROPIC_API_KEY="key-here"
+export GOOGLE_GEMINI_API_KEY="key-here"
+export OPEN_AI_API_KEY="key-here"
 ```
 
 ### Run Tests
