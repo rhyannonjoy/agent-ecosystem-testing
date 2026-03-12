@@ -1,0 +1,32 @@
+{
+  "test_id": "test_8_domain_filter_allowed",
+  "label": "Domain filter: allow-list (reuters.com, apnews.com)",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T22:44:43.022493Z",
+  "query": "Latest news on US Federal Reserve interest rate decisions.",
+  "search_context_size": "medium",
+  "domain_filter": {
+    "allowed_domains": [
+      "reuters.com",
+      "apnews.com"
+    ]
+  },
+  "tool_invoked": true,
+  "search_queries_issued": [
+    "US Federal Reserve interest rate decision October 2023"
+  ],
+  "search_call_count": 1,
+  "response_text": "",
+  "response_text_char_count": 0,
+  "sources": [],
+  "source_count": 0,
+  "domain_filter_check": null,
+  "latency_ms": 4002.2,
+  "usage": {
+    "input_tokens": 311,
+    "output_tokens": 22,
+    "total_tokens": 333
+  },
+  "error": null
+}

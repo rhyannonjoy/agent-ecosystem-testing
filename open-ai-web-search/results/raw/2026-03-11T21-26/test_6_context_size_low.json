@@ -1,0 +1,27 @@
+{
+  "test_id": "test_6_context_size_low",
+  "label": "search_context_size: low",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T21:27:32.155015Z",
+  "query": "What are the latest AI safety news headlines?",
+  "search_context_size": "low",
+  "domain_filter": null,
+  "tool_invoked": true,
+  "search_queries_issued": [
+    "latest AI safety news 2023"
+  ],
+  "search_call_count": 1,
+  "response_text": "Here are some recent developments in AI safety:\n\n**Legislative Actions:**\n\n- **California's Transparency in Frontier Artificial Intelligence Act (SB-53):** Enacted in September 2025, this law mandates that AI companies publicly assess potential catastrophic risks of their models and document adherence to safety standards. It also establishes whistleblower protections and procedures for reporting critical safety incidents. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Transparency_in_Frontier_Artificial_Intelligence_Act?utm_source=openai))\n\n- **New York's Responsible AI Safety and Education (RAISE) Act:** Signed into law in December 2025, the RAISE Act imposes transparency, safety, and reporting requirements on developers of large AI models, aligning closely with California's SB-53. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Responsible_AI_Safety_and_Education_Act?utm_source=openai))\n\n**International Reports:**\n\n- **International AI Safety Report 2026:** Published in February 2026, this comprehensive review, led by AI expert Yoshua Bengio and backed by over 30 countries, assesses the capabilities and risks of general-purpose AI systems. ([internationalaisafetyreport.org](https://internationalaisafetyreport.org/?utm_source=openai))\n\n** ",
+  "response_text_char_count": 1265,
+  "sources": [],
+  "source_count": 0,
+  "domain_filter_check": null,
+  "latency_ms": 10457.6,
+  "usage": {
+    "input_tokens": 310,
+    "output_tokens": 280,
+    "total_tokens": 590
+  },
+  "error": null
+}

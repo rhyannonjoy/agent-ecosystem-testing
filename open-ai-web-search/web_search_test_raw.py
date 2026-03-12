@@ -8,7 +8,7 @@ This gives objective, reproducible measurements that don't depend on
 the model's interpretation or estimation.
 
 Uses the Responses API with web_search_preview as an explicit tool on a
-base model (gpt-4o). The model decides whether to invoke the tool depending
+base model - `gpt-4o`. The model decides whether to invoke the tool depending
 on the query — invocation is NOT guaranteed.
 
 Usage:
@@ -16,17 +16,17 @@ Usage:
     python open-ai-web-search/web_search_test_raw.py
 
 Workflow:
-1. Call the Responses API with gpt-4o + web_search_preview tool enabled
+1. Call the Responses API with `gpt-4o` + web_search_preview tool enabled
 2. Give the model a minimal prompt — just enough to trigger retrieval
-3. The model may or may not invoke web_search_preview depending on the query
-4. Extract raw outcomes directly from response.output items:
-   - web_search_call items: type, action.query (the internal search query issued)
-   - message items: output_text
-5. Extract sources list from response.sources (all URLs consulted, not just cited)
-6. Extract token accounting from response.usage
+3. The model may or may not invoke `web_search_preview` depending on the query
+4. Extract raw outcomes directly from `response.output` items:
+   - `web_search_call` items: type, `action.query` - the internal search query issued
+   - message items: `output_text`
+5. Extract sources list from `response.sources`  - all URLs consulted, not just cited
+6. Extract token accounting from `response.usage`
 7. Run all analysis in Python: tool invocation flag, source counts, latency
 8. The model never interprets or reflects on the retrieval results
-9. Results are saved to open-ai-web-search/results/raw/
+9. Results are saved to `open-ai-web-search/results/raw/`
 """
 
 import os
@@ -39,7 +39,7 @@ from openai import OpenAI
 
 load_dotenv()
 
-client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+client = OpenAI(api_key=os.environ["OPEN_AI_API_KEY"])
 MODEL = "gpt-4o"
 
 # Each run gets its own timestamped subdirectory — matches the gemini-url-context track convention.
@@ -105,8 +105,7 @@ TEST_CASES = [
         "query": "Latest news on US Federal Reserve interest rate decisions.",
         "search_context_size": "medium",
         "domain_filter": {
-            "type": "domain",
-            "domains": ["reuters.com", "apnews.com"],
+            "allowed_domains": ["reuters.com", "apnews.com"],
         },
     },
     {
@@ -115,8 +114,7 @@ TEST_CASES = [
         "query": "History of the European Union.",
         "search_context_size": "medium",
         "domain_filter": {
-            "type": "domain",
-            "exclude_domains": ["wikipedia.org"],
+            "blocked_domains": ["wikipedia.org"],
         },
     },
     {
@@ -126,7 +124,6 @@ TEST_CASES = [
         "search_context_size": "medium",
     },
 ]
-
 
 # ---------------------------------------------------------------------------
 # Raw measurement helpers — all Python, no model estimates
@@ -158,17 +155,17 @@ def extract_output_items(output) -> dict:
         "response_text_char_count": len(response_text),
     }
 
-
 def extract_sources(response) -> list[dict]:
     sources = []
-    raw_sources = getattr(response, "sources", None) or []
-    for src in raw_sources:
-        sources.append({
-            "url": getattr(src, "url", None),
-            "title": getattr(src, "title", None),
-        })
+    for item in getattr(response, "output", []):
+        if getattr(item, "type", None) == "web_search_call":
+            action = getattr(item, "action", None)
+            for src in getattr(action, "sources", None) or []:
+                sources.append({
+                    "url": getattr(src, "url", None),
+                    "title": getattr(src, "title", None),
+                })
     return sources
-
 
 def extract_usage(response) -> dict:
     usage = getattr(response, "usage", None)
@@ -180,7 +177,6 @@ def extract_usage(response) -> dict:
         "total_tokens": getattr(usage, "total_tokens", None),
     }
 
-
 def check_domain_filter_respected(sources: list[dict], domain_filter: dict | None) -> dict | None:
     """Programmatically verify whether domain filtering was respected."""
     if not domain_filter or not sources:
@@ -188,8 +184,8 @@ def check_domain_filter_respected(sources: list[dict], domain_filter: dict | Non
 
     urls = [s.get("url", "") or "" for s in sources]
 
-    if "domains" in domain_filter:
-        allowed = domain_filter["domains"]
+    if "allowed_domains" in domain_filter:
+        allowed = domain_filter["allowed_domains"]
         violations = [u for u in urls if u and not any(d in u for d in allowed)]
         return {
             "filter_type": "allow",
@@ -199,8 +195,8 @@ def check_domain_filter_respected(sources: list[dict], domain_filter: dict | Non
             "filter_respected": len(violations) == 0,
         }
 
-    if "exclude_domains" in domain_filter:
-        blocked = domain_filter["exclude_domains"]
+    if "blocked_domains" in domain_filter:
+        blocked = domain_filter["blocked_domains"]
         violations = [u for u in urls if u and any(d in u for d in blocked)]
         return {
             "filter_type": "block",
@@ -220,10 +216,15 @@ def check_domain_filter_respected(sources: list[dict], domain_filter: dict | Non
 def run_test(test: dict) -> dict:
     print(f"\nRunning: {test['id']} — {test['label']}")
 
-    tool_config = {"type": "web_search_preview"}
+    # Domain filtering requires the newer "web_search" tool type (not "web_search_preview").
+    # Sources are at web_search_call.action.sources and require include=["web_search_call.action.sources"].
+    has_domain_filter = "domain_filter" in test
+    tool_type = "web_search_preview"
+
+    tool_config = {"type": tool_type}
     if "search_context_size" in test:
         tool_config["search_context_size"] = test["search_context_size"]
-    if "domain_filter" in test:
+    if has_domain_filter:
         tool_config["filters"] = test["domain_filter"]
 
     try:
@@ -233,6 +234,7 @@ def run_test(test: dict) -> dict:
             tools=[tool_config],
             input=test["query"],
             max_output_tokens=256,  # minimize verbosity; we want metadata, not prose
+            include=["web_search_call.action.sources"],
         )
         latency_ms = round((time.monotonic() - t0) * 1000, 1)
 

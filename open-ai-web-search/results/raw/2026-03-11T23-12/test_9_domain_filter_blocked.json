@@ -1,0 +1,25 @@
+{
+  "test_id": "test_9_domain_filter_blocked",
+  "label": "Domain filter: block-list (wikipedia.org)",
+  "model": "gpt-5",
+  "track": "raw",
+  "timestamp": "2026-03-11T23:12:42.539871Z",
+  "query": "History of the European Union.",
+  "search_context_size": "medium",
+  "domain_filter": {
+    "blocked_domains": [
+      "wikipedia.org"
+    ]
+  },
+  "tool_invoked": null,
+  "search_queries_issued": [],
+  "search_call_count": 0,
+  "response_text": null,
+  "response_text_char_count": 0,
+  "sources": [],
+  "source_count": 0,
+  "domain_filter_check": null,
+  "latency_ms": null,
+  "usage": {},
+  "error": "Error code: 400 - {'error': {'message': \"Unsupported parameter 'filters'\", 'type': 'invalid_request_error', 'param': 'tools', 'code': None}}"
+}

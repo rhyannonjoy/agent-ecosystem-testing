@@ -1,0 +1,76 @@
+{
+  "test_id": "test_7_context_size_high",
+  "label": "search_context_size: high",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T23:17:48.020266Z",
+  "query": "What are the latest AI safety news headlines?",
+  "search_context_size": "high",
+  "domain_filter": null,
+  "tool_invoked": true,
+  "search_queries_issued": [
+    "latest AI safety news October 2023"
+  ],
+  "search_call_count": 1,
+  "response_text": "Here are some recent developments in AI safety:\n\n**Regulatory Actions:**\n\n- **California's Transparency in Frontier Artificial Intelligence Act:** In September 2025, California enacted SB-53, requiring AI companies to publicly assess potential catastrophic risks from their models and document adherence to safety standards. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Transparency_in_Frontier_Artificial_Intelligence_Act?utm_source=openai))\n\n- **New York's Responsible AI Safety and Education Act:** Signed into law in December 2025, this act mandates transparency and safety measures for developers of large AI models, aligning with California's approach but with stricter incident reporting requirements. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Responsible_AI_Safety_and_Education_Act?utm_source=openai))\n\n**Industry Initiatives:**\n\n- **OpenAI and Microsoft's AI Safety Task Force:** In November 2025, OpenAI and Microsoft joined an AI safety task force initiated by the attorneys general of North Carolina and Utah, aiming to collaborate on developing safety standards and regulations. ([aol.com](https://www.aol.com/articles/openai-microsoft-team-state-law-190001524.html?utm_source=openai))\n\n**Research and Reports:**\n\n- **International AI Safety Report 2026:** Published in February 2026 ",
+  "response_text_char_count": 1311,
+  "sources": [
+    {
+      "url": "https://www.techtarget.com/patientengagement/news/366639978/ECRI-AIs-diagnostic-capabilities-pose-patient-safety-risk-in-2026?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://internationalaisafetyreport.org/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://internationalaisafetyreport.org/publication/international-ai-safety-report-2026?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.mlex.com/mlex/artificial-intelligence/articles/2419745/international-network-of-ai-safety-institutes-renamed-without-safety-?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.yahoo.com/news/openai-slashes-time-given-safety-105631217.html?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.yahoo.com/news/articles/police-using-ai-catch-seatbelt-213000006.html?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://uk.news.yahoo.com/experts-deeply-concerned-government-agency-124000628.html?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.morningstar.com/news/pr-newswire/20260305sf00337/oracle-transforms-construction-safety-management-with-ai?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.business-standard.com/technology/tech-news/future-ai-models-may-lie-to-appear-safe-in-tests-openai-study-warns-126030600492_1.html/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://oecd.ai/en/incidents/2025-01-29-15f0?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.aol.com/articles/openai-microsoft-team-state-law-190001524.html?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://ssai-lab.github.io/?utm_source=openai",
+      "title": null
+    }
+  ],
+  "source_count": 12,
+  "domain_filter_check": null,
+  "latency_ms": 11233.4,
+  "usage": {
+    "input_tokens": 310,
+    "output_tokens": 291,
+    "total_tokens": 601
+  },
+  "error": null
+}

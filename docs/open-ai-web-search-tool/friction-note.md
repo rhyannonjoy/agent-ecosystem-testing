@@ -41,3 +41,51 @@ substitute for credits entirely.
 **Contrast with Gemini**: free tier allows immediate API access with
 only rate limiting - 13 second sleep between calls. OpenAI requires a paid account
 before any API call succeeds, regardless of model.
+
+## Domain Filtering Schema Discrepancies
+
+When implementing domain filtering for the raw track - `web_search_test_raw.py`,
+the [web search tool docs](https://platform.openai.com/docs/guides/tools-web-search)
+describe a `filters` object with a `type` field - this returns a `400` on every call:
+
+```shell
+"Unknown parameter: 'tools[0].filters.type'"
+```
+
+**Fix**: three changes required, none documented explicitly:
+
+```python
+# 1. Remove `type`; use flat keys directly
+"filters": { "allowed_domains": ["reuters.com"] }
+"filters": { "excluded_domains": ["wikipedia.org"] }
+
+# 2. Use `web_search` - not `web_search_preview`- for domain-filtered calls
+"type": "web_search"
+
+# 3. Pass `include` param — `response.sources` is not populated by default
+include=["web_search_call.action.sources"]
+```
+
+> **Contrast with Gemini**: `url_context_metadata` populates automatically with no additional parameters.
+
+## Block-list Filtering Undocumented, Non-functional
+
+Docs state filtering requires `web_search`; empirically it worked
+once on `web_search_preview` and never on `web_search`, regardless of model.
+
+The correct parameter name for block-listing isn't explicitly stated.
+Attempted three key names across 6 runs, 2 tool types, and 2 models, all `400`:
+
+```shell
+exclude_domains    → "Unknown parameter: 'tools[0].filters.type'"
+excluded_domains   → "Unknown parameter: 'tools[0].filters.excluded_domains'"
+blocked_domains    → "Unknown parameter: 'tools.web_search.filters.blocked_domains'"
+```
+
+The changing error path (`tools[0].filters` vs `tools.web_search.filters`) suggests
+the two tools hit different validation layers, the schema may be partially implemented.
+
+Allow-list filtering also proved unreliable: `allowed_domains` on `web_search_preview`
+worked once - r2, `filter_respected: true`, 2 "apnews.com" sources - then broke after
+switching to `web_search` per docs guidance. `web_search` rejected `filters` entirely
+with `"Unsupported parameter 'filters'"` on both `gpt-4o` and `gpt-5` models.

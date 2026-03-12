@@ -1,0 +1,50 @@
+{
+  "test_id": "test_8_domain_filter_allowed",
+  "label": "Domain filter: allow-list (reuters.com, apnews.com)",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T22:31:45.904531Z",
+  "query": "Latest news on US Federal Reserve interest rate decisions.",
+  "search_context_size": "medium",
+  "domain_filter": {
+    "allowed_domains": [
+      "reuters.com",
+      "apnews.com"
+    ]
+  },
+  "tool_invoked": true,
+  "search_queries_issued": [
+    "latest US Federal Reserve interest rate decision October 2023"
+  ],
+  "search_call_count": 1,
+  "response_text": "I attempted to retrieve the latest news regarding U.S. Federal Reserve interest rate decisions from **Reuters** and **AP News**, as instructed. Unfortunately, I couldn\u2019t locate any relevant articles from either of these sources\u2014this suggests there have been **no recent",
+  "response_text_char_count": 269,
+  "sources": [
+    {
+      "url": "https://assets.apnews.com/19/1b/545643064e0caecf2c92d2897ce0/ap-ncaa-bracket-men.pdf",
+      "title": null
+    },
+    {
+      "url": "https://assets.apnews.com/14/3d/676decd64f808025bd6e9e9263be/ap-ncaa-bracket-women.pdf",
+      "title": null
+    }
+  ],
+  "source_count": 2,
+  "domain_filter_check": {
+    "filter_type": "allow",
+    "allowed_domains": [
+      "reuters.com",
+      "apnews.com"
+    ],
+    "violation_count": 0,
+    "violations": [],
+    "filter_respected": true
+  },
+  "latency_ms": 4416.7,
+  "usage": {
+    "input_tokens": 3822,
+    "output_tokens": 77,
+    "total_tokens": 3899
+  },
+  "error": null
+}

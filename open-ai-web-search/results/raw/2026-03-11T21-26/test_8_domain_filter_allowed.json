@@ -1,0 +1,27 @@
+{
+  "test_id": "test_8_domain_filter_allowed",
+  "label": "Domain filter: allow-list (reuters.com, apnews.com)",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T21:27:48.073234Z",
+  "query": "Latest news on US Federal Reserve interest rate decisions.",
+  "search_context_size": "medium",
+  "domain_filter": {
+    "type": "domain",
+    "domains": [
+      "reuters.com",
+      "apnews.com"
+    ]
+  },
+  "tool_invoked": null,
+  "search_queries_issued": [],
+  "search_call_count": 0,
+  "response_text": null,
+  "response_text_char_count": 0,
+  "sources": [],
+  "source_count": 0,
+  "domain_filter_check": null,
+  "latency_ms": null,
+  "usage": {},
+  "error": "Error code: 400 - {'error': {'message': \"Unknown parameter: 'tools[0].filters.type'.\", 'type': 'invalid_request_error', 'param': 'tools[0].filters.type', 'code': 'unknown_parameter'}}"
+}

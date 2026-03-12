@@ -44,7 +44,7 @@ Model: `gpt-4o-mini-search-preview` · 3 runs
 
 >*_5 runs total: first two runs ran without credits and errored out_
 
-### Cross-run citation counts
+### Cross-run Citation Counts
 
 | Test | Label | r1 | r2 | r3 |
 | ------ | ------- | ------: | ------: | ------: |

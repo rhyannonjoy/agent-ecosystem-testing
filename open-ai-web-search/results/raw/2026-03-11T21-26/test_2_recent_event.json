@@ -1,0 +1,27 @@
+{
+  "test_id": "test_2_recent_event",
+  "label": "Recent event",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T21:26:48.529923Z",
+  "query": "Who won the most recent Super Bowl?",
+  "search_context_size": "medium",
+  "domain_filter": null,
+  "tool_invoked": true,
+  "search_queries_issued": [
+    "most recent Super Bowl winner 2023"
+  ],
+  "search_call_count": 1,
+  "response_text": "The Seattle Seahawks won the most recent Super Bowl, Super Bowl LX, on February 8, 2026, defeating the New England Patriots 29\u201313 at Levi's Stadium in Santa Clara, California. Running back Kenneth Walker III was named the game's Most Valuable Player (MVP) after rushing for 135 yards, becoming the first running back to earn the MVP title since Terrell Davis in 1998. ([time.com](https://time.com/7372995/super-bowl-winner-2026-seattle/?utm_source=openai))\n\nThe Seahawks' defense was instrumental in the victory, forcing three turnovers and holding the Patriots scoreless until the fourth quarter. Kicker Jason Myers also contributed significantly, setting a Super Bowl record by making five field goals. ([time.com](https://time.com/7372995/super-bowl-winner-2026-seattle/?utm_source=openai))\n\nThis win marked the Seahawks' second Super Bowl title, their first being in 2014 when they defeated the Denver Broncos in Super Bowl XLVIII. ([time.com](https://time.com/7372995/super-bowl-winner-2026-seattle/?utm_source=openai))\n\nThe halftime show featured Puerto Rican singer Bad Bunny as the main ",
+  "response_text_char_count": 1095,
+  "sources": [],
+  "source_count": 0,
+  "domain_filter_check": null,
+  "latency_ms": 8039.6,
+  "usage": {
+    "input_tokens": 309,
+    "output_tokens": 277,
+    "total_tokens": 586
+  },
+  "error": null
+}

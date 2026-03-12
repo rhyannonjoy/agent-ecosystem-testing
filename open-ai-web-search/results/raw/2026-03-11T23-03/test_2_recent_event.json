@@ -1,0 +1,76 @@
+{
+  "test_id": "test_2_recent_event",
+  "label": "Recent event",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T23:03:37.113403Z",
+  "query": "Who won the most recent Super Bowl?",
+  "search_context_size": "medium",
+  "domain_filter": null,
+  "tool_invoked": true,
+  "search_queries_issued": [
+    "most recent Super Bowl winner 2023"
+  ],
+  "search_call_count": 1,
+  "response_text": "The Seattle Seahawks won the most recent Super Bowl, Super Bowl LX, on February 8, 2026, defeating the New England Patriots 29\u201313 at Levi's Stadium in Santa Clara, California. ([time.com](https://time.com/7372995/super-bowl-winner-2026-seattle/?utm_source=openai)) This victory marked the Seahawks' second Super Bowl title, with their first win occurring in 2014. Running back Kenneth Walker III was named the game's Most Valuable Player (MVP) after rushing for 135 yards, becoming the first running back to earn the MVP title since Terrell Davis 28 years prior. ([time.com](https://time.com/7372995/super-bowl-winner-2026-seattle/?utm_source=openai))\n\nThe Seahawks' defense was instrumental in the win, forcing three turnovers and holding the Patriots scoreless until the fourth quarter. Kicker Jason Myers also contributed significantly, setting a Super Bowl record by making five field goals. ([time.com](https://time.com/7372995/super-bowl-winner-2026-seattle/?utm_source=openai))\n\nThe halftime show featured Puerto Rican singer Bad Bunny as the main performer, with surprise appearances by Lady Gaga and Ricky Martin. ",
+  "response_text_char_count": 1123,
+  "sources": [
+    {
+      "url": "https://time.com/7372995/super-bowl-winner-2026-seattle/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://versatileer.com/2026/02/08/congratulations-seahawks-super-bowl-lx-winner-2026/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.foxsports.com/stories/nfl/2026-super-bowl-odds-coin-toss-props?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.forbes.com/sites/robreischel/2026/02/08/the-green-bay-packers-have-7th-best-odds-to-win-super-bowl-lxi/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.cbssports.com/nfl/news/madden-nfl-26-super-bowl-2026-simulation-seahawks-patriots/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.tipmantips.com/news/the-superbowl-preview/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.betfair.com/betting/american-football/nfl/super-bowl-lxi-winner-2026-27/mwe-924.501030749?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.oddsshark.com/super-bowl/futures?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.alibaba.com/product-insights/who-won-super-bowl-2026-chiefs-beat-eagles-38-35.html?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.alibaba.com/product-insights/who-won-2026-super-bowl-chiefs-beat-eagles-38-35.html?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://beta.predyx.com/market/super-bowl-winner-2026-1740263192?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.prizepicks.com/playbook-article/2026-super-bowl-futures-reasons-why-each-team-can-win-sb-lx?utm_source=openai",
+      "title": null
+    }
+  ],
+  "source_count": 12,
+  "domain_filter_check": null,
+  "latency_ms": 9792.4,
+  "usage": {
+    "input_tokens": 309,
+    "output_tokens": 280,
+    "total_tokens": 589
+  },
+  "error": null
+}

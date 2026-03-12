@@ -7,49 +7,44 @@ parent: OpenAI Web Search
 
 ## Methodology
 
-For contribution to [agent-ecosystem/agent-docs-spec Known Platform Limits](https://github.com/agent-ecosystem/agent-docs-spec/blob/main/SPEC.md#known-platform-limits).
+Empirical testing of the [OpenAI web search tool](https://platform.openai.com/docs/guides/tools-web-search)
+across two tracks that expose different layers of the same behavior.
 
-## ChatGPT-interpreted vs Raw
+The **ChatGPT-interpreted track** mirrors the ChatGPT UI experience: the model always searches,
+self-reports what it found, and cites inline. There is no tool plumbing exposed to the caller -
+search invocation, source lists, and internal queries are all implicit. The **raw track** exposes
+the plumbing: explicit `web_search_call` items in `response.output`, exact source lists, and
+the internal query string the model issued. These are Python `len()` calls and dictionary
+lookups, not model estimates.
 
-Track A mirrors the ChatGPT UI experience - abstracted, opinionated, always-on.  
-Track B exposes the raw plumbing and is what you'd use for agent workflows.
+The gap between these two tracks is itself a finding. If the interpreted track reports "12 distinct
+sources" but the raw `source_count` is 1, that discrepancy belongs in the spec.
 
-| | ChatGPT-interpreted | Raw |
-| --- | --- | --- |
-| **API** | Chat Completions | Responses API |
-| **Model** | `gpt-4o-search-preview` | `gpt-4o` + `web_search_preview` tool |
-| **Always searches?** | Yes | Model decides |
-| **Tool call visible?** | No |  Yes - `web_search_call` item |
-| **Full sources list?** | No |  Yes - `response.sources` |
-| **Domain filtering?** |  No |  Yes - `filters.domains` |
+| | `web_search_test.py` | `web_search_test_raw.py` |
+| - | -------------------- | ------------------------ |
+| API | Chat Completions API | Responses API |
+| Model | `gpt-4o-mini-search-preview` | `gpt-4o` + `web_search_preview` tool |
+| Always searches? | Yes - implicit, no visibility | Model decides - explicit `web_search_call` item |
+| Source list | Not available | `web_search_call.action.sources` via `include` param |
+| Internal query | Not exposed | `action.query` from `web_search_call` item |
+| Domain filtering | Not available | Available on `web_search` tool - non-functional as tested |
+| `max_output_tokens` | Not set | `256` - metadata is the signal, not prose |
+| Best used for | What the model perceives it retrieved | Citable measurements for the spec |
 
-## Setup
+## Measurement Constraints
 
-```bash
-pip install openai
-export OPENAI_API_KEY=sk-...
-python openai_web_search_test.py
-```
+The interpreted track uses `gpt-4o-mini-search-preview`, a specialized Chat Completions model
+that always performs web search before generating. Search invocation, source selection, and
+citation behavior are all internal to the model; there is no `web_search_call` item, no
+`sources` field, and _no way to verify the model's self-reported source counts against actual
+URLs consulted_.
 
-## What it tests
+The raw track uses `gpt-4o` with `web_search_preview` as an explicit tool via the Responses API.
+Tool invocation is conditional: the model decides whether to search based on the query. This
+exposes `search_queries_issued`, full source lists, and exact token accounting, but also
+surfaces model bias: internal queries appended training-era years "2023" despite running in
+March 2026.
 
-1. **Core comparison**: runs all `TEST_QUERIES` through both tracks side by side, capturing latency, citation count, sources count, and response text.
-
-2. **Probe 1: Static fact tool-skip**: does Track B correctly skip `web_search_preview` for `"What is 2 + 2?"` or does it always search anyway?
-
-3. **Probe 2: `search_context_size` tradeoff**: measures latency and source count across `low`, `medium`, `high` for the same query.
-
-4. **Probe 3: Domain filtering**: verifies that `filters.domains` - Responses API only - actually constrains sources returned.
-
-## Outputs
-
-- Console: side-by-side comparison per query
-- `openai_web_search_limits.json`: machine-readable summary of known asymmetries, suitable for pasting into `SPEC.md`
-
-## Known Platform Limits
-
-- Domain filtering is **only** available on Track B - Responses API - not on Chat Completions search models
-- Track A **always** issues a web search call; Track B's tool invocation is heuristic; trivial queries may skip
-- The `web_search_call` output item exposes the model's internal search query string on Track B, which isn't visible on Track A
-- `search_context_size` config is different per track: `web_search_options.search_context_size` on Track A, tool config on Track B
-- Citation annotations - inline, available on both; full `sources` list - all URLs consulted - only on Track B
+Docs describe domain filtering - `filters` parameter on the `web_search` tool, but use returned
+`"Unsupported parameter 'filters'"` on every attempt across `gpt-4o` and `gpt-5`. See
+[friction note](friction-note.md) for the full error progression.

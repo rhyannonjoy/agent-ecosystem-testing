@@ -34,8 +34,8 @@ impossible without a paid account:
 - **Per-day**: `GenerateRequestsPerDayPerProjectPerModel-FreeTier`, limit: 20
 
 The 8-test suite requires a minimum of 8 requests per run with no headroom for
-retries. The daily cap was exhausted across three partial runs; tests 3–8
-returned `429 RESOURCE_EXHAUSTED` on the final run. A paid-tier is required
+retries. The daily cap exhausted across three partial runs; tests 3–8
+returned `429 RESOURCE_EXHAUSTED` on the final run. Paid-tier required
 to complete the suite reliably in a single run, otherwise you'll see:
 
 ```bash

@@ -1,0 +1,27 @@
+{
+  "test_id": "test_10_ambiguous_query",
+  "label": "Ambiguous query",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T21:28:07.582842Z",
+  "query": "Python release",
+  "search_context_size": "medium",
+  "domain_filter": null,
+  "tool_invoked": true,
+  "search_queries_issued": [
+    "latest Python release 2023"
+  ],
+  "search_call_count": 1,
+  "response_text": "As of March 11, 2026, the latest stable release of Python is version 3.13.6, which was released on August 6, 2025. ([discuss.python.org](https://discuss.python.org/t/python-3-13-6-has-been-released/101482?utm_source=openai)) This release includes numerous bug fixes, build improvements, and documentation updates.\n\nPython 3.13 introduced several new features and optimizations compared to Python 3.12. The development of Python 3.13 began on May 22, 2023, with the final release scheduled for October 7, 2024. ([peps.python.org](https://peps.python.org/pep-0719/?utm_source=openai))\n\nThe next anticipated major release is Python 3.14, scheduled for October 7, 2025. ([test.python.org](https://test.python.org/downloads/?utm_source=openai))\n\nFor the most current information and to download the latest version, you can visit the official Python website. ",
+  "response_text_char_count": 853,
+  "sources": [],
+  "source_count": 0,
+  "domain_filter_check": null,
+  "latency_ms": 9341.7,
+  "usage": {
+    "input_tokens": 303,
+    "output_tokens": 240,
+    "total_tokens": 543
+  },
+  "error": null
+}

@@ -1,0 +1,76 @@
+{
+  "test_id": "test_5_open_research",
+  "label": "Open-ended research query",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T23:04:09.372216Z",
+  "query": "Summarize the latest developments in EU AI regulation.",
+  "search_context_size": "medium",
+  "domain_filter": null,
+  "tool_invoked": true,
+  "search_queries_issued": [
+    "latest developments in EU AI regulation 2023"
+  ],
+  "search_call_count": 1,
+  "response_text": "The European Union's Artificial Intelligence Act (AI Act), which came into force on August 1, 2024, is being implemented in phases to regulate AI technologies across member states. This regulation adopts a risk-based approach, categorizing AI systems into four levels: minimal, limited, high, and unacceptable risk.\n\n**Implementation Timeline:**\n\n- **February 2, 2025:** Prohibitions on AI systems deemed to pose unacceptable risks, such as social scoring and exploitative manipulation of vulnerable groups, became legally binding. ([ttms.com](https://ttms.com/eu-ai-act-update-2025-code-of-practice-enforcement-industry-reactions/?utm_source=openai))\n\n- **August 2, 2025:** Obligations for general-purpose AI (GPAI) models took effect. Providers of these models are required to comply with transparency, safety, and copyright measures, including detailed technical documentation and disclosure of training data. A grace period until August 2, 2027, is provided for existing models to achieve full compliance. ([ttms.com](https://ttms.com/eu-ai-act-update-2025-code-of-practice-enforcement-industry-reactions/?utm_source=openai)) ",
+  "response_text_char_count": 1130,
+  "sources": [
+    {
+      "url": "https://data.europa.eu/en/news-events/news/open-data-and-ai-update-ai-act?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://commission.europa.eu/topics/artificial-intelligence_en?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.europarl.europa.eu/news/en/headlines/society/20230601STO93804/eu-ai-act-first-regulation-on-artificial-intelligence?at_advertiser=Webcomm&at_audience=artificial+intelligence+act&at_campaign=20226-Digi-tal&at_creation=RSA&at_goal=TR_G&at_location=DE&at_medium=Google_Ads&at_platform=Search&at_topic=Artificial_intelligence_Act&utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://ttms.com/eu-ai-act-update-2025-code-of-practice-enforcement-industry-reactions/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://kpmg.com/xx/en/our-insights/regulatory-insights/evolving-plans-for-ai-regulation.html?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.dlapiper.com/en/insights/publications/ai-outlook/2025/the-european-commission-considers-pause-on-ai-act-entry-into-application?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.dlapiper.com/en/insights/publications/2025/08/latest-wave-of-obligations-under-the-eu-ai-act-take-effect?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://artificial-intelligence-wiki.com/ai-research/ai-news-and-trends/ai-regulation-news-tracker/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://natlawreview.com/article/ai-coming-eu-eu-artificial-intelligence-acts-recent-publication-next-steps?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://iapp.org/resources/article/global-ai-governance-eu/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.schellman.com/blog/cybersecurity/what-next-and-what-now-after-the-eu-ai-act?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.fladgate.com/insights/ai-round-up-march-2025?utm_source=openai",
+      "title": null
+    }
+  ],
+  "source_count": 12,
+  "domain_filter_check": null,
+  "latency_ms": 13531.2,
+  "usage": {
+    "input_tokens": 312,
+    "output_tokens": 270,
+    "total_tokens": 582
+  },
+  "error": null
+}

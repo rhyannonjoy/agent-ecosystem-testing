@@ -1,0 +1,25 @@
+{
+  "test_id": "test_4_trivial_math",
+  "label": "Trivial fact \u2014 no search expected",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T21:27:04.299351Z",
+  "query": "What is 2 + 2?",
+  "search_context_size": "medium",
+  "domain_filter": null,
+  "tool_invoked": false,
+  "search_queries_issued": [],
+  "search_call_count": 0,
+  "response_text": "2 + 2 equals 4.",
+  "response_text_char_count": 15,
+  "sources": [],
+  "source_count": 0,
+  "domain_filter_check": null,
+  "latency_ms": 1854.3,
+  "usage": {
+    "input_tokens": 309,
+    "output_tokens": 10,
+    "total_tokens": 319
+  },
+  "error": null
+}
