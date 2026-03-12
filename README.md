@@ -19,11 +19,11 @@ negotiation - for platforms that don't document these details.
 
 ## Platforms Tested
 
-| Platform | Tool | Scripts | Results |
-| -------- | ---- | ------- | ------- |
-| Anthropic Claude API | web fetch tool | `claude-api/` | `claude-api/results/` |
-| Google Gemini API | URL context tool | `gemini-url-context/` | `gemini-url-context/results/` |
-| OpenAI: Chat Completions API, Responses API | web search tool | `open-ai-web-search/` | `open-ai-web-search/results/` |
+| Platform | Tool | Scripts, Results |
+| -------- | ---- | ------- |
+| Anthropic Claude API | web fetch tool | `claude-api/` |
+| Google Gemini API | URL context tool | `gemini-url-context/` |
+| OpenAI: Chat Completions API, Responses API | web search tool | `open-ai-web-search/` |
 
 Each platform has two tracks:
 
