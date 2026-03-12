@@ -21,6 +21,7 @@ distinct sources" but the raw `source_count` is 1, that discrepancy belongs in t
 
 | | `web_search_test.py` | `web_search_test_raw.py` |
 | - | ---------------------- | -------------------------- |
+| API | Chat Completions API | Responses API |
 | Measures | Model's interpretation of what it retrieved | Raw metadata extracted directly from response object |
 | Search invocation | Implicit - model always searches, no visibility | Explicit `web_search_call` item in `response.output` |
 | Source counts | Model self-report - frequently overstates | Python `len()` on `web_search_call.action.sources` - exact |
@@ -91,9 +92,10 @@ Both tracks agree on the following and are the citable findings for the spec:
 ### Paid Account Required
 
 - OpenAI requires credits before any API call succeeds, regardless of model or endpoint.
-  `insufficient_quota` is an account-level block, not a rate limit. See
-  [friction note](friction-note.md) for details.
-- Like the Claude API web fetch tool, requires paid subscription to run the entire test suite of both
-  tracks reliably
-- Slightly different than Gemini API URL context tool in which the free tier allows immediate access
-  with rate limiting; but requires credit to run the entire test suite of both tracks reliably
+  `insufficient_quota` is an account-level block, not a rate limit; see
+  [the Friction Note](friction-note.md) for details
+- Like [the Claude API web fetch tool](../anthropic-claude-api-web-fetch-tool/friction-note.md),
+  requires paid subscription to run the entire test suite of both tracks reliably
+- Slightly different than [the Gemini API URL context tool](../google-gemini-url-context-tool/friction-note.md)
+  in which the free tier allows immediate access with rate limiting; but requires credit to run the entire test
+  suite of both tracks reliably

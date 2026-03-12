@@ -18,13 +18,16 @@ but required digging around. I started on the
 no obvious "get an API key here" or explicit instructions, but there is an "API Dashboard ↗"
 button that hangs out by itself in the top right tools bar. I wandered around in the Get Started
 sections Overview and Quickstart before clicking on "API Dashboard ↗" - which requires an
-account with your full name and birthdate and tries to sell credits immediately - 
-my assumption was that I wouldn't be able to use the endpoint for free and I was right.
-My initial attempts to run the ChatGPT-interpreted path completely errored-out:
+account with your full name and birthdate and tries to sell credits immediately. My assumption
+was that I wouldn't be able to use the endpoint for free and I was right.
+My initial attempts to run [the ChatGPT-interpreted path](open-ai-web-search-test-findings.md)
+completely errored-out:
 
 ```shell
 "Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}"
 ```
+
+---
 
 ## No credits = no API access at all
 
@@ -33,14 +36,17 @@ Switching to a cheaper model, like the `gpt-4o-mini-search-preview`, doesn't hel
 the `429` error applies to every model on the account without credits.
 
 **Fix**: Go to [platform.openai.com/settings/billing](https://platform.openai.com/settings/billing)
-and add credits. A minimum top-up, $5–10, is enough to run both tracks in full.
-The mini model _is_ cheaper per call (~10× vs `gpt-4o-search-preview`), so it's
+and add credits. A minimum top-up, $5, is enough to run both tracks in full.
+The mini model _is_ cheaper per call, ~10× vs `gpt-4o-search-preview`, so it's
 worth using once credits are active to keep test costs low, but it can't
 substitute for credits entirely.
 
-**Contrast with Gemini**: free tier allows immediate API access with
-only rate limiting - 13 second sleep between calls. OpenAI requires a paid account
-before any API call succeeds, regardless of model.
+**OpenAI vs Other Platforms**: all three testing suites required payment in slightly different ways -
+Claude API access requires credits, while the Gemini free tier allows immediate API access with
+rate limiting, sleep between calls, but still required credits to run the suites reliably.
+OpenAI requires a paid account before any API call succeeds, regardless of model.
+
+---
 
 ## Domain Filtering Schema Discrepancies
 
@@ -52,7 +58,7 @@ describe a `filters` object with a `type` field - this returns a `400` on every 
 "Unknown parameter: 'tools[0].filters.type'"
 ```
 
-**Fix**: three changes required, none documented explicitly:
+**Assumed Fix**: three changes required, none documented explicitly:
 
 ```python
 # 1. Remove `type`; use flat keys directly
@@ -67,6 +73,8 @@ include=["web_search_call.action.sources"]
 ```
 
 > **Contrast with Gemini**: `url_context_metadata` populates automatically with no additional parameters.
+
+---
 
 ## Block-list Filtering Undocumented, Non-functional
 

@@ -7,6 +7,8 @@ parent: OpenAI Web Search
 
 ## Key Findings OpenAI Web Search, Raw
 
+---
+
 **Raw Test Workflow**:
 
     1. Call the Responses API with `gpt-4o` + `web_search_preview` tool enabled
@@ -27,58 +29,46 @@ parent: OpenAI Web Search
 
 | Limit | Observed |
 | ------- | ---------- |
-| Tool invocation | Conditional: skipped for static facts and trivial math, consistent across all 3 runs |
-| Tool invocation visibility | Available: explicit `web_search_call` item in `response.output` |
-| `search_context_size` latency impact | Inconsistent: `high` was slower in r1 & r3, but faster than `low` in r2 |
-| `search_context_size` source count impact | None observed: source count was 12 across all context sizes in all runs |
-| Sources list - all URLs consulted | Available via `include=["web_search_call.action.sources"]` |
-| Domain filtering - allow-list | Worked once on `web_search_preview` for r1; broken on `web_search` across all subsequent runs |
-| Domain filtering - block-list | Never succeeded; `filters` parameter rejected in all configurations and models tested |
-| `search_queries_issued` date accuracy | Unreliable: model appends training-era year to internal queries despite running in 2026 |
+| Tool invocation | **Conditional**: skipped for static facts and trivial math, consistent across all 3 runs |
+| Tool invocation visibility | **Available**: explicit `web_search_call` item in `response.output` |
+| `search_context_size` latency impact | **Inconsistent**: `high` was slower in r1 & r3, but faster than `low` in r2 |
+| `search_context_size` source count impact | **None observed**: source count was 12 across all context sizes in all runs |
+| Sources list - all URLs consulted | **Available** via `include=["web_search_call.action.sources"]` |
+| Domain filtering - allow-list | **Worked _once_** on `web_search_preview` for r1; broken on `web_search` across all subsequent runs |
+| Domain filtering - block-list | **Never succeeded**; `filters` parameter rejected in all configurations and models tested |
+| `search_queries_issued` date accuracy | **Unreliable**: model appends training-era year to internal queries despite running in 2026 |
 
 ## Results Details
 
-Model: `gpt-4o` · 5 runs
+>_r5 = `test_8` & `test_9` only, targeted domain filter retry on `web_search_preview`; r5 model = `gpt-5` while
+the remainder of the test runs model = `gpt-4o`_
 
-### Cross-run tool invocation
+### Cross-run Tool Invocation
 
-| Test | Label | r1 Invoked | r1 Latency | r2 Invoked | r2 Latency | r3 Invoked | r3 Latency |
-| ------ | ------- | :-------: | ------: | :-------: | ------: | :-------: | ------: |
-| `test_1_live_data` | Live data | True | 7380.7 ms | True | 16029.8 ms | True | 4180.5 ms |
-| `test_2_recent_event` | Recent event | True | 8039.6 ms | True | 10375.8 ms | True | 7444.5 ms |
-| `test_3_static_fact` | Static fact | False | 3901.6 ms | False | 3085.7 ms | False | 2032.1 ms |
-| `test_4_trivial_math` | Trivial math | False | 1854.3 ms | False | 2464.0 ms | False | 730.6 ms |
-| `test_5_open_research` | Open-ended research | True | 7385.2 ms | True | 12505.7 ms | True | 12299.5 ms |
-| `test_6_context_size_low` | `context_size`: low | True | 10457.6 ms | True | 10867.6 ms | True | 10251.3 ms |
-| `test_7_context_size_high` | `context_size`: high | True | 5744.0 ms | True | 15984.4 ms | True | 8614.0 ms |
-| `test_8_domain_filter_allowed` | Allow-list filter | `ERROR†` | — | True* | 4416.7 ms | `ERROR‡` | — |
-| `test_9_domain_filter_blocked` | Block-list filter | `ERROR†` | — | `ERROR§` | — | `ERROR‡` | — |
-| `test_10_ambiguous_query` | Ambiguous query | True | 9341.7 ms | True | 7140.5 ms | True | 6195.8 ms |
+| Test | Label | r1 | r2 | r3 | r4 | r5 | r6 |
+| ------ | ------- | :---: | :---: | :---: | :---: | :---: | :---: |
+| `test_1_live_data` | Live data | ✓ | ✓ | ✓ | ✓ | — | ✓ |
+| `test_2_recent_event` | Recent event | ✓ | ✓ | ✓ | ✓ | — | ✓ |
+| `test_3_static_fact` | Static fact | ✗ | ✗ | ✗ | ✗ | — | ✗ |
+| `test_4_trivial_math` | Trivial math | ✗ | ✗ | ✗ | ✗ | — | ✗ |
+| `test_5_open_research` | Open-ended research | ✓ | ✓ | ✓ | ✓ | — | ✓ |
+| `test_6_context_size_low` | `context_size`: low | ✓ | ✓ | ✓ | ✓ | — | ✓ |
+| `test_7_context_size_high` | `context_size`: high | ✓ | ✓ | ✓ | ✓ | — | ✓ |
+| `test_8_domain_filter_allowed` | Allow-list filter | `ERR`† | ✓* | `ERR`‡ | `ERR`‡ | `ERR`¶ | `ERR`‡ |
+| `test_9_domain_filter_blocked` | Block-list filter | `ERR`† | `ERR`§ | `ERR`‡ | `ERR`‡ | `ERR`¶ | `ERR`‡ |
+| `test_10_ambiguous_query` | Ambiguous query | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 
-| Test | Label | r4 Invoked | r4 Latency | r5 Invoked | r5 Latency | r6 Invoked | r6 Latency |
-| ------ | ------- | :-------: | ------: | :-------: | ------: | :-------: | ------: |
-| `test_1_live_data` | Live data | True | 4823.1 ms | — | — | True | 4301.6 ms |
-| `test_2_recent_event` | Recent event | True | 9792.4 ms | — | — | True | 5165.9 ms |
-| `test_3_static_fact` | Static fact | False | 1130.7 ms | — | — | False | 829.0 ms |
-| `test_4_trivial_math` | Trivial math | False | 2578.6 ms | — | — | False | 701.4 ms |
-| `test_5_open_research` | Open-ended research | True | 13531.2 ms | — | — | True | 6899.7 ms |
-| `test_6_context_size_low` | `context_size`: low | True | 10142.6 ms | — | — | True | 9531.2 ms |
-| `test_7_context_size_high` | `context_size`: high | True | 10710.5 ms | — | — | True | 11233.4 ms |
-| `test_8_domain_filter_allowed` | Allow-list filter | `ERROR‡` | — | `ERROR¶` | — | `ERROR‡` | — |
-| `test_9_domain_filter_blocked` | Block-list filter | `ERROR‡` | — | `ERROR¶` | — | `ERROR‡` | — |
-| `test_10_ambiguous_query` | Ambiguous query | True | 6195.8 ms | — | — | True | 5532.7 ms |
+**Domain Filter Error Progression**
 
->_r5 = `test_8` & `test_9` only, targeted domain filter retry on `web_search_preview`; r5 model = `gpt-5`_
+- †,r1: `"Unknown parameter: 'tools[0].filters.type'"` - initial schema with `type: "domain"` key
+- *,r2 `test_8`: `filter_respected: true`, 2 "apnews.com" sources - `web_search_preview` + `allowed_domains`, only success across all runs
+- §,r2 `test_9`: `"Unknown parameter: 'tools[0].filters.excluded_domains'"` - first block-list key attempt
+- ‡,r3/r4/r6: `"Unsupported parameter 'filters'"` - after switching to `web_search` per docs guidance
+- ¶,r5 with `gpt-5`: `"Unsupported parameter 'filters'"` - model change produced identical error
 
-**Domain filter error progression**
+---
 
-- † r1: `"Unknown parameter: 'tools[0].filters.type'"` - initial schema with `type: "domain"` key
-- * r2 test_8: `filter_respected: true`, 2 "apnews.com" sources - `web_search_preview` + `allowed_domains`, only success across all runs
-- § r2 test_9: `"Unknown parameter: 'tools[0].filters.excluded_domains'"` - first block-list key attempt
-- ‡ r3/r4/r6: `"Unsupported parameter 'filters'"` - after switching to `web_search` per docs guidance
-- ¶ r5 with `gpt-5`: `"Unsupported parameter 'filters'"` - model change produced identical error
-
-### `search_context_size` latency detail
+### `search_context_size` Latency Detail
 
 | | r1 | r2 | r3 |
 | --- | ------: | ------: | ------: |
