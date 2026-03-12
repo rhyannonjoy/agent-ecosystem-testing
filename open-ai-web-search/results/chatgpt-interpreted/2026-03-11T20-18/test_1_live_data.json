@@ -1,0 +1,20 @@
+{
+  "test_id": "test_1_live_data",
+  "label": "Live data (should always search)",
+  "model": "gpt-4o-mini-search-preview",
+  "track": "chatgpt-interpreted",
+  "timestamp": "2026-03-11T20:18:44.089174Z",
+  "prompt": "Search for the current price of Bitcoin in USD. Tell me: what did you find? How recent was the data? Did anything appear to be missing or stale?",
+  "web_search_options": null,
+  "interpreted_response": "As of March 11, 2026, at 3:18 PM Eastern Time, Bitcoin (BTC) is trading at approximately $70,465 USD.\n\n## Stock market information for Bitcoin (BTC)\n- Bitcoin is a crypto in the CRYPTO market.\n- The price is 70465.0 USD currently with a change of 417.00 USD (0.01%) from the previous close.\n- The intraday high is 71271.0 USD and the intraday low is 69014.0 USD.\n\n\nThe data is current as of the specified time. No information appears to be missing or stale. ",
+  "citations": [],
+  "citation_count": 0,
+  "finish_reason": "stop",
+  "latency_ms": 2154.8,
+  "usage": {
+    "prompt_tokens": 33,
+    "completion_tokens": 128,
+    "total_tokens": 161
+  },
+  "error": null
+}

@@ -1,0 +1,45 @@
+{
+  "test_id": "test_1_live_data",
+  "label": "Live data (should always search)",
+  "model": "gpt-4o-mini-search-preview",
+  "track": "chatgpt-interpreted",
+  "timestamp": "2026-03-11T19:59:00.795106Z",
+  "prompt": "Search for the current price of Bitcoin in USD. Tell me: what did you find? How recent was the data? Did anything appear to be missing or stale?",
+  "web_search_options": null,
+  "interpreted_response": "As of March 11, 2026, at 2:58 PM Eastern Time, the price of Bitcoin (BTC) in USD varies slightly across different platforms:\n\n- **Coinbase**: $69,501.75 per BTC, with data updated at 5:45 AM on the same day. ([coinbase.com](https://www.coinbase.com/converter/gtq/?utm_source=openai))\n\n- **Gemini**: $70,695.63 per BTC, with data updated at 4:44 PM on March 11, 2026. ([gemini.com](https://www.gemini.com/en-GB/converter/WIF/HKD?utm_source=openai))\n\n- **CoinMarketCap**: $69,926.66 per BTC, with real-time updates. ([coinmarketcap.com](https://coinmarketcap.com/currencies/bitcoin/?utm_source=openai))\n\n- **Investing.com**: $70,668.20 per BTC, with data updated at 9:34 AM on the same day. ([investing.com](https://www.investing.com/crypto/bitcoin/javascry.?utm_source=openai))\n\nThe data from Coinbase and Investing.com appears to be slightly outdated, with updates from earlier in the day. The information from Gemini and CoinMarketCap is more recent, with updates from later in the day. Given the volatility of cryptocurrency markets, it's advisable to consult multiple sources for the most current information. ",
+  "citations": [
+    {
+      "url": "https://www.coinbase.com/converter/gtq/?utm_source=openai",
+      "title": "Cryptocurrency Calculator, Converter | Coinbase",
+      "start_index": 208,
+      "end_index": 283
+    },
+    {
+      "url": "https://www.gemini.com/en-GB/converter/WIF/HKD?utm_source=openai",
+      "title": "Price of Bitcoin (BTC) to U.S. Dollar (USD) | Gemini",
+      "start_index": 367,
+      "end_index": 447
+    },
+    {
+      "url": "https://coinmarketcap.com/currencies/bitcoin/?utm_source=openai",
+      "title": "Bitcoin price today, BTC to USD live price, marketcap and chart | CoinMarketCap",
+      "start_index": 514,
+      "end_index": 600
+    },
+    {
+      "url": "https://www.investing.com/crypto/bitcoin/javascry.?utm_source=openai",
+      "title": "Bitcoin Price (BTC) | Bitcoin Value - Investing.com",
+      "start_index": 689,
+      "end_index": 776
+    }
+  ],
+  "citation_count": 4,
+  "finish_reason": "stop",
+  "latency_ms": 6908.2,
+  "usage": {
+    "prompt_tokens": 33,
+    "completion_tokens": 303,
+    "total_tokens": 336
+  },
+  "error": null
+}

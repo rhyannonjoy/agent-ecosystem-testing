@@ -1,0 +1,76 @@
+{
+  "test_id": "test_6_context_size_low",
+  "label": "search_context_size: low",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T23:17:31.780217Z",
+  "query": "What are the latest AI safety news headlines?",
+  "search_context_size": "low",
+  "domain_filter": null,
+  "tool_invoked": true,
+  "search_queries_issued": [
+    "latest AI safety news headlines October 2023"
+  ],
+  "search_call_count": 1,
+  "response_text": "Here are some recent developments in AI safety:\n\n**Regulatory Actions and Reports**\n\n- **Transparency in Frontier Artificial Intelligence Act**: In September 2025, California enacted SB-53, requiring AI companies to publicly assess potential catastrophic risks of their models and document adherence to safety standards. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Transparency_in_Frontier_Artificial_Intelligence_Act?utm_source=openai))\n\n- **Responsible AI Safety and Education (RAISE) Act**: New York State passed this law in December 2025, imposing transparency and safety requirements on developers of large AI models. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Responsible_AI_Safety_and_Education_Act?utm_source=openai))\n\n- **International AI Safety Report 2026**: Published in February 2026, this report provides a comprehensive review of AI capabilities and risks, authored by over 100 experts and led by Yoshua Bengio. ([internationalaisafetyreport.org](https://internationalaisafetyreport.org/?utm_source=openai))\n\n**Industry Developments**\n\n- **Oracle's AI-Enabled Safety Management**: In March 2026, Oracle introduced an AI solution to enhance safety management in construction, aiming to predict and prevent incidents. ",
+  "response_text_char_count": 1244,
+  "sources": [
+    {
+      "url": "https://www.techtarget.com/patientengagement/news/366639978/ECRI-AIs-diagnostic-capabilities-pose-patient-safety-risk-in-2026?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://internationalaisafetyreport.org/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.mlex.com/mlex/artificial-intelligence/articles/2419745/international-network-of-ai-safety-institutes-renamed-without-safety-?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.yahoo.com/news/openai-slashes-time-given-safety-105631217.html?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.yahoo.com/news/articles/police-using-ai-catch-seatbelt-213000006.html?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://uk.news.yahoo.com/experts-deeply-concerned-government-agency-124000628.html?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.yahoo.com/news/articles/most-harmful-ai-revealed-safety-144729607.html?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.morningstar.com/news/pr-newswire/20260305sf00337/oracle-transforms-construction-safety-management-with-ai?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.business-standard.com/technology/tech-news/future-ai-models-may-lie-to-appear-safe-in-tests-openai-study-warns-126030600492_1.html/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://oecd.ai/en/incidents/2025-01-29-15f0?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://oecd.ai/en/incidents/2025-06-23-688e?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://ssai-lab.github.io/?utm_source=openai",
+      "title": null
+    }
+  ],
+  "source_count": 12,
+  "domain_filter_check": null,
+  "latency_ms": 9531.2,
+  "usage": {
+    "input_tokens": 310,
+    "output_tokens": 278,
+    "total_tokens": 588
+  },
+  "error": null
+}

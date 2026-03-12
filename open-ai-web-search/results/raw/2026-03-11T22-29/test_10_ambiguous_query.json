@@ -1,0 +1,76 @@
+{
+  "test_id": "test_10_ambiguous_query",
+  "label": "Ambiguous query",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T22:32:03.210225Z",
+  "query": "Python release",
+  "search_context_size": "medium",
+  "domain_filter": null,
+  "tool_invoked": true,
+  "search_queries_issued": [
+    "latest Python release 2023"
+  ],
+  "search_call_count": 1,
+  "response_text": "As of March 11, 2026, the latest stable release of Python is version 3.13.6, which was released on August 6, 2025. ([discuss.python.org](https://discuss.python.org/t/python-3-13-6-has-been-released/101482?utm_source=openai)) This release includes numerous bug fixes, build improvements, and documentation updates.\n\nPython 3.13 introduced several new features and optimizations compared to its predecessor, Python 3.12. Notably, it includes enhancements to error messaging, more flexible parsing of f-strings, support for the buffer protocol in Python code, a new debugging and profiling API, and the ability to use isolated subinterpreters with separate Global Interpreter Locks. ([pythonnews.org](https://www.pythonnews.org/python-3-12-0-stable-release-launched/?utm_source=openai))\n\nThe next planned release is Python 3.13.7, scheduled for August 14, 2025. ([peps.python.org](https://peps.python.org/pep-0719/?utm_source=openai)) For the most current information and to download the latest version, you can visit the official Python website. ",
+  "response_text_char_count": 1044,
+  "sources": [
+    {
+      "url": "https://www.eol.support/python?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.anaconda.com/blog/new-release-anaconda-distribution-2023-03?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://blog.python.org/2023/12/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://test.python.org/downloads/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://blog.python.org/2023/10/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://test.python.org/getit/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://peps.python.org/pep-0719/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://discuss.python.org/t/python-3-13-6-has-been-released/101482?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://test.python.org/downloads/release/python-3923/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://versionlog.com/python/3.9/python/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://versionlog.com/python/3.11/python/python/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.pythonnews.org/python-3-12-0-stable-release-launched/?utm_source=openai",
+      "title": null
+    }
+  ],
+  "source_count": 12,
+  "domain_filter_check": null,
+  "latency_ms": 7140.5,
+  "usage": {
+    "input_tokens": 303,
+    "output_tokens": 274,
+    "total_tokens": 577
+  },
+  "error": null
+}

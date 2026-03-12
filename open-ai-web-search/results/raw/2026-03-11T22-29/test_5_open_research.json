@@ -1,0 +1,76 @@
+{
+  "test_id": "test_5_open_research",
+  "label": "Open-ended research query",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T22:30:59.618074Z",
+  "query": "Summarize the latest developments in EU AI regulation.",
+  "search_context_size": "medium",
+  "domain_filter": null,
+  "tool_invoked": true,
+  "search_queries_issued": [
+    "latest developments in EU AI regulation 2023"
+  ],
+  "search_call_count": 1,
+  "response_text": "The European Union (EU) has been actively advancing its regulatory framework for artificial intelligence (AI) to ensure the development and deployment of trustworthy AI systems that align with democratic values and fundamental rights. Key developments include:\n\n**Artificial Intelligence Act (AI Act):**\n\n- **Enactment and Phased Implementation:** The AI Act entered into force on August 1, 2024, with a structured timeline for application:\n  - **February 2, 2025:** Prohibitions on certain AI practices and AI literacy obligations became applicable.\n  - **August 2, 2025:** Governance rules and obligations for general-purpose AI (GPAI) models took effect.\n  - **August 2, 2026:** Full applicability of the AI Act, with specific provisions for high-risk AI systems integrated into regulated products extended until August 2, 2027. ([digital-strategy.ec.europa.eu](https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai?utm_source=openai))\n\n- **Risk-Based Classification:** The Act categorizes AI systems into ",
+  "response_text_char_count": 1029,
+  "sources": [
+    {
+      "url": "https://digital-strategy.ec.europa.eu/en/policies/european-approach-artificial-intelligence?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://digital-strategy.ec.europa.eu/en/policies/ai-office?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://kpmg.com/xx/en/our-insights/regulatory-insights/evolving-plans-for-ai-regulation.html?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://manimama.eu/the-evolving-landscape-of-ai-regulation/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.eversheds-sutherland.com/en/luxembourg/insights/global-ai-regulatory-update-august?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://natlawreview.com/article/ai-coming-eu-eu-artificial-intelligence-acts-recent-publication-next-steps?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.bakermckenzie.com/en/insight/publications/resources/product-risk-radar-articles/eu-regulation-on-ai?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.legislogiq.com/our-work/q3airegulatoryupdate?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.oecd.org/en/publications/progress-in-implementing-the-european-union-coordinated-plan-on-artificial-intelligence-volume-1_533c355d-en/full-report/set-enabling-conditions-for-ai-development-and-uptake-in-the-european-union_1590bb01.html?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://iapp.org/resources/article/global-ai-governance-eu/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.metricstream.com/blog/ai-regulation-trends-ai-policies-us-uk-eu.html?utm_source=openai",
+      "title": null
+    }
+  ],
+  "source_count": 12,
+  "domain_filter_check": null,
+  "latency_ms": 12505.7,
+  "usage": {
+    "input_tokens": 312,
+    "output_tokens": 242,
+    "total_tokens": 554
+  },
+  "error": null
+}

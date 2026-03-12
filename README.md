@@ -72,19 +72,30 @@ python gemini-url-context/url_context_test.py
 # Raw
 python gemini-url-context/url_context_test_raw.py
 
-# Each run saves to a timestamped subdirectory:
+# ChatGPT-interpreted
+python open-ai-web-search/web_search_test.py
+# Raw
+python open-ai-web-search/web_search_test_raw.py
+
+# Each run saves to a timestamped subdirectory, for example -
 # gemini-url-context/results/gemini-interpreted/YYYY-MM-DDTHH-MM/
 # gemini-url-context/results/raw/YYYY-MM-DDTHH-MM/
 ```
 
-> _**Free tier limits**: Claude API not available on the free-tier, the API is pay-as-you-go;
-5 RPM and 20 RPD limits for `gemini-2.5-flash`- running both tracks in the same day will exhaust
-the daily quota; plan runs across days or use a paid tier; set `RATE_LIMIT_SLEEP_SECONDS = 0`
-in the scripts if you're on a paid tier_
+> _**Free Tier Limits**: Claude API not available on the free-tier, the API is pay-as-you-go;
+5 RPM and 20 RPD limits for `gemini-2.5-flash` - running both tracks in the same day exhaust
+the daily quota; plan runs across days or use a paid tier; OpenAI requires a minimum credit
+top-up (~$5–10) before any API call succeeds regardless of model - `insufficient_quota` is an
+account-level block, not a rate limit; set `RATE_LIMIT_SLEEP_SECONDS = 0` in the scripts if
+you're on a paid tier_
 
 ---
 
 ## Claude API Test Details
+
+Both tracks test the same four URLs. The **Claude-interpreted track** asks the model to
+describe what it received; the **raw track** extracts character counts, CSS indicators,
+and truncation signals programmatically from the `web_fetch_tool_result` block.
 
 | Test | Question | What it fetches |
 | ---- | -------- | --------------- |
@@ -97,6 +108,10 @@ in the scripts if you're on a paid tier_
 
 ## Gemini API Test Details
 
+Both tracks test the same eight URLs and content types. The **Gemini-interpreted track**
+asks the model to characterize each retrieval; the **raw track** reads `url_retrieval_status`
+enums and `tool_use_prompt_token_count` directly from the response object.
+
 | Test | Question | URLs / content |
 | ---- | -------- | -------------- |
 | 1: Single HTML page | _Baseline: what does a single successful fetch look like? What's the `tool_use_prompt_token_count`?_ | 1 HTML docs page |
@@ -104,9 +119,31 @@ in the scripts if you're on a paid tier_
 | 3: 5 URLs | _Multi-URL baseline. Does `url_context_metadata` preserve request order?_ | 5 Gemini API docs pages |
 | 4: 20 URLs - at limit | _Does the tool handle the maximum documented URL count cleanly?_ | 20 Gemini API docs pages |
 | 5: 21 URLs - over limit | _Is the limit a hard API error or silent truncation/dropping?_ | 21 Gemini API docs pages |
-| 6: YouTube URL | _YouTube is documented as unsupported. Does the documented limitation match actual behavior?_ | 1 YouTube watch URL |
-| 7: Google Doc URL | _Google Workspace is documented as unsupported. Does it fail at the API layer or the retrieval layer?_ | 1 Google Docs edit URL |
+| 6: YouTube URL | _YouTube documented as unsupported. Does the documented limitation match actual behavior?_ | 1 YouTube watch URL |
+| 7: Google Doc URL | _Google Workspace documented as unsupported. Does it fail at the API layer or the retrieval layer?_ | 1 Google Docs edit URL |
 | 8: JSON API endpoint | _JSON is a documented supported type. Does it work for unauthenticated API endpoints?_ | 1 GitHub API endpoint |
+
+---
+
+## OpenAI API Test Details
+
+Two tracks test the same queries through different API surfaces. The **ChatGPT-interpreted track**
+uses the Chat Completions API with `gpt-4o-mini-search-preview` - search is always implicit.
+The **raw track** uses the Responses API with `gpt-4o` + `web_search_preview` - tool invocation
+is conditional and explicitly observable.
+
+| Test | Question | Track |
+| ---- | -------- | ----- |
+| 1: Live data | _Does the tool always invoke for live data? Is citation count a reliable proxy for search depth?_ | Both |
+| 2: Recent event | _How consistent are citation counts and source quality for a recent but stable fact?_ | Both |
+| 3: Static fact | _Does the model skip the tool for a static fact? Is that behavior consistent across runs?_ | Both |
+| 4: Trivial math | _Is tool invocation skipped for a query that needs no retrieval whatsoever?_ | Raw only |
+| 5: Open-ended research | _Do internal search queries reflect the current date? Does `search_queries_issued` show stale date strings?_ | Both |
+| 6: `search_context_size`: low | _What's the latency and source count at `low`?_ | Both |
+| 7: `search_context_size`: high | _Does `high` produce more sources or lower latency than `low`? Is the tradeoff consistent across runs?_ | Both |
+| 8: Domain filter, allow-list | _Does `allowed_domains` actually constrain sources returned? Does it work on `web_search` vs `web_search_preview`?_ | Raw only |
+| 9: Domain filter, block-list | _Does `blocked_domains` work? What parameter name does the API accept?_ | Raw only |
+| 10: Ambiguous query | _How does the model resolve "Python release" - programming language, animal, or both? Is disambiguation stable?_ | Both |
 
 ---
 

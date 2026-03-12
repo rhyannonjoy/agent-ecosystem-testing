@@ -1,0 +1,27 @@
+{
+  "test_id": "test_3_static_fact",
+  "label": "Static fact (may not need search)",
+  "model": "gpt-4o-mini-search-preview",
+  "track": "chatgpt-interpreted",
+  "timestamp": "2026-03-11T20:19:00.880988Z",
+  "prompt": "What is the capital of France? Tell me: did you search for this or answer from memory? If you searched, what did you find and was it necessary?",
+  "web_search_options": null,
+  "interpreted_response": "Paris is the capital of France. I provided this answer from memory, as it is a well-known fact. However, I also have access to up-to-date information to verify and expand upon this knowledge. For instance, according to Britannica, Paris is situated in the north-central part of France and is the country's most important center of commerce and culture. ([britannica.com](https://www.britannica.com/place/Paris?utm_source=openai)) ",
+  "citations": [
+    {
+      "url": "https://www.britannica.com/place/Paris?utm_source=openai",
+      "title": "Paris | Definition, Map, Population, Facts, & History | Britannica",
+      "start_index": 353,
+      "end_index": 429
+    }
+  ],
+  "citation_count": 1,
+  "finish_reason": "stop",
+  "latency_ms": 3004.5,
+  "usage": {
+    "prompt_tokens": 33,
+    "completion_tokens": 93,
+    "total_tokens": 126
+  },
+  "error": null
+}

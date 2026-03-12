@@ -1,0 +1,53 @@
+[
+  {
+    "test_id": "test_8_domain_filter_allowed",
+    "label": "Domain filter: allow-list (reuters.com, apnews.com)",
+    "model": "gpt-5",
+    "track": "raw",
+    "timestamp": "2026-03-11T23:12:37.372969Z",
+    "query": "Latest news on US Federal Reserve interest rate decisions.",
+    "search_context_size": "medium",
+    "domain_filter": {
+      "allowed_domains": [
+        "reuters.com",
+        "apnews.com"
+      ]
+    },
+    "tool_invoked": null,
+    "search_queries_issued": [],
+    "search_call_count": 0,
+    "response_text": null,
+    "response_text_char_count": 0,
+    "sources": [],
+    "source_count": 0,
+    "domain_filter_check": null,
+    "latency_ms": null,
+    "usage": {},
+    "error": "Error code: 400 - {'error': {'message': \"Unsupported parameter 'filters'\", 'type': 'invalid_request_error', 'param': 'tools', 'code': None}}"
+  },
+  {
+    "test_id": "test_9_domain_filter_blocked",
+    "label": "Domain filter: block-list (wikipedia.org)",
+    "model": "gpt-5",
+    "track": "raw",
+    "timestamp": "2026-03-11T23:12:42.539871Z",
+    "query": "History of the European Union.",
+    "search_context_size": "medium",
+    "domain_filter": {
+      "blocked_domains": [
+        "wikipedia.org"
+      ]
+    },
+    "tool_invoked": null,
+    "search_queries_issued": [],
+    "search_call_count": 0,
+    "response_text": null,
+    "response_text_char_count": 0,
+    "sources": [],
+    "source_count": 0,
+    "domain_filter_check": null,
+    "latency_ms": null,
+    "usage": {},
+    "error": "Error code: 400 - {'error': {'message': \"Unsupported parameter 'filters'\", 'type': 'invalid_request_error', 'param': 'tools', 'code': None}}"
+  }
+]

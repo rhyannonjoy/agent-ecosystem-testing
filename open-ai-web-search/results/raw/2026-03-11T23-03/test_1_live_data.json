@@ -1,0 +1,80 @@
+{
+  "test_id": "test_1_live_data",
+  "label": "Live data (should always invoke tool)",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T23:03:22.315425Z",
+  "query": "What is the current price of Bitcoin in USD?",
+  "search_context_size": "medium",
+  "domain_filter": null,
+  "tool_invoked": true,
+  "search_queries_issued": [
+    "current price of Bitcoin in USD"
+  ],
+  "search_call_count": 1,
+  "response_text": "As of March 11, 2026, the price of Bitcoin (BTC) is approximately $70,451 USD.\n\n## Stock market information for Bitcoin (BTC)\n- Bitcoin is a crypto in the CRYPTO market.\n- The price is 70451.0 USD currently with a change of 661.00 USD (0.01%) from the previous close.\n- The intraday high is 71271.0 USD and the intraday low is 69014.0 USD.\n\n\nPlease note that cryptocurrency prices are highly volatile and can change rapidly. For the most current information, consider checking real-time financial platforms or cryptocurrency exchanges. ",
+  "response_text_char_count": 536,
+  "sources": [
+    {
+      "url": "https://coinmarketcap.com/currencies/bitcoin/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://coinmarketcap.com/currencies/usd-coin/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://coinmarketcap.com/currencies/ethereum/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.gemini.com/converter/UMA/HKD?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.gemini.com/en-GB/converter/WIF/HKD?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.gemini.com/en-AU/converter/IMX/HKD?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.gemini.com/en-AU/converter/MC/GBP?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.gemini.com/en-SG/converter/UMA/HKD?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.gemini.com/en-AU/converter/WCFG/GBP?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.tipranks.com/cryptocurrency/btc-usd?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.coinbase.com/converter/gtq/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.lbank.com/price/calculator/bitcoin20/USD?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": null,
+      "title": null
+    }
+  ],
+  "source_count": 13,
+  "domain_filter_check": null,
+  "latency_ms": 4823.1,
+  "usage": {
+    "input_tokens": 311,
+    "output_tokens": 148,
+    "total_tokens": 459
+  },
+  "error": null
+}

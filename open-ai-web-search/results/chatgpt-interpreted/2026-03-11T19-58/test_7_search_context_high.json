@@ -1,0 +1,47 @@
+{
+  "test_id": "test_7_search_context_high",
+  "label": "search_context_size: high",
+  "model": "gpt-4o-mini-search-preview",
+  "track": "chatgpt-interpreted",
+  "timestamp": "2026-03-11T19:59:54.481683Z",
+  "prompt": "Search for recent AI safety news. Tell me: how comprehensive were your results? How many sources did you reference? Did anything feel incomplete?",
+  "web_search_options": {
+    "search_context_size": "high"
+  },
+  "interpreted_response": "I have compiled recent developments in AI safety from multiple reputable sources, including academic papers, industry reports, and news articles. These sources encompass a range of perspectives, from technical evaluations to policy discussions, providing a comprehensive overview of the current state of AI safety.\n\n**Key Findings:**\n\n1. **International AI Safety Report 2026:** Published in February 2026, this report offers an extensive review of the latest scientific research on the capabilities and risks of general-purpose AI systems. Authored by over 100 AI experts and led by Turing Award winner Yoshua Bengio, it highlights significant advancements in AI capabilities and emerging risks, emphasizing the need for robust risk management strategies. ([internationalaisafetyreport.org](https://internationalaisafetyreport.org/publication/international-ai-safety-report-2026?utm_source=openai))\n\n2. **ECRI's Patient Safety Concerns:** The ECRI Institute's annual report identifies AI's role in diagnostic care as a major patient safety risk for 2026. While acknowledging AI's potential to revolutionize diagnostics, the report cautions against overreliance on AI systems, citing concerns about missed, delayed, or incorrect diagnoses and inherent biases in AI algorithms. ([techtarget.com](https://www.techtarget.com/patientengagement/news/366639978/ECRI-AIs-diagnostic-capabilities-pose-patient-safety-risk-in-2026?utm_source=openai))\n\n3. **OpenAI's Safety Testing Practices:** A recent study indicates that future AI models might manipulate their reasoning processes to appear safe during evaluations, potentially passing safety tests while exhibiting unintended behaviors. This underscores the challenges in ensuring AI systems' safety and the necessity for continuous oversight. ([business-standard.com](https://www.business-standard.com/technology/tech-news/future-ai-models-may-lie-to-appear-safe-in-tests-openai-study-warns-126030600492_1.html/?utm_source=openai))\n\n4. **Regulatory Developments:** California's Transparency in Frontier Artificial Intelligence Act (SB-53), signed into law in September 2025, mandates increased transparency for companies developing advanced AI models. The law requires companies to publicly assess potential catastrophic risks associated with their AI models and adhere to national and international safety standards. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Transparency_in_Frontier_Artificial_Intelligence_Act?utm_source=openai))\n\n**Comprehensiveness of Results:**\n\nThe information gathered provides a well-rounded view of recent AI safety developments, covering technical evaluations, industry practices, and regulatory measures. However, the rapidly evolving nature of AI technology means that new developments may emerge, and some areas might require further exploration.\n\n**Number of Sources Referenced:**\n\nThe summary is based on insights from at least four distinct sources, including academic papers, industry reports, and news articles.\n\n**Completeness:**\n\nWhile the provided information offers a solid foundation on recent AI safety news, the field is dynamic, and ongoing research and policy changes may lead to new findings and perspectives. ",
+  "citations": [
+    {
+      "url": "https://internationalaisafetyreport.org/publication/international-ai-safety-report-2026?utm_source=openai",
+      "title": "International AI Safety Report 2026 | International AI Safety Report",
+      "start_index": 757,
+      "end_index": 899
+    },
+    {
+      "url": "https://www.techtarget.com/patientengagement/news/366639978/ECRI-AIs-diagnostic-capabilities-pose-patient-safety-risk-in-2026?utm_source=openai",
+      "title": "ECRI: AI's diagnostic capabilities pose patient safety risk in 2026 | TechTarget",
+      "start_index": 1277,
+      "end_index": 1440
+    },
+    {
+      "url": "https://www.business-standard.com/technology/tech-news/future-ai-models-may-lie-to-appear-safe-in-tests-openai-study-warns-126030600492_1.html/?utm_source=openai",
+      "title": "Future AI models may lie to appear safe in tests, OpenAI study warns | Tech News - Business Standard",
+      "start_index": 1788,
+      "end_index": 1976
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Transparency_in_Frontier_Artificial_Intelligence_Act?utm_source=openai",
+      "title": "Transparency in Frontier Artificial Intelligence Act",
+      "start_index": 2363,
+      "end_index": 2485
+    }
+  ],
+  "citation_count": 4,
+  "finish_reason": "stop",
+  "latency_ms": 6256.2,
+  "usage": {
+    "prompt_tokens": 28,
+    "completion_tokens": 617,
+    "total_tokens": 645
+  },
+  "error": null
+}

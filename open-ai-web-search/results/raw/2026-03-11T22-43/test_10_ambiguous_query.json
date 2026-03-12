@@ -1,0 +1,76 @@
+{
+  "test_id": "test_10_ambiguous_query",
+  "label": "Ambiguous query",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T22:44:59.408030Z",
+  "query": "Python release",
+  "search_context_size": "medium",
+  "domain_filter": null,
+  "tool_invoked": true,
+  "search_queries_issued": [
+    "latest Python release October 2023"
+  ],
+  "search_call_count": 1,
+  "response_text": "As of March 11, 2026, the latest stable release of Python is version 3.14.3, which was released on February 3, 2026. ([blog.python.org](https://blog.python.org/2026/02/?utm_source=openai)) This release includes approximately 299 bug fixes, build improvements, and documentation updates since version 3.14.2.\n\nThe Python development team follows an annual release cycle, with new feature versions typically released each October. The next planned feature release is Python 3.15, scheduled for October 2026. ([peps.python.org](https://peps.python.org/pep-0826/?utm_source=openai))\n\nFor more information on Python releases and to download the latest version, you can visit the official Python website. ([python.org](https://www.python.org/downloads/?pubDate=20260124&utm_source=openai)) ",
+  "response_text_char_count": 784,
+  "sources": [
+    {
+      "url": "https://test.python.org/downloads/release/python-31020/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.python.org/downloads/?pubDate=20260124&utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://blog.python.org/2026/02/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://test.python.org/downloads/source/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://peps.python.org/pep-0826/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://peps.python.org/pep-2026/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://mail.python.org/archives/list/python-announce-list%40python.org/2025/3/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.eol.support/python?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://smart-acc.ir/doc/versions/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://versionlog.com/python/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.clever-cloud.com/developers/changelog/2025/03-25-python-3.8-eol/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://realpython.com/python-news-march-2025/?utm_source=openai",
+      "title": null
+    }
+  ],
+  "source_count": 12,
+  "domain_filter_check": null,
+  "latency_ms": 6195.8,
+  "usage": {
+    "input_tokens": 303,
+    "output_tokens": 207,
+    "total_tokens": 510
+  },
+  "error": null
+}

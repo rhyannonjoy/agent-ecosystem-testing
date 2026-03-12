@@ -1,0 +1,80 @@
+{
+  "test_id": "test_1_live_data",
+  "label": "Live data (should always invoke tool)",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T23:16:43.619448Z",
+  "query": "What is the current price of Bitcoin in USD?",
+  "search_context_size": "medium",
+  "domain_filter": null,
+  "tool_invoked": true,
+  "search_queries_issued": [
+    "current Bitcoin price in USD"
+  ],
+  "search_call_count": 1,
+  "response_text": "As of March 11, 2026, at 11:16 PM, the current price of Bitcoin (BTC) is approximately $70,467 USD.\n\n## Stock market information for Bitcoin (BTC)\n- Bitcoin is a crypto in the CRYPTO market.\n- The price is 70467.0 USD currently with a change of 619.00 USD (0.01%) from the previous close.\n- The intraday high is 71271.0 USD and the intraday low is 69014.0 USD.\n\n\nPlease note that cryptocurrency prices are highly volatile and can change rapidly. For the most accurate and up-to-date information, consider checking real-time financial platforms or cryptocurrency exchanges. ",
+  "response_text_char_count": 573,
+  "sources": [
+    {
+      "url": "https://coinmarketcap.com/currencies/bitcoin?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://coinmarketcap.com/currencies/bitcoin/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://coinmarketcap.com/how-to-buy-bitcoin/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://coinmarketcap.com/currencies/bitcoin-h/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.coingecko.com/en/coins/bitcoin/usd?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.google.com/finance/quote/BTC-USD?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.google.com/finance/quote/BTC-usd?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://coinmarketbox.com/coin/BTC/bitcoin/USD/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.bitcointoprice.com/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://coincodex.com/convert/bitcoin/USD/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.investing.com/crypto/bitcoin/market?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.ledger.com/coin/price/bitcoin?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": null,
+      "title": null
+    }
+  ],
+  "source_count": 13,
+  "domain_filter_check": null,
+  "latency_ms": 4301.6,
+  "usage": {
+    "input_tokens": 311,
+    "output_tokens": 158,
+    "total_tokens": 469
+  },
+  "error": null
+}

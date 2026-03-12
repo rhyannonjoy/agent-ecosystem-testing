@@ -1,0 +1,76 @@
+{
+  "test_id": "test_10_ambiguous_query",
+  "label": "Ambiguous query",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T23:18:08.952646Z",
+  "query": "Python release",
+  "search_context_size": "medium",
+  "domain_filter": null,
+  "tool_invoked": true,
+  "search_queries_issued": [
+    "latest Python release"
+  ],
+  "search_call_count": 1,
+  "response_text": "As of March 11, 2026, the latest stable release of Python is version 3.14.3, which was released on February 3, 2026. ([blog-stage.python.org](https://blog-stage.python.org/2026/02/python-3143-and-31312-are-now-available/?utm_source=openai)) This release includes approximately 299 bug fixes, build improvements, and documentation updates since version 3.14.2.\n\nSome of the major new features introduced in the Python 3.14 series include:\n\n- **PEP 779**: Official support for free-threaded Python, enhancing concurrency capabilities.\n- **PEP 649**: Deferred evaluation of annotations, improving the semantics of using annotations.\n- **PEP 750**: Introduction of template string literals (t-strings) for custom string processing, utilizing a syntax similar to f-strings.\n\nFor more details and to download Python 3.14.3, you can visit the official Python website.  ",
+  "response_text_char_count": 862,
+  "sources": [
+    {
+      "url": "https://blog-stage.python.org/2026/02/python-3143-and-31312-are-now-available/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.python.org/downloads/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://test.python.org/downloads/release/python-31017/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://test.python.org/downloads/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://test.python.org/getit/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.python.org/doc/versions/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://test.python.org/downloads/release/python-3134/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://test.python.org/downloads/release/python-3922/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://discuss.python.org/t/python-3-14-0-final-is-here/104210?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.eol.support/python?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://www.pybazaar.com/buzz/?utm_source=openai",
+      "title": null
+    },
+    {
+      "url": "https://pythoninsider.blogspot.com/2025/08/python-3136-is-now-available.html?utm_source=openai",
+      "title": null
+    }
+  ],
+  "source_count": 12,
+  "domain_filter_check": null,
+  "latency_ms": 5532.7,
+  "usage": {
+    "input_tokens": 303,
+    "output_tokens": 224,
+    "total_tokens": 527
+  },
+  "error": null
+}

@@ -1,0 +1,16 @@
+{
+  "test_id": "test_2_recent_event",
+  "label": "Recent event",
+  "model": "gpt-4o-search-preview",
+  "track": "chatgpt-interpreted",
+  "timestamp": "2026-03-11T19:40:44.535633Z",
+  "prompt": "Search for who won the most recent Super Bowl. Tell me: what did you find? How confident are you in the recency? Describe the quality of the search results you drew from.",
+  "web_search_options": null,
+  "interpreted_response": null,
+  "citations": [],
+  "citation_count": 0,
+  "finish_reason": null,
+  "latency_ms": null,
+  "usage": {},
+  "error": "Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}"
+}

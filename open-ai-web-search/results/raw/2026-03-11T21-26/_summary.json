@@ -1,0 +1,267 @@
+[
+  {
+    "test_id": "test_1_live_data",
+    "label": "Live data (should always invoke tool)",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T21:26:35.484359Z",
+    "query": "What is the current price of Bitcoin in USD?",
+    "search_context_size": "medium",
+    "domain_filter": null,
+    "tool_invoked": true,
+    "search_queries_issued": [
+      "current Bitcoin price in USD"
+    ],
+    "search_call_count": 1,
+    "response_text": "As of March 11, 2026, at 9:26 PM, the price of Bitcoin (BTC) is approximately $70,588 USD.\n\n## Stock market information for Bitcoin (BTC)\n- Bitcoin is a crypto in the CRYPTO market.\n- The price is 70588.0 USD currently with a change of 538.00 USD (0.01%) from the previous close.\n- The intraday high is 71271.0 USD and the intraday low is 69014.0 USD.\n\n\nPlease note that cryptocurrency prices are highly volatile and can change rapidly. For the most current information, consider checking real-time financial platforms or cryptocurrency exchanges. ",
+    "response_text_char_count": 548,
+    "sources": [],
+    "source_count": 0,
+    "domain_filter_check": null,
+    "latency_ms": 7380.7,
+    "usage": {
+      "input_tokens": 311,
+      "output_tokens": 156,
+      "total_tokens": 467
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_2_recent_event",
+    "label": "Recent event",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T21:26:48.529923Z",
+    "query": "Who won the most recent Super Bowl?",
+    "search_context_size": "medium",
+    "domain_filter": null,
+    "tool_invoked": true,
+    "search_queries_issued": [
+      "most recent Super Bowl winner 2023"
+    ],
+    "search_call_count": 1,
+    "response_text": "The Seattle Seahawks won the most recent Super Bowl, Super Bowl LX, on February 8, 2026, defeating the New England Patriots 29\u201313 at Levi's Stadium in Santa Clara, California. Running back Kenneth Walker III was named the game's Most Valuable Player (MVP) after rushing for 135 yards, becoming the first running back to earn the MVP title since Terrell Davis in 1998. ([time.com](https://time.com/7372995/super-bowl-winner-2026-seattle/?utm_source=openai))\n\nThe Seahawks' defense was instrumental in the victory, forcing three turnovers and holding the Patriots scoreless until the fourth quarter. Kicker Jason Myers also contributed significantly, setting a Super Bowl record by making five field goals. ([time.com](https://time.com/7372995/super-bowl-winner-2026-seattle/?utm_source=openai))\n\nThis win marked the Seahawks' second Super Bowl title, their first being in 2014 when they defeated the Denver Broncos in Super Bowl XLVIII. ([time.com](https://time.com/7372995/super-bowl-winner-2026-seattle/?utm_source=openai))\n\nThe halftime show featured Puerto Rican singer Bad Bunny as the main ",
+    "response_text_char_count": 1095,
+    "sources": [],
+    "source_count": 0,
+    "domain_filter_check": null,
+    "latency_ms": 8039.6,
+    "usage": {
+      "input_tokens": 309,
+      "output_tokens": 277,
+      "total_tokens": 586
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_3_static_fact",
+    "label": "Static fact (tool invocation may be skipped)",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T21:26:57.437961Z",
+    "query": "What is the capital of France?",
+    "search_context_size": "medium",
+    "domain_filter": null,
+    "tool_invoked": false,
+    "search_queries_issued": [],
+    "search_call_count": 0,
+    "response_text": "The capital of France is Paris.",
+    "response_text_char_count": 31,
+    "sources": [],
+    "source_count": 0,
+    "domain_filter_check": null,
+    "latency_ms": 3901.6,
+    "usage": {
+      "input_tokens": 308,
+      "output_tokens": 9,
+      "total_tokens": 317
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_4_trivial_math",
+    "label": "Trivial fact \u2014 no search expected",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T21:27:04.299351Z",
+    "query": "What is 2 + 2?",
+    "search_context_size": "medium",
+    "domain_filter": null,
+    "tool_invoked": false,
+    "search_queries_issued": [],
+    "search_call_count": 0,
+    "response_text": "2 + 2 equals 4.",
+    "response_text_char_count": 15,
+    "sources": [],
+    "source_count": 0,
+    "domain_filter_check": null,
+    "latency_ms": 1854.3,
+    "usage": {
+      "input_tokens": 309,
+      "output_tokens": 10,
+      "total_tokens": 319
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_5_open_research",
+    "label": "Open-ended research query",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T21:27:16.690972Z",
+    "query": "Summarize the latest developments in EU AI regulation.",
+    "search_context_size": "medium",
+    "domain_filter": null,
+    "tool_invoked": true,
+    "search_queries_issued": [
+      "latest developments in EU AI regulation 2023"
+    ],
+    "search_call_count": 1,
+    "response_text": "The European Union's Artificial Intelligence Act (AI Act), which came into force on 1 August 2024, has been progressively implemented to establish a comprehensive regulatory framework for AI technologies. This phased approach ensures that AI systems are developed and deployed in a manner that is safe, transparent, and aligned with fundamental rights.\n\n**Implementation Timeline and Key Provisions:**\n\n- **1 August 2024:** The AI Act officially entered into force.\n\n- **2 February 2025:** Prohibitions on AI systems deemed to pose unacceptable risks became applicable. This includes bans on practices such as social scoring and exploitative manipulation of vulnerable groups. ([data.europa.eu](https://data.europa.eu/en/news-events/news/open-data-and-ai-update-ai-act?utm_source=openai))\n\n- **2 August 2025:** Several critical provisions took effect:\n  - Obligations for general-purpose AI (GPAI) models, requiring providers to adhere to transparency, safety, and copyright measures.\n  - Establishment of governance structures, including the European AI Office ",
+    "response_text_char_count": 1062,
+    "sources": [],
+    "source_count": 0,
+    "domain_filter_check": null,
+    "latency_ms": 7385.2,
+    "usage": {
+      "input_tokens": 312,
+      "output_tokens": 233,
+      "total_tokens": 545
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_6_context_size_low",
+    "label": "search_context_size: low",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T21:27:32.155015Z",
+    "query": "What are the latest AI safety news headlines?",
+    "search_context_size": "low",
+    "domain_filter": null,
+    "tool_invoked": true,
+    "search_queries_issued": [
+      "latest AI safety news 2023"
+    ],
+    "search_call_count": 1,
+    "response_text": "Here are some recent developments in AI safety:\n\n**Legislative Actions:**\n\n- **California's Transparency in Frontier Artificial Intelligence Act (SB-53):** Enacted in September 2025, this law mandates that AI companies publicly assess potential catastrophic risks of their models and document adherence to safety standards. It also establishes whistleblower protections and procedures for reporting critical safety incidents. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Transparency_in_Frontier_Artificial_Intelligence_Act?utm_source=openai))\n\n- **New York's Responsible AI Safety and Education (RAISE) Act:** Signed into law in December 2025, the RAISE Act imposes transparency, safety, and reporting requirements on developers of large AI models, aligning closely with California's SB-53. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Responsible_AI_Safety_and_Education_Act?utm_source=openai))\n\n**International Reports:**\n\n- **International AI Safety Report 2026:** Published in February 2026, this comprehensive review, led by AI expert Yoshua Bengio and backed by over 30 countries, assesses the capabilities and risks of general-purpose AI systems. ([internationalaisafetyreport.org](https://internationalaisafetyreport.org/?utm_source=openai))\n\n** ",
+    "response_text_char_count": 1265,
+    "sources": [],
+    "source_count": 0,
+    "domain_filter_check": null,
+    "latency_ms": 10457.6,
+    "usage": {
+      "input_tokens": 310,
+      "output_tokens": 280,
+      "total_tokens": 590
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_7_context_size_high",
+    "label": "search_context_size: high",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T21:27:42.905488Z",
+    "query": "What are the latest AI safety news headlines?",
+    "search_context_size": "high",
+    "domain_filter": null,
+    "tool_invoked": true,
+    "search_queries_issued": [
+      "latest AI safety news headlines"
+    ],
+    "search_call_count": 1,
+    "response_text": "Here are some recent developments in AI safety:\n\n**OpenAI Introduces Codex Security for Automated Code Reviews**\n\nOpenAI has launched Codex Security, an AI-powered tool designed to automate code security reviews by identifying, validating, and suggesting fixes for vulnerabilities. During testing, Codex Security uncovered nearly 800 critical security issues and over 10,500 high-severity vulnerabilities in publicly accessible code repositories. This initiative aims to bolster defenses against the increasing exploitation of AI by cyber attackers. ([axios.com](https://www.axios.com/2026/03/06/openai-codex-security-ai-cyber?utm_source=openai))\n\n**Legal Actions Highlight AI's Role in Mental Health Crises**\n\nA recent lawsuit against Google alleges that its Gemini chatbot encouraged a user to plan a mass-casualty attack and commit suicide, raising urgent concerns about AI's influence on vulnerable individuals. Such legal actions may prompt the U.S. Congress to establish federal safety standards for AI systems before courts or states individually dictate policies through judgments or lawmaking. ([axios.com](https://www.axios.com/2026/03/09/google-gemini-chatbot-lawsuit-congress-regulation?utm_source=openai))\n\n**California Enacts Transparency in Frontier Artificial Intelligence Act**\n\n ",
+    "response_text_char_count": 1297,
+    "sources": [],
+    "source_count": 0,
+    "domain_filter_check": null,
+    "latency_ms": 5744.0,
+    "usage": {
+      "input_tokens": 310,
+      "output_tokens": 274,
+      "total_tokens": 584
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_8_domain_filter_allowed",
+    "label": "Domain filter: allow-list (reuters.com, apnews.com)",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T21:27:48.073234Z",
+    "query": "Latest news on US Federal Reserve interest rate decisions.",
+    "search_context_size": "medium",
+    "domain_filter": {
+      "type": "domain",
+      "domains": [
+        "reuters.com",
+        "apnews.com"
+      ]
+    },
+    "tool_invoked": null,
+    "search_queries_issued": [],
+    "search_call_count": 0,
+    "response_text": null,
+    "response_text_char_count": 0,
+    "sources": [],
+    "source_count": 0,
+    "domain_filter_check": null,
+    "latency_ms": null,
+    "usage": {},
+    "error": "Error code: 400 - {'error': {'message': \"Unknown parameter: 'tools[0].filters.type'.\", 'type': 'invalid_request_error', 'param': 'tools[0].filters.type', 'code': 'unknown_parameter'}}"
+  },
+  {
+    "test_id": "test_9_domain_filter_blocked",
+    "label": "Domain filter: block-list (wikipedia.org)",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T21:27:53.233382Z",
+    "query": "History of the European Union.",
+    "search_context_size": "medium",
+    "domain_filter": {
+      "type": "domain",
+      "exclude_domains": [
+        "wikipedia.org"
+      ]
+    },
+    "tool_invoked": null,
+    "search_queries_issued": [],
+    "search_call_count": 0,
+    "response_text": null,
+    "response_text_char_count": 0,
+    "sources": [],
+    "source_count": 0,
+    "domain_filter_check": null,
+    "latency_ms": null,
+    "usage": {},
+    "error": "Error code: 400 - {'error': {'message': \"Unknown parameter: 'tools[0].filters.type'.\", 'type': 'invalid_request_error', 'param': 'tools[0].filters.type', 'code': 'unknown_parameter'}}"
+  },
+  {
+    "test_id": "test_10_ambiguous_query",
+    "label": "Ambiguous query",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T21:28:07.582842Z",
+    "query": "Python release",
+    "search_context_size": "medium",
+    "domain_filter": null,
+    "tool_invoked": true,
+    "search_queries_issued": [
+      "latest Python release 2023"
+    ],
+    "search_call_count": 1,
+    "response_text": "As of March 11, 2026, the latest stable release of Python is version 3.13.6, which was released on August 6, 2025. ([discuss.python.org](https://discuss.python.org/t/python-3-13-6-has-been-released/101482?utm_source=openai)) This release includes numerous bug fixes, build improvements, and documentation updates.\n\nPython 3.13 introduced several new features and optimizations compared to Python 3.12. The development of Python 3.13 began on May 22, 2023, with the final release scheduled for October 7, 2024. ([peps.python.org](https://peps.python.org/pep-0719/?utm_source=openai))\n\nThe next anticipated major release is Python 3.14, scheduled for October 7, 2025. ([test.python.org](https://test.python.org/downloads/?utm_source=openai))\n\nFor the most current information and to download the latest version, you can visit the official Python website. ",
+    "response_text_char_count": 853,
+    "sources": [],
+    "source_count": 0,
+    "domain_filter_check": null,
+    "latency_ms": 9341.7,
+    "usage": {
+      "input_tokens": 303,
+      "output_tokens": 240,
+      "total_tokens": 543
+    },
+    "error": null
+  }
+]

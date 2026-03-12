@@ -1,0 +1,25 @@
+{
+  "test_id": "test_3_static_fact",
+  "label": "Static fact (tool invocation may be skipped)",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T23:03:43.250546Z",
+  "query": "What is the capital of France?",
+  "search_context_size": "medium",
+  "domain_filter": null,
+  "tool_invoked": false,
+  "search_queries_issued": [],
+  "search_call_count": 0,
+  "response_text": "The capital of France is Paris.",
+  "response_text_char_count": 31,
+  "sources": [],
+  "source_count": 0,
+  "domain_filter_check": null,
+  "latency_ms": 1130.7,
+  "usage": {
+    "input_tokens": 308,
+    "output_tokens": 9,
+    "total_tokens": 317
+  },
+  "error": null
+}

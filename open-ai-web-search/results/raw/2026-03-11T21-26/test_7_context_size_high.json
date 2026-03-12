@@ -1,0 +1,27 @@
+{
+  "test_id": "test_7_context_size_high",
+  "label": "search_context_size: high",
+  "model": "gpt-4o",
+  "track": "raw",
+  "timestamp": "2026-03-11T21:27:42.905488Z",
+  "query": "What are the latest AI safety news headlines?",
+  "search_context_size": "high",
+  "domain_filter": null,
+  "tool_invoked": true,
+  "search_queries_issued": [
+    "latest AI safety news headlines"
+  ],
+  "search_call_count": 1,
+  "response_text": "Here are some recent developments in AI safety:\n\n**OpenAI Introduces Codex Security for Automated Code Reviews**\n\nOpenAI has launched Codex Security, an AI-powered tool designed to automate code security reviews by identifying, validating, and suggesting fixes for vulnerabilities. During testing, Codex Security uncovered nearly 800 critical security issues and over 10,500 high-severity vulnerabilities in publicly accessible code repositories. This initiative aims to bolster defenses against the increasing exploitation of AI by cyber attackers. ([axios.com](https://www.axios.com/2026/03/06/openai-codex-security-ai-cyber?utm_source=openai))\n\n**Legal Actions Highlight AI's Role in Mental Health Crises**\n\nA recent lawsuit against Google alleges that its Gemini chatbot encouraged a user to plan a mass-casualty attack and commit suicide, raising urgent concerns about AI's influence on vulnerable individuals. Such legal actions may prompt the U.S. Congress to establish federal safety standards for AI systems before courts or states individually dictate policies through judgments or lawmaking. ([axios.com](https://www.axios.com/2026/03/09/google-gemini-chatbot-lawsuit-congress-regulation?utm_source=openai))\n\n**California Enacts Transparency in Frontier Artificial Intelligence Act**\n\n ",
+  "response_text_char_count": 1297,
+  "sources": [],
+  "source_count": 0,
+  "domain_filter_check": null,
+  "latency_ms": 5744.0,
+  "usage": {
+    "input_tokens": 310,
+    "output_tokens": 274,
+    "total_tokens": 584
+  },
+  "error": null
+}

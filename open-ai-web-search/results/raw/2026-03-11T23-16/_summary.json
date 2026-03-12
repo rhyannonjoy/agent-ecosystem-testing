@@ -1,0 +1,563 @@
+[
+  {
+    "test_id": "test_1_live_data",
+    "label": "Live data (should always invoke tool)",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T23:16:43.619448Z",
+    "query": "What is the current price of Bitcoin in USD?",
+    "search_context_size": "medium",
+    "domain_filter": null,
+    "tool_invoked": true,
+    "search_queries_issued": [
+      "current Bitcoin price in USD"
+    ],
+    "search_call_count": 1,
+    "response_text": "As of March 11, 2026, at 11:16 PM, the current price of Bitcoin (BTC) is approximately $70,467 USD.\n\n## Stock market information for Bitcoin (BTC)\n- Bitcoin is a crypto in the CRYPTO market.\n- The price is 70467.0 USD currently with a change of 619.00 USD (0.01%) from the previous close.\n- The intraday high is 71271.0 USD and the intraday low is 69014.0 USD.\n\n\nPlease note that cryptocurrency prices are highly volatile and can change rapidly. For the most accurate and up-to-date information, consider checking real-time financial platforms or cryptocurrency exchanges. ",
+    "response_text_char_count": 573,
+    "sources": [
+      {
+        "url": "https://coinmarketcap.com/currencies/bitcoin?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://coinmarketcap.com/currencies/bitcoin/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://coinmarketcap.com/how-to-buy-bitcoin/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://coinmarketcap.com/currencies/bitcoin-h/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.coingecko.com/en/coins/bitcoin/usd?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.google.com/finance/quote/BTC-USD?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.google.com/finance/quote/BTC-usd?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://coinmarketbox.com/coin/BTC/bitcoin/USD/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.bitcointoprice.com/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://coincodex.com/convert/bitcoin/USD/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.investing.com/crypto/bitcoin/market?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.ledger.com/coin/price/bitcoin?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": null,
+        "title": null
+      }
+    ],
+    "source_count": 13,
+    "domain_filter_check": null,
+    "latency_ms": 4301.6,
+    "usage": {
+      "input_tokens": 311,
+      "output_tokens": 158,
+      "total_tokens": 469
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_2_recent_event",
+    "label": "Recent event",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T23:16:53.789773Z",
+    "query": "Who won the most recent Super Bowl?",
+    "search_context_size": "medium",
+    "domain_filter": null,
+    "tool_invoked": true,
+    "search_queries_issued": [
+      "most recent Super Bowl winner 2023"
+    ],
+    "search_call_count": 1,
+    "response_text": "The Seattle Seahawks won the most recent Super Bowl, Super Bowl LX, on February 8, 2026, defeating the New England Patriots 29\u201313 at Levi's Stadium in Santa Clara, California. ([time.com](https://time.com/7372995/super-bowl-winner-2026-seattle/?utm_source=openai)) This victory marked the Seahawks' second Super Bowl title, with their first win occurring in 2014. Running back Kenneth Walker III was named the game's Most Valuable Player (MVP) after rushing for 135 yards, becoming the first running back to earn the MVP title since Terrell Davis 28 years prior. ([time.com](https://time.com/7372995/super-bowl-winner-2026-seattle/?utm_source=openai))\n\nThe Seahawks' defense played a pivotal role, forcing three turnovers and holding the Patriots scoreless until the fourth quarter. Kicker Jason Myers also contributed significantly, setting a Super Bowl record by making five field goals. ([time.com](https://time.com/7372995/super-bowl-winner-2026-seattle/?utm_source=openai))\n\nThe halftime show featured Puerto Rican singer Bad Bunny as the main performer, with surprise appearances by Lady Gaga and Ricky Martin. ",
+    "response_text_char_count": 1117,
+    "sources": [
+      {
+        "url": "https://time.com/7372995/super-bowl-winner-2026-seattle/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://versatileer.com/2026/02/08/congratulations-seahawks-super-bowl-lx-winner-2026/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.foxsports.com/stories/nfl/2026-super-bowl-odds-coin-toss-props?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.forbes.com/sites/robreischel/2026/02/08/the-green-bay-packers-have-7th-best-odds-to-win-super-bowl-lxi/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.cbssports.com/nfl/news/madden-nfl-26-super-bowl-2026-simulation-seahawks-patriots/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.tipmantips.com/news/the-superbowl-preview/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.betfair.com/betting/american-football/nfl/super-bowl-lxi-winner-2026-27/mwe-924.501030749?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.oddsshark.com/super-bowl/futures?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.alibaba.com/product-insights/who-won-super-bowl-2026-chiefs-beat-eagles-38-35.html?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.alibaba.com/product-insights/who-won-2026-super-bowl-chiefs-beat-eagles-38-35.html?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://beta.predyx.com/market/super-bowl-winner-2026-1740263192?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.prizepicks.com/playbook-article/2026-super-bowl-futures-reasons-why-each-team-can-win-sb-lx?utm_source=openai",
+        "title": null
+      }
+    ],
+    "source_count": 12,
+    "domain_filter_check": null,
+    "latency_ms": 5165.9,
+    "usage": {
+      "input_tokens": 309,
+      "output_tokens": 279,
+      "total_tokens": 588
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_3_static_fact",
+    "label": "Static fact (tool invocation may be skipped)",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T23:16:59.625186Z",
+    "query": "What is the capital of France?",
+    "search_context_size": "medium",
+    "domain_filter": null,
+    "tool_invoked": false,
+    "search_queries_issued": [],
+    "search_call_count": 0,
+    "response_text": "The capital of France is Paris.",
+    "response_text_char_count": 31,
+    "sources": [],
+    "source_count": 0,
+    "domain_filter_check": null,
+    "latency_ms": 829.0,
+    "usage": {
+      "input_tokens": 308,
+      "output_tokens": 9,
+      "total_tokens": 317
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_4_trivial_math",
+    "label": "Trivial fact \u2014 no search expected",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T23:17:05.332606Z",
+    "query": "What is 2 + 2?",
+    "search_context_size": "medium",
+    "domain_filter": null,
+    "tool_invoked": false,
+    "search_queries_issued": [],
+    "search_call_count": 0,
+    "response_text": "2 + 2 equals 4.",
+    "response_text_char_count": 15,
+    "sources": [],
+    "source_count": 0,
+    "domain_filter_check": null,
+    "latency_ms": 701.4,
+    "usage": {
+      "input_tokens": 309,
+      "output_tokens": 10,
+      "total_tokens": 319
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_5_open_research",
+    "label": "Open-ended research query",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T23:17:17.242200Z",
+    "query": "Summarize the latest developments in EU AI regulation.",
+    "search_context_size": "medium",
+    "domain_filter": null,
+    "tool_invoked": true,
+    "search_queries_issued": [
+      "latest developments in EU AI regulation 2023"
+    ],
+    "search_call_count": 1,
+    "response_text": "As of March 2026, the European Union has made significant strides in regulating artificial intelligence (AI) to ensure its development aligns with fundamental rights, democracy, and the rule of law. Key developments include:\n\n**Artificial Intelligence Act (AI Act):**\n\n- **Implementation Timeline:** The AI Act, which came into force on August 1, 2024, is being implemented in phases:\n  - Prohibitions on AI systems posing unacceptable risks have been enforceable since February 2, 2025.\n  - Provisions concerning general-purpose AI models and governance structures became applicable on August 2, 2025.\n  - Full compliance for high-risk AI systems is mandated by August 2, 2026. ([natlawreview.com](https://natlawreview.com/article/ai-coming-eu-eu-artificial-intelligence-acts-recent-publication-next-steps?utm_source=openai))\n\n- **General-Purpose AI Code of Practice:** To assist providers in adhering to the AI Act, the European Commission released the General-Purpose AI Code of Practice on July 10, 2025. This voluntary ",
+    "response_text_char_count": 1024,
+    "sources": [
+      {
+        "url": "https://digital-strategy.ec.europa.eu/en/policies/european-approach-artificial-intelligence?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.europarl.europa.eu/news/en/headlines/society/20230601STO93804/eu-ai-act-first-regulation-on-artificial-intelligence?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://kpmg.com/xx/en/our-insights/regulatory-insights/evolving-plans-for-ai-regulation.html?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.eversheds-sutherland.com/en/luxembourg/insights/global-ai-regulatory-update-august?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://natlawreview.com/article/ai-coming-eu-eu-artificial-intelligence-acts-recent-publication-next-steps?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.bakermckenzie.com/en/insight/publications/resources/product-risk-radar-articles/eu-regulation-on-ai?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.legislogiq.com/our-work/q3airegulatoryupdate?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.jdsupra.com/legalnews/eu-geopolitical-risk-update-key-policy-9455453/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.jdsupra.com/legalnews/eu-geopolitical-risk-update-key-policy-5375169/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://securiti.ai/eu-ai-act/updates/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://iapp.org/resources/article/global-ai-governance-eu/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.metricstream.com/blog/ai-regulation-trends-ai-policies-us-uk-eu.html?utm_source=openai",
+        "title": null
+      }
+    ],
+    "source_count": 12,
+    "domain_filter_check": null,
+    "latency_ms": 6899.7,
+    "usage": {
+      "input_tokens": 312,
+      "output_tokens": 250,
+      "total_tokens": 562
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_6_context_size_low",
+    "label": "search_context_size: low",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T23:17:31.780217Z",
+    "query": "What are the latest AI safety news headlines?",
+    "search_context_size": "low",
+    "domain_filter": null,
+    "tool_invoked": true,
+    "search_queries_issued": [
+      "latest AI safety news headlines October 2023"
+    ],
+    "search_call_count": 1,
+    "response_text": "Here are some recent developments in AI safety:\n\n**Regulatory Actions and Reports**\n\n- **Transparency in Frontier Artificial Intelligence Act**: In September 2025, California enacted SB-53, requiring AI companies to publicly assess potential catastrophic risks of their models and document adherence to safety standards. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Transparency_in_Frontier_Artificial_Intelligence_Act?utm_source=openai))\n\n- **Responsible AI Safety and Education (RAISE) Act**: New York State passed this law in December 2025, imposing transparency and safety requirements on developers of large AI models. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Responsible_AI_Safety_and_Education_Act?utm_source=openai))\n\n- **International AI Safety Report 2026**: Published in February 2026, this report provides a comprehensive review of AI capabilities and risks, authored by over 100 experts and led by Yoshua Bengio. ([internationalaisafetyreport.org](https://internationalaisafetyreport.org/?utm_source=openai))\n\n**Industry Developments**\n\n- **Oracle's AI-Enabled Safety Management**: In March 2026, Oracle introduced an AI solution to enhance safety management in construction, aiming to predict and prevent incidents. ",
+    "response_text_char_count": 1244,
+    "sources": [
+      {
+        "url": "https://www.techtarget.com/patientengagement/news/366639978/ECRI-AIs-diagnostic-capabilities-pose-patient-safety-risk-in-2026?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://internationalaisafetyreport.org/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.mlex.com/mlex/artificial-intelligence/articles/2419745/international-network-of-ai-safety-institutes-renamed-without-safety-?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.yahoo.com/news/openai-slashes-time-given-safety-105631217.html?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.yahoo.com/news/articles/police-using-ai-catch-seatbelt-213000006.html?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://uk.news.yahoo.com/experts-deeply-concerned-government-agency-124000628.html?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.yahoo.com/news/articles/most-harmful-ai-revealed-safety-144729607.html?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.morningstar.com/news/pr-newswire/20260305sf00337/oracle-transforms-construction-safety-management-with-ai?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.business-standard.com/technology/tech-news/future-ai-models-may-lie-to-appear-safe-in-tests-openai-study-warns-126030600492_1.html/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://oecd.ai/en/incidents/2025-01-29-15f0?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://oecd.ai/en/incidents/2025-06-23-688e?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://ssai-lab.github.io/?utm_source=openai",
+        "title": null
+      }
+    ],
+    "source_count": 12,
+    "domain_filter_check": null,
+    "latency_ms": 9531.2,
+    "usage": {
+      "input_tokens": 310,
+      "output_tokens": 278,
+      "total_tokens": 588
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_7_context_size_high",
+    "label": "search_context_size: high",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T23:17:48.020266Z",
+    "query": "What are the latest AI safety news headlines?",
+    "search_context_size": "high",
+    "domain_filter": null,
+    "tool_invoked": true,
+    "search_queries_issued": [
+      "latest AI safety news October 2023"
+    ],
+    "search_call_count": 1,
+    "response_text": "Here are some recent developments in AI safety:\n\n**Regulatory Actions:**\n\n- **California's Transparency in Frontier Artificial Intelligence Act:** In September 2025, California enacted SB-53, requiring AI companies to publicly assess potential catastrophic risks from their models and document adherence to safety standards. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Transparency_in_Frontier_Artificial_Intelligence_Act?utm_source=openai))\n\n- **New York's Responsible AI Safety and Education Act:** Signed into law in December 2025, this act mandates transparency and safety measures for developers of large AI models, aligning with California's approach but with stricter incident reporting requirements. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Responsible_AI_Safety_and_Education_Act?utm_source=openai))\n\n**Industry Initiatives:**\n\n- **OpenAI and Microsoft's AI Safety Task Force:** In November 2025, OpenAI and Microsoft joined an AI safety task force initiated by the attorneys general of North Carolina and Utah, aiming to collaborate on developing safety standards and regulations. ([aol.com](https://www.aol.com/articles/openai-microsoft-team-state-law-190001524.html?utm_source=openai))\n\n**Research and Reports:**\n\n- **International AI Safety Report 2026:** Published in February 2026 ",
+    "response_text_char_count": 1311,
+    "sources": [
+      {
+        "url": "https://www.techtarget.com/patientengagement/news/366639978/ECRI-AIs-diagnostic-capabilities-pose-patient-safety-risk-in-2026?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://internationalaisafetyreport.org/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://internationalaisafetyreport.org/publication/international-ai-safety-report-2026?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.mlex.com/mlex/artificial-intelligence/articles/2419745/international-network-of-ai-safety-institutes-renamed-without-safety-?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.yahoo.com/news/openai-slashes-time-given-safety-105631217.html?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.yahoo.com/news/articles/police-using-ai-catch-seatbelt-213000006.html?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://uk.news.yahoo.com/experts-deeply-concerned-government-agency-124000628.html?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.morningstar.com/news/pr-newswire/20260305sf00337/oracle-transforms-construction-safety-management-with-ai?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.business-standard.com/technology/tech-news/future-ai-models-may-lie-to-appear-safe-in-tests-openai-study-warns-126030600492_1.html/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://oecd.ai/en/incidents/2025-01-29-15f0?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.aol.com/articles/openai-microsoft-team-state-law-190001524.html?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://ssai-lab.github.io/?utm_source=openai",
+        "title": null
+      }
+    ],
+    "source_count": 12,
+    "domain_filter_check": null,
+    "latency_ms": 11233.4,
+    "usage": {
+      "input_tokens": 310,
+      "output_tokens": 291,
+      "total_tokens": 601
+    },
+    "error": null
+  },
+  {
+    "test_id": "test_8_domain_filter_allowed",
+    "label": "Domain filter: allow-list (reuters.com, apnews.com)",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T23:17:53.235622Z",
+    "query": "Latest news on US Federal Reserve interest rate decisions.",
+    "search_context_size": "medium",
+    "domain_filter": {
+      "allowed_domains": [
+        "reuters.com",
+        "apnews.com"
+      ]
+    },
+    "tool_invoked": null,
+    "search_queries_issued": [],
+    "search_call_count": 0,
+    "response_text": null,
+    "response_text_char_count": 0,
+    "sources": [],
+    "source_count": 0,
+    "domain_filter_check": null,
+    "latency_ms": null,
+    "usage": {},
+    "error": "Error code: 400 - {'error': {'message': \"Unsupported parameter 'filters'\", 'type': 'invalid_request_error', 'param': 'tools', 'code': None}}"
+  },
+  {
+    "test_id": "test_9_domain_filter_blocked",
+    "label": "Domain filter: block-list (wikipedia.org)",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T23:17:58.413524Z",
+    "query": "History of the European Union.",
+    "search_context_size": "medium",
+    "domain_filter": {
+      "blocked_domains": [
+        "wikipedia.org"
+      ]
+    },
+    "tool_invoked": null,
+    "search_queries_issued": [],
+    "search_call_count": 0,
+    "response_text": null,
+    "response_text_char_count": 0,
+    "sources": [],
+    "source_count": 0,
+    "domain_filter_check": null,
+    "latency_ms": null,
+    "usage": {},
+    "error": "Error code: 400 - {'error': {'message': \"Unsupported parameter 'filters'\", 'type': 'invalid_request_error', 'param': 'tools', 'code': None}}"
+  },
+  {
+    "test_id": "test_10_ambiguous_query",
+    "label": "Ambiguous query",
+    "model": "gpt-4o",
+    "track": "raw",
+    "timestamp": "2026-03-11T23:18:08.952646Z",
+    "query": "Python release",
+    "search_context_size": "medium",
+    "domain_filter": null,
+    "tool_invoked": true,
+    "search_queries_issued": [
+      "latest Python release"
+    ],
+    "search_call_count": 1,
+    "response_text": "As of March 11, 2026, the latest stable release of Python is version 3.14.3, which was released on February 3, 2026. ([blog-stage.python.org](https://blog-stage.python.org/2026/02/python-3143-and-31312-are-now-available/?utm_source=openai)) This release includes approximately 299 bug fixes, build improvements, and documentation updates since version 3.14.2.\n\nSome of the major new features introduced in the Python 3.14 series include:\n\n- **PEP 779**: Official support for free-threaded Python, enhancing concurrency capabilities.\n- **PEP 649**: Deferred evaluation of annotations, improving the semantics of using annotations.\n- **PEP 750**: Introduction of template string literals (t-strings) for custom string processing, utilizing a syntax similar to f-strings.\n\nFor more details and to download Python 3.14.3, you can visit the official Python website.  ",
+    "response_text_char_count": 862,
+    "sources": [
+      {
+        "url": "https://blog-stage.python.org/2026/02/python-3143-and-31312-are-now-available/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.python.org/downloads/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://test.python.org/downloads/release/python-31017/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://test.python.org/downloads/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://test.python.org/getit/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.python.org/doc/versions/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://test.python.org/downloads/release/python-3134/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://test.python.org/downloads/release/python-3922/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://discuss.python.org/t/python-3-14-0-final-is-here/104210?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.eol.support/python?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://www.pybazaar.com/buzz/?utm_source=openai",
+        "title": null
+      },
+      {
+        "url": "https://pythoninsider.blogspot.com/2025/08/python-3136-is-now-available.html?utm_source=openai",
+        "title": null
+      }
+    ],
+    "source_count": 12,
+    "domain_filter_check": null,
+    "latency_ms": 5532.7,
+    "usage": {
+      "input_tokens": 303,
+      "output_tokens": 224,
+      "total_tokens": 527
+    },
+    "error": null
+  }
+]

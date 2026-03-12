@@ -1,0 +1,39 @@
+{
+  "test_id": "test_5_ambiguous_query",
+  "label": "Ambiguous query (disambiguation behavior)",
+  "model": "gpt-4o-mini-search-preview",
+  "track": "chatgpt-interpreted",
+  "timestamp": "2026-03-11T20:19:19.185614Z",
+  "prompt": "Search for 'Python release'. Tell me: how did you interpret this query? Did you search for the programming language, the animal, or both? Describe what you found and how you resolved the ambiguity.",
+  "web_search_options": null,
+  "interpreted_response": "When you searched for \"Python release,\" I interpreted your query as referring to the programming language, as it is commonly associated with the term \"release\" in the context of software development.\n\nPython is a high-level, general-purpose programming language known for its readability and versatility. It was publicly released in 1994 by Dutch programmer Guido van Rossum. ([britannica.com](https://www.britannica.com/technology/Python-computer-language?utm_source=openai))\n\nAs of March 2026, the Python Software Foundation supports Python versions 3.10 through 3.14, following the project's annual release cycle and five-year support policy. Python 3.15 is currently in the alpha development phase, with a stable release expected in October 2026. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Python_%28programming_language%29?utm_source=openai))\n\nThe name \"Python\" was inspired by the British comedy group Monty Python, whom Guido van Rossum enjoyed while developing the language. ([en.wikipedia.org](https://en.wikipedia.org/wiki/Python_%28programming_language%29?utm_source=openai))\n\nIf you were referring to the animal, the term \"Python\" also denotes a genus of large constricting snakes found in Africa and Asia. However, in the context of \"release,\" it is more commonly associated with the programming language. ",
+  "citations": [
+    {
+      "url": "https://www.britannica.com/technology/Python-computer-language?utm_source=openai",
+      "title": "Python | Definition, Language, History, & Facts | Britannica",
+      "start_index": 376,
+      "end_index": 476
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Python_%28programming_language%29?utm_source=openai",
+      "title": "Python (programming language)",
+      "start_index": 751,
+      "end_index": 854
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Python_%28programming_language%29?utm_source=openai",
+      "title": "Python (programming language)",
+      "start_index": 990,
+      "end_index": 1093
+    }
+  ],
+  "citation_count": 3,
+  "finish_reason": "stop",
+  "latency_ms": 3591.3,
+  "usage": {
+    "prompt_tokens": 41,
+    "completion_tokens": 284,
+    "total_tokens": 325
+  },
+  "error": null
+}

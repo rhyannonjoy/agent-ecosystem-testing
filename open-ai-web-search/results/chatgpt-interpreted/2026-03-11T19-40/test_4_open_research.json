@@ -1,0 +1,16 @@
+{
+  "test_id": "test_4_open_research",
+  "label": "Open-ended research query",
+  "model": "gpt-4o-search-preview",
+  "track": "chatgpt-interpreted",
+  "timestamp": "2026-03-11T19:41:00.130269Z",
+  "prompt": "Search for the latest developments in EU AI regulation. Tell me: how many distinct sources did you draw from? How recent were they? Was any information contradictory across sources?",
+  "web_search_options": null,
+  "interpreted_response": null,
+  "citations": [],
+  "citation_count": 0,
+  "finish_reason": null,
+  "latency_ms": null,
+  "usage": {},
+  "error": "Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}"
+}
