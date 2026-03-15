@@ -18,6 +18,16 @@ Findings contribute to the [Agent Docs Spec, Known Platform Limits](https://gith
 
 ---
 
+## Anysphere Cursor `@Web`
+
+- [Methodology](/docs/anysphere-cursor/methodology.md)
+- [Cursor-interpreted vs Raw](/docs/anysphere-cursor/cursor-interpreted-vs-raw.md)
+- [Key Findings: Cursor's `@Web`, Cursor-interpreted](/docs/anysphere-cursor/cursor-test-findings.md)
+- [Key Findings: Cursor's `@Web`, Raw](/docs/anysphere-cursor/cursor-test-findings-raw.md)
+- [Friction Note](/docs/anysphere-cursor/friction-note.md)
+
+---
+
 ## Google Gemini API URL Context
 
 - [Methodology](/docs/google-gemini-url-context-tool/methodology.md)
