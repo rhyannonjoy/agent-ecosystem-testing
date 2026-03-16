@@ -28,7 +28,7 @@ observable through chat output while MCP servers are user-configured,
 implementations vary - mcp-server-fetch, fetch-browser-mcp, third-party -
 and are observable through Cursor's agent behavior, but not
 instrumentable. Compare to this collection's
-[Claude API Web Fetch testing](/docs/anthropic-claude-api-web-fetch-tool/methodology.md) -
+[Claude API Web Fetch testing](/docs/anthropic-claude-api-web-fetch-tool/methodology) -
 
 | **Aspect** | **Claude API Testing** | **Cursor Testing** |
 |--------|-------------------|-----------------|
@@ -36,10 +36,10 @@ instrumentable. Compare to this collection's
 | **Layers** | Single: URL → fetch → return | Two: URL → fetch → @web output, then model interprets |
 | **Instrumental Access** | Full: can inspect `ToolResult.content` directly | Partial: can only read model's output or manually copy @web result |
 | **Repeatability** | High: same URL yields identical API response | Medium: model interpretation varies, but @web raw content should be stable |
-| **Fetch Mechanisms** | One (web_fetch tool) | Multiple (@web, mcp-server-fetch, fetch-browser-mcp, third-party) |
-| **Best Findings** | Hard limits (Claude API truncates at ~100KB) | Comparative limits (does MCP override @web? Does agent auto-chunk?) |
+| **Fetch Mechanisms** | One (web_fetch tool) | Multiple - `@web`, mcp-server-fetch, fetch-browser-mcp, third-party |
+| **Best Findings** | Hard limits (Claude API truncates at ~100KB) | Comparative limits - _does MCP override `@web`? Does agent auto-chunk?_ |
 
-**Goal**: use Cursor IDE directly with two complementary tracks -
+**Goal**: use Cursor IDE directly with two complementary tracks;
 Cursor-interpreted track catches perception gaps, while the raw track
 produces reproducible numbers for documentation -
 
@@ -51,6 +51,11 @@ produces reproducible numbers for documentation -
 | **Measurements** | Model estimates: "appears truncated," "approximately X KB," "markdown seems complete" | Manual: character count via `len()`, token count via tiktoken, exact truncation point, last 50 characters |
 | **Repeatability** | Varies between runs due to model variance | Reproducible - same URL fetched multiple times yields consistent content |
 | **Best For** | Understanding what developers experience; surfacing perception gaps | Citable baseline measurements for the Agent Docs Spec |
+
+> _Known limitations of this approach: interpreted-track will vary between runs; can't programmatically
+inspect Cursor's `ToolResult` equivalent; variation is also expected between MCP server versions,
+IDE version, and model selection; some test URLs may be gated - substitute public alternatives
+when available_
 
 ### Cursor-Specific Unknowns
  
@@ -110,54 +115,3 @@ BL-2,2025-03-14,en.wikipedia.org/wiki/History,@web,claude-sonnet-4,120000,9876,y
 OP-3-web,2025-03-15,httpbin.org/html,@web,claude-sonnet-4,5000,5000,no,NULL,1250,comparison,"@web returned full"
 OP-3-mcp,2025-03-15,httpbin.org/html,mcp-server-fetch,claude-sonnet-4,5000,5000,no,NULL,1250,comparison,"MCP returned full - same limit"
 ```
-
----
-
-### Comparison to Claude API Testing
-
-| Aspect | Claude API Testing | Cursor Testing |
-|--------|-------------------|-----------------|
-| **Interface** | Python API call, response object available | Chat interface, observable only through output |
-| **Layers** | Single: URL → fetch → return | Two: URL → fetch → @web output, then model interprets |
-| **Instrumental Access** | Full: can inspect `ToolResult.content` directly | Partial: can only read model's output or manually copy @web result |
-| **Repeatability** | High: same URL yields identical API response | Medium: model interpretation varies, but @web raw content should be stable |
-| **Fetch Mechanisms** | One (web_fetch tool) | Multiple (@web, mcp-server-fetch, fetch-browser-mcp, third-party) |
-| **Best Findings** | Hard limits (Claude API truncates at ~100KB) | Comparative limits (does MCP override @web? Does agent auto-chunk?) |
-
-### Known Limitations of This Approach
-
-1. **Model interpretation variance**: Interpreted track results vary between runs. We control for this by running each test multiple times and looking for consensus, but some variation is expected.
-
-2. **No direct response object access**: Unlike Claude API testing, we cannot programmatically inspect Cursor's internal `ToolResult` equivalent. Raw track relies on manually copying @web output and analyzing it in Python.
-
-3. **Configuration dependency**: Cursor's behavior may vary with:
-   - MCP server version (`mcp-server-fetch` package.json version documented per run)
-   - Cursor IDE version (captured at test time)
-   - Model selection (held constant per test series)
-   
-   If behavior changes between Cursor versions, we document it as a finding, not a contradiction.
-
-4. **Authentication wall**: Some test URLs (GitHub API, Stripe docs) may be gated. We note which tests hit auth walls and substitute public alternatives when available.
-
-### Success Criteria
-
-Testing is complete and spec-ready when:
-
-- ✅ **Truncation threshold identified** to ±5% confidence (same threshold as Claude API testing)
-- ✅ **Both tracks converge**: Interpreted and raw track agree on truncation point (or documented divergence is explained)
-- ✅ **MCP variants compared**: Testing shows if mcp-server-fetch differs from @web, with specific measurements
-- ✅ **Chunking behavior characterized**: Clear yes/no answer on whether agent auto-chunks after truncation
-- ✅ **Edge cases explored**: Failure modes, content-type effects, redirect chains documented
-- ✅ **Reproducible findings**: Raw track measurements can be verified by another tester running same URLs with same Cursor version
-
----
-
-## Integration with Agent Ecosystem Testing
-
-This Cursor testing extends the existing framework:
-
-- **Claude API testing** established that web fetch limits are real and measurable (~100KB observed, varies by content type)
-- **Gemini URL context testing** showed that limits vary by platform (20 URL max, PDFs supported, etc.)
-- **OpenAI web search testing** revealed that fetch behavior differs between API surfaces (Chat Completions vs Responses API)
-- **Cursor @web and MCP testing** (this project) will document whether Cursor's proprietary implementations have their own limits, and whether developers can work around them via MCP configuration
-

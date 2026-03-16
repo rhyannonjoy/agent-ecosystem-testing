@@ -31,4 +31,3 @@ to produce spec-ready, citable measurements
 | **[Anysphere Cursor](/docs/anysphere-cursor/methodology)** | Investigating truncation limits, MCP override behavior, auto-chunking | Documenting closed consumer applications without public APIs |
 | **[Google Gemini API](/docs/google-gemini-url-context-tool/methodology)** | Hard limit: **20 URLs** per request; supports PDF & JSON | Understanding platform-specific constraints |
 | **[OpenAI Web Search](/docs/open-ai-web-search-tool/methodology)** | Tool invocation **conditional** and model-dependent; differs by API surface | Comparing behavior across Chat Completions vs Responses API |
- 
