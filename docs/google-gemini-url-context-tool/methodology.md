@@ -2,6 +2,7 @@
 layout: default
 title: "Methodology"
 nav_order: 1
+permalink: /docs/google-gemini-url-context-tool/methodology
 parent: Google Gemini URL Context
 ---
 

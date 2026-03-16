@@ -2,6 +2,7 @@
 layout: default
 title: "Friction Note"
 nav_order: 5
+permalink: /docs/anysphere-cursor/friction-note
 parent: Anysphere Cursor
 ---
 

@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Key Findings Gemini's URL Context Tool - Raw"
-permalink: /gemini-url-context-test-raw-findings/
+permalink: /docs/google-gemini-url-context-tool/gemini-url-context-test-raw-findings
 nav_order: 4
 parent: Google Gemini URL Context
 ---

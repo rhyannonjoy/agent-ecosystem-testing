@@ -2,6 +2,7 @@
 layout: default
 title: "Methodology"
 nav_order: 1
+permalink: /docs/open-ai-web-search-tool/methodology
 parent: OpenAI Web Search
 ---
 

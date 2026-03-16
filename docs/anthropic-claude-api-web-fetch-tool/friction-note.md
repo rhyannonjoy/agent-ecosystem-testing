@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Friction Note"
-permalink: /friction-note/
+permalink: /docs/anthropic-claude-api-web-fetch-tool/friction-note
 ---
 
 >_Friction: this note describes roadblocks while refining testing methodology_

@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "results Note"
-permalink: /results-note/
+permalink: /docs/anthropic-claude-api-web-fetch-tool/results-note
 ---
 
 > _`/results`: this note describes how testing data is captured_

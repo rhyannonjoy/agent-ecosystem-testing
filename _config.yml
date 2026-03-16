@@ -1,3 +1,10 @@
+# local testing commands
+# bundle exec jekyll serve
+# http://localhost:4000
+
+# clear the build - rm -rf _site
+# clear Jekyll cache - rm -rf .jekyll-cache
+
 title: Agent Ecosystem Testing
 description: Empirical testing of agentic docs consumption
 author: Rhyannon Rodriguez, March 2026
@@ -15,6 +22,60 @@ exclude:
 - .env
 - .vale.ini
 
-# local testing commands
-# bundle exec jekyll serve
-# http://localhost:4000
+navigation:
+  - title: "Overview"
+    url: "/"
+    
+  - title: "Anthropic Claude API"
+    sections:
+      - title: "Methodology"
+        url: "/docs/anthropic-claude-api-web-fetch-tool/methodology"
+      - title: "Interpreted vs Raw"
+        url: "/docs/anthropic-claude-api-web-fetch-tool/claude-interpreted-vs-raw"
+      - title: "Findings: Interpreted"
+        url: "/docs/anthropic-claude-api-web-fetch-tool/web-fetch-test-findings"
+      - title: "Findings: Raw"
+        url: "/docs/anthropic-claude-api-web-fetch-tool/web-fetch-test-raw-findings"
+      - title: "Friction Note"
+        url: "/docs/anthropic-claude-api-web-fetch-tool/friction-note"
+      - title: "Results Note"
+        url: "/docs/anthropic-claude-api-web-fetch-tool/results-note"
+    
+  - title: "Anysphere Cursor"
+    sections:
+      - title: "Methodology"
+        url: "/docs/anysphere-cursor/methodology"
+      - title: "Interpreted vs Raw"
+        url: "/docs/anysphere-cursor/cursor-interpreted-vs-raw"
+      - title: "Findings: Interpreted"
+        url: "/docs/anysphere-cursor/cursor-test-findings"
+      - title: "Findings: Raw"
+        url: "/docs/anysphere-cursor/cursor-test-findings-raw"
+      - title: "Friction Note"
+        url: "/docs/anysphere-cursor/friction-note"
+    
+  - title: "Google Gemini API"
+    sections:
+      - title: "Methodology"
+        url: "/docs/google-gemini-url-context-tool/methodology"
+      - title: "Interpreted vs Raw"
+        url: "/docs/google-gemini-url-context-tool/gemini-interpreted-vs-raw"
+      - title: "Findings: Interpreted"
+        url: "/docs/google-gemini-url-context-tool/gemini-url-context-test-findings"
+      - title: "Findings: Raw"
+        url: "/docs/google-gemini-url-context-tool/gemini-url-context-test-raw-findings"
+      - title: "Friction Note"
+        url: "/docs/google-gemini-url-context-tool/friction-note"
+    
+  - title: "OpenAI Web Search"
+    sections:
+      - title: "Methodology"
+        url: "/docs/open-ai-web-search-tool/methodology"
+      - title: "Interpreted vs Raw"
+        url: "/docs/open-ai-web-search-tool/chatgpt-interpreted-vs-raw"
+      - title: "Findings: Interpreted"
+        url: "/docs/open-ai-web-search-tool/open-ai-web-search-test-findings"
+      - title: "Findings: Raw"
+        url: "/docs/open-ai-web-search-tool/open-ai-web-search-test-raw-findings"
+      - title: "Friction Note"
+        url: "/docs/open-ai-web-search-tool/friction-note"

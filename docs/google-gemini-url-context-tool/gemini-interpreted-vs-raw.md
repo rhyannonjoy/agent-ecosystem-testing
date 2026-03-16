@@ -2,6 +2,7 @@
 layout: default
 title: "Gemini-interpreted vs Raw"
 nav_order: 2
+permalink: /docs/google-gemini-url-context-tool/gemini-interpreted-vs-raw
 parent: Google Gemini URL Context
 ---
 

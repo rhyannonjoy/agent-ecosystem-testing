@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Key Findings for Cursor's @Web Tool, Raw"
-permalink: /cursor-test-findings-raw/
+permalink: /docs/anysphere-cursor/cursor-test-findings-raw
 nav_order: 3
 parent: Anysphere Cursor
 ---

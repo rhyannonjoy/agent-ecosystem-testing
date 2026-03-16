@@ -2,6 +2,7 @@
 layout: default
 title: "Key Findings OpenAI Web Search, ChatGPT-interpreted"
 nav_order: 3
+permalink: /docs/open-ai-web-search-tool/open-ai-web-search-test-findings
 parent: OpenAI Web Search
 ---
 
