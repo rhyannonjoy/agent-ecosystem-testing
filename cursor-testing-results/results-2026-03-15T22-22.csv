@@ -1,0 +1,2 @@
+test_id,date,url,method,model,input_est_chars,output_chars,truncated,truncation_char_num,tokens_est,hypothesis_match,notes,track,cursor_version
+EC-3,2026-03-15, https://httpbin.org/redirect/5,@web,Claude 3.5 Sonnet,2048,850,no,,200,redirect-success,httpbin.org/redirect/5 (5-level redirect chain) successfully followed. Returned ~850 chars of JSON response. Complete JSON structure with no truncation. Evidence: Cursor handles redirect chains without timeout or failure.,interpreted,0.36.0

@@ -139,32 +139,47 @@ python cursor_testing_framework.py --log BL-1 \
 
 ### Testing Strategy
 
-**Recommended test order:**
+**Baseline Testing Path (Single-Run Reproducible)**
+
+Run each test **once** in **interpreted track** only. This produces a reproducible baseline without follow-up runs.
 
 1. **BL-1, BL-2** (baseline, quick wins) - ~30 min
    - Establishes basic truncation threshold
-   - Fast feedback loop
+   - Single run each, interpreted track
    
 2. **SC-2** (code blocks) - ~20 min
-   - Tests HTML-to-markdown conversion timing
+   - Tests HTML-to-markdown conversion
+   - Single run, interpreted track
    
 3. **OP-3** (@web vs mcp comparison) - ~20 min
    - Answers: Do MCP servers have different limits?
+   - Single run, interpreted track
    
 4. **OP-4** (auto-chunking) - ~30 min
    - Key ecosystem testing gap
    - Determines developer experience
+   - Single run, interpreted track
    
 5. **BL-3** (hard ceiling) - ~20 min
    - Find absolute limit
+   - Single run, interpreted track
    
 6. **SC-1, SC-3, SC-4** (structured content) - ~1 hour
    - Structure-aware truncation hypothesis
+   - Single run each, interpreted track
    
 7. **EC-1, EC-3, EC-6** (edge cases) - ~1 hour
    - Failure modes and unusual inputs
+   - Single run each, interpreted track
 
-**Total: ~5-6 hours of testing spread across 1-2 weeks**
+### Optional: Extended Testing
+
+After completing the baseline, you can optionally run additional tracks for richer analysis:
+- **Raw track** on key tests (BL-1, SC-2, OP-4) for exact measurements
+- **Rerun interpreted** on 2-3 tests to measure variance across runs
+- Use the analyzer to compare interpreted vs raw results
+
+This produces deeper findings but is not required for reproducibility or spec contribution.
 
 ## Analyzing Results
 
@@ -246,15 +261,16 @@ Log which hypothesis each test supports in the `--hypothesis` flag.
 ### For Interpreted Track
 
 1. Ask Cursor to be **specific** about lengths (not "approximately")
-2. Request **last 50 characters** to verify truncation point
-3. Ask about **markdown completeness** (are code blocks closed?)
-4. Run 2-3 times per test to capture variance
+2. **Request token count estimation** - ask Cursor to estimate using 4 characters per token as baseline
+3. Request **last 50 characters** to verify truncation point
+4. Ask about **markdown completeness** (are code blocks closed?)
+5. Run 2-3 times per test to capture variance
 
 ### For Raw Track
 
 1. Copy Cursor's output **exactly as received**
 2. Use Python `len()` to count characters: `len(content)`
-3. Use `tiktoken` to count tokens:
+3. Use `tiktoken` to count tokens accurately:
    ```python
    import tiktoken
    enc = tiktoken.encoding_for_model("gpt-3.5-turbo")
@@ -262,6 +278,29 @@ Log which hypothesis each test supports in the `--hypothesis` flag.
    ```
 4. Note **last 50 characters** to verify boundary
 5. Check if truncation was **clean** (mid-word? mid-tag?)
+
+### Token Count Logging
+
+**Important**: Only log token counts that Cursor explicitly provided or you calculated.
+
+- **If Cursor estimated it**: Use that number, note in the command that it's Cursor's estimate
+- **If you calculated it**: Use the 4-character-per-token baseline: `chars / 4 = tokens`
+- **If uncertain**: Use `0` and note in `--notes` that token count needs verification
+
+Example:
+```bash
+# Cursor provided the estimate
+python cursor-web-fetch/web_fetch_testing_framework.py --log OP-4 \
+  --track interpreted \
+  --method @web \
+  --model "Claude 3.5 Sonnet" \
+  --cursor-version "0.36.0" \
+  --output-chars 245000 \
+  --truncated no \
+  --tokens 61250 \
+  --hypothesis "H2-yes" \
+  --notes "Token count estimated by Cursor using 4-char/token baseline"
+```
 
 ### Environment Variables
 
@@ -301,10 +340,7 @@ python cursor_testing_framework.py --list-tests  # Check valid IDs
 ## Contributing Results
 
 When you have meaningful findings, run analyzer to generate markdown table:
-
+   
    ```bash
    python cursor_testing_analyzer.py --csv results.csv --markdown
    ```
-
-
-

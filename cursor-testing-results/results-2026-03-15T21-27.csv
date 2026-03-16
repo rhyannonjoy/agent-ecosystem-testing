@@ -1,0 +1,2 @@
+test_id,date,url,method,model,input_est_chars,output_chars,truncated,truncation_char_num,tokens_est,hypothesis_match,notes,track,cursor_version
+OP-4,2026-03-15,https://www.mongodb.com/docs/atlas/atlas-search/tutorial/,@web,Claude 3.5 Sonnet,256000,245000,no,,61000,H2-yes,Token count estimated by Cursor at ~61K tokens,interpreted,0.36.0

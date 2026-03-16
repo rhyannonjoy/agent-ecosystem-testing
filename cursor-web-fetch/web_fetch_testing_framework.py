@@ -6,12 +6,12 @@ This framework mirrors the methodology used in agent-ecosystem-testing for
 Claude API, Gemini, and OpenAI platforms. Test URLs are sourced from the
 existing test suites to ensure **comparable results across platforms**.
 
-Key Design Decisions:
+Key design decisions:
 1. URLs are proven web fetch test cases from existing suites (Claude API, Gemini)
-2. Baseline tests, `BL` - use the same MongoDB docs pages as Claude API testing
-3. Structured content tests, `SC` -use API docs and reference materials
-4. Edge case tests, `EC` - target specific truncation/rendering challenges
-5. Two-track measurement: Cursor-interpreted vs Raw exact measurements
+2. Baseline tests (BL) use the same MongoDB docs pages as Claude API testing
+3. Structured content tests (SC) use API docs and reference materials
+4. Edge case tests (EC) target specific truncation/rendering challenges
+5. Two-track measurement: interpreted (what Cursor reports) + raw (exact measurements)
 
 This allows direct comparison: "Cursor truncates at X KB, Claude API at Y KB on same URL"
 
@@ -34,7 +34,7 @@ from typing import Optional
 # to ensure comparable results across platforms
 
 TEST_URLS = {
-    # --- BASELINE TESTS, `BL` ---
+    # --- BASELINE TESTS (BL) ---
     # Same approach as claude-api/web_fetch_test.py and gemini-url-context/url_context_test.py
     # Progressive scaling: small HTML → medium → large
     
@@ -48,7 +48,7 @@ TEST_URLS = {
     "BL-2": {
         "name": "Short Markdown version (same page, different encoding)",
         "url": "https://www.mongodb.com/docs/manual/reference/change-events/create.md",
-        "expected_size_kb": 20,  # Same content as BL-1 but Markdown (should be ~60-75% smaller)
+        "expected_size_kb": 20,  # Same content as BL-1 but markdown (should be ~60-75% smaller)
         "category": "baseline",
         "note": "Same as Claude API test 2; HTML vs Markdown comparison baseline",
     },
@@ -60,7 +60,7 @@ TEST_URLS = {
         "note": "Same as Claude API test 3; used in Claude testing to measure default truncation ceiling",
     },
     
-    # --- STRUCTURED CONTENT TESTS, `SC` ---
+    # --- STRUCTURED CONTENT TESTS (SC) ---
     # Test how Cursor handles different content structures during truncation
     
     "SC-1": {
@@ -92,7 +92,7 @@ TEST_URLS = {
         "note": "Markdown reference; tests hierarchy preservation in H1-H6 structure",
     },
     
-    # --- OFFSET/PAGINATION TESTS, `OP` ---
+    # --- OFFSET/PAGINATION TESTS (OP) ---
     # Test chunking, fragment navigation, and method comparison
     
     "OP-1": {
@@ -117,7 +117,7 @@ TEST_URLS = {
         "note": "Same as BL-3; tests if Cursor agent automatically requests next chunk after truncation",
     },
     
-    # --- EDGE CASES / FAILURE MODES, `EC` ---
+    # --- EDGE CASES / FAILURE MODES (EC) ---
     # Stress test unusual conditions and error handling
     
     "EC-1": {
@@ -129,8 +129,8 @@ TEST_URLS = {
     },
     "EC-3": {
         "name": "Redirect chain handling",
-        "url": "https://docs.anthropic.com/api",
-        "expected_size_kb": 50,
+        "url": " https://httpbin.org/redirect/5",
+        "expected_size_kb": 2,
         "category": "edge_cases",
         "note": "Tests how many redirects Cursor follows before giving up or timeout",
     },
@@ -190,10 +190,11 @@ Please use the @web command to fetch this URL:
 
 Then report back:
 1. **Total character count** of the response you received
-2. **Whether any content appears truncated** (yes/no, and where if truncated)
-3. **Last 50 characters** of the response (verbatim, to verify the cutoff point)
-4. **Markdown formatting assessment** - is it complete? Are code blocks closed properly?
-5. **Model's perceived completeness** - does it seem like you got the full content?
+2. **Estimated token count** (using roughly 4 characters per token as a baseline)
+3. **Whether any content appears truncated** (yes/no, and where if truncated)
+4. **Last 50 characters** of the response (verbatim, to verify the cutoff point)
+5. **Markdown formatting assessment** - is it complete? Are code blocks closed properly?
+6. **Model's perceived completeness** - does it seem like you got the full content?
 
 Test ID: {test_id}
 Expected size: ~{test['expected_size_kb']}KB
@@ -447,7 +448,7 @@ Examples:
     )
     parser.add_argument("--tokens", type=int, help="Estimated token count")
     parser.add_argument(
-        "--hypothesis", type=str, help="Hypothesis match (e.g., H1-yes, H2-no)"
+        "--hypothesis", type=str, help="Hypothesis match (e.g., H1-yes, H2-no, EC-timeout)"
     )
     parser.add_argument("--notes", type=str, help="Additional notes")
 
@@ -462,7 +463,9 @@ Examples:
         framework.print_test_harness(args.test, args.track)
 
     elif args.log:
-        if not all([args.model, args.cursor_version, args.output_chars, args.truncated, args.tokens, args.hypothesis]):
+        # Debug: print what was parsed
+        print(f"DEBUG: model={args.model}, cursor_version={args.cursor_version}, output_chars={args.output_chars}, truncated={args.truncated}, tokens={args.tokens}, hypothesis={args.hypothesis}")
+        if not all([args.model, args.cursor_version, args.output_chars is not None, args.truncated, args.tokens is not None, args.hypothesis]):
             parser.error(
                 "--log requires: --model, --cursor-version, --output-chars, --truncated, --tokens, --hypothesis"
             )
