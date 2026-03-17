@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Methodology"
-permalink: /methodology/
+permalink: /docs/anthropic-claude-api-web-fetch-tool/methodology
 ---
 
 ## Methodology

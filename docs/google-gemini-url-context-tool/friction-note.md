@@ -2,6 +2,7 @@
 layout: default
 title: "Friction Note"
 nav_order: 5
+permalink: /docs/google-gemini-url-context-tool/friction-note
 parent: Google Gemini URL Context
 ---
 

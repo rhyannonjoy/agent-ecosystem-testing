@@ -1,0 +1,2 @@
+test_id,date,url,method,model,input_est_chars,output_chars,truncated,truncation_char_num,tokens_est,hypothesis_match,notes,track,cursor_version
+SC-1,2026-03-15,https://ai.google.dev/gemini-api/docs/url-context,@web,Claude 3.5 Sonnet,40960,10034,no,,2500,H3-yes,"Google Gemini docs URL context page. ~10K chars, clean ending at 'What's next' section. Markdown complete. Pattern continues: structure-aware selection at natural boundaries, not character-based truncation.",interpreted,0.36.0

@@ -2,6 +2,7 @@
 layout: default
 title: "ChatGPT-interpreted vs Raw"
 nav_order: 2
+permalink: /docs/open-ai-web-search-tool/chatgpt-interpreted-vs-raw
 parent: OpenAI Web Search
 ---
 

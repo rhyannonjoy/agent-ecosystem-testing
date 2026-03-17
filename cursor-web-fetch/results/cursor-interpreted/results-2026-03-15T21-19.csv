@@ -1,0 +1,2 @@
+test_id,date,url,method,model,input_est_chars,output_chars,truncated,truncation_char_num,tokens_est,hypothesis_match,notes,track,cursor_version
+OP-3,2026-03-15,https://httpbin.org/html,@web,Claude 3.5 Sonnet,5120,4000,no,,1000,H1-no,"Small HTML page (httpbin.org/html, ~5KB expected). Returned ~4K chars, clean ending. Boilerplate stripped. Pattern: Cursor returns clean excerpts, no mid-truncation detected yet.",interpreted,0.36.0

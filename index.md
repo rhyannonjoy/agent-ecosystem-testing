@@ -3,35 +3,31 @@ layout: default
 title: Table of Contents
 ---
 
-Findings contribute to the [Agent Docs Spec, Known Platform Limits](https://github.com/agent-ecosystem/agent-docs-spec/blob/main/SPEC.md#known-platform-limits).
+>**<u>Objective</u>**: in support of the
+[Agent Docs Spec](https://github.com/agent-ecosystem/agent-docs-spec/blob/main/SPEC.md#known-platform-limits),
+measure what happens between "agent fetches URL" and "model sees content" —
+truncation limits, HTML processing, content negotiation - for platforms that don't document these details
+>
+>**<u>Methodology</u>**: two-track measurement approach with an **interpreted-track** - ask
+the model to describe what it received to capture DX and reveal perception gaps, and a **raw track** -
+extract raw output and measure programmatically, character and token counts, truncation boundaries
+to produce spec-ready, citable measurements
 
----
+## Documentation Organization
 
-## Anthropic Claude API Web Fetch
-
-- [Methodology](/docs/anthropic-claude-api-web-fetch-tool/methodology.md)
-- [Claude-interpreted vs Raw](/docs/anthropic-claude-api-web-fetch-tool/claude-interpreted-vs-raw.md)
-- [Key Findings: Claude's Web Fetch Tool, Claude-interpreted](/docs/anthropic-claude-api-web-fetch-tool/web-fetch-test-findings.md)
-- [Key Findings: Claude's Web Fetch Tool, Raw](/docs/anthropic-claude-api-web-fetch-tool/web-fetch-test-raw-findings.md)
-- [Friction Note](/docs/anthropic-claude-api-web-fetch-tool/friction-note.md)
-- [`/results` Note](/docs/anthropic-claude-api-web-fetch-tool/results-note.md)
-
----
-
-## Google Gemini API URL Context
-
-- [Methodology](/docs/google-gemini-url-context-tool/methodology.md)
-- [Gemini-interpreted vs Raw](/docs/google-gemini-url-context-tool/gemini-interpreted-vs-raw.md)
-- [Key Findings: Gemini's URL Context Tool, Gemini-interpreted](/docs/google-gemini-url-context-tool/gemini-url-context-test-findings.md)
-- [Key Findings: Gemini's URL Context Tool, Raw](/docs/google-gemini-url-context-tool/gemini-url-context-test-raw-findings.md)
-- [Friction Note](/docs/google-gemini-url-context-tool/friction-note.md)
-
----
-
-## OpenAI Web Search
-
-- [Methodology](/docs/open-ai-web-search-tool/methodology.md)
-- [ChatGPT-interpreted vs Raw](/docs/open-ai-web-search-tool/chatgpt-interpreted-vs-raw.md)
-- [Key Findings: OpenAI Web Search Tool, ChatGPT-interpreted](/docs/open-ai-web-search-tool/open-ai-web-search-test-findings.md)
-- [Key Findings: OpenAI Web Search Tool, Raw](/docs/open-ai-web-search-tool/open-ai-web-search-test-raw-findings.md)
-- [Friction Note](/docs/open-ai-web-search-tool/friction-note.md)
+| **Section** | **Purpose** |
+|---------|---------|
+| **Methodology** | Testing approach details & constraints |
+| **Interpreted vs Raw** | Two-track values and measurements |
+| **Findings: Interpreted** | What the model reports vs what it received, run variation |
+| **Findings: Raw** | Metrics extracted programmatically - reproducible, spec-ready |
+| **Friction Note** | Known issues, gaps, or edge cases encountered during testing |
+ 
+## Results Summary
+ 
+| **Platform** | **Key Finding** | **Best For** |
+|----------|-------------|----------|
+| **[Anthropic Claude API](/docs/anthropic-claude-api-web-fetch-tool/methodology)** | Character-based truncation at ~**100KB** of rendered content | Baseline reference; established measurement methodology |
+| **[Anysphere Cursor](/docs/anysphere-cursor/methodology)** | Investigating truncation limits, MCP override behavior, auto-chunking | Documenting closed consumer applications, no public APIs |
+| **[Google Gemini API](/docs/google-gemini-url-context-tool/methodology)** | Hard limit: **20 URLs** per request; supports PDF & JSON | Understanding platform-specific constraints |
+| **[OpenAI Web Search](/docs/open-ai-web-search-tool/methodology)** | Tool invocation **conditional** and model-dependent; differs by API surface | Comparing behavior across Chat Completions vs Responses API |

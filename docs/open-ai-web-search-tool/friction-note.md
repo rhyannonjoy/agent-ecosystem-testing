@@ -2,6 +2,7 @@
 layout: default
 title: "Friction Note"
 nav_order: 5
+permalink: /docs/open-ai-web-search-tool/friction-note
 parent: OpenAI Web Search
 ---
 

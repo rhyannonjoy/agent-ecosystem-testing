@@ -19,6 +19,7 @@
       --bg: #f7f3ec;
       --code-bg: #ede8de;
       --max-width: 740px;
+      --sidebar-width: 240px;
       --font: 'Roboto Mono', monospace;
     }
 
@@ -28,14 +29,22 @@
       line-height: 1.8;
       color: var(--text);
       background: var(--bg);
-      padding: 0 1.5rem;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
 
+    /* Header */
     header {
-      max-width: var(--max-width);
-      margin: 0 auto;
-      padding: 2rem 0 1.5rem;
+      max-width: 100%;
+      padding: 1.5rem 1.5rem;
       border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    header .header-content {
+      max-width: calc(var(--max-width) + var(--sidebar-width) + 3rem);
+      margin: 0 auto;
       display: flex;
       justify-content: space-between;
       align-items: baseline;
@@ -60,9 +69,112 @@
 
     header .github-link:hover { color: var(--link-hover); }
 
+    /* Main layout */
+    .layout-wrapper {
+      display: flex;
+      flex: 1;
+      max-width: 100%;
+    }
+
+    /* Sidebar */
+    aside.sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg);
+      border-right: 2px solid var(--border);
+      padding: 1.5rem 0;
+      overflow-y: auto;
+      max-height: calc(100vh - 80px);
+      position: sticky;
+      top: 80px;
+    }
+
+    .sidebar-section {
+      margin-bottom: 0;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .sidebar-section:last-child {
+      border-bottom: none;
+    }
+
+    .sidebar-section-title {
+      padding: 0.75rem 1.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text);
+      margin: 0 0 0.75rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-status {
+      font-size: 0.65rem;
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: normal;
+      white-space: nowrap;
+      color: var(--muted);
+      margin-left: 0.5rem;
+    }
+
+    .sidebar-link {
+      display: block;
+      padding: 0.5rem 1.25rem;
+      font-size: 0.8rem;
+      color: var(--text);
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: all 0.15s ease;
+    }
+
+    .sidebar-link:hover {
+      border-left-color: var(--link);
+      color: var(--link);
+      padding-left: 1.15rem;
+    }
+
+    .sidebar-link.active {
+      border-left-color: var(--link);
+      color: var(--link);
+      font-weight: 500;
+      background: rgba(92, 74, 30, 0.04);
+    }
+
+    /* Main content */
     main {
-      max-width: var(--max-width);
-      margin: 3rem auto;
+      flex: 1;
+      padding: 2rem 1.5rem;
+      max-width: calc(var(--max-width) + 3rem);
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Breadcrumbs */
+    .breadcrumbs {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .breadcrumbs a {
+      color: var(--link);
+    }
+
+    .breadcrumbs a:hover {
+      color: var(--link-hover);
+    }
+
+    .breadcrumbs span {
+      color: var(--muted);
     }
 
     h1 {
@@ -150,32 +262,124 @@
       margin: 0 0 1.25rem;
     }
 
+    /* Footer */
     footer {
-      max-width: var(--max-width);
-      margin: 4rem auto 2.5rem;
-      padding-top: 1.5rem;
+      max-width: 100%;
+      margin-top: auto;
+      padding: 1.5rem;
       border-top: 1px solid var(--border);
       font-size: 0.75rem;
       color: var(--muted);
+      background: var(--bg);
+    }
+
+    footer .footer-content {
+      max-width: calc(var(--max-width) + var(--sidebar-width) + 3rem);
+      margin: 0 auto;
       display: flex;
       justify-content: space-between;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      :root {
+        --sidebar-width: 180px;
+      }
+
+      aside.sidebar {
+        width: var(--sidebar-width);
+      }
+
+      main {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .layout-wrapper {
+        flex-direction: column;
+      }
+
+      aside.sidebar {
+        width: 100%;
+        max-height: none;
+        position: static;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 1rem 0;
+      }
+
+      main {
+        padding: 1.5rem 1rem;
+      }
+
+      header .header-content {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
     }
   </style>
 </head>
 <body>
 
   <header>
-    <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
-    <a class="github-link" href="https://github.com/rhyannonjoy/agent-ecosystem-testing">GitHub ↗</a>
+    <div class="header-content">
+      <a class="site-title" href="{{ '/' | relative_url }}"><|°_°|> {{ site.title }}</a>
+      <a class="github-link" href="https://github.com/rhyannonjoy/agent-ecosystem-testing">GitHub ↗</a>
+    </div>
   </header>
 
-  <main>
-    {{ content }}
-  </main>
+  <div class="layout-wrapper">
+    {% if site.navigation %}
+    <aside class="sidebar">
+      {% for nav_item in site.navigation %}
+        {% if nav_item.url %}
+          <div class="sidebar-section">
+            <a class="sidebar-link {% if page.url == nav_item.url %}active{% endif %}" href="{{ nav_item.url | relative_url }}">
+              {{ nav_item.title }}
+            </a>
+          </div>
+        {% else %}
+          <div class="sidebar-section">
+            <div class="sidebar-section-title">
+              <span>{{ nav_item.title }}</span>
+              {% if nav_item.status %}<span class="sidebar-status">{{ nav_item.status }}</span>{% endif %}
+            </div>
+            {% for section in nav_item.sections %}
+              <a class="sidebar-link {% if page.url == section.url %}active{% endif %}" href="{{ section.url | relative_url }}">
+                {{ section.title }}
+              </a>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </aside>
+    {% endif %}
+
+    <main>
+      {% if page.breadcrumbs %}
+      <nav class="breadcrumbs">
+        <a href="{{ '/' | relative_url }}">Home</a>
+        {% for crumb in page.breadcrumbs %}
+          <span>/</span>
+          {% if crumb.url %}
+            <a href="{{ crumb.url | relative_url }}">{{ crumb.title }}</a>
+          {% else %}
+            <span>{{ crumb.title }}</span>
+          {% endif %}
+        {% endfor %}
+      </nav>
+      {% endif %}
+
+      {{ content }}
+    </main>
+  </div>
 
   <footer>
-    <span>{{ site.author }}</span>
-    <span>{{ site.description }}</span>
+    <div class="footer-content">
+      <span>{{ site.author }}</span>
+      <span>{{ site.description }}</span>
+    </div>
   </footer>
 
 </body>

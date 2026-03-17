@@ -1,0 +1,2 @@
+test_id,date,url,method,model,input_est_chars,output_chars,truncated,truncation_char_num,tokens_est,hypothesis_match,notes,track,cursor_version
+BL-2,2026-03-15,https://www.mongodb.com/docs/manual/reference/change-events/create.md,@web,Claude 3.5 Sonnet,20480,1953,no,,488,H3-yes,"Same size as BL-1 (HTML version). Both ~1,953 chars. Suggests structure-aware selection of 'create' event section only, not format-dependent behavior.",interpreted,0.36.0

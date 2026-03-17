@@ -2,10 +2,11 @@
 layout: default
 title: "Key Findings OpenAI Web Search, Raw"
 nav_order: 4
+permalink: /docs/open-ai-web-search-tool/open-ai-web-search-test-raw-findings
 parent: OpenAI Web Search
 ---
 
-## Key Findings OpenAI Web Search, Raw
+## Key Findings for OpenAI Web Search, Raw
 
 ---
 

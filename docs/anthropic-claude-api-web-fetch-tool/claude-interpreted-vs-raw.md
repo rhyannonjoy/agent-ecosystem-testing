@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Claude-interpreted vs Raw"
-permalink: /claude-interpreted-vs-raw/
+permalink: /docs/anthropic-claude-api-web-fetch-tool/claude-interpreted-vs-raw
 ---
 
 ## Claude-interpreted vs Raw

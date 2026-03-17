@@ -1,0 +1,2 @@
+test_id,date,url,method,model,input_est_chars,output_chars,truncated,truncation_char_num,tokens_est,hypothesis_match,notes,track,cursor_version
+BL-1,2026-03-15,https://www.mongodb.com/docs/manual/reference/change-events/create/,@web,Claude 3.5 Sonnet,87040,1953,no,,500,H1-no,"Compact excerpt of MongoDB page, internally complete but subset of full doc",interpreted,0.36.0

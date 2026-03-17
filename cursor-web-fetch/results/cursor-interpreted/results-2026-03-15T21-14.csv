@@ -1,0 +1,2 @@
+test_id,date,url,method,model,input_est_chars,output_chars,truncated,truncation_char_num,tokens_est,hypothesis_match,notes,track,cursor_version
+SC-2,2026-03-15,https://docs.anthropic.com/en/api/messages,@web,Claude 3.5 Sonnet,81920,702885,no,,175721,H2-yes,"Full API doc after redirect resolution. 702K chars (~176K tokens). BL-1 was 1,953 chars (~488 tokens). 360x difference suggests token-based limit with high ceiling, not character-based. Needs hard ceiling test (BL-3) to confirm.",interpreted,0.36.0

@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Key Findings Claude's Web Fetch Tool - Claude-interpreted"
-permalink: /web-fetch-test-findings/
+permalink: /docs/anthropic-claude-api-web-fetch-tool/web-fetch-test-findings
 ---
 
 ## Key Findings for Claude's Web Fetch Tool, Claude-interpreted
