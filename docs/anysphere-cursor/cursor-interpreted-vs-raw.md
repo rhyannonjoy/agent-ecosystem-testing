@@ -8,4 +8,6 @@ parent: Anysphere Cursor
 
 ## Cursor-interpreted vs Raw
 
+>_investigation pending_
+
 <!-- compare data sets -->

@@ -51,6 +51,8 @@ navigation:
         url: "/docs/anysphere-cursor/cursor-test-findings"
       - title: "Findings: Raw"
         url: "/docs/anysphere-cursor/cursor-test-findings-raw"
+      - title: "Framework Reference"
+        url: "/docs/anysphere-cursor/framework-reference"
       - title: "Friction Note"
         url: "/docs/anysphere-cursor/friction-note"
     

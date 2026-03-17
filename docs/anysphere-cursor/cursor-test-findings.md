@@ -10,9 +10,9 @@ parent: Anysphere Cursor
 
 ---
 
-**Cursor-interpreted Test Workflow**:
+**[Cursor-interpreted Test Workflow](/cursor-web-fetch/web_fetch_testing_framework.py)**:
 
-    1. Run `python web_fetch_testing_framework.py --test [test name] --track interpreted`
+    1. Run `python web_fetch_testing_framework.py --test [test ID] --track interpreted`
        and review the Terminal output
     2. Copy the provided prompt asking the model to report on `@Web` fetch results:
        character count, token estimate, truncation status, content completeness,
@@ -20,10 +20,8 @@ parent: Anysphere Cursor
     3. Open a new Cursor chat session and paste the prompt into the chat window
     4. Capture model's full text response and observations as the interpreted-finding;
        gap between the model's self report and actual fetch behavior is a finding
-    5. Log structured metadata as described in the `testing-framework-instructions.md`
+    5. Log structured metadata as described in the `framework-reference.md`
     6. Ensure log results are saved to `cursor-web-fetch/results/cursor-interpreted/`
-
----
 
 ## Platform Limit Summary
 
@@ -42,7 +40,7 @@ parent: Anysphere Cursor
 ## Results Details
 
 | --- | --- |
-| **Model** | `Claude 3.5 Sonnet` |
+| **Model** | `Auto` |
 | **Total Tests** | 23 |
 | **Distinct URLs** | 11 |
 | **Input Size Range** | 2KB–256KB |
