@@ -3,12 +3,12 @@
 Cursor Testing Results Analyzer
 - Analyzes CSV results, identifies truncation patterns, and generates summary report
 - Compares interpreted and raw track measurements
-- Matches findings to hypotheses (H1-H5)
+- Matches findings to hypotheses, H1-H5
 - Exports results as Markdown table for spec contribution
 
 Usage:
     python cursor_testing_analyzer.py --csv results-2025-03-15T15-30.csv
-    python cursor_testing_analyzer.py --csv results.csv --method @web
+    python cursor_testing_analyzer.py --csv results.csv --method @Web
     python cursor_testing_analyzer.py --csv results.csv --summary
 """
 
@@ -18,7 +18,6 @@ from pathlib import Path
 from collections import defaultdict
 from statistics import mean, stdev
 import argparse
-
 
 class CursorResultsAnalyzer:
     """Analyze Cursor testing results"""
@@ -101,7 +100,7 @@ class CursorResultsAnalyzer:
     def analyze_by_method(self):
         """Analyze differences between fetch methods"""
         print("=" * 80)
-        print("METHOD COMPARISON (@web vs MCP)")
+        print("METHOD COMPARISON (@Web vs MCP)")
         print("=" * 80 + "\n")
 
         methods = set(r["method"] for r in self.results)
@@ -118,7 +117,7 @@ class CursorResultsAnalyzer:
             test_ids = set(r["test_id"] for r in results)
             if "OP-3" in test_ids:
                 op3_results = [r for r in results if r["test_id"] == "OP-3"]
-                print(f"  OP-3 (MCP vs @web comparison):")
+                print(f"  OP-3 (MCP vs @Web comparison):")
                 for r in op3_results:
                     print(f"    - {r['output_chars']:,} chars, truncated: {r['truncated']}")
 
@@ -228,13 +227,13 @@ class CursorResultsAnalyzer:
 
         # MCP comparison status
         mcp_tests = [r for r in self.results if "mcp" in r["method"].lower()]
-        web_tests = [r for r in self.results if r["method"] == "@web"]
+        web_tests = [r for r in self.results if r["method"] == "@Web"]
 
         if mcp_tests and web_tests:
-            print("MCP vs @web Status:")
-            print(f"  @web tests: {len(web_tests)}")
+            print("MCP vs @Web Status:")
+            print(f"  @Web tests: {len(web_tests)}")
             print(f"  MCP tests: {len(mcp_tests)}")
-            print(f"  → Compare OP-3 results to determine if MCP overrides @web limits\n")
+            print(f"  → Compare OP-3 results to determine if MCP overrides @Web limits\n")
 
         # Auto-chunking analysis
         op4_results = self.filter_by_test_id("OP-4")
@@ -248,7 +247,7 @@ class CursorResultsAnalyzer:
 
         print("Next steps:")
         print("  1. Run remaining baseline tests (BL-3 if not complete)")
-        print("  2. Compare MCP vs @web on OP-3")
+        print("  2. Compare MCP vs @Web on OP-3")
         print("  3. Run SC-1 through SC-4 for structure-aware truncation analysis")
         print("  4. Execute OP-4 to test auto-chunking behavior")
         print("  5. Review edge cases (EC-1, EC-3, EC-6)")
@@ -295,7 +294,7 @@ def main():
 Examples:
   python cursor_testing_analyzer.py --csv results-2025-03-15T15-30.csv
   python cursor_testing_analyzer.py --csv results.csv --summary
-  python cursor_testing_analyzer.py --csv results.csv --method "@web"
+  python cursor_testing_analyzer.py --csv results.csv --method "@Web"
   python cursor_testing_analyzer.py --csv results.csv --markdown
         """,
     )
@@ -339,7 +338,6 @@ Examples:
     else:
         analyzer.analyze_truncation_threshold()
         analyzer.identify_hypothesis()
-
 
 if __name__ == "__main__":
     main()

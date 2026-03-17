@@ -1,0 +1,106 @@
+Loaded 22 test results from results.csv
+
+
+================================================================================
+COMPREHENSIVE SUMMARY
+================================================================================
+
+Total tests run: 22
+Results from: results.csv
+
+Truncation Events: 5 / 22
+Average output size: 148,655 chars
+Average token count: 37,114 tokens
+
+Methods tested: @Web
+
+Agent Auto-chunking (OP-4):
+  interpreted: Token count estimated by Cursor at ~61K tokens
+  interpreted: Run 2 of OP-4: 245,465 chars (~61.4K tokens). Identical to Run 1 (245,000 chars). Cursor reports 'complete ~245 KB markdown document' with no truncation. Consistent behavior on large files.
+  interpreted: Run 3 of OP-4: 245,466 chars (~61.4K tokens). Essentially identical to Runs 1-2 (within 1 char). Cursor reports 'full content of MongoDB Search Quick Start' with high confidence. Large files (245K+) show extremely stable behavior across sessions (1.0x variance).
+
+Next steps:
+  1. Run remaining baseline tests (BL-3 if not complete)
+  2. Compare MCP vs @Web on OP-3
+  3. Run SC-1 through SC-4 for structure-aware truncation analysis
+  4. Execute OP-4 to test auto-chunking behavior
+  5. Review edge cases (EC-1, EC-3, EC-6)
+
+================================================================================
+TRUNCATION THRESHOLD ANALYSIS
+================================================================================
+
+Truncation Points Found:
+  Average: 15,911 characters
+  Stdev: 19,258
+  Min: 4,100
+  Max: 38,134
+
+Input Sizes Where Truncation Occurred:
+  EC-3: 2,048 chars input → 0 chars output
+  BL-1: 87,040 chars input → 4,100 chars output
+  BL-1: 87,040 chars input → 5,500 chars output
+  SC-3: 102,400 chars input → 38,134 chars output
+  EC-1: 102,400 chars input → 0 chars output
+
+Input Sizes Where NO Truncation Occurred:
+  EC-3: 2,048 chars → 850 chars (full)
+  OP-3: 5,120 chars → 4,000 chars (full)
+  BL-2: 20,480 chars → 1,953 chars (full)
+  BL-2: 20,480 chars → 4,200 chars (full)
+  BL-2: 20,480 chars → 4,350 chars (full)
+  SC-4: 30,720 chars → 28,158 chars (full)
+  SC-1: 40,960 chars → 10,034 chars (full)
+  EC-6: 61,440 chars → 71,524 chars (full)
+  SC-2: 81,920 chars → 702,885 chars (full)
+  SC-2: 81,920 chars → 702,885 chars (full)
+  SC-2: 81,920 chars → 702,885 chars (full)
+  BL-1: 87,040 chars → 1,953 chars (full)
+  BL-1: 87,040 chars → 5,595 chars (full)
+  OP-4: 256,000 chars → 245,000 chars (full)
+  BL-3: 256,000 chars → 245,465 chars (full)
+  OP-4: 256,000 chars → 245,465 chars (full)
+  OP-4: 256,000 chars → 245,466 chars (full)
+
+================================================================================
+METHOD COMPARISON (@Web vs MCP)
+================================================================================
+
+@Web:
+  Tests run: 22
+  Truncation events: 5
+  Avg output size: 148,655 chars
+  OP-3 (MCP vs @Web comparison):
+    - 4,000 chars, truncated: no
+
+================================================================================
+INTERPRETED vs RAW TRACK COMPARISON
+================================================================================
+
+================================================================================
+HYPOTHESIS MATCHING
+================================================================================
+
+Hypotheses to evaluate:
+  H1: Character-based truncation at fixed limit (e.g., 10,000 chars)
+  H2: Token-based truncation (e.g., 2,000 tokens ≈ 8,000 chars)
+  H3: Structure-aware truncation (respects markdown boundaries)
+  H4: MCP servers override native limits
+  H5: Agent auto-chunks after truncation
+
+Hypothesis matches from test results:
+  H3-yes: 8 tests
+  H2-yes: 8 tests
+  H1-no: 2 tests
+  H3-filtering: 1 tests
+  EC-timeout: 1 tests
+  EC-404: 1 tests
+  redirect-success: 1 tests
+
+
+================================================================================
+RESULTS AS MARKDOWN TABLE (for Agent Docs Spec)
+================================================================================
+
+No raw track results found.
+

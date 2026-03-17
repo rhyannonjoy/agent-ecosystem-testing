@@ -52,10 +52,10 @@ This shows all 14 test cases organized by category:
 
 ```bash
 # Interpreted track (ask model to report measurements)
-python cursor_testing_framework.py --test BL-1 --track interpreted
+python web_fetch_testing_framework.py --test BL-1 --track interpreted
 
 # Raw track (request verbatim output)
-python cursor_testing_framework.py --test BL-2 --track raw
+python web_fetch_testing_framework.py --test BL-2 --track raw
 ```
 
 This prints a formatted test harness with:
@@ -342,5 +342,9 @@ python cursor_testing_framework.py --list-tests  # Check valid IDs
 When you have meaningful findings, run analyzer to generate markdown table:
    
    ```bash
-   python cursor_testing_analyzer.py --csv results.csv --markdown
+   python web_fetch_results_analyzer.py --csv results.csv --markdown
+
+   python web_fetch_results_analyzer.py --csv results/cursor-interpreted/results.csv --full > results/cursor-interpreted/full-analysis.txt
+
+   python web_fetch_results_analyzer.py --csv results/cursor-interpreted/results.csv --summary > results/cursor-interpreted/summary.txt
    ```

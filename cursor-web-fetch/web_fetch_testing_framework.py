@@ -8,17 +8,18 @@ existing test suites to ensure **comparable results across platforms**.
 
 Key design decisions:
 1. URLs are proven web fetch test cases from existing suites (Claude API, Gemini)
-2. Baseline tests (BL) use the same MongoDB docs pages as Claude API testing
-3. Structured content tests (SC) use API docs and reference materials
-4. Edge case tests (EC) target specific truncation/rendering challenges
-5. Two-track measurement: interpreted (what Cursor reports) + raw (exact measurements)
+2. Baseline tests, BL - use the same MongoDB docs pages as Claude API testing
+3. Structured content tests, - SC use API docs and reference materials
+4. Offest/Pagination Tests, OP - Test chunking, fragment navigation, and method comparison
+5. Edge case tests, EC - target specific truncation/rendering challenges
+6. Two-track measurement: interpreted (what Cursor reports) + raw (exact measurements)
 
 This allows direct comparison: "Cursor truncates at X KB, Claude API at Y KB on same URL"
 
 Usage:
     python cursor_testing_framework.py --list-tests
     python cursor_testing_framework.py --test BL-1 --track interpreted
-    python cursor_testing_framework.py --log BL-1 --track interpreted --method @web ...
+    python cursor_testing_framework.py --log BL-1 --track interpreted --method @Web ...
 """
 
 import csv
@@ -30,11 +31,8 @@ from dataclasses import dataclass, asdict
 from typing import Optional
 
 # Test URLs - organized by size category
-# Consistency note: URLs sourced from existing agent-ecosystem-testing suites (Claude API, Gemini, OpenAI)
-# to ensure comparable results across platforms
-
 TEST_URLS = {
-    # --- BASELINE TESTS (BL) ---
+    # --- BASELINE TESTS, BL ---
     # Same approach as claude-api/web_fetch_test.py and gemini-url-context/url_context_test.py
     # Progressive scaling: small HTML → medium → large
     
@@ -60,9 +58,8 @@ TEST_URLS = {
         "note": "Same as Claude API test 3; used in Claude testing to measure default truncation ceiling",
     },
     
-    # --- STRUCTURED CONTENT TESTS (SC) ---
+    # --- STRUCTURED CONTENT TESTS, SC ---
     # Test how Cursor handles different content structures during truncation
-    
     "SC-1": {
         "name": "Markdown-heavy documentation",
         "url": "https://ai.google.dev/gemini-api/docs/url-context",
@@ -92,9 +89,8 @@ TEST_URLS = {
         "note": "Markdown reference; tests hierarchy preservation in H1-H6 structure",
     },
     
-    # --- OFFSET/PAGINATION TESTS (OP) ---
+    # --- OFFSET/PAGINATION TESTS, OP ---
     # Test chunking, fragment navigation, and method comparison
-    
     "OP-1": {
         "name": "Fragment identifier navigation test",
         "url": "https://en.wikipedia.org/wiki/Machine_learning#History",
@@ -103,11 +99,11 @@ TEST_URLS = {
         "note": "Tests if Cursor can jump to specific section via URL fragment",
     },
     "OP-3": {
-        "name": "MCP vs @web side-by-side comparison",
+        "name": "MCP vs @Web side-by-side comparison",
         "url": "https://httpbin.org/html",
         "expected_size_kb": 5,
         "category": "offset_pagination",
-        "note": "Small, predictable HTML; same URL for both @web and mcp-server-fetch comparison",
+        "note": "Small, predictable HTML; same URL for both @Web and mcp-server-fetch comparison",
     },
     "OP-4": {
         "name": "Large document - agent auto-chunking test",
@@ -117,9 +113,8 @@ TEST_URLS = {
         "note": "Same as BL-3; tests if Cursor agent automatically requests next chunk after truncation",
     },
     
-    # --- EDGE CASES / FAILURE MODES (EC) ---
+    # --- EDGE CASES / FAILURE MODES, EC ---
     # Stress test unusual conditions and error handling
-    
     "EC-1": {
         "name": "JavaScript-heavy single-page application",
         "url": "https://ai.google.dev/gemini-api/docs",
@@ -149,6 +144,7 @@ class TestResult:
     """Standard test result structure"""
 
     test_id: str
+    timestamp: str
     date: str
     url: str
     method: str
@@ -163,17 +159,17 @@ class TestResult:
     track: str
     cursor_version: str
 
-
 class CursorTestingFramework:
     """Manage Cursor web fetch testing"""
 
-    def __init__(self, results_dir: str = "cursor-testing-results"):
+    def __init__(self, results_dir: str = "results/cursor-interpreted", track: str = "interpreted"):
         self.results_dir = Path(results_dir)
-        self.results_dir.mkdir(exist_ok=True)
-        self.timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M")
-        self.csv_path = self.results_dir / f"results-{self.timestamp}.csv"
+        self.results_dir.mkdir(parents=True, exist_ok=True)
+        # Single persistent CSV per track, append-only
+        self.track = track
+        self.csv_path = self.results_dir / f"results.csv"
 
-    def generate_interpreted_prompt(self, test_id: str, method: str = "@web") -> str:
+    def generate_interpreted_prompt(self, test_id: str, method: str = "@Web") -> str:
         """Generate a prompt for interpreted track testing"""
 
         if test_id not in TEST_URLS:
@@ -182,10 +178,10 @@ class CursorTestingFramework:
         test = TEST_URLS[test_id]
         url = test["url"]
 
-        if method == "@web":
+        if method == "@Web":
             prompt = f"""I'm testing Cursor's web fetch capabilities for the Agent Ecosystem Testing project.
 
-Please use the @web command to fetch this URL:
+Please use the @Web command to fetch this URL:
 {url}
 
 Then report back:
@@ -201,7 +197,7 @@ Expected size: ~{test['expected_size_kb']}KB
 This is for empirical documentation of truncation limits."""
 
         elif method == "mcp-server-fetch":
-            prompt = f"""Testing mcp-server-fetch implementation for comparison with @web.
+            prompt = f"""Testing mcp-server-fetch implementation for comparison with @Web.
 
 Please use mcp-server-fetch to fetch:
 {url}
@@ -214,17 +210,17 @@ Report:
 1. Success/failure
 2. Actual content length in characters
 3. Truncation indicators
-4. Whether output differs from @web on same URL
+4. Whether output differs from @Web on same URL
 
 Test ID: {test_id}
-This is comparative testing for MCP vs native @web behavior."""
+This is comparative testing for MCP vs native @Web behavior."""
 
         else:
             raise ValueError(f"Unknown method: {method}")
 
         return prompt
 
-    def generate_raw_prompt(self, test_id: str, method: str = "@web") -> str:
+    def generate_raw_prompt(self, test_id: str, method: str = "@Web") -> str:
         """Generate a prompt for raw track testing (request verbatim output)"""
 
         if test_id not in TEST_URLS:
@@ -331,8 +327,13 @@ Expected size: ~{test['expected_size_kb']}KB"""
         tokens_est: int,
         hypothesis_match: str,
         notes: str,
+        timestamp: str = None,
     ):
         """Log test result to CSV"""
+        
+        # Guard clause - set timestamp if not provided
+        if timestamp is None:
+           timestamp = datetime.now().isoformat()
 
         if test_id not in TEST_URLS:
             raise ValueError(f"Unknown test ID: {test_id}")
@@ -341,6 +342,7 @@ Expected size: ~{test['expected_size_kb']}KB"""
 
         result = TestResult(
             test_id=test_id,
+            timestamp=timestamp,
             date=datetime.now().strftime("%Y-%m-%d"),
             url=test["url"],
             method=method,
@@ -400,7 +402,6 @@ Expected size: ~{test['expected_size_kb']}KB"""
 
         print()
 
-
 def main():
     parser = argparse.ArgumentParser(
         description="Cursor Web Fetch Testing Framework",
@@ -410,7 +411,7 @@ Examples:
   python cursor_testing_framework.py --list-tests
   python cursor_testing_framework.py --test BL-1 --track interpreted
   python cursor_testing_framework.py --test SC-2 --track raw
-  python cursor_testing_framework.py --log BL-1 --track interpreted --method @web --model "Claude 3.5 Sonnet" --cursor-version "0.36.0" --output-chars 48500 --truncated no --tokens 12000 --hypothesis "H1-no" --notes "Full content returned"
+  python cursor_testing_framework.py --log BL-1 --track interpreted --method @Web --model "Claude 3.5 Sonnet" --cursor-version "0.36.0" --output-chars 48500 --truncated no --tokens 12000 --hypothesis "H1-no" --notes "Full content returned"
         """,
     )
 
@@ -428,8 +429,8 @@ Examples:
     parser.add_argument(
         "--method",
         type=str,
-        choices=["@web", "mcp-server-fetch", "fetch-browser-mcp"],
-        default="@web",
+        choices=["@Web", "mcp-server-fetch", "fetch-browser-mcp"],
+        default="@Web",
         help="Fetch method to test",
     )
     parser.add_argument(
@@ -486,7 +487,6 @@ Examples:
 
     else:
         parser.print_help()
-
 
 if __name__ == "__main__":
     main()

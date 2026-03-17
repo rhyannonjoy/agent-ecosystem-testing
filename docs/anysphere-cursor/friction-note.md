@@ -14,6 +14,8 @@ parent: Anysphere Cursor
 
 <!-- compare platform differences, account setups, platform confusion, rate limiting -->
 
+Hit free usage limit after first interpreted path (~22 chat tests); paid $20
+
 ## Test Framework Note: Numbering
 
 The test suite defines 13 total tests (BL-1-3, SC-1-4, OP-1,3-4, EC-1,3,6) but the recommended testing strategy only covers 10 critical tests. Tests OP-1 and EC-2,4,5 were either deprioritized (OP-1: fragment navigation) or not implemented (EC-2,4,5). The numbering reflects the original comprehensive test design before the strategy was optimized for the most critical ecosystem testing gaps.
@@ -126,3 +128,21 @@ after r1, EC-6
 3. Fails gracefully on JavaScript-heavy SPAs (EC-1: timeout, 0 chars)
 4. Handles redirects successfully (EC-3: 5-level redirect chain followed)
 5. Perception gap: Model reports "complete" content even when it's a subset (SC-3, SC-4)
+
+after 4 runs of BL-1
+Cursor's @web fetch is non-deterministic and highly dependent on conversation session state. Identical prompts in different chat sessions produce significantly different outputs (1.9K to 5.6K chars on same URL), suggesting the fetch behavior is influenced by factors beyond the URL and prompt parameters.
+
+after 2nd run of BL-2
+Same content, different formats, different sizes. BL-1 (HTML) Run 1 returned 1,953 chars, BL-2 (Markdown) Run 1 also returned 1,953 chars. BL-1 Run 2 returned 5,595 chars, BL-2 Run 2 returned 4,200 chars. This shows variance is content-dependent and format-dependent, not just session-dependent.
+
+1. Different URLs (HTML vs Markdown source)?
+2. Session state affecting the same content?
+3. Model sampling variance in how it processes different formats?
+
+It's possible that format affects behavior (HTML vs Markdown); content selection varies even for "the same" logical content; non-deterministic processing across sessions & formats
+
+Cursor's @web fetch shows high variance across runs (1.9K-5.6K chars) on related URLs. Same logical content in different formats (HTML vs Markdown) produces different fetch sizes, suggesting format-dependent and session-dependent behavior.
+
+Cursor's @web has a "cold start" effect — first fetch of a URL returns less content than subsequent fetches in the same session.
+
+New chat sessions produce different (and generally larger) outputs than the original session. Same URL, identical prompt, completely different results depending on which chat session is used. The original session produced ~1.9K chars; new sessions produce 4-5.5K chars. This demonstrates session-dependent, non-deterministic behavior rather than a "cold start" effect.
