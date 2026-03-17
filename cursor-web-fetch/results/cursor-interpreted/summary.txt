@@ -1,16 +1,16 @@
-Loaded 22 test results from results.csv
+Loaded 23 test results from results.csv
 
 
 ================================================================================
 COMPREHENSIVE SUMMARY
 ================================================================================
 
-Total tests run: 22
+Total tests run: 23
 Results from: results.csv
 
-Truncation Events: 5 / 22
-Average output size: 148,655 chars
-Average token count: 37,114 tokens
+Truncation Events: 6 / 23
+Average output size: 142,446 chars
+Average token count: 35,564 tokens
 
 Methods tested: @Web
 
@@ -31,8 +31,8 @@ TRUNCATION THRESHOLD ANALYSIS
 ================================================================================
 
 Truncation Points Found:
-  Average: 15,911 characters
-  Stdev: 19,258
+  Average: 13,398 characters
+  Stdev: 16,508
   Min: 4,100
   Max: 38,134
 
@@ -42,6 +42,7 @@ Input Sizes Where Truncation Occurred:
   BL-1: 87,040 chars input → 5,500 chars output
   SC-3: 102,400 chars input → 38,134 chars output
   EC-1: 102,400 chars input → 0 chars output
+  EC-1: 102,400 chars input → 5,857 chars output
 
 Input Sizes Where NO Truncation Occurred:
   EC-3: 2,048 chars → 850 chars (full)
@@ -67,9 +68,9 @@ METHOD COMPARISON (@Web vs MCP)
 ================================================================================
 
 @Web:
-  Tests run: 22
-  Truncation events: 5
-  Avg output size: 148,655 chars
+  Tests run: 23
+  Truncation events: 6
+  Avg output size: 142,446 chars
   OP-3 (MCP vs @Web comparison):
     - 4,000 chars, truncated: no
 
@@ -89,8 +90,8 @@ Hypotheses to evaluate:
   H5: Agent auto-chunks after truncation
 
 Hypothesis matches from test results:
+  H2-yes: 9 tests
   H3-yes: 8 tests
-  H2-yes: 8 tests
   H1-no: 2 tests
   H3-filtering: 1 tests
   EC-timeout: 1 tests
