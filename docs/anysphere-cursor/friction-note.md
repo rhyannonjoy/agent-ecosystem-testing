@@ -66,11 +66,27 @@ test design before the strategy was optimized for the most critical ecosystem te
 
 ---
 
-## `@Web` Undocumented
+## `@Web` is a Context Mention, Not a Tool
 
-Identifying Cursor's web fetch mechanisms took some digging. While `@Web` shows up in
+Like `@Files` or `@Docs` - `@Web` is a context mention syntax for use in Cursor's chat composer -
+the message input box. Similar to `@username` in Slack - it's user-facing shorthand for calling
+a backend mechanism, but _not the mechanism itself_.
+
+When adding `@Web [URL]`, Cursor fetches the content and attaches it to
+the message context. The underlying mechanism is `web_search`, but from a user perspective,
+invocation happens through `@Web`.
+
+Results are logged with `method: @Web` to reflect the **_user-facing syntax_**, but the backend 
+mechanism is `web_search`.
+
+---
+
+## `@Web` Undocumented, Requires Reverse-Engineering
+
+Identifying Cursor's web fetch mechanisms took some digging and a lot of trial and error.
+While `@Web` shows up in
 [their community forum](https://forum.cursor.com/t/how-does-web-work/7675), requesting answers
-from their AI docs bot didn't bare fruit:
+from their AI docs bot didn't bear fruit:
 
 ```markdown
 The current docs do not appear to have a dedicated `@Web` page. Based on my review of the documentation,

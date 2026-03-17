@@ -71,7 +71,7 @@ pip install -r requirements.txt
    | `timestamp` | ISO 8601 timestamp | 2026-03-16T17:05:02.998376 |
    | `date` | Date tested | 2026-03-16 |
    | `url` | Full URL tested | https://www.mongodb.com/docs...|
-   | `method` | Fetch method | `@Web`, mcp-server-fetch |
+   | `method` | Fetch method | `@Web`*, `mcp-server-fetch` |
    | `model` | Model used | `Auto` - Cursor's agent router |
    | `input_est_chars` | Expected input size | 87040 |
    | `output_chars` | Actual output length | 5857 |
@@ -82,6 +82,11 @@ pip install -r requirements.txt
    | `notes` | Observations and findings | Pro-plan retry: successfully... |
    | `track` | Test track | interpreted/raw |
    | `cursor_version` | Cursor IDE version | 2.6.19, 2.6.19-pro |
+
+   >_*`@Web` is a Cursor UI composer feature, but the underlying mechanism is `web_search` -
+   > more information in the [Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool)_
+
+   ---
 
    **Key Hypotheses**:
 
