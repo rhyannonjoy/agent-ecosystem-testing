@@ -1,0 +1,11 @@
+[RAW TRACK - Test ID: SC-1]
+URL: https://ai.google.dev/gemini-api/docs/url-context
+Fetched: 2025-03-17 (raw track)
+
+OUTCOME: FETCH TIMED OUT
+
+The mcp_web_fetch tool was used twice. Both attempts returned:
+"Error: Fetch timed out while retrieving content"
+
+No document content was retrieved. This file contains only this outcome record.
+Tool used: mcp_web_fetch (read-only URL fetch; no authentication).

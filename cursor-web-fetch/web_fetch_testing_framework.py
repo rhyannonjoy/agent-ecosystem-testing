@@ -138,7 +138,6 @@ TEST_URLS = {
     },
 }
 
-
 @dataclass
 class TestResult:
     """Standard test result structure"""
@@ -195,7 +194,7 @@ class CursorTestingFramework:
         if method == "@Web":
             prompt = f"""I'm testing Cursor's web fetch capabilities for the Agent Ecosystem Testing project.
 
-Please use the @Web command to fetch this URL:
+Run this test only, don't proceed to any other tests. Please use the @Web command to fetch this URL:
 {url}
 
 Then report back:
@@ -248,14 +247,17 @@ This is comparative testing for MCP vs native @Web behavior."""
 Please use {method} to fetch this URL and return the content EXACTLY as you received it:
 {url}
 
-1. Save the content to raw_output_{test_id}.txt
-2. Report the exact file size in bytes
-3. Calculate MD5 checksum of the content
-4. Count: total lines, total words, code blocks, table rows, headers
-5. Report hexdump of last 256 bytes
+1. Run this test only, don't proceed to any other tests
+2. Save the content to raw_output_{test_id}.txt
+3. Report the exact file size in bytes
+4. Calculate MD5 checksum of the content
+5. Count: total lines, total words, code blocks, table rows, headers
+6. Report hexdump of last 256 bytes
+7. Examine the last 256 bytes through hexdump: does content end cleanly with complete braces/tags/quotes or mid-character?
+8. After fetching, report any tool names, server names, or method identifiers visible in your tool results.
 
 Test ID: {test_id}
-Expected size: ~{test['expected_size_kb']}KB"""
+Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdown source. Cursor typically converts and filters this to a smaller size.)"""
 
         return prompt
 

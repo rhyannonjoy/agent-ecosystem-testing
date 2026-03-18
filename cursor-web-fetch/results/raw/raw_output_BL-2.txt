@@ -1,0 +1,143 @@
+# Content from https://www.mongodb.com/docs/manual/reference/change-events/create/
+
+# create Event
+
+ce-create## Summary
+
+`create`
+A `create` event occurs when a collection is created on a watched database and the change stream has the [showExpandedEvents](https://mongodbcom-cdn.staging.corp.mongodb.com/docs/reference/change-events/#std-label-change-streams-expanded-events) option set to `true`.
+
+## Description
+
+|
+| --- |
+Field
+|
+Type
+|
+Description
+|
+|
+`\_id`
+|
+Document
+|
+A [BSON](https://mongodbcom-cdn.staging.corp.mongodb.com/docs/reference/glossary/#std-term-BSON) object, which serves as an identifier for the change stream event. This value is used as the `resumeToken` for the `resumeAfter` parameter when resuming a change stream. The fields within the `\_id` object depend on the MongoDB versions and, in some cases, the [feature compatibility version (FCV)](https://mongodbcom-cdn.staging.corp.mongodb.com/docs/reference/command/setFeatureCompatibilityVersion/#std-label-view-fcv) at the time of the change stream's opening or resumption.
+For an example of resuming a change stream by `resumeToken`, see [Resume a Change Stream](https://mongodbcom-cdn.staging.corp.mongodb.com/docs/changeStreams/#std-label-change-stream-resume).
+|
+|
+`clusterTime`
+|
+Timestamp
+|
+`clusterTime` is the timestamp from the oplog entry associated with the event.
+Due to [oplog size limits](https://mongodbcom-cdn.staging.corp.mongodb.com/docs/core/transactions-production-consideration/#std-label-txn-oplog-size-limit), [multi-document transactions](https://mongodbcom-cdn.staging.corp.mongodb.com/docs/core/transactions/#std-label-transactions) may create multiple oplog entries. In a transaction, change stream events staged in a given oplog entry share the same `clusterTime`.
+Events with the same `clusterTime` may not all relate to the same transaction. Some events don't relate to a transaction at all. Starting in MongoDB 8.0, this may be true for events on any deployment. In previous versions, this behavior was possible only for events on a sharded cluster.
+To identify events for a single transaction, you can use the combination of `lsid` and `txnNumber` in the change stream event document.
+|
+|
+`collectionUUID`
+|
+UUID
+|
+If the change occurred on a collection, `collectionUUID` indicates the collection's UUID (Universally Unique Identifier). If the change occurred on a view, `collectionUUID` doesn't exist.
+|
+|
+`lsid`
+|
+document
+|
+The identifier for the session associated with the transaction.
+Only present if the operation is part of a [multi-document transaction](https://mongodbcom-cdn.staging.corp.mongodb.com/docs/core/transactions/).
+|
+|
+`ns`
+|
+document
+|
+The namespace (database and or collection) affected by the event.
+|
+|
+`ns.coll`
+|
+string
+|
+The name of the collection where the event occurred.
+|
+|
+`ns.db`
+|
+string
+|
+The name of the database where the event occurred.
+|
+|
+`nsType`
+|
+string
+|
+Shows the namespace type of the collection created by this event.
+Indicates the event creates a collection.
+Indicates the event creates a timeseries collection.
+Indicates the event creates a non-timeseries view.
+|
+|
+`operationDescription`
+|
+document
+|
+Additional information on the change operation.
+This document and its subfields only appears when the change stream uses [expanded events](https://mongodbcom-cdn.staging.corp.mongodb.com/docs/reference/change-events/#std-label-change-streams-expanded-events).
+|
+|
+`operationDescription.``idIndex`
+|
+document
+|
+The default `\_id` index for a new collection.
+|
+|
+`operationType`
+|
+string
+|
+The type of operation that the change notification reports.
+Returns a value of `create` for these change events.
+|
+|
+`txnNumber`
+|
+NumberLong
+|
+Together with the [lsid](https://mongodbcom-cdn.staging.corp.mongodb.com/docs/reference/change-events/create/#std-label--idref--lsid), a number that helps uniquely identify a transction.
+Only present if the operation is part of a [multi-document transaction](https://mongodbcom-cdn.staging.corp.mongodb.com/docs/core/transactions/).
+|
+|
+`wallTime`
+|
+[ISODate](https://mongodbcom-cdn.staging.corp.mongodb.com/docs/reference/glossary/#std-term-ISODate)
+|
+The server date and time of the database operation. `wallTime` differs from `clusterTime` in that `clusterTime` is a timestamp taken from the oplog entry associated with the database operation event.
+|
+
+## Example
+
+The following example shows a `create` event:
+
+```json
+{
+   "_id": { <ResumeToken> },
+   "operationType": "create",
+   "clusterTime": Timestamp({ t: 1654894547, i: 24 }),
+   "collectionUUID": UUID("98046a1a-b649-4e5b-9c75-67594221ce19"),
+   "wallTime": ISODate("2022-06-10T20:55:47.947Z"),
+   "ns": {
+      "db": "test",
+      "coll": "names"
+   },
+   "operationDescription": {
+      "idIndex": { "v": 2, "key": { _id: 1 }, "name": "_id_" }
+   }
+}
+
+```
