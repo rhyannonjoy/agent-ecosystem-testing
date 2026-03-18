@@ -1,0 +1,26 @@
+# Content from https://httpbin.org/redirect/5
+
+{
+ "args": {}, 
+ "headers": {
+ "Accept": "text/markdown,text/html;q=0.9,application/xhtml+xml;q=0.8,application/xml;q=0.7,image/webp;q=0.6,*/*;q=0.5", 
+ "Accept-Encoding": "gzip, deflate, br", 
+ "Accept-Language": "en-US,en;q=0.5", 
+ "Cache-Control": "no-cache", 
+ "Host": "httpbin.org", 
+ "Pragma": "no-cache", 
+ "Sec-Ch-Ua": "\"Not;A=Brand\";v=\"99\", \"Google Chrome\";v=\"139\", \"Chromium\";v=\"139\"", 
+ "Sec-Ch-Ua-Mobile": "?0", 
+ "Sec-Ch-Ua-Platform": "\"Windows\"", 
+ "Sec-Fetch-Dest": "document", 
+ "Sec-Fetch-Mode": "navigate", 
+ "Sec-Fetch-Site": "same-site", 
+ "Sec-Fetch-User": "?1", 
+ "Traceparent": "00-eff0eae900334d82421e9d5bd8a46535-cc5b9469d2c7fa30-01", 
+ "Upgrade-Insecure-Requests": "1", 
+ "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36", 
+ "X-Amzn-Trace-Id": "Root=1-69ba2bbb-28d3ac7b157384263cc57990"
+ }, 
+ "origin": "92.112.67.10", 
+ "url": "https://httpbin.org/get"
+}

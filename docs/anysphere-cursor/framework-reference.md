@@ -55,10 +55,9 @@ pip install -r requirements.txt
 
 3. **Copy Prompt → Run in Cursor**
 
-   - Review the Terminal output, copy the prompt
-   - Open Cursor chat window, paste the prompt
-   - Review Cursor's fetch behavior
-   - Examine the response
+   - Review the Terminal output &rarr; copy the prompt
+   - Open Cursor chat window &rarr; paste the prompt
+   - Review Cursor's fetch behavior &rarr; examine the response
 
 4. **Log Results**
 
@@ -71,25 +70,42 @@ pip install -r requirements.txt
    | `timestamp` | ISO 8601 timestamp | 2026-03-16T17:05:02.998376 |
    | `date` | Date tested | 2026-03-16 |
    | `url` | Full URL tested | https://www.mongodb.com/docs...|
-   | `method` | Fetch method | `@Web`, mcp-server-fetch |
+   | `method` | Fetch method | `@Web`* |
    | `model` | Model used | `Auto` - Cursor's agent router |
    | `input_est_chars` | Expected input size | 87040 |
-   | `output_chars` | Actual output length | 5857 |
+   | `output_chars` | Actual output length, chars via `wc -m` | 27890 |
    | `truncated` | Truncation detected | yes/no |
    | `truncation_char_num` | Character position if truncated | 5857 |
-   | `tokens_est` | Estimated token count | 1464 |
+   | `tokens` | Token count via `tiktoken` | 16890 |
    | `hypothesis_match` | Hypothesis matched | H1-no, H2-yes, H3-yes |
    | `notes` | Observations and findings | Pro-plan retry: successfully... |
    | `track` | Test track | interpreted/raw |
    | `cursor_version` | Cursor IDE version | 2.6.19, 2.6.19-pro |
+   | `file_size_bytes`** | Exact file size via `ls -l` | 28158 |
+   | `md5_checksum`** | MD5 of saved output file | d542d945f2b5dc15c5254d... |
+   | `total_lines`** | Line count | 979 |
+   | `total_words`** | Word count | 4871 |
+   | `code_blocks`** | Fenced code block count | 24 |
+   | `table_rows`** | Table row count | 87 |
+   | `headers`** | Header count | 63 |
+
+   >_*`@Web` is a Cursor UI composer feature, but the underlying mechanisms include `mcp_web_fetch` 
+   > and `web_search` - more information in the [Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool)_;<br>
+   >**_Optional field, measurement for raw track results only_
+   
+   ---
 
    **Key Hypotheses**:
 
    - **H1**: Character-based truncation at fixed limit, _~10-100KB?_
    - **H2**: Token-based truncation, _~2000 tokens?_
    - **H3**: Structure-aware truncation, respects Markdown boundaries
-   - **H4**: MCP servers override native `@Web` limits
+   - **H4**: MCP servers override native `@Web` limits*
    - **H5**: Agent auto-chunks after truncation, requests next chunk automatically
+
+   >*_`@Web` routes to `mcp_web_fetch` internally; mechanism is agent's choice and
+   >not user-controllable; H4 not testable through `@Web` alone, visit the
+   >[Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool)_
 
    ```bash
    # Log interpreted track result
@@ -102,9 +118,22 @@ pip install -r requirements.txt
    --truncated no \
    --tokens 12000 \
    --hypothesis "H1-no" \
-   --notes "Full content returned, no truncation observed"
+   --notes "Full content returned, no truncation observed..."
+   ```
 
-   # Log raw track result with truncation
+   **Verify key metrics before logging raw track runs**:
+
+   ```bash
+   # Byte count
+   ls -l results/raw/raw_output_{test ID}.txt
+
+   # Character count
+   wc -m results/raw/raw_output_{test ID}.txt
+   
+   # Token count
+   python3 -c "import tiktoken; enc = tiktoken.get_encoding('cl100k_base'); text = open('results/raw/raw_output_{test ID}.txt').read(); print(len(enc.encode(text)))"
+
+   # Log raw track result
    python web_fetch_testing_framework.py --log BL-2 \
    --track raw \
    --method @Web \
@@ -115,11 +144,18 @@ pip install -r requirements.txt
    --truncation-point 9876 \
    --tokens 2469 \
    --hypothesis "H1-yes" \
-   --notes "Truncated mid-paragraph at 9876 characters"
+   --file-size-bytes 4817 \
+   --md5-checksum "d6ad8451d3778bf3544574431203a3a7" \
+   --total-lines 143 \
+   --total-words 564 \
+   --code-blocks 2 \
+   --table-rows 57 \
+   --headers 4 \
+   --notes "@Web returns converted..."
    ```
 
    >_Ensure all required flags are provided: `--method`, `--model`, `--cursor-version`,
-   >`--output-chars`, `--truncated`, `--tokens`, `--hypothesis`
+   ><br>`--output-chars`, `--truncated`, `--tokens`, `--hypothesis`_
 
 ---
 
@@ -127,11 +163,15 @@ pip install -r requirements.txt
 
 1. **BL-1, BL-2**: baseline, quick wins establish basic truncation threshold
 2. **SC-2**: code blocks, tests HTML-to-Markdown conversion
-3. **OP-3**: `@Web` vs MCP, _do MCP servers have different limits?_
+3. **OP-3**: `@Web` vs MCP, _do MCP servers have different limits?_*
 4. **OP-4**: auto-chunking, determines DX and key ecosystem testing gap   
 5. **BL-3**: hard ceiling to identify absolute limit   
 6. **SC-1, SC-3, SC-4**: structured content to test structure-aware truncation hypothesis
 7. **EC-1, EC-3, EC-6**: edge cases to identify failure modes and unusual inputs
+
+>*_**OP-3** not executable as designed; `@Web` routes to `mcp_web_fetch` 
+>internally; the two "sides" of the comparison aren't separable through `@Web` alone; 
+>see [Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool)_
 
 ---
 

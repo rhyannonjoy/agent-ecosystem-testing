@@ -1,0 +1,308 @@
+List of countries and dependencies by population
+
+[Cartogram](https://en.wikipedia.org/wiki/Cartogram) of the world's population in 2018; each square represents 500,000 people.
+
+Population distribution by country in June-July 2025:
+
+1. Others (45.7%)
+2. [Russia](https://en.wikipedia.org/wiki/Demographics_of_Russia)(1.80%)
+3. [Bangladesh](https://en.wikipedia.org/wiki/Demographics_of_Bangladesh)(2.10%)
+4. [Brazil](https://en.wikipedia.org/wiki/Demographics_of_Brazil)(2.60%)
+5. [Nigeria](https://en.wikipedia.org/wiki/Demographics_of_Nigeria)(2.70%)
+6. [Pakistan](https://en.wikipedia.org/wiki/Demographics_of_Pakistan)(2.90%)
+7. [Indonesia](https://en.wikipedia.org/wiki/Demographics_of_Indonesia)(3.50%)
+8. [United States](https://en.wikipedia.org/wiki/Demographics_of_the_United_States)(4.20%)
+9. [China](https://en.wikipedia.org/wiki/Demographics_of_China)(17.2%)
+10. [India](https://en.wikipedia.org/wiki/Demographics_of_India)(17.3%)
+
+This is a list of countries and dependencies by population. It includes [sovereign states](https://en.wikipedia.org/wiki/Sovereign_state), inhabited [dependent territories](https://en.wikipedia.org/wiki/Dependent_territory) and, in some cases, constituent countries of sovereign states, with inclusion within the list being primarily based on the [ISO](https://en.wikipedia.org/wiki/International_Organization_for_Standardization) standard [ISO 3166-1](https://en.wikipedia.org/wiki/ISO_3166-1). For instance, the [United Kingdom](https://en.wikipedia.org/wiki/United_Kingdom) is considered a single entity, while the constituent countries of the [Kingdom of the Netherlands](https://en.wikipedia.org/wiki/Kingdom_of_the_Netherlands) are considered separately. In addition, this list includes certain [states with limited recognition](https://en.wikipedia.org/wiki/List_of_states_with_limited_recognition) not found in ISO 3166-1. Also given in a percentage is each country's population compared with the [world population](https://en.wikipedia.org/wiki/World_population), which the [United Nations](https://en.wikipedia.org/wiki/United_Nations) estimated at 8.232 billion as of 2025.
+
+## Method
+
+Figures used in this chart are based on the most up-to-date estimates or [projections](https://en.wikipedia.org/wiki/Population_projection) by the national [census](https://en.wikipedia.org/wiki/Census) authority, where available, and are usually rounded off.
+
+Where updated national data are not available, figures are based on the estimates or projections for 2024 by the Population Division of the [United Nations Department of Economic and Social Affairs](https://en.wikipedia.org/wiki/United_Nations_Department_of_Economic_and_Social_Affairs).
+
+Because the compiled figures are not collected at the same time in every country, or at the same level of accuracy, the resulting numerical comparisons may create misleading conclusions. Furthermore, the addition of figures from all countries may not equal the world total.
+
+Areas that form integral parts of [sovereign states](https://en.wikipedia.org/wiki/Sovereign_state), such as the [countries of the United Kingdom](https://en.wikipedia.org/wiki/Countries_of_the_United_Kingdom), are counted as part of the sovereign states concerned. Not included are other entities that are not sovereign states, such as the [European Union](https://en.wikipedia.org/wiki/European_Union), and independent territories that do not have permanent populations, such as the [Chagos Archipelago](https://en.wikipedia.org/wiki/Chagos_Archipelago) and [various countries' claims](https://en.wikipedia.org/wiki/Territorial_claims_in_Antarctica) to [Antarctica](https://en.wikipedia.org/wiki/Antarctica).
+
+## Sovereign states and dependencies by population
+
+Note: A numbered rank is assigned to the 193 [member states of the United Nations](https://en.wikipedia.org/wiki/Member_states_of_the_United_Nations), plus the two [observer states to the United Nations General Assembly](https://en.wikipedia.org/wiki/United_Nations_General_Assembly_observers#Current_non-member_observers). Dependent territories and constituent countries that are parts of sovereign states are not assigned a numbered rank. In addition, [sovereign states with limited recognition](https://en.wikipedia.org/wiki/List_of_states_with_limited_recognition) are also included, but not assigned a numbered rank.
+
+100%
+
+| List of countries and territories by total population | Location | Population | % ofworld | Date | Source (official or fromthe [United Nations](https://en.wikipedia.org/wiki/United_Nations)) | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| World | 8,232,000,000 | 13 Jun 2025 | UN projection |
+| [India](https://en.wikipedia.org/wiki/Demographics_of_India) | 1,417,492,000 | 17.2% | 1 Jul 2025 | Official projection |
+| [China](https://en.wikipedia.org/wiki/Demographics_of_China) | 1,404,890,000 | 17.1% | 31 Dec 2025 | Official estimate |
+| [United States](https://en.wikipedia.org/wiki/Demographics_of_the_United_States) | 341,784,857 | 4.1% | 1 Jul 2025 | Official estimate |
+| [Indonesia](https://en.wikipedia.org/wiki/Demographics_of_Indonesia) | 288,315,089 | 3.5% | 31 Dec 2025 | National annual projection |
+| [Pakistan](https://en.wikipedia.org/wiki/Demographics_of_Pakistan) | 241,499,431 | 2.9% | 1 Mar 2023 | 2023 census result |
+| [Nigeria](https://en.wikipedia.org/wiki/Demographics_of_Nigeria) | 223,800,000 | 2.7% | 1 Jul 2023 | Official projection |
+| [Brazil](https://en.wikipedia.org/wiki/Demographics_of_Brazil) | 213,421,037 | 2.6% | 1 Jul 2025 | Official estimate |
+| [Bangladesh](https://en.wikipedia.org/wiki/Demographics_of_Bangladesh) | 169,828,911 | 2.1% | 14 Jun 2022 | 2022 census result |
+| [Russia](https://en.wikipedia.org/wiki/Demographics_of_Russia) | 146,028,325 | 1.8% | 1 Jan 2025 | Official estimate |
+| [Mexico](https://en.wikipedia.org/wiki/Demographics_of_Mexico) | 131,001,723 | 1.6% | 31 Dec 2025 | National quarterly estimate |
+| [Japan](https://en.wikipedia.org/wiki/Demographics_of_Japan) | 122,860,000 | 1.5% | 1 Feb 2026 | Monthly national estimate |
+| [Philippines](https://en.wikipedia.org/wiki/Demographics_of_the_Philippines) | 114,123,600 | 1.4% | 1 Jul 2025 | Official projection |
+| [DR Congo](https://en.wikipedia.org/wiki/Demographics_of_the_Democratic_Republic_of_the_Congo) | 112,832,000 | 1.4% | 1 Jul 2025 | UN projection |
+| [Ethiopia](https://en.wikipedia.org/wiki/Demographics_of_Ethiopia) | 111,652,998 | 1.4% | 1 Jul 2025 | National annual projection |
+| [Egypt](https://en.wikipedia.org/wiki/Demographics_of_Egypt) | 107,868,296 | 1.3% | 1 Jul 2025 | Official estimate |
+| [Vietnam](https://en.wikipedia.org/wiki/Demographics_of_Vietnam) | 102,300,000 | 1.2% | 31 Dec 2025 | Official estimate |
+| [Iran](https://en.wikipedia.org/wiki/Demographics_of_Iran) | 86,563,000 | 1.1% | 20 Mar 2025 | Official projection |
+| [Turkey](https://en.wikipedia.org/wiki/Demographics_of_Turkey) | 86,092,168 | 1.0% | 31 Dec 2025 | Official estimate |
+| [Germany](https://en.wikipedia.org/wiki/Demographics_of_Germany) | 83,497,147 | 1.0% | 30 Sep 2025 | National quarterly estimate |
+| [United Kingdom](https://en.wikipedia.org/wiki/Demographics_of_the_United_Kingdom) | 69,487,000 | 0.8% | 30 Jun 2025 | Official estimate |
+| [France](https://en.wikipedia.org/wiki/Demographics_of_France) | 69,081,996 | 0.8% | 1 Jan 2026 | Yearly national estimate |
+| [Tanzania](https://en.wikipedia.org/wiki/Demographics_of_Tanzania) | 68,153,004 | 0.8% | 1 Jul 2025 | Official projection |
+| [Thailand](https://en.wikipedia.org/wiki/Demographics_of_Thailand) | 65,826,149 | 0.8% | 30 Nov 2025 | Monthly national estimate |
+| [South Africa](https://en.wikipedia.org/wiki/Demographics_of_South_Africa) | 63,100,945 | 0.8% | 30 Jun 2025 | Official estimate |
+| [Italy](https://en.wikipedia.org/wiki/Demographics_of_Italy) | 58,956,726 | 0.7% | 30 Nov 2025 | Monthly national estimate |
+| [Kenya](https://en.wikipedia.org/wiki/Demographics_of_Kenya) | 53,330,978 | 0.6% | 1 Jul 2025 | Official projection |
+| [Colombia](https://en.wikipedia.org/wiki/Demographics_of_Colombia) | 53,057,212 | 0.6% | 1 Jan 2025 | Official projection |
+| [Sudan](https://en.wikipedia.org/wiki/Demographics_of_Sudan) | 51,662,000 | 0.6% | 1 Jul 2025 | UN projection |
+| [Myanmar](https://en.wikipedia.org/wiki/Demographics_of_Myanmar) | 51,375,327 | 0.6% | 15 Oct 2024 | 2024 census result |
+| [South Korea](https://en.wikipedia.org/wiki/Demographics_of_South_Korea) | 51,111,158 | 0.6% | 31 Jan 2026 | Monthly national estimate |
+| [Spain](https://en.wikipedia.org/wiki/Demographics_of_Spain) | 49,570,725 | 0.6% | 1 Jan 2026 | National quarterly estimate |
+| [Algeria](https://en.wikipedia.org/wiki/Demographics_of_Algeria) | 47,400,000 | 0.6% | 1 Jan 2025 | National annual projection |
+| [Argentina](https://en.wikipedia.org/wiki/Demographics_of_Argentina) | 46,387,098 | 0.6% | 1 Jul 2025 | National annual projection |
+| [Iraq](https://en.wikipedia.org/wiki/Demographics_of_Iraq) | 46,118,793 | 0.6% | 21 Nov 2024 | 2024 census result |
+| [Uganda](https://en.wikipedia.org/wiki/Demographics_of_Uganda) | 45,905,417 | 0.6% | 10 May 2024 | 2024 census result |
+| [Afghanistan](https://en.wikipedia.org/wiki/Demographics_of_Afghanistan) | 43,844,000 | 0.5% | 1 Jul 2025 | UN projection (see note) |
+| [Canada](https://en.wikipedia.org/wiki/Demographics_of_Canada) | 41,575,585 | 0.5% | 1 Oct 2025 | National quarterly estimate |
+| [Uzbekistan](https://en.wikipedia.org/wiki/Demographics_of_Uzbekistan) | 38,236,704 | 0.5% | 1 Jan 2026 | Official estimate |
+| [Poland](https://en.wikipedia.org/wiki/Demographics_of_Poland) | 37,332,000 | 0.5% | 31 Dec 2025 | Monthly national estimate |
+| [Morocco](https://en.wikipedia.org/wiki/Demographics_of_Morocco) | 36,828,330 | 0.4% | 1 Sep 2024 | 2024 census result |
+| [Angola](https://en.wikipedia.org/wiki/Demographics_of_Angola) | 36,604,681 | 0.4% | 19 Sep 2024 | 2024 census result |
+| [Saudi Arabia](https://en.wikipedia.org/wiki/Demographics_of_Saudi_Arabia) | 35,300,280 | 0.4% | 1 Jul 2024 | Official estimate |
+| [Peru](https://en.wikipedia.org/wiki/Demographics_of_Peru) | 34,350,244 | 0.4% | 1 Jul 2025 | National annual projection |
+| [Malaysia](https://en.wikipedia.org/wiki/Demographics_of_Malaysia) | 34,281,100 | 0.4% | 30 Sep 2025 | National quarterly estimate |
+| [Mozambique](https://en.wikipedia.org/wiki/Demographics_of_Mozambique) | 34,090,466 | 0.4% | 1 Jul 2025 | National annual projection |
+| [Ghana](https://en.wikipedia.org/wiki/Demographics_of_Ghana) | 33,742,380 | 0.4% | 1 Jul 2025 | National annual projection |
+| [Yemen](https://en.wikipedia.org/wiki/Demographics_of_Yemen) | 32,684,503 | 0.4% | 1 Jul 2023 | Official estimate |
+| [Madagascar](https://en.wikipedia.org/wiki/Demographics_of_Madagascar) | 31,727,042 | 0.4% | 1 Jul 2025 | National annual projection |
+| [Ivory Coast](https://en.wikipedia.org/wiki/Demographics_of_Ivory_Coast) | 31,719,275 | 0.4% | 31 Dec 2024 | National annual projection |
+| [Nepal](https://en.wikipedia.org/wiki/Demographics_of_Nepal) | 29,911,840 | 0.4% | 25 Nov 2025 | National annual projection |
+| [Cameroon](https://en.wikipedia.org/wiki/Demographics_of_Cameroon) | 29,442,327 | 0.4% | 1 Jul 2025 | National annual projection |
+| [Ukraine](https://en.wikipedia.org/wiki/Demographics_of_Ukraine) | 28,700,000 | 0.3% | 1 Sep 2025 | State migration service |
+| [Venezuela](https://en.wikipedia.org/wiki/Demographics_of_Venezuela) | 28,517,000 | 0.3% | 1 Jul 2025 | UN projection |
+| [Australia](https://en.wikipedia.org/wiki/Demographics_of_Australia) | 27,614,400 | 0.3% | 30 Jun 2025 | Official projection |
+| [Niger](https://en.wikipedia.org/wiki/Demographics_of_Niger) | 27,522,750 | 0.3% | 1 Jul 2025 | National annual projection |
+| [North Korea](https://en.wikipedia.org/wiki/Demographics_of_North_Korea) | 25,950,000 | 0.3% | 1 Jul 2024 | National annual projection |
+| [Syria](https://en.wikipedia.org/wiki/Demographics_of_Syria) | 25,620,427 | 0.3% | 1 Jul 2025 | Monthly estimate |
+| [Burkina Faso](https://en.wikipedia.org/wiki/Demographics_of_Burkina_Faso) | 24,070,553 | 0.3% | 1 Jul 2025 | Official projection |
+| [Taiwan](https://en.wikipedia.org/wiki/Demographics_of_Taiwan) | 23,280,273 | 0.3% | 28 Feb 2026 | Official estimate |
+| [Mali](https://en.wikipedia.org/wiki/Demographics_of_Mali) | 22,395,489 | 0.3% | 15 Jun 2022 | 2022 census result |
+| [Sri Lanka](https://en.wikipedia.org/wiki/Demographics_of_Sri_Lanka) | 21,781,800 | 0.3% | 19 Dec 2024 | 2024 census result |
+| [Malawi](https://en.wikipedia.org/wiki/Demographics_of_Malawi) | 20,734,262 | 0.3% | 1 Jul 2025 | National annual projection |
+| [Kazakhstan](https://en.wikipedia.org/wiki/Demographics_of_Kazakhstan) | 20,518,005 | 0.2% | 1 Feb 2026 | Official estimate |
+| [Chile](https://en.wikipedia.org/wiki/Demographics_of_Chile) | 20,206,953 | 0.2% | 30 Jun 2025 | National annual projection |
+| [Zambia](https://en.wikipedia.org/wiki/Demographics_of_Zambia) | 19,693,423 | 0.2% | 8 Sep 2022 | 2022 census result |
+| [Somalia](https://en.wikipedia.org/wiki/Demographics_of_Somalia) | 19,655,000 | 0.2% | 1 Jul 2025 | UN projection |
+| [Chad](https://en.wikipedia.org/wiki/Demographics_of_Chad) | 19,340,757 | 0.2% | 1 Jul 2025 | National annual projection |
+| [Romania](https://en.wikipedia.org/wiki/Demographics_of_Romania) | 19,036,031 | 0.2% | 1 Jan 2025 | Official estimate |
+| [Senegal](https://en.wikipedia.org/wiki/Demographics_of_Senegal) | 18,593,258 | 0.2% | 1 Jul 2024 | National annual projection |
+| [Netherlands](https://en.wikipedia.org/wiki/Demographics_of_the_Netherlands) | 18,131,264 | 0.2% | 31 Jan 2026 | Official estimate |
+| [Ecuador](https://en.wikipedia.org/wiki/Demographics_of_Ecuador) | 18,103,660 | 0.2% | 1 Jul 2025 | National annual projection |
+| [Guatemala](https://en.wikipedia.org/wiki/Demographics_of_Guatemala) | 18,079,810 | 0.2% | 1 Jul 2025 | National annual projection |
+| [Cambodia](https://en.wikipedia.org/wiki/Demographics_of_Cambodia) | 17,577,760 | 0.2% | 1 Jul 2025 | Official projection |
+| [Zimbabwe](https://en.wikipedia.org/wiki/Demographics_of_Zimbabwe) | 17,073,087 | 0.2% | 1 Jul 2025 | Official projection |
+| [South Sudan](https://en.wikipedia.org/wiki/Demographics_of_South_Sudan) | 15,786,898 | 0.2% | 1 Jul 2025 | National annual projection |
+| [Guinea](https://en.wikipedia.org/wiki/Demographics_of_Guinea) | 17,521,167 | 0.2% | 1 Jul 2025 | Census 1 Juli 2025 |
+| [Rwanda](https://en.wikipedia.org/wiki/Demographics_of_Rwanda) | 14,104,969 | 0.2% | 1 Jul 2025 | National annual projection |
+| [Benin](https://en.wikipedia.org/wiki/Demographics_of_Benin) | 13,224,860 | 0.2% | 1 Jul 2025 | National annual projection |
+| [Burundi](https://en.wikipedia.org/wiki/Demographics_of_Burundi) | 12,332,788 | 0.1% | 16 Aug 2024 | Preliminary census result |
+| [Tunisia](https://en.wikipedia.org/wiki/Demographics_of_Tunisia) | 11,972,169 | 0.1% | 6 Nov 2024 | 2024 census result |
+| [Jordan](https://en.wikipedia.org/wiki/Demographics_of_Jordan) | 11,937,000 | 0.1% | 31 Dec 2025 | National estimate |
+| [Belgium](https://en.wikipedia.org/wiki/Demographics_of_Belgium) | 11,928,465 | 0.1% | 1 Jan 2026 | Official estimate |
+| [Haiti](https://en.wikipedia.org/wiki/Demographics_of_Haiti) | 11,867,032 | 0.1% | 1 Jul 2024 | National annual projection |
+| [Bolivia](https://en.wikipedia.org/wiki/Demographics_of_Bolivia) | 11,365,333 | 0.1% | 23 Mar 2024 | 2024 census result |
+| [United Arab Emirates](https://en.wikipedia.org/wiki/Demographics_of_the_United_Arab_Emirates) | 11,294,243 | 0.1% | 31 Dec 2024 | Official estimate |
+| [Czechia](https://en.wikipedia.org/wiki/Demographics_of_the_Czech_Republic) | 10,897,178 | 0.1% | 30 Sep 2025 | Official estimate |
+| [Dominican Republic](https://en.wikipedia.org/wiki/Demographics_of_the_Dominican_Republic) | 10,771,504 | 0.1% | 10 Nov 2022 | 2022 census result |
+| [Portugal](https://en.wikipedia.org/wiki/Demographics_of_Portugal) | 10,749,635 | 0.1% | 31 Dec 2024 | Official estimate |
+| [Sweden](https://en.wikipedia.org/wiki/Demographics_of_Sweden) | 10,604,464 | 0.1% | 31 Jan 2025 | Monthly national estimate |
+| [Tajikistan](https://en.wikipedia.org/wiki/Demographics_of_Tajikistan) | 10,499,000 | 0.1% | 1 Jan 2025 | Official estimate |
+| [Greece](https://en.wikipedia.org/wiki/Demographics_of_Greece) | 10,372,335 | 0.1% | 1 Jan 2025 | Official estimate |
+| [Azerbaijan](https://en.wikipedia.org/wiki/Demographics_of_Azerbaijan) | 10,259,701 | 0.1% | 1 Dec 2025 | Monthly national estimate |
+| [Papua New Guinea](https://en.wikipedia.org/wiki/Demographics_of_Papua_New_Guinea) | 10,185,363 | 0.1% | 16 Jun 2024 | 2024 census result |
+| [Israel](https://en.wikipedia.org/wiki/Demographics_of_Israel) | 10,196,700 | 0.1% | 31 Feb 2026 | Monthly national estimate |
+| [Honduras](https://en.wikipedia.org/wiki/Demographics_of_Honduras) | 9,892,632 | 0.1% | 1 Jul 2024 | National annual projection |
+| [Cuba](https://en.wikipedia.org/wiki/Demographics_of_Cuba) | 9,748,007 | 0.1% | 31 Dec 2024 | Official estimate |
+| [Hungary](https://en.wikipedia.org/wiki/Demographics_of_Hungary) | 9,489,000 | 0.1% | 1 Jan 2026 | Official estimate |
+| [Austria](https://en.wikipedia.org/wiki/Demographics_of_Austria) | 9,219,113 | 0.1% | 1 Jan 2026 | National quarterly estimate |
+| [Belarus](https://en.wikipedia.org/wiki/Demographics_of_Belarus) | 9,109,280 | 0.1% | 1 Jan 2025 | Official estimate |
+| [Switzerland](https://en.wikipedia.org/wiki/Demographics_of_Switzerland) | 9,104,063 | 0.1% | 30 Sep 2025 | National quarterly estimate |
+| [Sierra Leone](https://en.wikipedia.org/wiki/Demographics_of_Sierra_Leone) | 9,077,691 | 0.1% | 1 Jul 2025 | National annual projection |
+| [Togo](https://en.wikipedia.org/wiki/Demographics_of_Togo) | 8,095,498 | 0.10% | 8 Nov 2022 | 2022 census result |
+| [Laos](https://en.wikipedia.org/wiki/Demographics_of_Laos) | 7,647,000 | 0.09% | 1 Jul 2024 | National annual projection |
+| [Hong Kong](https://en.wikipedia.org/wiki/Demographics_of_Hong_Kong)(China) | 7,510,800 | 0.09% | 31 Dec 2025 | National estimate |
+| [Libya](https://en.wikipedia.org/wiki/Demographics_of_Libya) | 7,459,000 | 0.09% | 1 Jul 2025 | UN projection |
+| [Kyrgyzstan](https://en.wikipedia.org/wiki/Demographics_of_Kyrgyzstan) | 7,281,800 | 0.09% | 1 Jan 2025 | Monthly national estimate |
+| [Turkmenistan](https://en.wikipedia.org/wiki/Demographics_of_Turkmenistan) | 7,057,841 | 0.09% | 17 Dec 2022 | 2022 census result |
+| [Nicaragua](https://en.wikipedia.org/wiki/Demographics_of_Nicaragua) | 6,874,748 | 0.08% | 30 Jun 2024 | Official estimate |
+| [Serbia](https://en.wikipedia.org/wiki/Demographics_of_Serbia) | 6,567,783 | 0.08% | 1 Jan 2025 | Official estimate |
+| [Central African Republic](https://en.wikipedia.org/wiki/Demographics_of_the_Central_African_Republic) | 6,470,307 | 0.08% | 1 Jul 2024 | National annual projection |
+| [Bulgaria](https://en.wikipedia.org/wiki/Demographics_of_Bulgaria) | 6,437,360 | 0.08% | 31 Dec 2024 | Official estimate |
+| [Congo](https://en.wikipedia.org/wiki/Demographics_of_the_Republic_of_the_Congo) | 6,142,180 | 0.07% | 17 May 2023 | 2023 census result |
+| [Singapore](https://en.wikipedia.org/wiki/Demographics_of_Singapore) | 6,110,200 | 0.07% | 30 Jun 2025 | National annual projection |
+| [Paraguay](https://en.wikipedia.org/wiki/Demographics_of_Paraguay) | 6,109,644 | 0.07% | 9 Nov 2022 | 2022 census result |
+| [El Salvador](https://en.wikipedia.org/wiki/Demographics_of_El_Salvador) | 6,029,976 | 0.07% | 2 May 2024 | 2024 census result |
+| [Denmark](https://en.wikipedia.org/wiki/Demographics_of_Denmark) | 6,028,459 | 0.07% | 1 Feb 2026 | Monthly national estimate |
+| [Finland](https://en.wikipedia.org/wiki/Demographics_of_Finland) | 5,657,608 | 0.07% | 1 Feb 2026 | Monthly national estimate |
+| [Norway](https://en.wikipedia.org/wiki/Demographics_of_Norway) | 5,627,400 | 0.07% | 31 Dec 2025 | National quarterly estimate |
+| [Lebanon](https://en.wikipedia.org/wiki/Demographics_of_Lebanon) | 5,490,000 | 0.07% | 1 Jul 2021 | Official estimate |
+| [Palestine](https://en.wikipedia.org/wiki/Demographics_of_the_State_of_Palestine) | 5,483,450 | 0.07% | 1 Jan 2023 | National annual projection |
+| [Ireland](https://en.wikipedia.org/wiki/Demographics_of_the_Republic_of_Ireland) | 5,458,600 | 0.07% | 1 Apr 2025 | National estimate |
+| [Slovakia](https://en.wikipedia.org/wiki/Demographics_of_Slovakia) | 5,413,191 | 0.07% | 30 Sep 2025 | National quarterly estimate |
+| [Oman](https://en.wikipedia.org/wiki/Demographics_of_Oman) | 5,359,557 | 0.07% | 31 Dec 2025 | Monthly national estimate |
+| [New Zealand](https://en.wikipedia.org/wiki/Demographics_of_New_Zealand) | 5,342,000 | 0.06% | 31 Dec 2025 | National quarterly estimate |
+| [Liberia](https://en.wikipedia.org/wiki/Demographics_of_Liberia) | 5,248,621 | 0.06% | 10 Nov 2022 | 2022 census result |
+| [Costa Rica](https://en.wikipedia.org/wiki/Demographics_of_Costa_Rica) | 5,191,824 | 0.06% | 30 Jun 2025 | National annual projection |
+| [Mauritania](https://en.wikipedia.org/wiki/Demographics_of_Mauritania) | 4,927,532 | 0.06% | 25 Dec 2023 | 2023 census result |
+| [Kuwait](https://en.wikipedia.org/wiki/Demographics_of_Kuwait) | 4,881,254 | 0.06% | 1 Jan 2025 | Official estimate |
+| [Panama](https://en.wikipedia.org/wiki/Demographics_of_Panama) | 4,064,780 | 0.05% | 8 Jan 2023 | 2023 census result |
+| [Croatia](https://en.wikipedia.org/wiki/Demographics_of_Croatia) | 3,866,233 | 0.05% | 1 Jul 2024 | Official estimate |
+| [Georgia](https://en.wikipedia.org/wiki/Demographics_of_Georgia_(country)) | 3,704,500 | 0.04% | 1 Jan 2025 | Official estimate |
+| [Eritrea](https://en.wikipedia.org/wiki/Demographics_of_Eritrea) | 3,607,000 | 0.04% | 1 Jul 2025 | UN projection (see note) |
+| [Mongolia](https://en.wikipedia.org/wiki/Demographics_of_Mongolia) | 3,544,835 | 0.04% | 31 Dec 2024 | National annual projection |
+| [Uruguay](https://en.wikipedia.org/wiki/Demographics_of_Uruguay) | 3,485,931 | 0.04% | 30 Jun 2025 | National annual projection |
+| [Bosnia and Herzegovina](https://en.wikipedia.org/wiki/Demographics_of_Bosnia_and_Herzegovina) | 3,412,000 | 0.04% | 1 Jul 2024 | Official estimate |
+| [Qatar](https://en.wikipedia.org/wiki/Demographics_of_Qatar) | 3,214,609 | 0.04% | 31 Dec 2025 | Monthly national estimate |
+| [Puerto Rico](https://en.wikipedia.org/wiki/Demographics_of_Puerto_Rico)(US) | 3,184,195 | 0.04% | 1 Jul 2025 | Annual projection |
+| [Armenia](https://en.wikipedia.org/wiki/Demographics_of_Armenia) | 3,076,200 | 0.04% | 1 Jan 2025 | Official estimate |
+| [Namibia](https://en.wikipedia.org/wiki/Demographics_of_Namibia) | 3,022,401 | 0.04% | 24 Sep 2023 | 2023 Census |
+| [Lithuania](https://en.wikipedia.org/wiki/Demographics_of_Lithuania) | 2,886,000 | 0.04% | 1 Mar 2026 | Monthly national estimate |
+| [Jamaica](https://en.wikipedia.org/wiki/Demographics_of_Jamaica) | 2,774,538 | 0.03% | 12 Sep 2022 | 2022 census result |
+| [Gabon](https://en.wikipedia.org/wiki/Demographics_of_Gabon) | 2,469,296 | 0.03% | 1 Jul 2025 | National annual projection |
+| [Gambia](https://en.wikipedia.org/wiki/Demographics_of_the_Gambia) | 2,422,712 | 0.03% | 1 May 2024 | Preliminary census results |
+| [Moldova](https://en.wikipedia.org/wiki/Demographics_of_Moldova) | 2,381,300 | 0.03% | 1 Jan 2025 | Official estimate |
+| [Albania](https://en.wikipedia.org/wiki/Demographics_of_Albania) | 2,363,314 | 0.03% | 1 Jan 2025 | Official estimate |
+| [Botswana](https://en.wikipedia.org/wiki/Demographics_of_Botswana) | 2,359,609 | 0.03% | 18 Mar 2022 | 2022 census result |
+| [Slovenia](https://en.wikipedia.org/wiki/Demographics_of_Slovenia) | 2,133,852 | 0.03% | 1 Oct 2025 | National quarterly estimate |
+| [Lesotho](https://en.wikipedia.org/wiki/Demographics_of_Lesotho) | 2,116,427 | 0.03% | 2024 | Official survey |
+| [Guinea-Bissau](https://en.wikipedia.org/wiki/Demographics_of_Guinea-Bissau) | 1,852,784 | 0.02% | 1 Jul 2025 | National annual projection |
+| [Latvia](https://en.wikipedia.org/wiki/Demographics_of_Latvia) | 1,823,500 | 0.02% | 1 Jan 2026 | Monthly national estimate |
+| [North Macedonia](https://en.wikipedia.org/wiki/Demographics_of_North_Macedonia) | 1,822,612 | 0.02% | 31 Dec 2024 | Official estimate |
+| [Equatorial Guinea](https://en.wikipedia.org/wiki/Demographics_of_Equatorial_Guinea) | 1,668,768 | 0.02% | 1 Jul 2024 | Official estimate |
+| [Bahrain](https://en.wikipedia.org/wiki/Demographics_of_Bahrain) | 1,594,654 | 0.02% | 31 Dec 2024 | Official estimate |
+| [Kosovo](https://en.wikipedia.org/wiki/Demographics_of_Kosovo) | 1,585,566 | 0.02% | 4 Apr 2024 | 2024 national census |
+| [Timor-Leste](https://en.wikipedia.org/wiki/Demographics_of_East_Timor) | 1,391,221 | 0.02% | 1 Jul 2025 | National annual projection |
+| [Trinidad and Tobago](https://en.wikipedia.org/wiki/Demographics_of_Trinidad_and_Tobago) | 1,367,764 | 0.02% | 30 Jun 2025 | Official estimate |
+| [Estonia](https://en.wikipedia.org/wiki/Demographics_of_Estonia) | 1,362,954 | 0.02% | 1 Jan 2026 | Official estimate |
+| [Mauritius](https://en.wikipedia.org/wiki/Demographics_of_Mauritius) | 1,241,856 | 0.02% | 31 Dec 2025 | National estimate |
+| [Eswatini](https://en.wikipedia.org/wiki/Demographics_of_Eswatini) | 1,235,549 | 0.02% | 1 Jul 2024 | Official projection |
+| [Djibouti](https://en.wikipedia.org/wiki/Demographics_of_Djibouti) | 1,066,809 | 0.01% | 20 May 2024 | 2024 census result |
+| [Cyprus](https://en.wikipedia.org/wiki/Demographics_of_Cyprus) | 983,000 | 0.01% | 31 Dec 2024 | Official estimate |
+| [Guyana](https://en.wikipedia.org/wiki/Demographics_of_Guyana) | 956,044 | 0.01% | 31 Dec 2024 | Official estimate |
+| [Comoros](https://en.wikipedia.org/wiki/Demographics_of_the_Comoros) | 944,388 | 0.01% | 2026 | Official estimate |
+| [Fiji](https://en.wikipedia.org/wiki/Demographics_of_Fiji) | 902,623 | 0.01% | 1 Jan 2026 | National annual projection |
+| [Bhutan](https://en.wikipedia.org/wiki/Demographics_of_Bhutan) | 784,043 | 0.010% | 2025 | National annual projection |
+| [Solomon Islands](https://en.wikipedia.org/wiki/Demographics_of_the_Solomon_Islands) | 750,325 | 0.009% | 1 Jul 2024 | National annual projection |
+| [Macau](https://en.wikipedia.org/wiki/Demographics_of_Macau)(China) | 688,900 | 0.008% | 31 Dec 2025 | National quarterly estimate |
+| [Luxembourg](https://en.wikipedia.org/wiki/Demographics_of_Luxembourg) | 681,973 | 0.008% | 1 Jan 2025 | Official estimate |
+| [Montenegro](https://en.wikipedia.org/wiki/Demographics_of_Montenegro) | 623,327 | 0.008% | 1 Jan 2025 | Official estimate |
+| [Suriname](https://en.wikipedia.org/wiki/Demographics_of_Suriname) | 616,500 | 0.007% | 1 Jul 2021 | Official estimate |
+| [Western Sahara](https://en.wikipedia.org/wiki/Western_Sahara) [(disputed)](https://en.wikipedia.org/wiki/Western_Sahara_conflict) | 600,904 | 0.007% | 1 Jul 2025 | UN projection |
+| [Malta](https://en.wikipedia.org/wiki/Demographics_of_Malta) | 574,250 | 0.007% | 31 Dec 2024 | Official estimate |
+| [Maldives](https://en.wikipedia.org/wiki/Demographics_of_the_Maldives) | 515,132 | 0.006% | 13 Sep 2022 | 2022 census result |
+| [Cape Verde](https://en.wikipedia.org/wiki/Demographics_of_Cape_Verde) | 491,233 | 0.006% | 16 Jun 2021 | 2021 census result |
+| [Northern Cyprus](https://en.wikipedia.org/wiki/Northern_Cyprus) | 476,214 | 0.006% | 31 Dec 2023 | Official projection |
+| [Brunei](https://en.wikipedia.org/wiki/Demographics_of_Brunei) | 455,500 | 0.006% | 1 Jul 2024 | Official estimate |
+| [Belize](https://en.wikipedia.org/wiki/Demographics_of_Belize) | 417,634 | 0.005% | 1 Jul 2025 | Official estimate |
+| [Bahamas](https://en.wikipedia.org/wiki/Demographics_of_the_Bahamas) | 398,165 | 0.005% | 4 Apr 2022 | 2022 census result |
+| [Iceland](https://en.wikipedia.org/wiki/Demographics_of_Iceland) | 394,530 | 0.005% | 1 Jan 2026 | National quarterly estimate |
+| [Transnistria](https://en.wikipedia.org/wiki/Transnistria) | 367,776 | 0.004% | 31 Mar 2024 | Official estimate |
+| [Vanuatu](https://en.wikipedia.org/wiki/Demographics_of_Vanuatu) | 321,409 | 0.004% | 1 Jul 2024 | National annual projection |
+| [French Polynesia](https://en.wikipedia.org/wiki/Demographics_of_French_Polynesia)(France) | 279,500 | 0.003% | 31 Dec 2024 | National annual projection |
+| [Barbados](https://en.wikipedia.org/wiki/Demographics_of_Barbados) | 267,800 | 0.003% | 31 Dec 2022 | Official estimate |
+| [New Caledonia](https://en.wikipedia.org/wiki/Demographics_of_New_Caledonia)(France) | 264,596 | 0.003% | 1 Jan 2025 | National annual projection |
+| [Abkhazia](https://en.wikipedia.org/wiki/Abkhazia) | 244,236 | 0.003% | 1 Jan 2022 | Official estimate |
+| [São Tomé and Príncipe](https://en.wikipedia.org/wiki/Demographics_of_S%C3%A3o_Tom%C3%A9_and_Pr%C3%ADncipe) | 209,607 | 0.003% | 2024 | Preliminary census result |
+| [Samoa](https://en.wikipedia.org/wiki/Demographics_of_Samoa) | 205,557 | 0.002% | 6 Nov 2021 | 2021 Census |
+| [Saint Lucia](https://en.wikipedia.org/wiki/Demographics_of_Saint_Lucia) | 184,100 | 0.002% | 1 Jul 2023 | Official estimate |
+| [Curaçao](https://en.wikipedia.org/wiki/Demographics_of_Cura%C3%A7ao)(Netherlands) | 156,115 | 0.002% | 1 Jan 2025 | Official estimate |
+| [Guam](https://en.wikipedia.org/wiki/Demographics_of_Guam)(US) | 153,836 | 0.002% | 1 Apr 2020 | 2020 census result |
+| [Seychelles](https://en.wikipedia.org/wiki/Demographics_of_Seychelles) | 122,729 | 0.001% | 30 Jun 2025 | Official estimate |
+| [Kiribati](https://en.wikipedia.org/wiki/Demographics_of_Kiribati) | 120,740 | 0.001% | 1 Jul 2021 | National annual projection |
+| [Saint Vincent and the Grenadines](https://en.wikipedia.org/wiki/Demographics_of_Saint_Vincent_and_the_Grenadines) | 110,872 | 0.001% | 1 Jul 2022 | Official estimate |
+| [Aruba](https://en.wikipedia.org/wiki/Demographics_of_Aruba)(Netherlands) | 109,435 | 0.001% | 30 Jun 2025 | Official estimate |
+| [Grenada](https://en.wikipedia.org/wiki/Demographics_of_Grenada) | 109,021 | 0.001% | 2021 | Preliminary Census results |
+| [Micronesia](https://en.wikipedia.org/wiki/Demographics_of_the_Federated_States_of_Micronesia) | 105,564 | 0.001% | 2025 | National annual projection |
+| [Antigua and Barbuda](https://en.wikipedia.org/wiki/Demographics_of_Antigua_and_Barbuda) | 103,603 | 0.001% | 1 Jan 2024 | Official estimate |
+| [Jersey](https://en.wikipedia.org/wiki/Demographics_of_Jersey)(UK) | 103,267 | 0.001% | 21 Mar 2021 | 2021 census result |
+| [Tonga](https://en.wikipedia.org/wiki/Demographics_of_Tonga) | 100,179 | 0.001% | 30 Nov 2021 | 2021 census result |
+| [Andorra](https://en.wikipedia.org/wiki/Demographics_of_Andorra) | 89,165 | 0.001% | 31 Jan 2026 | Monthly national estimate |
+| [Cayman Islands](https://en.wikipedia.org/wiki/Demographics_of_the_Cayman_Islands)(UK) | 88,833 | 0.001% | 31 Dec 2024 | National annual projection |
+| [U.S. Virgin Islands](https://en.wikipedia.org/wiki/Demographics_of_the_United_States_Virgin_Islands)(US) | 87,146 | 0.001% | 1 Apr 2020 | 2020 census result |
+| [Isle of Man](https://en.wikipedia.org/wiki/Demographics_of_the_Isle_of_Man)(UK) | 84,975 | 0.001% | 1 Apr 2025 | Official estimate |
+| [Dominica](https://en.wikipedia.org/wiki/Demographics_of_Dominica) | 71,946 | 0.0009% | 2018 | UN estimate |
+| [Guernsey](https://en.wikipedia.org/wiki/Demographics_of_Guernsey)(UK) | 64,781 | 0.0008% | 31 Dec 2023 | National quarterly estimate |
+| [Bermuda](https://en.wikipedia.org/wiki/Demographics_of_Bermuda)(UK) | 64,055 | 0.0008% | 1 Jul 2021 | National annual projection |
+| [Greenland](https://en.wikipedia.org/wiki/Demographics_of_Greenland)(Denmark) | 56,740 | 0.0007% | 1 Jan 2026 | National quarterly estimate |
+| [South Ossetia](https://en.wikipedia.org/wiki/South_Ossetia) | 56,520 | 0.0007% | 31 Dec 2021 | Official estimate |
+| [Faroe Islands](https://en.wikipedia.org/wiki/Demographics_of_the_Faroe_Islands)(Denmark) | 55,064 | 0.0007% | 1 Feb 2026 | Monthly national estimate |
+| [Saint Kitts and Nevis](https://en.wikipedia.org/wiki/Demographics_of_Saint_Kitts_and_Nevis) | 51,320 | 0.0006% | 2022 | 2022 census result |
+| [Turks and Caicos Islands](https://en.wikipedia.org/wiki/Demographics_of_the_Turks_and_Caicos_Islands)(UK) | 50,828 | 0.0006% | 1 Jul 2024 | Official estimate |
+| [American Samoa](https://en.wikipedia.org/wiki/Demographics_of_American_Samoa)(US) | 49,710 | 0.0006% | 1 Apr 2020 | 2020 census result |
+| [Northern Mariana Islands](https://en.wikipedia.org/wiki/Demographics_of_the_Northern_Mariana_Islands)(US) | 47,329 | 0.0006% | 1 Apr 2020 | 2020 census result |
+| [Marshall Islands](https://en.wikipedia.org/wiki/Demographics_of_the_Marshall_Islands) | 42,418 | 0.0005% | 30 Sep 2021 | 2021 Census |
+| [Sint Maarten](https://en.wikipedia.org/wiki/Sint_Maarten)(Netherlands) | 41,349 | 0.0005% | 1 Jan 2025 | Official estimate |
+| [Liechtenstein](https://en.wikipedia.org/wiki/Demographics_of_Liechtenstein) | 41,024 | 0.0005% | 30 Jun 2024 | National estimate |
+| [British Virgin Islands](https://en.wikipedia.org/wiki/Demographics_of_the_British_Virgin_Islands)(UK) | 39,471 | 0.0005% | 1 Jul 2024 | UN projection |
+| [Monaco](https://en.wikipedia.org/wiki/Demographics_of_Monaco) | 38,423 | 0.0005% | 31 Dec 2024 | Census |
+| [Gibraltar](https://en.wikipedia.org/wiki/Demographics_of_Gibraltar)(UK) | 38,196 | 0.0005% | 14 Nov 2022 | Preliminary census results |
+| [San Marino](https://en.wikipedia.org/wiki/Demographics_of_San_Marino) | 34,172 | 0.0004% | 31 Dec 2025 | Monthly national estimate |
+| [Saint Martin](https://en.wikipedia.org/wiki/Collectivity_of_Saint_Martin)(France) | 31,496 | 0.0004% | 1 Jan 2025 | Official estimate |
+| [Palau](https://en.wikipedia.org/wiki/Demographics_of_Palau) | 16,733 | 0.0002% | 1 Jul 2021 | 2021 Census |
+| [Anguilla](https://en.wikipedia.org/wiki/Demographics_of_Anguilla)(UK) | 16,010 | 0.0002% | 31 Dec 2024 | Official estimate |
+| [Cook Islands](https://en.wikipedia.org/wiki/Demographics_of_the_Cook_Islands)(New Zealand) | 15,040 | 0.0002% | 1 Jul 2021 | 2021 Census |
+| [Nauru](https://en.wikipedia.org/wiki/Demographics_of_Nauru) | 11,680 | 0.0001% | 30 Oct 2021 | 2021 Census |
+| [Wallis and Futuna](https://en.wikipedia.org/wiki/Demographics_of_Wallis_and_Futuna)(France) | 11,620 | 0.0001% | 24 Jul 2023 | 2023 Census |
+| [Tuvalu](https://en.wikipedia.org/wiki/Demographics_of_Tuvalu) | 10,643 | 0.0001% | 12 Dec 2022 | 2022 Census |
+| [Saint Barthélemy](https://en.wikipedia.org/wiki/Saint_Barth%C3%A9lemy)(France) | 10,562 | 0.0001% | 1 Jan 2025 | Official estimate |
+| [Saint Pierre and Miquelon](https://en.wikipedia.org/wiki/Demographics_of_Saint_Pierre_and_Miquelon)(France) | 5,819 | 0% | 1 Jan 2025 | Official estimate |
+| [Saint Helena, Ascension and Tristan da Cunha](https://en.wikipedia.org/wiki/Saint_Helena,_Ascension_and_Tristan_da_Cunha)(UK) | 5,651 | 0% | 1 Jul 2021 | 2021 Census |
+| [Montserrat](https://en.wikipedia.org/wiki/Demographics_of_Montserrat)(UK) | 4,386 | 0% | 23 Sep 2023 | 2023 census result |
+| [Falkland Islands](https://en.wikipedia.org/wiki/Demographics_of_the_Falkland_Islands)(UK) | 3,662 | 0% | 10 Oct 2021 | 2021 census result |
+| [Tokelau](https://en.wikipedia.org/wiki/Demographics_of_Tokelau)(New Zealand) | 2,608 | 0% | 1 Jan 2025 | 2025 Census |
+| [Norfolk Island](https://en.wikipedia.org/wiki/Demographics_of_Norfolk_Island)(Australia) | 2,188 | 0% | 1 Jan 2021 | 2021 Census |
+| [Christmas Island](https://en.wikipedia.org/wiki/Demographics_of_Christmas_Island)(Australia) | 1,692 | 0% | 1 Jan 2021 | 2021 Census |
+| [Niue](https://en.wikipedia.org/wiki/Demographics_of_Niue)(New Zealand) | 1,681 | 0% | 11 Nov 2022 | 2022 Census |
+| [Vatican City](https://en.wikipedia.org/wiki/Demographics_of_Vatican_City) | 882 | 0% | 31 Dec 2024 | Official figure |
+| [Cocos (Keeling) Islands](https://en.wikipedia.org/wiki/Cocos_(Keeling)_Islands)(Australia) | 593 | 0% | 30 Jun 2020 | 2021 Census |
+| [Pitcairn Islands](https://en.wikipedia.org/wiki/Demographics_of_the_Pitcairn_Islands)(UK) | 35 | 0% | 1 Jul 2023 | Official estimate |
+
+## See also
+
+- [List of countries by number of births](https://en.wikipedia.org/wiki/List_of_countries_by_number_of_births)
+- [List of countries by population growth rate](https://en.wikipedia.org/wiki/List_of_countries_by_population_growth_rate)
+- [List of countries and dependencies by population density](https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population_density)
+- [List of countries and dependencies by area](https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_area)
+- [Demographics of the world](https://en.wikipedia.org/wiki/Demographics_of_the_world)
+- [List of countries by population (United Nations)](https://en.wikipedia.org/wiki/List_of_countries_by_population_(United_Nations))
+
+## Explanatory notes
+
+The last census was conducted in 1979. Sources disagree about the current population:
+
+- The US Census Bureau provides an estimate of 49,552,566 for 2025.
+- The CIA gives an estimate of 40,121,552 for 2024.
+- The BBC gives a figure of 38.3 million for 2023.
+- The [Encyclopædia Britannica](https://en.wikipedia.org/wiki/Encyclop%C3%A6dia_Britannica) gives an estimate of 36,432,000 for 2025.
+- The Afghani [National Statistics and Information Authority](https://en.wikipedia.org/wiki/National_Statistics_and_Information_Authority) gives an estimate of 35,695,527 for 2024.
+
+Eritrea has never conducted an official government census. Sources disagree about the current population:
+
+- [Encyclopedia Britannica](https://en.wikipedia.org/wiki/Encyclopedia_Britannica) gives an estimate of 6,416,000 for 2025.
+- The [US Census Bureau](https://en.wikipedia.org/wiki/US_Census_Bureau) gives an estimate of 6.4 million for 2025.
+- The BBC gives an estimate of 6.2 million for 2023.
+- The [Eritrea Ministry Of Information](https://en.wikipedia.org/wiki/Cabinet_of_Ministers_of_Eritrea) gives an estimate of 5.8 million for 2020.
+- The UN gives an estimate of 3,502,000 for 2024.
+
+## References
+
+- data provided by [INEGI → ENOE](https://www.inegi.org.mx/programas/enoe/15ymas/#tabulados)* ["Mexico Population"](https://www.economy.com/mexico/population/not-seasonally-adjusted). www.economy.com. Moody's Analytics. Retrieved 28 February 2026.

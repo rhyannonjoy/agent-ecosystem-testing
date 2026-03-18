@@ -10,6 +10,42 @@ parent: Anysphere Cursor
 
 ---
 
+## Autonomous Test Sequencing
+
+After SC-1 timed out, Cursor autonomously ran SC-2 without being prompted and didn't
+generate a report, but only a `raw_output_SC-2.txt`. While the content retrieval
+appears successful, the agent didn't generate a report, which isn't the purpose of
+the testing framework. This suggests the agent may read surrounding context -
+framework docs, test sequence - and make independent decisions about next steps.
+
+**Impact**: roadblock to reproducibility — single-test prompts may not guarantee
+single-test execution, but ghost runs
+
+---
+
+## Autonomous Tool Substitution on Timeout
+
+When `mcp_web_fetch` times out, Cursor may autonomously fall back to an alternative
+tool without explicit user instruction. In one SC-2 run, `WebFetch` timed out and
+Cursor fell back to `curl -sL`, saving 16MB of raw Next.js HTML to
+`raw_output_SC-2.txt` — not the filtered `@Web` output the prompt requested.
+
+Cursor acknowledged the substitution in its summary, noting the run "should be redone
+in Cursor with `@Web`" — _despite having been asked to use `@Web`_. The agent knew
+what it should have done but substituted a different tool without flagging the
+deviation clearly upfront.
+
+`@Web` doesn't have a single documented size limit. Practical constraints are
+timeouts, routing - native vs MCP path, and post-processing — not a hard byte cap.
+The 16MB curl output vs 702KB `@Web` output illustrates how much `@Web`'s
+conversion and filtering is actually doing.
+
+**Impact**: autonomous tool substitution on failure produces outputs that aren't
+comparable to `@Web` results — skewing size, MD5, and counts. Failed runs should be
+logged separately and not treated as equivalent to `@Web` fetches.
+
+---
+
 ## Cursor IDE vs VS Code
 
 Cursor is a standalone IDE forked from VS Code's codebase, not a VS Code extension.
@@ -66,11 +102,33 @@ test design before the strategy was optimized for the most critical ecosystem te
 
 ---
 
-## `@Web` Undocumented
+## `@Web` is a Context Mention, Not a Tool
 
-Identifying Cursor's web fetch mechanisms took some digging. While `@Web` shows up in
+Like `@Files` or `@Docs` - `@Web` is a context mention syntax for use in Cursor's chat composer -
+the message input box. Similar to `@username` in Slack - it's user-facing shorthand for calling
+a backend mechanism, but _not the mechanism itself_.
+
+When adding `@Web [URL]`, Cursor fetches the content and attaches it to
+the message context. The underlying mechanisms include `mcp_web_fetch` and `web_search`, but from
+a user perspective, invocation happens through `@Web` while the agent selects between them based
+on some internal routing logic. The routing trigger between mechanisms is unconfirmed - request
+type, URL characteristics, or model selection may be factors. Errors bubble up with the underlying
+tool name, not `@Web`.
+
+There isn't a way to force which backend runs. When using `@Web` with a URL, eventhough `Auto`
+may report tooling used, there is no documented or exposed way to force a specific tool path.
+
+**Impact**: results are logged with `method: @Web` to reflect the **_user-facing syntax_**; the
+backend mechanism per run is _"agent's choice"_
+
+---
+
+## `@Web` Undocumented, Requires Reverse-Engineering
+
+Identifying Cursor's web fetch mechanisms took some digging and a lot of trial and error.
+While `@Web` shows up in
 [their community forum](https://forum.cursor.com/t/how-does-web-work/7675), requesting answers
-from their AI docs bot didn't bare fruit:
+from their AI docs bot didn't bear fruit:
 
 ```markdown
 The current docs do not appear to have a dedicated `@Web` page. Based on my review of the documentation,

@@ -138,7 +138,6 @@ TEST_URLS = {
     },
 }
 
-
 @dataclass
 class TestResult:
     """Standard test result structure"""
@@ -156,18 +155,32 @@ class TestResult:
     tokens_est: int
     hypothesis_match: str
     notes: str
-    track: str
     cursor_version: str
+    # Raw track fields (optional, only populated for raw track)
+    file_size_bytes: Optional[int] = None
+    md5_checksum: Optional[str] = None
+    total_lines: Optional[int] = None
+    total_words: Optional[int] = None
+    code_blocks: Optional[int] = None
+    table_rows: Optional[int] = None
+    headers: Optional[int] = None
 
 class CursorTestingFramework:
     """Manage Cursor web fetch testing"""
 
-    def __init__(self, results_dir: str = "results/cursor-interpreted", track: str = "interpreted"):
+    def __init__(self, results_dir: str = None, track: str = "interpreted"):
+        self.track = track
+
+        # Set results_dir based on track if not provided
+        if results_dir is None:
+            if track == "interpreted":
+                results_dir = "results/cursor-interpreted"
+            else:
+                results_dir = f"results/{track}"
+        
         self.results_dir = Path(results_dir)
         self.results_dir.mkdir(parents=True, exist_ok=True)
-        # Single persistent CSV per track, append-only
-        self.track = track
-        self.csv_path = self.results_dir / f"results.csv"
+        self.csv_path = self.results_dir / "results.csv"
 
     def generate_interpreted_prompt(self, test_id: str, method: str = "@Web") -> str:
         """Generate a prompt for interpreted track testing"""
@@ -181,7 +194,7 @@ class CursorTestingFramework:
         if method == "@Web":
             prompt = f"""I'm testing Cursor's web fetch capabilities for the Agent Ecosystem Testing project.
 
-Please use the @Web command to fetch this URL:
+Run this test only, don't proceed to any other tests. Please use the @Web command to fetch this URL:
 {url}
 
 Then report back:
@@ -234,10 +247,17 @@ This is comparative testing for MCP vs native @Web behavior."""
 Please use {method} to fetch this URL and return the content EXACTLY as you received it:
 {url}
 
-Do not summarize or interpret. Return the raw fetched content verbatim.
+1. Run this test only, don't proceed to any other tests
+2. Save the content to raw_output_{test_id}.txt
+3. Report the exact file size in bytes
+4. Calculate MD5 checksum of the content
+5. Count: total lines, total words, code blocks, table rows, headers
+6. Report hexdump of last 256 bytes
+7. Examine the last 256 bytes through hexdump: does content end cleanly with complete braces/tags/quotes or mid-character?
+8. After fetching, report any tool names, server names, or method identifiers visible in your tool results.
 
 Test ID: {test_id}
-Expected size: ~{test['expected_size_kb']}KB"""
+Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdown source. Cursor typically converts and filters this to a smaller size.)"""
 
         return prompt
 
@@ -317,7 +337,6 @@ Expected size: ~{test['expected_size_kb']}KB"""
     def log_result(
         self,
         test_id: str,
-        track: str,
         method: str,
         model: str,
         cursor_version: str,
@@ -328,6 +347,14 @@ Expected size: ~{test['expected_size_kb']}KB"""
         hypothesis_match: str,
         notes: str,
         timestamp: str = None,
+        # Raw track fields
+        file_size_bytes: Optional[int] = None,
+        md5_checksum: Optional[str] = None,
+        total_lines: Optional[int] = None,
+        total_words: Optional[int] = None,
+        code_blocks: Optional[int] = None,
+        table_rows: Optional[int] = None,
+        headers: Optional[int] = None,
     ):
         """Log test result to CSV"""
         
@@ -354,8 +381,14 @@ Expected size: ~{test['expected_size_kb']}KB"""
             tokens_est=tokens_est,
             hypothesis_match=hypothesis_match,
             notes=notes,
-            track=track,
             cursor_version=cursor_version,
+            file_size_bytes=file_size_bytes,
+            md5_checksum=md5_checksum,
+            total_lines=total_lines,
+            total_words=total_words,
+            code_blocks=code_blocks,
+            table_rows=table_rows,
+            headers=headers,
         )
 
         # Write or append to CSV
@@ -411,7 +444,7 @@ Examples:
   python cursor_testing_framework.py --list-tests
   python cursor_testing_framework.py --test BL-1 --track interpreted
   python cursor_testing_framework.py --test SC-2 --track raw
-  python cursor_testing_framework.py --log BL-1 --track interpreted --method @Web --model "Claude 3.5 Sonnet" --cursor-version "0.36.0" --output-chars 48500 --truncated no --tokens 12000 --hypothesis "H1-no" --notes "Full content returned"
+  python cursor_testing_framework.py --log BL-1 --track interpreted --method @Web --model "Auto" --cursor-version "2.6.19" --output-chars 48500 --truncated no --tokens 12000 --hypothesis "H1-no" --notes "Full content returned"
         """,
     )
 
@@ -451,21 +484,27 @@ Examples:
     parser.add_argument(
         "--hypothesis", type=str, help="Hypothesis match (e.g., H1-yes, H2-no, EC-timeout)"
     )
+    parser.add_argument("--file-size-bytes", type=int, help="Raw file size in bytes")
+    parser.add_argument("--md5-checksum", type=str, help="MD5 checksum of content")
+    parser.add_argument("--total-lines", type=int, help="Total lines in content")
+    parser.add_argument("--total-words", type=int, help="Total words in content")
+    parser.add_argument("--code-blocks", type=int, help="Number of code blocks")
+    parser.add_argument("--table-rows", type=int, help="Number of table rows")
+    parser.add_argument("--headers", type=int, help="Number of headers")
     parser.add_argument("--notes", type=str, help="Additional notes")
 
     args = parser.parse_args()
 
-    framework = CursorTestingFramework()
-
     if args.list_tests:
+        framework = CursorTestingFramework(track=args.track)
         framework.list_tests()
 
     elif args.test:
+        framework = CursorTestingFramework(track=args.track)
         framework.print_test_harness(args.test, args.track)
 
     elif args.log:
-        # Debug: print what was parsed
-        print(f"DEBUG: model={args.model}, cursor_version={args.cursor_version}, output_chars={args.output_chars}, truncated={args.truncated}, tokens={args.tokens}, hypothesis={args.hypothesis}")
+        framework = CursorTestingFramework(track=args.track)
         if not all([args.model, args.cursor_version, args.output_chars is not None, args.truncated, args.tokens is not None, args.hypothesis]):
             parser.error(
                 "--log requires: --model, --cursor-version, --output-chars, --truncated, --tokens, --hypothesis"
@@ -473,7 +512,6 @@ Examples:
 
         framework.log_result(
             test_id=args.log,
-            track=args.track,
             method=args.method,
             model=args.model,
             cursor_version=args.cursor_version,
@@ -482,6 +520,13 @@ Examples:
             truncation_char_num=args.truncation_point,
             tokens_est=args.tokens,
             hypothesis_match=args.hypothesis,
+            file_size_bytes=args.file_size_bytes,
+            md5_checksum=args.md5_checksum,
+            total_lines=args.total_lines,
+            total_words=args.total_words,
+            code_blocks=args.code_blocks,
+            table_rows=args.table_rows,
+            headers=args.headers,
             notes=args.notes or "",
         )
 
