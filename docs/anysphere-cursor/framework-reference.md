@@ -18,7 +18,7 @@ truncation pattern identification, and fetch method comparisons_<br>
 
 ```bash
 # Clone and/or navigate to `agent-ecosystem-testing` directory
-cd agent-ecosystem-testing/cursor-web-fetch
+cd agent-ecosystem-testing
 
 # Create virtual environment
 python3 -m venv venv
@@ -29,6 +29,9 @@ source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Navigate to the Cursor testing directory
+cd cursor-web-fetch
 ```
 
 ## Workflow
@@ -121,17 +124,9 @@ pip install -r requirements.txt
    --notes "Full content returned, no truncation observed..."
    ```
 
-   **Verify key metrics before logging raw track runs**:
-
    ```bash
-   # Byte count
-   ls -l results/raw/raw_output_{test ID}.txt
-
-   # Character count
-   wc -m results/raw/raw_output_{test ID}.txt
-   
-   # Token count
-   python3 -c "import tiktoken; enc = tiktoken.get_encoding('cl100k_base'); text = open('results/raw/raw_output_{test ID}.txt').read(); print(len(enc.encode(text)))"
+   # Verify key metrics before logging raw track runs
+   python3 web_fetch_verify_raw_results.py BL-1
 
    # Log raw track result
    python web_fetch_testing_framework.py --log BL-2 \
