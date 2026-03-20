@@ -93,20 +93,20 @@ cd cursor-web-fetch
    | `headers`** | Header count | 63 |
 
    >_*`@Web` is a Cursor UI composer feature, but the underlying mechanisms is `WebFetch` or `mcp_web_fetch` -
-   > more information in the [Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool)_;<br>
+   > more information in the [Friction Note](friction-note.md#web-evolution-from-manual-context-to-automatic-agent-capability)_;<br>
    >**_Optional field, measurement for raw track results only_
    
    ---
 
    **Key Hypotheses**:
 
-   - **H1**: Character-based truncation at fixed limit, _~10-100KB?_
-   - **H2**: Token-based truncation, _~2000 tokens?_
-   - **H3**: Structure-aware truncation, respects Markdown boundaries
-   - **H4**: MCP servers override native `@Web` limits*
-   - **H5**: Agent auto-chunks after truncation, requests next chunk automatically
+   - `H1`: Character-based truncation at fixed limit, _~10-100KB?_
+   - `H2`: Token-based truncation, _~2000 tokens?_
+   - `H3`: Structure-aware truncation, respects Markdown boundaries
+   - `H4`: MCP servers override native `@Web` limits*
+   - `H5`: Agent auto-chunks after truncation, requests next chunk automatically
 
-   >*_`@Web` routes to `mcp_web_fetch` internally; mechanism is agent's choice and
+   >*_`@Web` may route to `mcp_web_fetch` internally; mechanism is agent's choice and
    >not user-controllable; H4 not testable through `@Web` alone, visit the
    >[Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool)_
 
@@ -156,15 +156,15 @@ cd cursor-web-fetch
 
 ## Baseline Testing Path, Single-Run Reproducible Strategy
 
-1. **BL-1, BL-2**: baseline, quick wins establish basic truncation threshold
-2. **SC-2**: code blocks, tests HTML-to-Markdown conversion
-3. **OP-3**: `@Web` vs MCP, _do MCP servers have different limits?_*
-4. **OP-4**: auto-chunking, determines DX and key ecosystem testing gap   
-5. **BL-3**: hard ceiling to identify absolute limit   
-6. **SC-1, SC-3, SC-4**: structured content to test structure-aware truncation hypothesis
-7. **EC-1, EC-3, EC-6**: edge cases to identify failure modes and unusual inputs
+1. `BL-1`, `BL-2`: baseline, quick wins establish basic truncation threshold
+2. `SC-2`: code blocks, tests HTML-to-Markdown conversion
+3. `OP-3`: `@Web` vs MCP, _do MCP servers have different limits?_*
+4. `OP-4`: auto-chunking, determines DX and key ecosystem testing gap   
+5. `BL-3`: hard ceiling to identify absolute limit   
+6. `SC-1, SC-3, SC-4`: structured content to test structure-aware truncation hypothesis
+7. `EC-1, EC-3, EC-6`: edge cases to identify failure modes and unusual inputs
 
->*_**OP-3** not executable as designed; `@Web` routes to `mcp_web_fetch` 
+>*_**OP-3** not executable as designed; `@Web` may route to `mcp_web_fetch` 
 >internally; the two "sides" of the comparison aren't separable through `@Web` alone; 
 >see [Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool)_
 
@@ -172,7 +172,7 @@ cd cursor-web-fetch
 
 ## Extended Testing, _Optional_
 
-- **Run raw track** on key tests BL-1, SC-2, OP-4 for exact measurements
+- **Run raw track** on key tests `BL-1`, `SC-2`, `OP-4` for exact measurements
 - **Rerun interpreted** on 2-3 tests to measure variance across runs
 
 ---
@@ -183,17 +183,14 @@ Examine truncation threshold analysis, method comparison, interpretive vs raw
 track comparisons, hypothesis matching -
 
 ```bash
+# Generate full analysis report
+python web_fetch_results_analyzer.py --csv results.csv --full
+
 # Generate summary
 python web_fetch_results_analyzer.py --csv results.csv --summary
 
-# Generate full analysis
-python web_fetch_results_analyzer.py --csv results.csv --full
-
 # Analyze specific methods
 python web_fetch_results_analyzer.py --csv results.csv --method "@Web"
-
-# Export as Markdown
-python web_fetch_results_analyzer.py --csv results.csv --markdown
 ```
 
 >_**Remember** to always provide the full relative path to the CSV file when running the analyzer,
