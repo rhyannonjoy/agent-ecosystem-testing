@@ -21,6 +21,9 @@ framework docs, test sequence - and make independent decisions about next steps.
 **Impact**: roadblock to reproducibility — single-test prompts may not guarantee
 single-test execution, but ghost runs
 
+**Fix**: edit test prompts to include explicit guard rails as in "run this
+test only, do not proceed to the next test"
+
 ---
 
 ## Autonomous Tool Substitution on Timeout
@@ -46,12 +49,74 @@ logged separately and not treated as equivalent to `@Web` fetches.
 
 ---
 
+## Cross-Track Data Reuse
+
+During interpreted track testing, Cursor may autonomously discover and reuse raw track
+data instead of performing independent measurements. When testing BL-2 on the interpreted
+track, the agent:
+
+    1. Searched for existing test data in `cursor-web-fetch/results/raw/results.csv`
+    2. Found matching metrics for the same URL from a previous raw track run
+    3. Read `raw_output_BL-2.txt` directly from disk
+    4. Reported measurements from the saved file rather than re-fetching the URL
+    5. Described the process:
+
+    "I found existing logged metrics for `BL-2` in `cursor-web-fetch/results/raw/results.csv`
+    (including output character count, token estimate, and truncation flag). Next I'll open
+    `raw_output_BL-2.txt` to grab the exact last 50 characters and verify markdown/code-fence
+    completeness directly from the stored response."
+    
+
+**Why this complicates testing**:
+- **Independence violated**: interpreted track is supposed to test "what Cursor reports"
+independently, not read answer keys from raw track files, _that's cheating_
+- **Variance measurement impossible**: if testing for run-to-run variance, data reuse defeats
+that purpose
+- **Methodology ambiguity**: the result represents "Cursor's ability to read and report from
+files" rather than "Cursor's ability to fetch and measure web content"
+
+**Impact**: while the agent demonstrated context awareness by discovering the test framework
+structure and cross-referencing existing results - the interpreted track results may not
+represent independent measurements. Log entries should note when Cursor reused existing data
+vs. performed fresh fetches.
+
+**Fix**: _for true independent validation_, raw and interpreted tracks should be run in isolated
+environments or with different test IDs.
+
+---
+
 ## Cursor IDE vs VS Code
 
 Cursor is a standalone IDE forked from VS Code's codebase, not a VS Code extension.
 `@Web` is exclusive to Cursor and can't be accessed in VS Code or through extensions.
 While there are many "Cursor-like" extensions available, this specific web fetch
 functionality isn't available in VS Code.
+
+---
+
+## Data Integrity: Autonomous CSV Modification
+
+During `BL-3` raw track testing, Cursor autonomously attempted to modify existing CSV
+entries rather than appending new results. The agent identified that BL-3 and OP-4 share
+the same URL and produced identical outputs, same MD5 checksum: `554eb56e8416d86d12af17a2dfe6f815`,
+then attempted to "correct" the earlier `OP-4` entry by overwriting its metadata fields.
+
+**Why this conflicts with rigorour testing methodology**:
+- Each test run should create a new timestamped entry
+- Historical data must remain immutable for tracking variance across runs
+- Identical outputs from the same URL are expected and valuable - confirms reproducibility
+- The framework logs the test ID that was executed, not a judgment about which ID
+"should" own the data
+
+**Why this breaks testing**: 
+- It destroys the audit trail showing when each test was run
+- It prevents measuring run-to-run variance on the same URL
+- It assumes duplicate data is an error rather than a feature of reproducibility testing
+- Manual intervention was required to prevent data loss
+
+**Impact**: testing frameworks must be append-only; the agent's "helpful" deduplication and
+correction behavior is incompatible with empirical data collection and the framework
+can't be fully automated
 
 ---
 
@@ -72,7 +137,7 @@ Cursor's default model is not explicitly documented, but the chat window default
 is `Auto` - when asked, the mechanism introduced itself:
 
 ```markdown
-Question: "What model is your default?"
+Question: "Which model is your default?"
 
 Response: "I'm Auto, Cursor's agent router. I don't have a single fixed "default model" in the sense of
 one named model; Cursor routes requests to different models depending on the task. I'm not given
@@ -89,7 +154,7 @@ model; results expected to vary across models when selected
 ## Pro Plan Required
 
 Free Cursor accounts timeout on `@Web` requests to JavaScript-heavy SPAs - tested on Google
-Gemini API docs. Pro plan at $20/month succeeds but truncates at ~6KB (~1.5K tokens).
+Gemini API docs. Pro plan at $20/month succeeds but risks truncation at ~6KB (~1.5K tokens).
 
 ---
 
@@ -108,9 +173,9 @@ Like `@Files` or `@Docs` - `@Web` is a context mention syntax for use in Cursor'
 the message input box. Similar to `@username` in Slack - it's user-facing shorthand for calling
 a backend mechanism, but _not the mechanism itself_.
 
-When adding `@Web [URL]`, Cursor fetches the content and attaches it to
-the message context. The underlying mechanisms include `mcp_web_fetch` and `web_search`, but from
-a user perspective, invocation happens through `@Web` while the agent selects between them based
+When adding `@Web [URL]`, Cursor fetches the content and attaches it to the message context. The
+underlying mechanism is `WebFetch` and sometimes reported as `mcp_web_fetch` aor`web_search`, but
+from a user perspective, invocation happens through `@Web` while the agent selects between them based
 on some internal routing logic. The routing trigger between mechanisms is unconfirmed - request
 type, URL characteristics, or model selection may be factors. Errors bubble up with the underlying
 tool name, not `@Web`.

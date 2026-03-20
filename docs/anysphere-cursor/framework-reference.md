@@ -92,8 +92,8 @@ cd cursor-web-fetch
    | `table_rows`** | Table row count | 87 |
    | `headers`** | Header count | 63 |
 
-   >_*`@Web` is a Cursor UI composer feature, but the underlying mechanisms include `mcp_web_fetch` 
-   > and `web_search` - more information in the [Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool)_;<br>
+   >_*`@Web` is a Cursor UI composer feature, but the underlying mechanisms is `WebFetch` or `mcp_web_fetch` -
+   > more information in the [Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool)_;<br>
    >**_Optional field, measurement for raw track results only_
    
    ---

@@ -7,9 +7,13 @@ Cursor Testing Results Analyzer
 - Exports results as Markdown table for spec contribution
 
 Usage:
-    python cursor_testing_analyzer.py --csv results-2025-03-15T15-30.csv
-    python cursor_testing_analyzer.py --csv results.csv --method @Web
-    python cursor_testing_analyzer.py --csv results.csv --summary
+    python web_fetch_results_analyzer.py --csv results/raw/results.csv --full
+    python web_fetch_results_analyzer.py --csv results/raw/results.csv --summary
+    python web_fetch_results_analyzer.py --csv results/raw/results.csv --method @Web
+
+    python web_fetch_results_analyzer.py --csv results/cursor-interpreted/results.csv --full
+    python web_fetch_results_analyzer.py --csv results/cursor-interpreted/results.csv --summary
+    python web_fetch_results_analyzer.py --csv results/cursor-interpreted/results.csv --method @Web
 """
 
 import csv
@@ -31,7 +35,16 @@ class CursorResultsAnalyzer:
         self._load_csv()
 
     def _load_csv(self):
-        """Load results from CSV"""
+        """Load results from CSV and infer track from file path"""
+        # Infer track from file path
+        path_str = str(self.csv_path).lower()
+        if 'raw' in path_str:
+            inferred_track = 'raw'
+        elif 'interpreted' in path_str or 'cursor-interpreted' in path_str:
+            inferred_track = 'interpreted'
+        else:
+            inferred_track = 'unknown'
+        
         with open(self.csv_path, "r") as f:
             reader = csv.DictReader(f)
             for row in reader:
@@ -39,13 +52,19 @@ class CursorResultsAnalyzer:
                 row["input_est_chars"] = int(row["input_est_chars"])
                 row["output_chars"] = int(row["output_chars"])
                 row["tokens_est"] = int(row["tokens_est"])
-                if row["truncation_char_num"] and row["truncation_char_num"] != "":
+                if row.get("truncation_char_num") and row["truncation_char_num"] != "":
                     row["truncation_char_num"] = int(row["truncation_char_num"])
                 else:
                     row["truncation_char_num"] = None
+                
+                # Add inferred track (override if track column exists but is empty/wrong)
+                if 'track' not in row or not row.get('track') or row.get('track', '').strip() == '':
+                    row['track'] = inferred_track
+                
                 self.results.append(row)
 
-        print(f"Loaded {len(self.results)} test results from {self.csv_path.name}\n")
+        print(f"Loaded {len(self.results)} test results from {self.csv_path.name}")
+        print(f"Inferred track: {inferred_track}\n")
 
     def filter_by_method(self, method: str):
         """Filter results by fetch method"""
@@ -53,7 +72,7 @@ class CursorResultsAnalyzer:
 
     def filter_by_track(self, track: str):
         """Filter results by track (interpreted/raw)"""
-        return [r for r in self.results if r["track"] == track]
+        return [r for r in self.results if r.get("track") == track]
 
     def filter_by_test_id(self, test_id: str):
         """Filter results by test ID"""
@@ -139,8 +158,8 @@ class CursorResultsAnalyzer:
             if len(results) < 2:
                 continue
 
-            interpreted = [r for r in results if r["track"] == "interpreted"]
-            raw = [r for r in results if r["track"] == "raw"]
+            interpreted = [r for r in results if r.get("track") == "interpreted"]
+            raw = [r for r in results if r.get("track") == "raw"]
 
             if interpreted and raw:
                 int_result = interpreted[0]
@@ -174,7 +193,7 @@ class CursorResultsAnalyzer:
         # Look at hypothesis matches in results
         hypothesis_counts = defaultdict(int)
         for r in self.results:
-            if r["hypothesis_match"]:
+            if r.get("hypothesis_match"):
                 hypothesis_counts[r["hypothesis_match"]] += 1
 
         print("Hypothesis matches from test results:")
@@ -204,12 +223,8 @@ class CursorResultsAnalyzer:
 
     def generate_summary_report(self):
         """Generate comprehensive summary report"""
-        print("\n" + "=" * 80)
-        print("COMPREHENSIVE SUMMARY")
-        print("=" * 80 + "\n")
-
-        print(f"Total tests run: {len(self.results)}")
-        print(f"Results from: {self.csv_path.name}\n")
+        print(f"\nTotal tests run: {len(self.results)}")
+        print(f"Results from: {self.csv_path}\n")
 
         # Overall stats
         truncated = len([r for r in self.results if r["truncated"] == "yes"])
@@ -240,9 +255,8 @@ class CursorResultsAnalyzer:
         if op4_results:
             print("Agent Auto-chunking (OP-4):")
             for r in op4_results:
-                print(
-                    f"  {r['track']}: {r['notes']}"
-                )
+                notes_preview = r.get('notes', '')[:60] + '...' if len(r.get('notes', '')) > 60 else r.get('notes', '')
+                print(f"  {r.get('track', 'unknown')}: {notes_preview}")
             print()
 
         print("Next steps:")
@@ -260,9 +274,12 @@ class CursorResultsAnalyzer:
         print("RESULTS AS MARKDOWN TABLE (for Agent Docs Spec)")
         print("=" * 80 + "\n")
 
+        # Try to get raw track results, fall back to all results
         raw_results = self.filter_by_track("raw")
-        if not raw_results:
-            print("No raw track results found.\n")
+        results_to_print = raw_results if raw_results else self.results
+        
+        if not results_to_print:
+            print("No results to display.\n")
             return
 
         print(
@@ -272,15 +289,16 @@ class CursorResultsAnalyzer:
             "|---------|-----------|-----------|----------|------------------|--------|-------|"
         )
 
-        for r in sorted(raw_results, key=lambda x: x["test_id"]):
+        for r in sorted(results_to_print, key=lambda x: x["test_id"]):
             input_kb = r["input_est_chars"] / 1024
             output_kb = r["output_chars"] / 1024
             trunc_point = (
                 f"{r['truncation_char_num']:,}" if r["truncation_char_num"] else "N/A"
             )
+            notes_preview = r.get('notes', '')[:30] + '...' if len(r.get('notes', '')) > 30 else r.get('notes', '')
 
             print(
-                f"| {r['test_id']} | {input_kb:.0f} | {output_kb:.0f} | {r['truncated']} | {trunc_point} | {r['method']} | {r['notes'][:30]} |"
+                f"| {r['test_id']} | {input_kb:.0f} | {output_kb:.0f} | {r['truncated']} | {trunc_point} | {r['method']} | {notes_preview} |"
             )
 
         print()
@@ -292,10 +310,10 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python cursor_testing_analyzer.py --csv results-2025-03-15T15-30.csv
-  python cursor_testing_analyzer.py --csv results.csv --summary
-  python cursor_testing_analyzer.py --csv results.csv --method "@Web"
-  python cursor_testing_analyzer.py --csv results.csv --markdown
+  python web_fetch_results_analyzer.py --csv results/raw/results.csv --summary
+  python web_fetch_results_analyzer.py --csv results/cursor-interpreted/results.csv --summary
+  python web_fetch_results_analyzer.py --csv results/raw/results.csv --method "@Web"
+  python web_fetch_results_analyzer.py --csv results/raw/results.csv --markdown
         """,
     )
 
@@ -317,13 +335,21 @@ Examples:
 
     analyzer = CursorResultsAnalyzer(args.csv)
 
-    if args.full or args.summary:
+    if args.full:
+        print("\n" + "=" * 80)
+        print("FULL ANALYSIS REPORT")
+        print("=" * 80)
         analyzer.generate_summary_report()
         analyzer.analyze_truncation_threshold()
         analyzer.analyze_by_method()
         analyzer.analyze_by_track()
         analyzer.identify_hypothesis()
-        analyzer.print_markdown_table()
+
+    elif args.summary:
+        print("\n" + "=" * 80)
+        print("SUMMARY REPORT")
+        print("=" * 80)
+        analyzer.generate_summary_report()
 
     elif args.markdown:
         analyzer.print_markdown_table()

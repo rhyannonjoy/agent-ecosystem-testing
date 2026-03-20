@@ -69,17 +69,28 @@ def calculate_metrics(filepath: Path) -> Dict[str, any]:
     truncation_indicators = []
     last_256 = content[-256:] if len(content) > 256 else content
     
-    # Check for incomplete syntax at end
-    if last_256.count('{') != last_256.count('}'):
-        truncation_indicators.append("Unmatched braces")
-    if last_256.count('[') != last_256.count(']'):
-        truncation_indicators.append("Unmatched brackets")
-    if last_256.count('```') % 2 != 0:
-        truncation_indicators.append("Unclosed code block")
-    if content.rstrip() != content:
-        # Check if file ends cleanly or mid-content
-        if not content.endswith(('\n', '.', '>', '}')):
-            truncation_indicators.append("Abrupt ending")
+    # Check for unclosed markdown code blocks (odd number of ```)
+    if content.count('```') % 2 != 0:
+        truncation_indicators.append("Unclosed markdown code block")
+    
+    # Check for mid-word truncation (ends with alphanumeric, not whitespace/punctuation)
+    last_char = content[-1] if content else ''
+    if last_char.isalnum():
+        truncation_indicators.append("Ends mid-word (last char is alphanumeric)")
+    
+    # Check for incomplete markdown links
+    if last_256.count('[') > last_256.count(']'):
+        truncation_indicators.append("Unclosed markdown link bracket")
+    if last_256.count('](') > last_256.count(')'):
+        truncation_indicators.append("Incomplete markdown link")
+    
+    # Check for incomplete table row (starts with | but doesn't complete)
+    last_line = content.split('\n')[-1] if '\n' in content else content
+    if last_line.strip().startswith('|') and not last_line.strip().endswith('|'):
+        truncation_indicators.append("Incomplete markdown table row")
+    
+    # Note: We do NOT check for HTML braces/brackets since content may be 
+    # converted from HTML to markdown, stripping those elements
     
     return {
         "exists": True,
