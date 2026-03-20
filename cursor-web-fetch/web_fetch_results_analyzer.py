@@ -45,26 +45,48 @@ class CursorResultsAnalyzer:
         else:
             inferred_track = 'unknown'
         
-        with open(self.csv_path, "r") as f:
+        loaded_count = 0
+        skipped_count = 0
+        test_ids_loaded = []
+        
+        with open(self.csv_path, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
-            for row in reader:
-                # Convert numeric fields
-                row["input_est_chars"] = int(row["input_est_chars"])
-                row["output_chars"] = int(row["output_chars"])
-                row["tokens_est"] = int(row["tokens_est"])
-                if row.get("truncation_char_num") and row["truncation_char_num"] != "":
-                    row["truncation_char_num"] = int(row["truncation_char_num"])
-                else:
-                    row["truncation_char_num"] = None
-                
-                # Add inferred track (override if track column exists but is empty/wrong)
-                if 'track' not in row or not row.get('track') or row.get('track', '').strip() == '':
-                    row['track'] = inferred_track
-                
-                self.results.append(row)
+            for row_num, row in enumerate(reader, start=2):  # Start at 2 (line 1 is header)
+                try:
+                    # Convert numeric fields
+                    row["input_est_chars"] = int(row["input_est_chars"])
+                    row["output_chars"] = int(row["output_chars"])
+                    row["tokens_est"] = int(row["tokens_est"])
+                    if row.get("truncation_char_num") and row["truncation_char_num"] != "":
+                        row["truncation_char_num"] = int(row["truncation_char_num"])
+                    else:
+                        row["truncation_char_num"] = None
+                    
+                    # Add inferred track (override if track column exists but is empty/wrong)
+                    if 'track' not in row or not row.get('track') or row.get('track', '').strip() == '':
+                        row['track'] = inferred_track
+                    
+                    self.results.append(row)
+                    test_ids_loaded.append(row.get('test_id', 'UNKNOWN'))
+                    loaded_count += 1
+                    
+                except ValueError as e:
+                    print(f"⚠️  Skipped row {row_num} (test_id: {row.get('test_id', 'UNKNOWN')}) - conversion error: {e}")
+                    skipped_count += 1
+                except KeyError as e:
+                    print(f"⚠️  Skipped row {row_num} - missing field: {e}")
+                    skipped_count += 1
+                except Exception as e:
+                    print(f"⚠️  Skipped row {row_num} - unexpected error: {e}")
+                    skipped_count += 1
 
-        print(f"Loaded {len(self.results)} test results from {self.csv_path.name}")
-        print(f"Inferred track: {inferred_track}\n")
+        print(f"Loaded {loaded_count} test results from {self.csv_path.name}")
+        if skipped_count > 0:
+            print(f"⚠️  Skipped {skipped_count} rows due to errors")
+        print(f"Inferred track: {inferred_track}")
+        
+        # Show all test IDs loaded for verification
+        print(f"Test IDs loaded: {', '.join(test_ids_loaded)}\n")
 
     def filter_by_method(self, method: str):
         """Filter results by fetch method"""
