@@ -10,49 +10,86 @@ parent: Anysphere Cursor
 
 ---
 
+## Agent as Unreliable Methodology Validator
+
+Cursor successfully executed tests, generated reports, and provided detailed toolchain
+information, all while the testing framework misused the feature being tested. `@Web` was
+invoked beliving it would trigger web fetching and content retrieval for measurement -
+but this is fundamentally wrong, as it's not a fetch command. 
+
+While the framework was originally based on a false premise about what the tool does and
+built on a misunderstanding of the mechanism being tested - **it revealed something else: the
+agent's failure to correct misuse**. Cursor never once flagged that the testing framework
+was misusing `@Web`, but actively reinforced the misconception by reporting `@Web` in tool
+usage logs. This is problematic because users trust agentic expertise - each successful test
+run with incorrect methodology builds false confidence, and both data and documentation can
+become misinformation.
+
+If the testing included human review, an engineer reviewing the framework likely would
+have caught this early: _"wait, `@Web [URL]` doesn't invoke web searching, let me explain."_
+The agent didn't offer a correction despite having access to Cursor documentation, context
+awareness about the testing objectives and methodology, and tool knowledge.
+
+**Impact**: testing frameworks and research methodologies built with agents require
+external validation, as the agent may not reliably catch conceptual errors, even when explicitly
+demonstrating them repeatedly. This suggests that agent output has confirmation bias that match
+user expectations even when using flawed methodology, **implying that the tool reporting itself
+is also unreliable**.
+
+---
+
 ## Autonomous Test Sequencing
 
-After SC-1 timed out, Cursor autonomously ran SC-2 without being prompted and didn't
+After `SC-1` timed out, Cursor autonomously ran `SC-2` without being prompted and didn't
 generate a report, but only a `raw_output_SC-2.txt`. While the content retrieval
-appears successful, the agent didn't generate a report, which isn't the purpose of
-the testing framework. This suggests the agent may read surrounding context -
+appears successful, the agent didn't describe its work, which isn't the purpose of
+the testing framework. This suggests that the agent may read surrounding context -
 framework docs, test sequence - and make independent decisions about next steps.
 
 **Impact**: roadblock to reproducibility — single-test prompts may not guarantee
 single-test execution, but ghost runs
 
-**Fix**: edit test prompts to include explicit guard rails as in "run this
-test only, do not proceed to the next test"
+**Fix**: edit test prompts to include explicit guard rails as in _"run this
+test only, do not proceed to the next test"_
 
 ---
 
 ## Autonomous Tool Substitution on Timeout
 
-When `mcp_web_fetch` times out, Cursor may autonomously fall back to an alternative
-tool without explicit user instruction. In one SC-2 run, `WebFetch` timed out and
-Cursor fell back to `curl -sL`, saving 16MB of raw Next.js HTML to
-`raw_output_SC-2.txt` — not the filtered `@Web` output the prompt requested.
+When explicitly attaching a URL via `@Web`, if the backend mechanism times out, 
+Cursor may autonomously fall back to an alternative tool without explicit user 
+instruction. In one `SC-2` run, the backend timed out and Cursor fell back to 
+`curl -sL`, saving 16MB of raw Next.js HTML to `raw_output_SC-2.txt` — not the 
+filtered output that `@Web`-attached content typically provides.
 
 Cursor acknowledged the substitution in its summary, noting the run "should be redone
 in Cursor with `@Web`" — _despite having been asked to use `@Web`_. The agent knew
-what it should have done but substituted a different tool without flagging the
+what it should have done, but substituted a different tool without flagging the
 deviation clearly upfront.
+
+This happened while the testing framework was already misusing `@Web` - treating it
+as a fetch command rather than context attachment, so Cursor was **simultaneously
+ignorning the incorrect usage, substituting a different tool when the backend failed,
+and informing the user to incorrectly use `@Web` again**.
 
 `@Web` doesn't have a single documented size limit. Practical constraints are
 timeouts, routing - native vs MCP path, and post-processing — not a hard byte cap.
-The 16MB curl output vs 702KB `@Web` output illustrates how much `@Web`'s
+The 16MB `curl` output vs 702KB `@Web` output illustrates how much `@Web`'s
 conversion and filtering is actually doing.
 
 **Impact**: autonomous tool substitution on failure produces outputs that aren't
 comparable to `@Web` results — skewing size, MD5, and counts. Failed runs should be
-logged separately and not treated as equivalent to `@Web` fetches.
+logged separately and not treated as equivalent to `@Web` fetches. _**More critically,
+the agent provided contradictory guidance - deviating from the requested method,
+was critical of the results for not using said method, all while the fundamental
+usage was incorrect to begin with.**_
 
 ---
 
 ## Cross-Track Data Reuse
 
 During interpreted track testing, Cursor may autonomously discover and reuse raw track
-data instead of performing independent measurements. When testing BL-2 on the interpreted
+data instead of performing independent measurements. When testing `BL-2` on the interpreted
 track, the agent:
 
     1. Searched for existing test data in `cursor-web-fetch/results/raw/results.csv`
@@ -72,8 +109,9 @@ track, the agent:
 independently, not read answer keys from raw track files, _that's cheating_
 - **Variance measurement impossible**: if testing for run-to-run variance, data reuse defeats
 that purpose
-- **Methodology ambiguity**: the result represents "Cursor's ability to read and report from
-files" rather than "Cursor's ability to fetch and measure web content"
+- **Methodology ambiguity**: the result represents "Cursor's ability to read and 
+report from files" rather than "Cursor's ability to fetch and measure web content 
+when explicitly attached via `@Web [URL]`"
 
 **Impact**: while the agent demonstrated context awareness by discovering the test framework
 structure and cross-referencing existing results - the interpreted track results may not
@@ -85,21 +123,12 @@ environments or with different test IDs.
 
 ---
 
-## Cursor IDE vs VS Code
-
-Cursor is a standalone IDE forked from VS Code's codebase, not a VS Code extension.
-`@Web` is exclusive to Cursor and can't be accessed in VS Code or through extensions.
-While there are many "Cursor-like" extensions available, this specific web fetch
-functionality isn't available in VS Code.
-
----
-
 ## Data Integrity: Autonomous CSV Modification
 
 During `BL-3` raw track testing, Cursor autonomously attempted to modify existing CSV
-entries rather than appending new results. The agent identified that BL-3 and OP-4 share
-the same URL and produced identical outputs, same MD5 checksum: `554eb56e8416d86d12af17a2dfe6f815`,
-then attempted to "correct" the earlier `OP-4` entry by overwriting its metadata fields.
+entries rather than appending new results. The agent identified that `BL-3` and `OP-4` share
+the same URL and produced identical outputs, same MD5 checksum, then attempted to "correct"
+the earlier `OP-4` entry by overwriting its metadata fields.
 
 **Why this conflicts with rigorour testing methodology**:
 - Each test run should create a new timestamped entry
@@ -109,22 +138,22 @@ then attempted to "correct" the earlier `OP-4` entry by overwriting its metadata
 "should" own the data
 
 **Why this breaks testing**: 
-- It destroys the audit trail showing when each test was run
-- It prevents measuring run-to-run variance on the same URL
-- It assumes duplicate data is an error rather than a feature of reproducibility testing
-- Manual intervention was required to prevent data loss
+- Destroys the audit trail showing when each test was run
+- Prevents measuring run-to-run variance on the same URL
+- Assumes duplicate data is an error rather than a feature of reproducibility testing
+- Manual intervention required to prevent data loss
 
 **Impact**: testing frameworks must be append-only; the agent's "helpful" deduplication and
 correction behavior is incompatible with empirical data collection and the framework
-can't be fully automated
+_**can't be fully automated**_
 
 ---
 
 ## File Sync Delays
 
 While the CSV results logged by the testing framework reported success in the Terminal, the
-data may not appear in the IDE immediately. It's possible that the file is writtern to disk
-while the IDE displays a stale cached version. Merely closing and reopening `results.csv`
+data may not appear in the Cursor IDE immediately. It's possible that the file is written to
+disk while the IDE displays a stale cached version. Merely closing and reopening `results.csv`
 didn't force a disk refresh.
 
 **Fix**: Shutdown Cursor, take a break, reopen the framework, retry logging the results
@@ -134,7 +163,7 @@ didn't force a disk refresh.
 ## Model Default Undocumented
 
 Cursor's default model is not explicitly documented, but the chat window default setting
-is `Auto` - when asked, the mechanism introduced itself:
+is `Auto`. When asked, the mechanism introduced itself:
 
 ```markdown
 Question: "Which model is your default?"
@@ -154,11 +183,11 @@ model; results expected to vary across models when selected
 ## Pro Plan Required
 
 Free Cursor accounts timeout on `@Web` requests to JavaScript-heavy SPAs - tested on Google
-Gemini API docs. Pro plan at $20/month succeeds but risks truncation at ~6KB (~1.5K tokens).
+Gemini API docs. Pro plan at $20/month succeeds but may risk truncation at ~6KB, ~1.5K tokens.
 
 ---
 
-## Test ID Numbering
+## Test ID Numbering Gaps
 
 The test suite defines 13 total tests: `BL-1-3`, `SC-1-4`, `OP-1,3-4`, `EC-1,3,6` and the
 baseline strategy doesn't include them all. While developing the framework, some tests were
@@ -167,38 +196,42 @@ test design before the strategy was optimized for the most critical ecosystem te
 
 ---
 
-## `@Web` is a Context Mention, Not a Tool
+## `@Web` Evolution from Manual Context to Automatic Agent Capability
 
-Like `@Files` or `@Docs` - `@Web` is a context mention syntax for use in Cursor's chat composer -
+Like `@Files` or `@Docs` - `@Web` is context mention syntax for use in Cursor's chat composer -
 the message input box. Similar to `@username` in Slack - it's user-facing shorthand for calling
 a backend mechanism, but _not the mechanism itself_.
 
-When adding `@Web [URL]`, Cursor fetches the content and attaches it to the message context. The
-underlying mechanism is `WebFetch` and sometimes reported as `mcp_web_fetch` aor`web_search`, but
-from a user perspective, invocation happens through `@Web` while the agent selects between them based
-on some internal routing logic. The routing trigger between mechanisms is unconfirmed - request
-type, URL characteristics, or model selection may be factors. Errors bubble up with the underlying
-tool name, not `@Web`.
+`@Web` originated as a way that users could manually invoke in Cursor's chat box to attach web
+search results to their message. In Cursor 2.0, the product direction shifted: agents now gather
+web information automatically when needed, making explicit `@Web` invocations largely unnecessary.
+Current behavior includes:
 
-There isn't a way to force which backend runs. When using `@Web` with a URL, eventhough `Auto`
-may report tooling used, there is no documented or exposed way to force a specific tool path.
+- `@Web [URL]` in the chat composer adds a specific file and/or resource to context
+- When a user types `@Web` and provides a URL, Cursor treats it as "focus on this web resource"
+rather than "search the web"
+- The agent may invoke web search and/or fetch capabilities autonomously without user-facing
+`@Web` syntax
+- Backend mechanisms surface in error messages and tooling logs as `WebFetch`, `mcp_web_fetch`, or
+`web_search`
 
-**Impact**: results are logged with `method: @Web` to reflect the **_user-facing syntax_**; the
-backend mechanism per run is _"agent's choice"_
+**Impact**: results logged as `method: @Web` reflect **_user-facing syntax_**, not the backend
+mechanism; the backend tool per run is **_agent's choice_** based on undocumented routing logic.
+There's no surfaced "web search" functionality to document separately, as the agent currently
+handles web information gathering automatically.
 
 ---
 
 ## `@Web` Undocumented, Requires Reverse-Engineering
 
-Identifying Cursor's web fetch mechanisms took some digging and a lot of trial and error.
-While `@Web` shows up in
-[their community forum](https://forum.cursor.com/t/how-does-web-work/7675), requesting answers
-from their AI docs bot didn't bear fruit:
+Identifying if and how `@Web` works and what backend mechanisms Cursor uses for web content took
+some digging and a lot of trial and error. While `@Web` shows up in
+[their community forum](https://forum.cursor.com/t/how-does-web-work/7675), the feature has evolved
+significantly in Cursor 2.0. While `@Web` doesn't get its own documentation page, its removal is
+mentioned in [Prompting agents](https://cursor.com/docs/agent/prompting):
 
-```markdown
-The current docs do not appear to have a dedicated `@Web` page. Based on my review of the documentation,
-there is no dedicated page specifically for the `@Web` context feature in the current Cursor docs.
-It is a context mention (like `@Docs`, `@Files`, etc.) that triggers a web search and includes results in
-the Al's context, but detailed documentation for it does not appear to exist at this time.
-If you have a specific question about how `@Web` works, I'm happy to help based on what know about the feature.
+```shell
+Cursor 2.0 removed explicit items like @Web, @Git, @Definitions, @Linter Errors, and others from the
+context menu. Agent now self-gathers this context without manual attachment. For example, ask Agent
+to review changes on your branch instead of using @Git.
 ```
