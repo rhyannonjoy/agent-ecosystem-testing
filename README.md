@@ -32,7 +32,7 @@ Each platform has two tracks:
 - **Raw** - Python extracts measurements directly from the response object; produces citable, reproducible numbers
 
 > _Cursor testing uses a hybrid approach: raw track saves verbatim output to disk for programmatic analysis; interpreted track asks
-> Cursor to self-report metrics from `@Web`-attached content; visit
+> Cursor to self-report metrics from `@Web`-attached content; visit the
 > [Cursor Friction Note](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/anysphere-cursor/friction-note)
 > for methodology challenges unique to IDE-based testing_
 
@@ -43,7 +43,7 @@ Each platform has two tracks:
 ### Prerequisites
 
 - Python 3.8+
-- API key for the applicable platforms
+- API keys for the applicable platforms
 - Cursor IDE if applicable
 
 ### Install
@@ -115,7 +115,7 @@ and truncation signals programmatically from the `web_fetch_tool_result` block.
 
 ---
 
-## Cursor Test Details
+## Cursor IDE Test Details
 
 Unlike API testing, Cursor testing uses manual chat sessions with the Cursor IDE. The framework
 generates prompts, but execution requires copy-paste into the Cursor IDE. Raw track saves outputs
@@ -179,7 +179,5 @@ If you run these tests and get results, please open an issue or PR with your fin
 
 >_Especially useful: Run the same tests from different network locations or at different times to
 check for caching behavior vs live-fetch variation; run PDF tests against different source URLs to
-distinguish server-blocking from tool limitations; run Gemini tests on a paid tier to get a complete
-8-test run without hitting the daily quota_
->_Run Cursor tests with explicit model selection to measure model-specific variance; test Cursor's MCP
-server integration vs native web fetch behavior_
+distinguish server-blocking from tool limitations; run Cursor tests with explicit model selection to
+measure model-specific variance; test Cursor's MCP server integration vs native web fetch behavior_
