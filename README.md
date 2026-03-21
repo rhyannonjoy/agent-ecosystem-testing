@@ -22,6 +22,7 @@ negotiation - for platforms that don't document these details.
 | Platform | Tool | Scripts, Results |
 | -------- | ---- | ------- |
 | Anthropic Claude API | [web fetch](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool) | `claude-api/` |
+| Anysphere Cursor IDE | `@Web` context attachment | `cursor-web-fetch/` |
 | Google Gemini API | [URL context](https://ai.google.dev/gemini-api/docs/url-context) | `gemini-url-context/` |
 | OpenAI: Chat Completions API, Responses API | [web search](https://developers.openai.com/api/docs/guides/tools-web-search) | `open-ai-web-search/` |
 
@@ -30,6 +31,11 @@ Each platform has two tracks:
 - **Interpreted** - ask the model to reflect on what it retrieved; captures self-perception and estimation variance
 - **Raw** - Python extracts measurements directly from the response object; produces citable, reproducible numbers
 
+> _Cursor testing uses a hybrid approach: raw track saves verbatim output to disk for programmatic analysis; interpreted track asks
+> Cursor to self-report metrics from `@Web`-attached content; visit
+> [Cursor Friction Note](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/anysphere-cursor/friction-note)
+> for methodology challenges unique to IDE-based testing_
+
 ---
 
 ## Setup
@@ -37,7 +43,8 @@ Each platform has two tracks:
 ### Prerequisites
 
 - Python 3.8+
-- API key for the platforms you want to test
+- API key for the applicable platforms
+- Cursor IDE if applicable
 
 ### Install
 
@@ -63,33 +70,33 @@ export OPEN_AI_API_KEY="key-here"
 ### Run Tests
 
 ```bash
-# Results print to the console, live in `claude-api/results/`
 # Claude-interpreted
 python claude-api/web_fetch_test.py
 # Raw
 python claude-api/web_fetch_test_raw.py
-
-# Gemini-interpreted
-python gemini-url-context/url_context_test.py
-# Raw
-python gemini-url-context/url_context_test_raw.py
 
 # ChatGPT-interpreted
 python open-ai-web-search/web_search_test.py
 # Raw
 python open-ai-web-search/web_search_test_raw.py
 
-# Each run saves to a timestamped subdirectory, for example -
-# gemini-url-context/results/gemini-interpreted/YYYY-MM-DDTHH-MM/
-# gemini-url-context/results/raw/YYYY-MM-DDTHH-MM/
+# Cursor-interpreted
+python cursor-web-fetch/web_fetch_testing_framework.py --test {test ID} --track interpreted
+# Raw
+python cursor-web-fetch/web_fetch_testing_framework.py --test {test ID} --track raw
+
+# Gemini-interpreted
+python gemini-url-context/url_context_test.py
+# Raw
+python gemini-url-context/url_context_test_raw.py
 ```
 
 > _**Free Tier Limits**: Claude API not available on the free-tier, the API is pay-as-you-go;
 5 RPM and 20 RPD limits for `gemini-2.5-flash` - running both tracks in the same day exhaust
-the daily quota; plan runs across days or use a paid tier; OpenAI requires a minimum credit
-top-up (~$5–10) before any API call succeeds regardless of model - `insufficient_quota` is an
-account-level block, not a rate limit; set `RATE_LIMIT_SLEEP_SECONDS = 0` in the scripts if
-you're on a paid tier_
+the daily quota; plan runs across days or use a paid tier; Cursor tests available on Pro Plan;
+OpenAI requires a minimum credit top-up (~$5) before any API call succeeds regardless of model -
+`insufficient_quota` is an account-level block, not a rate limit; set `RATE_LIMIT_SLEEP_SECONDS = 0`
+in the scripts if you're on a paid tier_
 
 ---
 
@@ -105,6 +112,23 @@ and truncation signals programmatically from the `web_fetch_tool_result` block.
 | 2: Same page, Markdown version | _Does the API tool request or prefer Markdown? How much smaller is the token footprint?_ | `.md` URL variant of Test 1 - compares `input_tokens` directly |
 | 3: Long page, no token limit | _At what point does content get truncated? Does the API tool behave differently than Claude Code, which truncated to ~100KB?_ | Long tabbed tutorial page, no `max_content_tokens` set |
 | 4: Long page, explicit token limit | _Does `max_content_tokens=5000` work as documented? Is truncation clean or mid-sentence?_ | Same page as Test 3, with `max_content_tokens=5000` |
+
+---
+
+## Cursor Test Details
+
+Unlike API testing, Cursor testing uses manual chat sessions with the Cursor IDE. The framework
+generates prompts, but execution requires copy-paste into the Cursor IDE. Raw track saves outputs
+to disk for measurement; interpreted track asks Cursor to self-report. Both tracks test 13 distinct
+URLs. Tests focus on truncation behavior, backend routing variance, content conversion patterns,
+and reproducibility.
+
+| Test Category | Question | What it tests |
+| --- | --- | --- |
+| Baseline | *What's the reproducibility baseline? Do same URLs always return identical content?* | Small docs pages (4-20KB), tested multiple times to measure variance |
+| Structure-Aware | *Does Cursor truncate intelligently at content boundaries, or cut mid-content?* | Wikipedia pages, Markdown guides, docs with complex structure |
+| Output Pattern | *What triggers Markdown conversion vs raw HTML?* | Large tutorials, JavaScript-heavy SPAs, timeout scenarios |
+| Edge Cases | *How does Cursor handle redirects, JSON endpoints, raw Markdown files, and version drift?* | 5-level redirect chains, API endpoints, GitHub raw `.md` URLs |
 
 ---
 
@@ -157,3 +181,5 @@ If you run these tests and get results, please open an issue or PR with your fin
 check for caching behavior vs live-fetch variation; run PDF tests against different source URLs to
 distinguish server-blocking from tool limitations; run Gemini tests on a paid tier to get a complete
 8-test run without hitting the daily quota_
+>_Run Cursor tests with explicit model selection to measure model-specific variance; test Cursor's MCP
+server integration vs native web fetch behavior_
