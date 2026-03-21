@@ -117,11 +117,8 @@ and truncation signals programmatically from the `web_fetch_tool_result` block.
 
 ## Cursor IDE Test Details
 
-Unlike API testing, Cursor testing uses manual chat sessions with the Cursor IDE. The framework
-generates prompts, but execution requires copy-paste into the Cursor IDE. Raw track saves outputs
-to disk for measurement; interpreted track asks Cursor to self-report. Both tracks test 13 distinct
-URLs. Tests focus on truncation behavior, backend routing variance, content conversion patterns,
-and reproducibility.
+Unlike testing platforms with API web fetch tools, Cursor testing uses manual chat sessions with the Cursor IDE. The framework
+generates prompts, but execution is intentionally not automated and requires copy-paste into the Cursor IDE. Interpreted track asks Cursor to self-report; raw track saves outputs to disk for measurement. Both tracks test 13 distinct URLs. Tests focus on truncation behavior, backend routing variance, content conversion patterns, and reproducibility.
 
 | Test Category | Question | What it tests |
 | --- | --- | --- |
