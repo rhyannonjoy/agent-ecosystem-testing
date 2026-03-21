@@ -16,11 +16,11 @@
  "Sec-Fetch-Mode": "navigate", 
  "Sec-Fetch-Site": "same-site", 
  "Sec-Fetch-User": "?1", 
- "Traceparent": "00-eff0eae900334d82421e9d5bd8a46535-cc5b9469d2c7fa30-01", 
+ "Traceparent": "00-78c92913da596bd6368c552826f67594-373b02ca8afbc3a3-01", 
  "Upgrade-Insecure-Requests": "1", 
  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36", 
- "X-Amzn-Trace-Id": "Root=1-69ba2bbb-28d3ac7b157384263cc57990"
+ "X-Amzn-Trace-Id": "Root=1-69bcbab4-5bb4b33b5241bb2249b9b541"
  }, 
- "origin": "92.112.67.10", 
+ "origin": "152.163.6.74", 
  "url": "https://httpbin.org/get"
 }

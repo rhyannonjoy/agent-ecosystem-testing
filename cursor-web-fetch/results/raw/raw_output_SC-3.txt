@@ -72,7 +72,7 @@ Note: A numbered rank is assigned to the 193 [member states of the United Nation
 | [Iraq](https://en.wikipedia.org/wiki/Demographics_of_Iraq) | 46,118,793 | 0.6% | 21 Nov 2024 | 2024 census result |
 | [Uganda](https://en.wikipedia.org/wiki/Demographics_of_Uganda) | 45,905,417 | 0.6% | 10 May 2024 | 2024 census result |
 | [Afghanistan](https://en.wikipedia.org/wiki/Demographics_of_Afghanistan) | 43,844,000 | 0.5% | 1 Jul 2025 | UN projection (see note) |
-| [Canada](https://en.wikipedia.org/wiki/Demographics_of_Canada) | 41,575,585 | 0.5% | 1 Oct 2025 | National quarterly estimate |
+| [Canada](https://en.wikipedia.org/wiki/Demographics_of_Canada) | 41,472,081 | 0.5% | 1 Jan 2026 | National quarterly estimate |
 | [Uzbekistan](https://en.wikipedia.org/wiki/Demographics_of_Uzbekistan) | 38,236,704 | 0.5% | 1 Jan 2026 | Official estimate |
 | [Poland](https://en.wikipedia.org/wiki/Demographics_of_Poland) | 37,332,000 | 0.5% | 31 Dec 2025 | Monthly national estimate |
 | [Morocco](https://en.wikipedia.org/wiki/Demographics_of_Morocco) | 36,828,330 | 0.4% | 1 Sep 2024 | 2024 census result |
@@ -89,7 +89,7 @@ Note: A numbered rank is assigned to the 193 [member states of the United Nation
 | [Cameroon](https://en.wikipedia.org/wiki/Demographics_of_Cameroon) | 29,442,327 | 0.4% | 1 Jul 2025 | National annual projection |
 | [Ukraine](https://en.wikipedia.org/wiki/Demographics_of_Ukraine) | 28,700,000 | 0.3% | 1 Sep 2025 | State migration service |
 | [Venezuela](https://en.wikipedia.org/wiki/Demographics_of_Venezuela) | 28,517,000 | 0.3% | 1 Jul 2025 | UN projection |
-| [Australia](https://en.wikipedia.org/wiki/Demographics_of_Australia) | 27,614,400 | 0.3% | 30 Jun 2025 | Official projection |
+| [Australia](https://en.wikipedia.org/wiki/Demographics_of_Australia) | 27,724,744 | 0.3% | 30 Sep 2025 | Official projection |
 | [Niger](https://en.wikipedia.org/wiki/Demographics_of_Niger) | 27,522,750 | 0.3% | 1 Jul 2025 | National annual projection |
 | [North Korea](https://en.wikipedia.org/wiki/Demographics_of_North_Korea) | 25,950,000 | 0.3% | 1 Jul 2024 | National annual projection |
 | [Syria](https://en.wikipedia.org/wiki/Demographics_of_Syria) | 25,620,427 | 0.3% | 1 Jul 2025 | Monthly estimate |

@@ -254,7 +254,8 @@ Please use {method} to fetch this URL and return the content EXACTLY as you rece
 5. Count: total lines, total words, code blocks, table rows, headers
 6. Report hexdump of last 256 bytes
 7. Examine the last 256 bytes through hexdump: does content end cleanly with complete braces/tags/quotes or mid-character?
-8. After fetching, report any tool names, server names, or method identifiers visible in your tool results.
+8. After fetching, report any tool names, server names, or method identifiers visible in your tool results
+9. To protect data integrity, never overwrite or modify existing data in results.csv
 
 Test ID: {test_id}
 Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdown source. Cursor typically converts and filters this to a smaller size.)"""

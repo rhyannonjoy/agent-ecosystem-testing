@@ -8,8 +8,8 @@ parent: Anysphere Cursor
 ## Cursor Framework Reference
 
 >_This framework generates standardized test prompts and logs CSV results,
-enabling consistent testing across cases, measurement tracking over time,
-truncation pattern identification, and fetch method comparisons_<br>
+>enabling consistent testing across cases, measurement tracking over time,
+>truncation pattern identification, and fetch method comparisons_<br>
 >_**Requirements**: Python 3.8+, [Cursor IDE](https://cursor.com/download)_
 
 ---
@@ -18,7 +18,7 @@ truncation pattern identification, and fetch method comparisons_<br>
 
 ```bash
 # Clone and/or navigate to `agent-ecosystem-testing` directory
-cd agent-ecosystem-testing/cursor-web-fetch
+cd agent-ecosystem-testing
 
 # Create virtual environment
 python3 -m venv venv
@@ -29,6 +29,9 @@ source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Navigate to the Cursor testing directory
+cd cursor-web-fetch
 ```
 
 ## Workflow
@@ -89,21 +92,21 @@ pip install -r requirements.txt
    | `table_rows`** | Table row count | 87 |
    | `headers`** | Header count | 63 |
 
-   >_*`@Web` is a Cursor UI composer feature, but the underlying mechanisms include `mcp_web_fetch` 
-   > and `web_search` - more information in the [Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool)_;<br>
+   >_*`@Web` is a Cursor UI composer feature, but the underlying mechanisms is `WebFetch` or `mcp_web_fetch` -
+   > more information in the [Friction Note](friction-note.md#web-evolution-from-manual-context-to-automatic-agent-capability)_;<br>
    >**_Optional field, measurement for raw track results only_
    
    ---
 
    **Key Hypotheses**:
 
-   - **H1**: Character-based truncation at fixed limit, _~10-100KB?_
-   - **H2**: Token-based truncation, _~2000 tokens?_
-   - **H3**: Structure-aware truncation, respects Markdown boundaries
-   - **H4**: MCP servers override native `@Web` limits*
-   - **H5**: Agent auto-chunks after truncation, requests next chunk automatically
+   - `H1`: Character-based truncation at fixed limit, _~10-100KB?_
+   - `H2`: Token-based truncation, _~2000 tokens?_
+   - `H3`: Structure-aware truncation, respects Markdown boundaries
+   - `H4`: MCP servers override native `@Web` limits*
+   - `H5`: Agent auto-chunks after truncation, requests next chunk automatically
 
-   >*_`@Web` routes to `mcp_web_fetch` internally; mechanism is agent's choice and
+   >*_`@Web` may route to `mcp_web_fetch` internally; mechanism is agent's choice and
    >not user-controllable; H4 not testable through `@Web` alone, visit the
    >[Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool)_
 
@@ -121,17 +124,9 @@ pip install -r requirements.txt
    --notes "Full content returned, no truncation observed..."
    ```
 
-   **Verify key metrics before logging raw track runs**:
-
    ```bash
-   # Byte count
-   ls -l results/raw/raw_output_{test ID}.txt
-
-   # Character count
-   wc -m results/raw/raw_output_{test ID}.txt
-   
-   # Token count
-   python3 -c "import tiktoken; enc = tiktoken.get_encoding('cl100k_base'); text = open('results/raw/raw_output_{test ID}.txt').read(); print(len(enc.encode(text)))"
+   # Verify key metrics before logging raw track runs
+   python3 web_fetch_verify_raw_results.py BL-1
 
    # Log raw track result
    python web_fetch_testing_framework.py --log BL-2 \
@@ -161,15 +156,15 @@ pip install -r requirements.txt
 
 ## Baseline Testing Path, Single-Run Reproducible Strategy
 
-1. **BL-1, BL-2**: baseline, quick wins establish basic truncation threshold
-2. **SC-2**: code blocks, tests HTML-to-Markdown conversion
-3. **OP-3**: `@Web` vs MCP, _do MCP servers have different limits?_*
-4. **OP-4**: auto-chunking, determines DX and key ecosystem testing gap   
-5. **BL-3**: hard ceiling to identify absolute limit   
-6. **SC-1, SC-3, SC-4**: structured content to test structure-aware truncation hypothesis
-7. **EC-1, EC-3, EC-6**: edge cases to identify failure modes and unusual inputs
+1. `BL-1`, `BL-2`: baseline, quick wins establish basic truncation threshold
+2. `SC-2`: code blocks, tests HTML-to-Markdown conversion
+3. `OP-3`: `@Web` vs MCP, _do MCP servers have different limits?_*
+4. `OP-4`: auto-chunking, determines DX and key ecosystem testing gap   
+5. `BL-3`: hard ceiling to identify absolute limit   
+6. `SC-1, SC-3, SC-4`: structured content to test structure-aware truncation hypothesis
+7. `EC-1, EC-3, EC-6`: edge cases to identify failure modes and unusual inputs
 
->*_**OP-3** not executable as designed; `@Web` routes to `mcp_web_fetch` 
+>*_**OP-3** not executable as designed; `@Web` may route to `mcp_web_fetch` 
 >internally; the two "sides" of the comparison aren't separable through `@Web` alone; 
 >see [Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool)_
 
@@ -177,7 +172,7 @@ pip install -r requirements.txt
 
 ## Extended Testing, _Optional_
 
-- **Run raw track** on key tests BL-1, SC-2, OP-4 for exact measurements
+- **Run raw track** on key tests `BL-1`, `SC-2`, `OP-4` for exact measurements
 - **Rerun interpreted** on 2-3 tests to measure variance across runs
 
 ---
@@ -188,17 +183,14 @@ Examine truncation threshold analysis, method comparison, interpretive vs raw
 track comparisons, hypothesis matching -
 
 ```bash
+# Generate full analysis report
+python web_fetch_results_analyzer.py --csv results.csv --full
+
 # Generate summary
 python web_fetch_results_analyzer.py --csv results.csv --summary
 
-# Generate full analysis
-python web_fetch_results_analyzer.py --csv results.csv --full
-
 # Analyze specific methods
 python web_fetch_results_analyzer.py --csv results.csv --method "@Web"
-
-# Export as Markdown
-python web_fetch_results_analyzer.py --csv results.csv --markdown
 ```
 
 >_**Remember** to always provide the full relative path to the CSV file when running the analyzer,
