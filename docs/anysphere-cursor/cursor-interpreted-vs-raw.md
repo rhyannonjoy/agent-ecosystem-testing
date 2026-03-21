@@ -145,9 +145,10 @@ the raw track provides the ground truth.
 ## Platform Architecture Comparisons
 
 | **Step** | **Cursor,mid-generation** | **Claude API<br> mid-generation** | **Gemini API<br>pre-generation injection** |
-|---------|---------------------------------------------|------------------------------------------------|-------------------------------------------|
+| ------------------------ | ---------------------- | ------------------------------ | --------------------------- |
 | **Invocation** | User asks agent via chat, agent decides which model/tool<br> to call | Claude decides when to fetch based on prompts and/or URL availability | Gemini API attempts to fetch each URL from internal index cache |
 | **Routing** | Cursor routes to one of multiple backends: `WebFetch MCP`, `urllib`, `curl` | Claude API retrieves<br>content | If not cached, falls back<br>to live fetch |
+| **Content Negotiation** | Sends `Accept: text/markdown,...` header; prefers Markdown if server<br>supports it | Unknown; not publicly documented | Unknown; not publicly documented |
 | **Content Return** | Markdown usually or<br>raw HTML<br>on timeout | Content comes back as a tool result in the response | URL context tool injects<br>retrieved content into <br>context window |
 | **Generation** | Model generates response<br>from fetched content | Claude continues generation, interpreting the tool result | `gemini-2.5-flash` generates response from pre-loaded<br>content |
 | **Key Observation** | Backend selection opaque; different paths have different limits | Tool result is visible in API response; truncation via `max_content_tokens` | `url_context_metadata` separates retrieval status from generation; token accounting split between text, `prompt_token_count` and URLs, `tool_use_prompt_token_count` |
@@ -163,4 +164,4 @@ the raw track provides the ground truth.
 
 **Conclusion**: Claude API's web fetch tool has the cleanest measurement story; tool results are first-class API
 response fields, fully observable. Gemini separates retrieval metadata cleanly. Cursor requires filesystem
-inspection to get ground truth because the model only sees rendered output.
+inspection to get ground truth because the model estimates based on rendered output.

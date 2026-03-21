@@ -215,6 +215,10 @@ rather than "search the web"
 - Backend mechanisms surface in error messages and tooling logs as `WebFetch`, `mcp_web_fetch`, or
 `web_search`
 
+**HTTP-level implementation**: raw track captures show Cursor's fetch requests include
+`Accept: text/markdown,text/html;q=0.9,...`, prioritizing Markdown representation when servers
+support content negotiation; this is observable behavior, not documented in Cursor's public docs.
+
 **Impact**: results logged as `method: @Web` reflect **_user-facing syntax_**, not the backend
 mechanism; the backend tool per run is **_agent's choice_** based on undocumented routing logic.
 There's no surfaced "web search" functionality to document separately, as the agent currently

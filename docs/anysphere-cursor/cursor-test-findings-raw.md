@@ -76,6 +76,31 @@ for full impact analysis._
 | **Raw HTML/JS** | 2.65 | `SC-2` | Heavy markup, symbols,<br>**very inefficient** |
 | **JSON** | 2.62 | `EC-3` | Structural chars,<br>**lowest efficiency** |
 
+### HTTP Content Negotiation
+
+Cursor's web fetch mechanisms request `text/markdown` via the `Accept` header,
+signaling a preference for Markdown over HTML when the server supports content
+negotiation. Cursor sends `Accept: text/markdown, text/html...` with
+Markdown listed first - highest implicit `q` value, with HTML and other types as
+fallback preferences. Impact on results:
+
+- Servers that ignore `Accept`, typical for normal websites, still return HTML
+- Servers that support content negotiation, some "Markdown-first" or agent-oriented
+setups may return `Content-Type: text/markdown`; Cursor can use without HTML cleanup
+- Raw track result artifacts show this header structure, such as `raw_output_EC-3.txt`:
+
+```txt
+  "Accept": "text/markdown,text/html;q=0.9,application/xhtml+xml;q=0.8,application/xml;q=0.7"
+```
+
+**Observed behavior**:
+
+| **Test** | **Server Response** | **Cursor Behavior** | **Output** |
+|----------|---------------------|---------------------|------------|
+| **EC-6**: GitHub<br>raw `.md` URL | `Content-Type: text/plain; charset=utf-8` | Passed through<br>as Markdown | 73KB |
+| **BL-1**: HTML docs | HTML | Converted to Markdown | 4.8KB from<br>85KB source |
+| **SC-2**: timeout → `curl` fallback | HTML | No conversion | 17.6MB raw HTML |
+
 ## Truncation Analysis
 
 | **#** | **Finding** | **Tests** | **Observed** | **Spec** |
@@ -95,14 +120,14 @@ for full impact analysis._
 
 | **Fetch Backend** | **Identified In** | **Size Limit** | **Conversion** | **Reliability** |
 | --- | --- | --- | --- | --- |
-| **`WebFetch MCP`** | `SC-4`<br>`SC-3`, `OP-3` | ~28KB | Markdown | **High** - consistent results |
+| **`WebFetch MCP`** | `SC-4`<br>`SC-3`,<br>`OP-3` | ~28KB | Markdown | **High** - consistent results |
 | **`urllib.request`** | `EC-6` | ~72KB | Pass-through `.md` | **High** - clean truncation boundary |
-| **`curl`** | `SC-2`, `EC-1` | None detected - 17MB+ | Raw HTML - no conversion | **Low** - only on timeout |
-| **Unknown path** | `OP-4`, `BL-3` | None detected 245KB+ | Markdown | **High** - perfect reproducibility |
+| **`curl`** | `SC-2`,<br>`EC-1` | None detected - 17MB+ | Raw HTML - no conversion | **Low** - only on timeout |
+| **Unknown path** | `OP-4`,<br>`BL-3` | None detected 245KB+ | Markdown | **High** - perfect reproducibility |
 
 ## Content Filtering Heuristics
 
-`@Web` applies intelligent content selection beyond simple truncation:
+Cursor applies intelligent content selection beyond basic truncation:
 
 | **Heuristic** | **Example** | **Behavior** |
 | --- | --- | --- |
