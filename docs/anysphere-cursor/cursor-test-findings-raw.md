@@ -10,7 +10,7 @@ parent: Anysphere Cursor
 
 ---
 
-**[Raw Track Test Workflow](/cursor-web-fetch/web_fetch_testing_framework.py)**:
+**[Raw Track Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/cursor-web-fetch/web_fetch_testing_framework.py)**:
 
     1. Run `python web_fetch_testing_framework.py --test {test ID} --track raw`
     2. Review the Terminal output

@@ -7,6 +7,7 @@ Cursor Testing Results Analyzer
 - Exports results as Markdown table for spec contribution
 
 Usage:
+    # From cursor-web-fetch/ directory
     python web_fetch_results_analyzer.py --csv results/raw/results.csv --full
     python web_fetch_results_analyzer.py --csv results/raw/results.csv --summary
     python web_fetch_results_analyzer.py --csv results/raw/results.csv --method @Web

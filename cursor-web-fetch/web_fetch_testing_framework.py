@@ -17,9 +17,10 @@ Key design decisions:
 This allows direct comparison: "Cursor truncates at X KB, Claude API at Y KB on same URL"
 
 Usage:
-    python cursor_testing_framework.py --list-tests
-    python cursor_testing_framework.py --test BL-1 --track interpreted
-    python cursor_testing_framework.py --log BL-1 --track interpreted --method @Web ...
+    # From cursor-web-fetch/ directory
+    python web_fetch_testing_framework.py --list-tests
+    python web_fetch_testing_framework.py --test {test ID} --track interpreted
+    python web_fetch_testing_framework.py --log {test ID} --track interpreted --method @Web
 """
 
 import csv

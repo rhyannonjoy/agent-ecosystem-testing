@@ -10,7 +10,7 @@ parent: Anysphere Cursor
 
 ---
 
-**[Cursor-interpreted Test Workflow](/cursor-web-fetch/web_fetch_testing_framework.py)**:
+**[Cursor-interpreted Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/cursor-web-fetch/web_fetch_testing_framework.py)**:
 
     1. Run `python web_fetch_testing_framework.py --test {test ID} --track interpreted`
     2. Review the Terminal output
