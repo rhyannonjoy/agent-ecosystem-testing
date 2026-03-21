@@ -1,12 +1,12 @@
 ---
 layout: default
-title: "Key Findings Cursor @Web Tool, Cursor-interpreted"
+title: "Key Findings Cursor's Web Fetch Behavior, Cursor-interpreted"
 nav_order: 3
 permalink: /docs/anysphere-cursor/cursor-test-findings
 parent: Anysphere Cursor
 ---
 
-## Key Findings for Cursor `@Web` Tool, Cursor-interpreted
+## Key Findings for Cursor's Web Fetch Behavior, Cursor-interpreted
 
 ---
 

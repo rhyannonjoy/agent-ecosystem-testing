@@ -8,8 +8,8 @@ parent: Anysphere Cursor
 ## Cursor Framework Reference
 
 >_This framework generates standardized test prompts and logs CSV results,
-enabling consistent testing across cases, measurement tracking over time,
-truncation pattern identification, and fetch method comparisons_<br>
+>enabling consistent testing across cases, measurement tracking over time,
+>truncation pattern identification, and fetch method comparisons_<br>
 >_**Requirements**: Python 3.8+, [Cursor IDE](https://cursor.com/download)_
 
 ---
