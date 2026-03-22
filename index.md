@@ -25,9 +25,9 @@ to produce spec-ready, citable measurements
  
 ## Results Summary
  
-| **Platform** | **Key Finding** | **Best For** |
+| **Platform** | **Key Finding** | **Focus** |
 |----------|-------------|----------|
-| **[Anthropic Claude API](/docs/anthropic-claude-api-web-fetch-tool/methodology.md)** | Character-based truncation at ~**100KB** of rendered content | Baseline reference; established measurement methodology |
-| **[Anysphere Cursor](/docs/anysphere-cursor/methodology.md)** | Agent-routed fetch with undocumented truncation - 28KB–240KB+; high cross-session variance | Understanding opacity in consumer AI tools; measuring behavioral variance |
-| **[Google Gemini API](/docs/google-gemini-url-context-tool/methodology.md)** | Hard limit: **20 URLs** per request; supports PDF & JSON | Understanding platform-specific constraints |
-| **[OpenAI Web Search](/docs/open-ai-web-search-tool/methodology.md)** | Tool invocation **conditional** and model-dependent; differs by API surface | Comparing behavior across Chat Completions vs Responses API |
+| **[Anthropic Claude API](/docs/anthropic-claude-api-web-fetch-tool/methodology.md)** | Character-based truncation at ~**100KB** of rendered content | Baseline reference; establishing two-track methodology |
+| **[Anysphere Cursor](/docs/anysphere-cursor/methodology.md)** | Agent-routed fetch with undocumented truncation - 28KB–240KB+; high cross-session variance | Reverse-engineering opaque, closed consumer tools |
+| **[Google Gemini API](/docs/google-gemini-url-context-tool/methodology.md)** | Hard limit: **20 URLs** per request; supports PDF & JSON | Identifying architectural constraints and format support |
+| **[OpenAI Web Search](/docs/open-ai-web-search-tool/methodology.md)** | Tool invocation **conditional** and model-dependent; differs by API surface | Comparing behavior across API endpoints |
