@@ -28,6 +28,6 @@ to produce spec-ready, citable measurements
 | **Platform** | **Key Finding** | **Best For** |
 |----------|-------------|----------|
 | **[Anthropic Claude API](/docs/anthropic-claude-api-web-fetch-tool/methodology.md)** | Character-based truncation at ~**100KB** of rendered content | Baseline reference; established measurement methodology |
-| **[Anysphere Cursor](/docs/anysphere-cursor/methodology.md)** | Investigating truncation limits, MCP override behavior, auto-chunking | Documenting closed consumer applications, no public APIs |
+| **[Anysphere Cursor](/docs/anysphere-cursor/methodology.md)** | Agent-routed fetch with undocumented truncation - 28KB–240KB+; high cross-session variance | Understanding opacity in consumer AI tools; measuring behavioral variance |
 | **[Google Gemini API](/docs/google-gemini-url-context-tool/methodology.md)** | Hard limit: **20 URLs** per request; supports PDF & JSON | Understanding platform-specific constraints |
 | **[OpenAI Web Search](/docs/open-ai-web-search-tool/methodology.md)** | Tool invocation **conditional** and model-dependent; differs by API surface | Comparing behavior across Chat Completions vs Responses API |
