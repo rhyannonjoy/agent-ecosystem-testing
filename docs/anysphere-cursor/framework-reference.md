@@ -64,7 +64,7 @@ cd cursor-web-fetch
 
 4. **Log Results**
 
-   Depending on the track, results are stored in
+   Depending on the track, results stored in
    `cursor-web-fetch/results/{track}/results.csv` with the following fields:
 
    | Column | Description | Example |
@@ -95,7 +95,7 @@ cd cursor-web-fetch
    >_*`@Web` is a Cursor UI composer feature, but the underlying mechanisms is `WebFetch` or `mcp_web_fetch` -
    > more information in the [Friction Note](friction-note.md#web-evolution-from-manual-context-to-automatic-agent-capability)_;<br>
    >**_Optional field, measurement for raw track results only_
-   
+
    ---
 
    **Key Hypotheses**:
@@ -126,7 +126,7 @@ cd cursor-web-fetch
 
    ```bash
    # Verify key metrics before logging raw track runs
-   python3 web_fetch_verify_raw_results.py BL-1
+   python web_fetch_verify_raw_results.py BL-1
 
    # Log raw track result
    python web_fetch_testing_framework.py --log BL-2 \
@@ -149,7 +149,7 @@ cd cursor-web-fetch
    --notes "@Web returns converted..."
    ```
 
-   >_Ensure all required flags are provided: `--method`, `--model`, `--cursor-version`,
+   >_Ensure to provide all required flags: `--method`, `--model`, `--cursor-version`,
    ><br>`--output-chars`, `--truncated`, `--tokens`, `--hypothesis`_
 
 ---
@@ -159,13 +159,13 @@ cd cursor-web-fetch
 1. `BL-1`, `BL-2`: baseline, quick wins establish basic truncation threshold
 2. `SC-2`: code blocks, tests HTML-to-Markdown conversion
 3. `OP-3`: `@Web` vs MCP, _do MCP servers have different limits?_*
-4. `OP-4`: auto-chunking, determines DX and key ecosystem testing gap   
-5. `BL-3`: hard ceiling to identify absolute limit   
+4. `OP-4`: auto-chunking, determines DX and key ecosystem testing gap
+5. `BL-3`: hard ceiling to identify absolute limit
 6. `SC-1, SC-3, SC-4`: structured content to test structure-aware truncation hypothesis
 7. `EC-1, EC-3, EC-6`: edge cases to identify failure modes and unusual inputs
 
 >*_**OP-3** not executable as designed; `@Web` may route to `mcp_web_fetch` 
->internally; the two "sides" of the comparison aren't separable through `@Web` alone; 
+>internally; the two "sides" of the comparison aren't separable through `@Web` alone;
 >see [Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool)_
 
 ---
