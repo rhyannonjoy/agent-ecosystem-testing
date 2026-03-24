@@ -80,7 +80,7 @@ but the raw data shows truncation, that discrepancy belongs in the spec.
 
     - **`WebFetch`, `MCP-style`**: ~28KB ceiling, `SC-4` truncated at 27,890 chars
     - **`urllib.request`**: ~72KB ceiling, `EC-6` truncated at 72,600 chars
-    - **`curl fallback`**: No ceiling detected, `SC-2` returned 17.6MB
+    - **`curl fallback`**: No ceiling detected, `SC-2` returned 17.6 MB
     - **Unknown path**: No ceiling detected, `OP-4`/`BL-3` returned 245KB
 
     **Conclusion**: Cursor routes to multiple backend mechanisms with different limits. The interpreted
@@ -124,18 +124,21 @@ but the raw data shows truncation, that discrepancy belongs in the spec.
 ## Implications for Agent Developers
 
 ### Use Raw Track Measurements for:
+
 - **Exact Size Limits**: character ceilings per backend - 28KB, 72KB, 245KB+
 - **Content-type Detection**: chars/token ratio classification
 - **Reproducibility Verification**: MD5 checksums for regression testing
 - **Ground Truth Baselines**: what Cursor actually fetched vs what model claims
 
 ### Use Interpreted Track for:
+
 - **Model Perception Gaps**: understanding when models misreport completeness
 - **UI Rendering Behavior**: how Cursor displays content in chat
 - **Session-dependent Variance**: whether new chat sessions affect output
 - **User-facing Experience**: what end users see vs what agents retrieve
 
 ### Critical Takeaway:
+
 **For automation, use raw measurements.** Model self-reports are unreliable for
 detecting truncation or content subsetting. The interpreted track reveals this gap;
 the raw track provides the ground truth.

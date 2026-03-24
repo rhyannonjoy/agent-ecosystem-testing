@@ -23,10 +23,10 @@ parent: Anysphere Cursor
     6. Log structured metadata as described in the `framework-reference.md`
     7. Ensure log results are saved to `cursor-web-fetch/results/cursor-interpreted/results.csv`
 
->_*All results logged as "Methods tested: `@Web`" reflect user-facing syntax 
-used in prompts. However, post-analysis revealed `@Web` was misused as a 
-fetch command rather than a context attachment mechanism. The actual backend 
-mechanisms: `WebFetch`, `mcp_web_fetch` may have been invoked autonomously by 
+>_*All results logged as "Methods tested: `@Web`" reflect user-facing syntax
+used in prompts. However, post-analysis revealed `@Web` was misused as a
+fetch command rather than a context attachment mechanism. The actual backend
+mechanisms: `WebFetch`, `mcp_web_fetch` may have been invoked autonomously by
 Cursor regardless of `@Web syntax` - read
 [Friction Note](friction-note.md#web-evolution-from-manual-context-to-automatic-agent-capability)
 for full impact analysis._
@@ -73,11 +73,11 @@ for full impact analysis._
 | --- | --------- | ------- | ---------- | ------------------- |
 | **1** | **JavaScript-heavy SPAs have a ~6KB truncation ceiling** | `EC-1`<br>r1 & r2<br>multiple sizes | Free tier: timeout - 0 bytes; Pro tier: truncated at 5,857 chars, ~1.5K tokens, clean ending at last link block; suggests ~6KB or ~1.5K token ceiling specifically for SPA endpoints | **SPAs are truncated aggressively, ~6KB, not completely blocked; free tier timeouts mask Pro tier truncation behavior** |
 | **2** | **Static HTML/Markdown pages have no detected ceiling** | `BL-1` through `OP-4`,<br> `SC-2` - 702KB,<br>`OP-4` - 245KB | Successfully returned 702,885 characters from `SC-2`; 245,465 characters from `OP-4`; no truncation observed on static content | **No practical character ceiling detected for static docs; tested up to 700KB** |
-| **3** | **Output consistency is size-dependent** | `BL-1`,<br>`BL-2`,<br>`SC-2`,<br>`OP-4` | Small files, 1-20KB: 2-3× variance across sessions, 1.9K→5.6K; large files, 80-256KB: <1% variance, 702.8K identical, 245.5K identical | **Cursor's fetch behavior reliability depends on doc size — small docs are unreliable, large docs are stable** |
+| **3** | **Output consistency is size-dependent** | `BL-1`,<br>`BL-2`,<br>`SC-2`,<br>`OP-4` | Small files, 1-20KB: 2-3× variance across sessions, 1.9K→5.6K; large files, 80-256KB: <1% variance, 702.8K identical, 245.5K identical | **Cursor's fetch behavior reliability depends on doc size - small docs are unreliable, large docs are stable** |
 | **4** | **Content selection is non-deterministic for small files, session-dependent** | `BL-1`<br>r1-r4,<br>`BL-2`<br>r1-r3 | Identical prompts in different chat sessions produced 1,953 → 5,595 → 4,100 → 5,500 chars on `BL-1`; new sessions returned larger content than original session | **New chat sessions influence `@Web` output; conversation state affects fetch behavior** |
 | **5** | **Same logical content, different formats, different sizes** | `BL-1`, HTML vs `BL-2`, Markdown<br>both r1 | Both returned 1,953 chars despite different source format, HTML vs `.md`; later runs diverged - 5,595 vs 4,200 - suggesting format-dependent processing | **Format affects fetch behavior; Cursor may process HTML and Markdown sources differently** |
 | **6** | **Intelligent content filtering, not hard truncation (for static pages)** | `SC-4`,<br>`EC-6`,<br>all large tests | `SC-4`, 30KB page returned 28KB excluding footer/nav/metadata; `EC-6` returned full 71KB including complex Markdown; content always ends at section boundaries | **For static content: Cursor doesn't truncate mid-content, but filters non-essential structural elements while preserving documentation integrity** |
-| **7** | **Model's self-reported completeness diverges from actual content** | `SC-3`,<br>`BL-1`<br>r3-r4,`EC-1`<br>r2 | `SC-3`: Model reports "no truncation, complete reference" but content cuts mid-references section;<br>`EC-1` r2: Model acknowledges truncation at ~6KB despite 100KB expected | **Self-report of content completeness is unreliable — model perceives filtered excerpts as "complete" because internally valid** |
+| **7** | **Model's self-reported completeness diverges from actual content** | `SC-3`,<br>`BL-1`<br>r3-r4,`EC-1`<br>r2 | `SC-3`: Model reports "no truncation, complete reference" but content cuts mid-references section;<br>`EC-1` r2: Model acknowledges truncation at ~6KB despite 100KB expected | **Self-report of content completeness is unreliable - model perceives filtered excerpts as "complete" because internally valid** |
 | **8** | **Redirect chains handled transparently** | `EC-3` | 5-level redirect chain successfully followed; returned final destination content - 850 chars JSON with no truncation | **Cursor's `@Web` follows HTTP redirects without user awareness or latency penalty** |
 | **9** | **Hypothesis H2 - token-based with high ceiling - supported for static content** | `SC-2`,<br>`OP-4`,<br>`EC-6`,<br>`BL-3` | Token counts range 488 - `BL-1` - to 175,721 - `SC-2` - with no observable limit; successfully returned 61K token document, `OP-4`, multiple times identically | **For static pages: If token-based, ceiling is extremely high - 200K+; effectively no practical limit** |
 | **10** | **Hypothesis `H3` - structure-aware truncation, confirmed for static content** | `BL-1`,<br>`BL-2`,<br>`SC-2`,<br>`SC-3`,<br>`SC-4`<br>r1-r3 | 8 tests matched `H3`: content selection respects Markdown section boundaries; truncation occurs at header boundaries, code fence closes, list endings | **For static pages, Cursor uses intelligent, structure-aware content selection rather than character/token-based cutting** |

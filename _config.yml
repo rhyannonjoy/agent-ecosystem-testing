@@ -68,6 +68,21 @@ navigation:
         url: "/docs/google-gemini-url-context-tool/gemini-url-context-test-raw-findings"
       - title: "Friction Note"
         url: "/docs/google-gemini-url-context-tool/friction-note"
+  
+  - title: "Microsoft GitHub Copilot"
+    sections:
+      - title: "Methodology"
+        url: "/docs/microsoft-github-copilot/methodology"
+      - title: "Interpreted vs Raw"
+        url: "/docs/microsoft-github-copilot/copilot-interpreted-vs-raw"
+      - title: "Findings: Interpreted"
+        url: "/docs/microsoft-github-copilot/copilot-test-findings"
+      - title: "Findings: Raw"
+        url: "/docs/microsoft-github-copilot/copilot-test-findings-raw"
+      - title: "Framework Reference"
+        url: "/docs/microsoft-github-copilot/framework-reference"
+      - title: "Friction Note"
+        url: "/docs/microsoft-github-copilot/friction-note"
     
   - title: "OpenAI Web Search"
     sections:

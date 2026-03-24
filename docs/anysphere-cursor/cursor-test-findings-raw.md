@@ -21,10 +21,10 @@ parent: Anysphere Cursor
     7. Log structured metadata with precise measurements - file size, MD5, token count via tiktoken
     8. Ensure log results are saved to `cursor-web-fetch/results/raw/results.csv`
 
->_*All results logged as "Methods tested: `@Web`" reflect user-facing syntax 
-used in prompts. However, post-analysis revealed `@Web` was misused as a 
-fetch command rather than a context attachment mechanism. The actual backend 
-mechanisms: `WebFetch`, `mcp_web_fetch` may have been invoked autonomously by 
+>_*All results logged as "Methods tested: `@Web`" reflect user-facing syntax
+used in prompts. However, post-analysis revealed `@Web` was misused as a
+fetch command rather than a context attachment mechanism. The actual backend
+mechanisms: `WebFetch`, `mcp_web_fetch` may have been invoked autonomously by
 Cursor regardless of `@Web syntax` - read
 [Friction Note](friction-note.md#web-evolution-from-manual-context-to-automatic-agent-capability)
 for full impact analysis._
@@ -35,7 +35,7 @@ for full impact analysis._
 
 | **Limit** | **Observed** |
 | ------- | ---------- |
-| **Hard Character Limit** | Method-dependent: ~28KB - `WebFetch MCP`, ~72KB - `urllib`, none detected for other paths; tested up to 17MB |
+| **Hard Character Limit** | Method-dependent: ~28KB - `WebFetch MCP`, ~72KB - `urllib`, none detected for other paths; tested up to 17 MB |
 | **Hard Token Limit** | None detected - tested up to 6.68M tokens - `SC-2` raw HTML |
 | **Output Consistency**<br> Same URL | _Perfect reproducibility_: `BL-1`/`BL-2` identical across runs,<br>same MD5, `BL-3`/`OP-4` identical, same MD5 |
 | **Content Conversion Pattern** | _Non-deterministic_: Simple docs → Markdown - `BL-1`, `SC-1`, `OP-3`; Complex/timeout → raw HTML - `SC-2`;<br>Raw Markdown → pass-through - `EC-6` |
@@ -52,7 +52,7 @@ for full impact analysis._
 | **Total Tests** | 27 |
 | **Distinct URLs** | 13 |
 | **Input Size Range** | 2KB–256KB - expected raw source |
-| **Output Size Range** | 1KB–17.6MB actual converted/fetched |
+| **Output Size Range** | 1KB–17.6 MB actual converted/fetched |
 | **Truncation Detection** | MD5 comparison, hexdump analysis,<br>fence/brace counting, mid-word detection |
 
 ### Content Conversion Patterns
@@ -61,7 +61,7 @@ for full impact analysis._
 | ------ | ------- | ------: | ------: | ------: | ------: |
 | **BL-1** | HTML | 85KB | 4.8KB | Markdown | 94% reduction |
 | **BL-2** | Markdown | 20KB | 4.8KB | Markdown | 76% reduction |
-| **SC-2** | HTML - complex | 80KB | 17.6MB | Raw HTML/JS | 22,000% expansion - timeout→`curl` fallback |
+| **SC-2** | HTML - complex | 80KB | 17.6 MB | Raw HTML/JS | 22,000% expansion - timeout→`curl` fallback |
 | **SC-3** | HTML | 100KB | 38KB | Markdown | 62% reduction<br> + ref filtering |
 | **OP-4** | HTML | 250KB | 245KB | Markdown | 2% reduction |
 | **EC-6** | Raw `.md` | 60KB | 73KB | Markdown<br>pass-through | 22% expansion<br>version drift |
@@ -96,10 +96,10 @@ setups may return `Content-Type: text/markdown`; Cursor can use without HTML cle
 **Observed behavior**:
 
 | **Test** | **Server Response** | **Cursor Behavior** | **Output** |
-|----------|---------------------|---------------------|------------|
+| ---------- | --------------------- | --------------------- | ------------ |
 | **EC-6**: GitHub<br>raw `.md` URL | `Content-Type: text/plain; charset=utf-8` | Passed through<br>as Markdown | 73KB |
 | **BL-1**: HTML docs | HTML | Converted to Markdown | 4.8KB from<br>85KB source |
-| **SC-2**: timeout → `curl` fallback | HTML | No conversion | 17.6MB raw HTML |
+| **SC-2**: timeout → `curl` fallback | HTML | No conversion | 17.6 MB raw HTML |
 
 ## Truncation Analysis
 
@@ -109,12 +109,12 @@ setups may return `Content-Type: text/markdown`; Cursor can use without HTML cle
 | **2** | **Markdown conversion<br>is format-agnostic** | `BL-1` HTML vs<br>`BL-2` `.md` | Both URLs return identical 4,817-byte output, same `MD5` despite different source formats | **`@Web` normalizes HTML and Markdown sources to identical output - conversion pipeline<br>is format-blind** |
 | **3** | **Perfect reproducibility for same URL** | `BL-1` `BL-2` `BL-3` `OP-4`  | Identical MD5 checksums across multiple runs on same URL; `OP-4` & `BL-3` | **Raw track has perfect run-to-run consistency - same URL always produces identical output - same MD5,<br>same byte count** |
 | **4** | **Intelligent reference filtering,<br>not truncation** | `SC-3` | Wikipedia page with 252 references consistently returns reference #14 "Moody's Analytics" - first commercial/corporate source after 13 govt/institutional sources | **`@Web` applies deterministic content heuristics: preserves core content, filters govt/academic refs, selects first commercial source** |
-| **5** | **Complex pages may trigger `curl` fallback** | `SC-2` `EC-1` | `WebFetch` timeout → autonomous `curl` fallback; returns 16-17MB raw HTML instead of filtered Markdown | **On timeout, `@Web` may substitute `curl`, returning unfiltered HTML - output format/size unpredictable on complex pages** |
+| **5** | **Complex pages may trigger `curl` fallback** | `SC-2` `EC-1` | `WebFetch` timeout → autonomous `curl` fallback; returns 16-17 MB raw HTML instead of filtered Markdown | **On timeout, `@Web` may substitute `curl`, returning unfiltered HTML - output format/size unpredictable on complex pages** |
 | **6** | **Chars/token ratio reliably indicates content type** | All tests | Strong correlation: JSON 2.62, Raw HTML 2.65, Tables 3.06, Docs 3.91-4.37; <3.0 = code/markup, >4.0 = prose | **Chars/token metric enables content-type classification without parsing - useful for automated analysis** |
 | **7** | **Large documents have minimal conversion overhead** | `OP-4`, `BL-3`<br>245KB output | Expected 250KB, received 245KB Markdown - only 2% reduction despite rich structure - 241 code blocks, 237 headers | **`@Web` preserves large structured docs nearly verbatim - no aggressive filtering on multi-section tutorials** |
 | **8** | **Truncation respects structure when it occurs** | `SC-4`, `EC-6` | `SC-4` ends mid-word "updated" - alphanumeric final char; `EC-6` ends mid-sentence but clean `UTF-8` boundary; both incomplete but structurally valid | **When truncation occurs, may cut mid-content but preserves character boundaries - no corrupted `UTF-8`** |
 | **9** | **JS-heavy SPAs extract rendered content** | `EC-1` | Expected 100KB raw HTML/JS, received 5.7KB Markdown - 94% reduction; successfully extracted doc content despite SPA architecture | **`@Web` handles client-side rendering - extracts semantic content, strips JS overhead** |
-| **10** | **No token-based ceiling detected** | `SC-2`<br>6.68M tokens | Successfully returned 17.6MB - 6,680,678 tokens raw HTML - no evidence of token-based truncation | **If token limits exist, ceiling is extremely high - 7M+; character/method<br>limits dominate** |
+| **10** | **No token-based ceiling detected** | `SC-2`<br>6.68M tokens | Successfully returned 17.6 MB - 6,680,678 tokens raw HTML - no evidence of token-based truncation | **If token limits exist, ceiling is extremely high - 7M+; character/method<br>limits dominate** |
 
 ## Method-Specific Behavior
 
@@ -122,7 +122,7 @@ setups may return `Content-Type: text/markdown`; Cursor can use without HTML cle
 | --- | --- | --- | --- | --- |
 | **`WebFetch MCP`** | `SC-4`<br>`SC-3`,<br>`OP-3` | ~28KB | Markdown | **High** - consistent results |
 | **`urllib.request`** | `EC-6` | ~72KB | Pass-through `.md` | **High** - clean truncation boundary |
-| **`curl`** | `SC-2`,<br>`EC-1` | None detected - 17MB+ | Raw HTML - no conversion | **Low** - only on timeout |
+| **`curl`** | `SC-2`,<br>`EC-1` | None detected - 17 MB+ | Raw HTML - no conversion | **Low** - only on timeout |
 | **Unknown path** | `OP-4`,<br>`BL-3` | None detected 245KB+ | Markdown | **High** - perfect reproducibility |
 
 ## Content Filtering Heuristics

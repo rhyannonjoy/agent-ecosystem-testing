@@ -5,7 +5,7 @@ title: Table of Contents
 
 >**<u>Objective</u>**: in support of the
 [Agent Docs Spec](https://github.com/agent-ecosystem/agent-docs-spec/blob/main/SPEC.md#known-platform-limits),
-measure what happens between "agent fetches URL" and "model sees content" —
+measure what happens between "agent fetches URL" and "model sees content" -
 truncation limits, HTML processing, content negotiation - for platforms that don't document these details
 >
 >**<u>Methodology</u>**: two-track measurement approach with an **interpreted-track** - ask
@@ -16,18 +16,19 @@ to produce spec-ready, citable measurements
 ## Documentation Organization
 
 | **Section** | **Purpose** |
-|---------|---------|
+| --------- | --------- |
 | **Methodology** | Testing approach details & constraints |
 | **Interpreted vs Raw** | Two-track values and measurements |
 | **Findings: Interpreted** | What the model reports vs what it received, run variation |
 | **Findings: Raw** | Metrics extracted programmatically - reproducible, spec-ready |
 | **Friction Note** | Known issues, gaps, or edge cases encountered during testing |
- 
+
 ## Results Summary
- 
+
 | **Platform** | **Key Finding** | **Focus** |
-|----------|-------------|----------|
+| ---------- | ------------- | ---------- |
 | **[Anthropic Claude API](/docs/anthropic-claude-api-web-fetch-tool/methodology.md)** | Character-based truncation at<br>~**100KB** of rendered content | Baseline reference; establishing two-track methodology |
 | **[Anysphere Cursor](/docs/anysphere-cursor/methodology.md)** | Agent-routed fetch with undocumented truncation - **28KB–240KB+**;<br>high cross-session variance | Reverse-engineering opaque, closed consumer tools |
 | **[Google Gemini API](/docs/google-gemini-url-context-tool/methodology.md)** | Hard limit: **20 URLs** per request;<br>supports PDF & JSON | Identifying architectural constraints and format support |
+| **[Microsoft GitHub Copilot](/docs/microsoft-github-copilot/methodology.md)** | Currently investigating | Reverse-engineering opaque, closed consumer tools |
 | **[OpenAI Web Search](/docs/open-ai-web-search-tool/methodology.md)** | Tool invocation **conditional** and model-dependent; differs by API surface | Comparing behavior across <br>API endpoints |

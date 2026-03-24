@@ -46,7 +46,7 @@ appears successful, the agent didn't describe its work, which isn't the purpose 
 the testing framework. This suggests that the agent may read surrounding context -
 framework docs, test sequence - and make independent decisions about next steps.
 
-**Impact**: roadblock to reproducibility — single-test prompts may not guarantee
+**Impact**: roadblock to reproducibility - single-test prompts may not guarantee
 single-test execution, but ghost runs
 
 **Fix**: edit test prompts to include explicit guard rails as in _"run this
@@ -56,14 +56,14 @@ test only, do not proceed to the next test"_
 
 ## Autonomous Tool Substitution on Timeout
 
-When explicitly attaching a URL via `@Web`, if the backend mechanism times out, 
-Cursor may autonomously fall back to an alternative tool without explicit user 
-instruction. In one `SC-2` run, the backend timed out and Cursor fell back to 
-`curl -sL`, saving 16MB of raw Next.js HTML to `raw_output_SC-2.txt` — not the 
+When explicitly attaching a URL via `@Web`, if the backend mechanism times out,
+Cursor may autonomously fall back to an alternative tool without explicit user
+instruction. In one `SC-2` run, the backend timed out and Cursor fell back to
+`curl -sL`, saving 16 MB of raw Next.js HTML to `raw_output_SC-2.txt` - not the
 filtered output that `@Web`-attached content typically provides.
 
 Cursor acknowledged the substitution in its summary, noting the run "should be redone
-in Cursor with `@Web`" — _despite having been asked to use `@Web`_. The agent knew
+in Cursor with `@Web`" - _despite having been asked to use `@Web`_. The agent knew
 what it should have done, but substituted a different tool without flagging the
 deviation clearly upfront.
 
@@ -73,12 +73,12 @@ ignorning the incorrect usage, substituting a different tool when the backend fa
 and informing the user to incorrectly use `@Web` again**.
 
 `@Web` doesn't have a single documented size limit. Practical constraints are
-timeouts, routing - native vs MCP path, and post-processing — not a hard byte cap.
-The 16MB `curl` output vs 702KB `@Web` output illustrates how much `@Web`'s
+timeouts, routing - native vs MCP path, and post-processing - not a hard byte cap.
+The 16 MB `curl` output vs 702KB `@Web` output illustrates how much `@Web`'s
 conversion and filtering is actually doing.
 
 **Impact**: autonomous tool substitution on failure produces outputs that aren't
-comparable to `@Web` results — skewing size, MD5, and counts. Failed runs should be
+comparable to `@Web` results - skewing size, MD5, and counts. Failed runs should be
 logged separately and not treated as equivalent to `@Web` fetches. _**More critically,
 the agent provided contradictory guidance - deviating from the requested method,
 was critical of the results for not using said method, all while the fundamental
