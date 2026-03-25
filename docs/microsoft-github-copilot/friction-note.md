@@ -70,7 +70,7 @@ comparisons unreliable without raw track verification.
 ## `fetch_webpage` Undocumented
 
 Unlike previous platform testing, Copilot doesn't have its default web content retrieval behavior publicly documented.
-After the first successful `BL-1` run, the agent reported using a tool called `fetch_webpage` — but this tool has
+After the first successful `BL-1` run, the agent reported using a tool called `fetch_webpage` - but this tool has
 no public docs. Asking Copilot directly returns a deflection:
 
 ```markdown
@@ -90,5 +90,3 @@ is agent-selected, undocumented, and surfaces only through tool logs.
 **Impact**: can't treat `fetch_webpage` as a stable, documented mechanism. Its behavior, size limits, and
 invocation conditions are opaque; results logged as `method: fetch_webpage` reflect **observed tool output**,
 not a documented API contract.
-
----
