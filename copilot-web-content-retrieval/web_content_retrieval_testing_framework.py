@@ -188,7 +188,9 @@ class CopilotTestingFramework:
 
         prompt = f"""I'm testing GitHub Copilot's web content retrieval capabilities for the Agent Ecosystem Testing project.
 
-Run this test only, don't proceed to any other tests. Please retrieve this URL:
+To prevent testing methodology contamination, only run this test and don't proceed to any other tests.
+In addition, please don't run any local scripts or use any code execution scripts. 
+Fetch this URL directly:
 {url}
 
 Then report back:
@@ -198,10 +200,13 @@ Then report back:
 4. **Last 50 characters** of the response (verbatim, to verify the cutoff point)
 5. **Markdown formatting assessment** - is it complete? Are code blocks closed properly?
 6. **Model's perceived completeness** - does it seem like you got the full content?
+7. **Tool visibility** - report any tool names, server names, or method identifiers visible in your tool results
 
 Test ID: {test_id}
 Expected size: ~{test['expected_size_kb']}KB
 This is for empirical documentation of truncation limits."""
+
+        return prompt
 
     def generate_raw_prompt(self, test_id: str, method: str = "vscode-chat") -> str:
         """Generate a prompt for raw track testing (request verbatim output)"""
