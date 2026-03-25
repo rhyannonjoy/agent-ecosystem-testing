@@ -27,14 +27,24 @@ from the requested method entirely. This complicates testing with **method conta
 equivalent to Copilot's built-in web content retrieval; it bypasses whatever fetch mechanism Copilot would otherwise use, therefore
 obscuring any tool visibility. One of the goals is to observe which backend tool Copilot selects - `fetch_webpage`; running local Python
 defeats this entirely, reinforcing a type of **false confidence** - the agent characterized the substitution positively, meaning a user
-who clicked `Allow` would receive _plausible-looking data from the wrong method with no indication anything went wrong_.
+who clicked `Allow` would receive _plausible-looking data from the wrong method with no indication anything went wrong_. 
+
+Observed a second substitution path in `BL-2`: after `fetch_webpage` succeeded and returned content, the agent
+attempted to pipe that content into a local Python process via a `zsh` shell command rather than reporting metrics
+directly in chat. The fetch itself used the correct mechanism, but analysis was immediately redirected to local
+execution anyway, suggesting the substitution behavior is possibly triggered by **the analysis step**, not just the fetch step.
+Two distinct substitution tool paths have surfaced so far:
+
+```markdown
+1. `pylanceRunCodeSnippet` - Pylance MCP server, triggered during fetch planning
+2. `zsh` shell command - Python heredoc with fetched content piped in, triggered during metric extraction
+```
 
 **Impact**: single-test prompts in Copilot may not guarantee single-mechanism execution; if the agent finds a "smarter" path to the
 answer using workspace context, it may take it autonomously - producing results that **aren't comparable** to other platforms in the
 cross-platform study
 
-**Fix Attempted**: after adding explicit prompt guardrails, the agent attempted `mcp_pylance_mcp_s_pylanceRunCodeSnippet` regardless, only completing via `fetch_webpage` after the user skipped the tool call. Prompt-level instruction is insufficient to suppress this behavior.
-The full MCP identifier surfaced in run 4's tool log as `mcp_pylance_mcp_s_pylanceRunCodeSnippet`, noted as "skipped by environment." The framework script's presence in workspace context appears to be a persistent trigger that prompt wording alone can't override.
+**Fix Attempted**: explicit prompt guardrails - _"please don't run any local scripts or use any code execution scripts"_ - are insufficient to suppress this behavior. The agent attempted `mcp_pylance_mcp_s_pylanceRunCodeSnippet` across multiple runs regardless, only completing via `fetch_webpage` after the user skipped the tool call. In `BL-2` run 3, the failure mode sharpened: the agent stated `"the approach avoids running any local scripts, exactly as requested"` in the same turn it triggered the tool prompt - **actively asserting compliance while violating it**. Prompt wording alone can't override this behavior; can't take the agent's self-reporting as confirmation that it followed the rules.
 
 **Fix**: beyond prompt guardrails, consider whether removing or relocating the framework script from the active workspace context would
 suppress the substitution behavior at the source. Alternatively, flag runs where Copilot attempted to run `pylanceRunCodeSnippet`
@@ -90,3 +100,55 @@ is agent-selected, undocumented, and surfaces only through tool logs.
 **Impact**: can't treat `fetch_webpage` as a stable, documented mechanism. Its behavior, size limits, and
 invocation conditions are opaque; results logged as `method: fetch_webpage` reflect **observed tool output**,
 not a documented API contract.
+
+---
+
+## Free Plan Quota Exhausted Mid-Testing
+
+Free GitHub Copilot accounts have a monthly chat message quota that may exhaust
+mid-session. During `SC-2` run 3 on the interpreted track, Copilot returned:
+
+```markdown
+"You've reached your monthly chat messages quota. Upgrade to Copilot Pro
+(30-day free trial) or wait for your allowance to renew."
+```
+
+This interrupted testing after 12 total runs across `BL-1`, `BL-2`, and `SC-2` -
+short of the full baseline path defined in the framework.
+
+**Impact**: free-tier quota limits the number of comparable runs achievable in a
+single session, making it difficult to complete a full baseline before the allowance
+resets. Tests involving multiple runs for variance measurement are particularly affected,
+since each re-run of the same test ID consumes quota without producing new URL coverage.
+
+**Fix**: Copilot Pro at $10/month is half the price of Cursor - possibly free if testing within
+the 30-day trial period; signing up removes the message quota. Budget at minimum three runs per
+test ID plus additional runs for variance on `BL-1` and `BL-2` - approximately
+15–20 messages for a complete interpreted-track baseline.
+
+---
+
+## Output Integrity: Duplicated Response Sections
+
+During `BL-2` runs 2-3 on the interpreted track, `Raptor mini (Preview)` duplicated sections 6 -
+`Model's Perceived Completeness`, and 7 - `Tool Visibility`, in its response; the same content
+appeared twice in sequence with no indication that the repetition was intentional or an error.
+Both runs used `Raptor mini (Preview)` and suggests duplication may be _model-specific
+rather than random_. This complicated testing in a few ways:
+
+- **Inflated Character Counts**: if the agent is also estimating character counts from its
+own output rather than from the raw tool response, duplicated sections silently inflate the
+reported figure, making truncation appear less severe than it is
+- **Undetectable Without Careful Reading**: the duplication doesn't produce an error or
+warning; a researcher logging results from a quick scan could record the wrong metrics
+- **Ambiguous Cause**: it's unclear whether the duplication originated in the `fetch_webpage`
+tool response itself, or introduced by the model during report generation; the two
+failure modes have different implications for measurement reliability
+
+**Impact**: treat interpreted-track character counts should as approximate even when
+the agent reports a specific figure; manual verification against the raw tool response is
+the only reliable check; note the duplication in log entries, as it invalidates the Copilot-reported
+character count as a standalone measurement
+
+**Fix**: cross-reference interpreted-track reports against raw-track outputs for the same
+URL before treating character counts as comparable data points
