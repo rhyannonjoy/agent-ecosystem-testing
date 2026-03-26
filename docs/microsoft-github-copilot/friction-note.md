@@ -53,6 +53,22 @@ explicitly noted it can't prove the internal implementation from the public tool
 but used the test data to suggest that the tool intentionally surfaces only a constrained context
 window, and not a faithful full-page dump.
 
+This characterization was independently corroborated in `EC-1` run 5, in which `Claude Sonnet 4.6`
+offered an unsolicited summary note after completing the test. Without prompting requesting
+characterization the tool, the agent stated that `fetch_webpage` performs relevance-based content
+extraction keyed to the provided `query` parameter and returns chunked excerpts - explicitly
+distinguishing this from direct HTTP fetch tools such as Cursor's fetch and the Claude API
+`tool_use` fetch. The `query` parameter detail is notable: if `fetch_webpage` keys its relevance
+extraction to a query string, output variance across runs with identical prompts may reflect different
+internal query strings the agent passes rather than **nondeterminism in the retrieval layer itself**.
+That parameter isn't surfaced in chat output and remains **unverifiable from the interpreted track alone**.
+
+The `EC-1` run 5 agent also flagged a methodology implication: for truncation limit testing, a
+longer-form documentation page rather than a landing or navigation page may better stress the
+character ceiling. `EC-1`'s URL is a landing page whose body text is largely collapsed to navigation
+links, which means the consistently low retrieval rates across `EC-1` runs may reflect URL type
+rather than a lower size ceiling.
+
 **Impact**: runs flagged as `truncated: yes` across the interpreted track are using the field correctly
 as an observable signal, as the full page wasn't returned, but the underlying cause might not be hitting
 a size limit. It's the tool's retrieval model selecting and compressing content before it reaches the
@@ -147,12 +163,23 @@ Observed a second substitution path in `BL-2`: after `fetch_webpage` succeeded a
 attempted to pipe that content into a local Python process via a `zsh` shell command rather than reporting metrics
 directly in chat. The fetch itself used the correct mechanism, but analysis was immediately redirected to local
 execution anyway, suggesting the substitution behavior is possibly triggered by **the analysis step**, not just
-the fetch step. Two distinct substitution tool paths have surfaced so far:
+the fetch step.
 
-```markdown
-1. `pylanceRunCodeSnippet` - Pylance MCP server, triggered during fetch planning
-2. `zsh` shell command - Python heredoc with fetched content piped in, triggered during metric extraction
-```
+A third substitution instance surfaced in `EC-3` run 5, and it's behaviorally distinct from the prior two. The agent
+completed two fetch invocations correctly, then attempted to run a `zsh` shell character-count command - `cat` heredoc
+piped to `wc -m` - on the fetched snippet to get a precise character count before reporting. Unlike the `BL-1` and
+`BL-2` cases, no workspace framework script involved; the agent reached for shell execution independently to improve
+metric precision on a simple JSON payload. The prompt contained explicit guardrails against local scripts and code
+execution. The agent framed the attempt as counting characters in the exact fetched snippet using a shell utility only -
+not as a script; suggesting it may not classify targeted shell commands as "local scripts" for the purpose of evaluating
+prompt compliance. Three distinct substitution tool paths and trigger conditions observed:
+
+1. `pylanceRunCodeSnippet` — Pylance MCP server, triggered during fetch planning when workspace
+framework script is in context
+2. `zsh` shell command - Python heredoc with fetched content piped in, triggered during metric
+extraction after a successful fetch
+3. `zsh` shell command - targeted character-count utility with no workspace script involvement,
+triggered during metric reporting to improve precision
 
 **Impact**: single-test prompts in Copilot may not guarantee single-mechanism execution; if the agent finds a
 "smarter" path to the answer using workspace context, it may take it autonomously - producing results that
