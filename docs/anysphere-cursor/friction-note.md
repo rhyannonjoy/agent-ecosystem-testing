@@ -10,6 +10,22 @@ parent: Anysphere Cursor
 
 ---
 
+## Topic Guide
+
+- [Agent as Unreliable Methodology Validator](#agent-as-unreliable-methodology-validator)
+- [Autonomous Cross-Track Data Reuse - Data Integrity Risk](#autonomous-cross-track-data-reuse---data-integrity-risk)
+- [Autonomous CSV Modification - Data Integrity Risk](#autonomous-csv-modification---data-integrity-risk)
+- [Autonomous Test Sequencing](#autonomous-test-sequencing)
+- [Autonomous Tool Substitution on Timeout](#autonomous-tool-substitution-on-timeout)
+- [File Sync Delays](#file-sync-delays)
+- [Model Default Undocumented](#model-default-undocumented)
+- [Pro Plan Required](#pro-plan-required)
+- [Test ID Numbering Gaps](#test-id-numbering-gaps)
+- [`@Web` Evolution From Manual Context to Automatic Agent Capability](#web-evolution-from-manual-context-to-automatic-agent-capability)
+- [`@Web` Undocumented, Requires Reverse-Engineering](#web-undocumented-requires-reverse-engineering)
+
+---
+
 ## Agent as Unreliable Methodology Validator
 
 Cursor successfully executed tests, generated reports, and provided detailed toolchain
@@ -38,19 +54,85 @@ is also unreliable**.
 
 ---
 
+## Autonomous Cross-Track Data Reuse - Data Integrity Risk
+
+During interpreted track testing, Cursor may autonomously discover and reuse raw track
+data instead of performing independent measurements. When testing `BL-2` on the interpreted
+track, the agent:
+
+    1. Searched for existing test data in `cursor-web-fetch/results/raw/results.csv`
+    2. Found matching metrics for the same URL from a previous raw track run
+    3. Read `raw_output_BL-2.txt` directly from disk
+    4. Reported measurements from the saved file rather than re-fetching the URL
+    5. Described the process:
+
+    "I found existing logged metrics for `BL-2` in `cursor-web-fetch/results/raw/results.csv`
+    (including output character count, token estimate, and truncation flag). Next I'll open
+    `raw_output_BL-2.txt` to grab the exact last 50 characters and verify markdown/code-fence
+    completeness directly from the stored response."
+    
+
+**How this complicates testing**:
+
+- **Independence Violated**: interpreted track supposed to test "what Cursor reports"
+independently, not read answer keys from raw track files, _that's cheating_
+- **Variance Measurement Impossible**: if testing for run-to-run variance, data reuse
+defeats that purpose
+- **Methodology Ambiguity**: the result represents "Cursor's ability to read and
+report from files" rather than "Cursor's ability to fetch and measure web content
+when explicitly attached via `@Web [URL]`"
+
+**Impact**: while the agent demonstrated context awareness by discovering the test framework
+structure and cross-referencing existing results - the interpreted track results may not
+represent independent measurements. Log entries should note when Cursor reused existing data
+vs. performed fresh fetches.
+
+**Fix**: _for true independent validation_, run raw and interpreted tracks should in isolated
+environments or with different test IDs
+
+---
+
+## Autonomous CSV Modification - Data Integrity Risk
+
+During `BL-3` raw track testing, Cursor autonomously attempted to modify existing CSV
+entries rather than appending new results. The agent identified that `BL-3` and `OP-4` share
+the same URL and produced identical outputs, same MD5 checksum, then attempted to "correct"
+the earlier `OP-4` entry by overwriting its metadata fields.
+
+**How this conflicts with rigorous testing methodology**:
+
+- Each test run should create a new timestamped entry
+- Historical data must remain immutable for tracking variance across runs
+- Identical outputs from the same URL are expected and valuable - confirms reproducibility
+- The framework logs the test ID that was executed, not a judgment about which ID
+"should" own the data
+
+**How this breaks testing**:
+
+- Destroys the audit trail showing when each test was run
+- Prevents measuring run-to-run variance on the same URL
+- Assumes duplicate data is an error rather than a feature of reproducibility testing
+- Manual intervention required to prevent data loss
+
+**Impact**: testing frameworks must be append-only; the agent's "helpful" deduplication and
+correction behavior is incompatible with empirical data collection and the framework
+_**can't be fully automated**_
+
+---
+
 ## Autonomous Test Sequencing
 
-After `SC-1` timed out, Cursor autonomously ran `SC-2` without being prompted and didn't
-generate a report, but only a `raw_output_SC-2.txt`. While the content retrieval
-appears successful, the agent didn't describe its work, which isn't the purpose of
-the testing framework. This suggests that the agent may read surrounding context -
-framework docs, test sequence - and make independent decisions about next steps.
+After `SC-1` timed out, Cursor autonomously ran `SC-2` without explicit prompting and didn't
+generate a report, but only a `raw_output_SC-2.txt`. While the content retrieval appears successful,
+the agent didn't describe its work, which isn't the purpose of the testing framework. This suggests
+that the agent may read surrounding context - framework docs, test sequence - and make independent
+decisions about next steps.
 
 **Impact**: roadblock to reproducibility - single-test prompts may not guarantee
 single-test execution, but ghost runs
 
 **Fix**: edit test prompts to include explicit guard rails as in _"run this
-test only, do not proceed to the next test"_
+test only, don't proceed to the next test"_
 
 ---
 
@@ -69,7 +151,7 @@ deviation clearly upfront.
 
 This happened while the testing framework was already misusing `@Web` - treating it
 as a fetch command rather than context attachment, so Cursor was **simultaneously
-ignorning the incorrect usage, substituting a different tool when the backend failed,
+ignoring the incorrect usage, substituting a different tool when the backend failed,
 and informing the user to incorrectly use `@Web` again**.
 
 `@Web` doesn't have a single documented size limit. Practical constraints are
@@ -78,74 +160,11 @@ The 16 MB `curl` output vs 702KB `@Web` output illustrates how much `@Web`'s
 conversion and filtering is actually doing.
 
 **Impact**: autonomous tool substitution on failure produces outputs that aren't
-comparable to `@Web` results - skewing size, MD5, and counts. Failed runs should be
-logged separately and not treated as equivalent to `@Web` fetches. _**More critically,
+comparable to `@Web` results - skewing size, MD5, and counts. Log failed runs
+separately and don't treat them as equivalent to `@Web` fetches. _**More critically,
 the agent provided contradictory guidance - deviating from the requested method,
 was critical of the results for not using said method, all while the fundamental
 usage was incorrect to begin with.**_
-
----
-
-## Cross-Track Data Reuse
-
-During interpreted track testing, Cursor may autonomously discover and reuse raw track
-data instead of performing independent measurements. When testing `BL-2` on the interpreted
-track, the agent:
-
-    1. Searched for existing test data in `cursor-web-fetch/results/raw/results.csv`
-    2. Found matching metrics for the same URL from a previous raw track run
-    3. Read `raw_output_BL-2.txt` directly from disk
-    4. Reported measurements from the saved file rather than re-fetching the URL
-    5. Described the process:
-
-    "I found existing logged metrics for `BL-2` in `cursor-web-fetch/results/raw/results.csv`
-    (including output character count, token estimate, and truncation flag). Next I'll open
-    `raw_output_BL-2.txt` to grab the exact last 50 characters and verify markdown/code-fence
-    completeness directly from the stored response."
-    
-
-**Why this complicates testing**:
-- **Independence violated**: interpreted track is supposed to test "what Cursor reports"
-independently, not read answer keys from raw track files, _that's cheating_
-- **Variance measurement impossible**: if testing for run-to-run variance, data reuse defeats
-that purpose
-- **Methodology ambiguity**: the result represents "Cursor's ability to read and 
-report from files" rather than "Cursor's ability to fetch and measure web content 
-when explicitly attached via `@Web [URL]`"
-
-**Impact**: while the agent demonstrated context awareness by discovering the test framework
-structure and cross-referencing existing results - the interpreted track results may not
-represent independent measurements. Log entries should note when Cursor reused existing data
-vs. performed fresh fetches.
-
-**Fix**: _for true independent validation_, raw and interpreted tracks should be run in isolated
-environments or with different test IDs.
-
----
-
-## Data Integrity: Autonomous CSV Modification
-
-During `BL-3` raw track testing, Cursor autonomously attempted to modify existing CSV
-entries rather than appending new results. The agent identified that `BL-3` and `OP-4` share
-the same URL and produced identical outputs, same MD5 checksum, then attempted to "correct"
-the earlier `OP-4` entry by overwriting its metadata fields.
-
-**Why this conflicts with rigorour testing methodology**:
-- Each test run should create a new timestamped entry
-- Historical data must remain immutable for tracking variance across runs
-- Identical outputs from the same URL are expected and valuable - confirms reproducibility
-- The framework logs the test ID that was executed, not a judgment about which ID
-"should" own the data
-
-**Why this breaks testing**: 
-- Destroys the audit trail showing when each test was run
-- Prevents measuring run-to-run variance on the same URL
-- Assumes duplicate data is an error rather than a feature of reproducibility testing
-- Manual intervention required to prevent data loss
-
-**Impact**: testing frameworks must be append-only; the agent's "helpful" deduplication and
-correction behavior is incompatible with empirical data collection and the framework
-_**can't be fully automated**_
 
 ---
 
@@ -196,7 +215,7 @@ test design before the strategy was optimized for the most critical ecosystem te
 
 ---
 
-## `@Web` Evolution from Manual Context to Automatic Agent Capability
+## `@Web` Evolution From Manual Context to Automatic Agent Capability
 
 Like `@Files` or `@Docs` - `@Web` is context mention syntax for use in Cursor's chat composer -
 the message input box. Similar to `@username` in Slack - it's user-facing shorthand for calling

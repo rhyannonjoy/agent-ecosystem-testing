@@ -10,30 +10,43 @@ parent: OpenAI Web Search
 
 ---
 
-## OpenAI API key
+## Topic Guide
 
-Obtaining an OpenAI API key wasn't as straightforward as the
-[Google AI Studio/Gemini API key process](../google-gemini-url-context-tool/friction-note.md),
-but required digging around. I started on the
-[the Web Search page](https://developers.openai.com/api/docs/guides/tools-web-search). There is
-no obvious "get an API key here" or explicit instructions, but there is an "API Dashboard ↗"
-button that hangs out by itself in the top right tools bar. I wandered around in the Get Started
-sections Overview and Quickstart before clicking on "API Dashboard ↗" - which requires an
-account with your full name and birthdate and tries to sell credits immediately. My assumption
-was that I wouldn't be able to use the endpoint for free and I was right.
-My initial attempts to run [the ChatGPT-interpreted path](open-ai-web-search-test-findings.md)
-completely errored-out:
-
-```shell
-"Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}"
-```
+- [Block-list Filtering Undocumented, Non-functional](#block-list-filtering-undocumented-non-functional)
+- [Credits Required](#credits-required)
+- [Domain Filtering Schema Discrepancies](#domain-filtering-schema-discrepancies)
+- [OpenAI API Key](#openai-api-key)
 
 ---
 
-## No credits = no API access at all
+## Block-list Filtering Undocumented, Non-functional
 
-`insufficient_quota` is an **account-level** billing block, not a rate limit.
-Switching to a cheaper model, like the `gpt-4o-mini-search-preview`, doesn't help -
+Docs state filtering requires `web_search`; empirically it worked
+once on `web_search_preview` and never on `web_search`, regardless of model.
+
+The correct parameter name for block-listing isn't explicitly stated.
+Attempted three key names across 6 runs, 2 tool types, and 2 models, all `400`:
+
+```shell
+exclude_domains    → "Unknown parameter: 'tools[0].filters.type'"
+excluded_domains   → "Unknown parameter: 'tools[0].filters.excluded_domains'"
+blocked_domains    → "Unknown parameter: 'tools.web_search.filters.blocked_domains'"
+```
+
+The changing error path (`tools[0].filters` vs `tools.web_search.filters`) suggests
+the two tools hit different validation layers, the schema may be partially implemented.
+
+Allow-list filtering also proved unreliable: `allowed_domains` on `web_search_preview`
+worked once - r2, `filter_respected: true`, 2 "apnews.com" sources - then broke after
+switching to `web_search` per docs guidance. `web_search` rejected `filters` entirely
+with `"Unsupported parameter 'filters'"` on both `gpt-4o` and `gpt-5` models.
+
+---
+
+## Credits Required
+
+No credits = no API access. `insufficient_quota` is an **account-level** billing block,
+not a rate limit. Switching to a cheaper model, like the `gpt-4o-mini-search-preview`, doesn't help -
 the `429` error applies to every model on the account without credits.
 
 **Fix**: Go to [platform.openai.com/settings/billing](https://platform.openai.com/settings/billing)
@@ -73,28 +86,27 @@ describe a `filters` object with a `type` field - this returns a `400` on every 
 include=["web_search_call.action.sources"]
 ```
 
-> **Contrast with Gemini**: `url_context_metadata` populates automatically with no additional parameters.
+> **Contrast with Gemini**: `url_context_metadata` populates automatically with no additional
+parameters
 
 ---
 
-## Block-list Filtering Undocumented, Non-functional
 
-Docs state filtering requires `web_search`; empirically it worked
-once on `web_search_preview` and never on `web_search`, regardless of model.
 
-The correct parameter name for block-listing isn't explicitly stated.
-Attempted three key names across 6 runs, 2 tool types, and 2 models, all `400`:
+## OpenAI API Key
+
+Obtaining an OpenAI API key wasn't as straightforward as the
+[Google AI Studio/Gemini API key process](../google-gemini-url-context-tool/friction-note.md),
+but required digging around. I started on the
+[the Web Search page](https://developers.openai.com/api/docs/guides/tools-web-search). There is
+no obvious "get an API key here" or explicit instructions, but there is an "API Dashboard ↗"
+button that hangs out by itself in the top right tools bar. I wandered around in the Get Started
+sections Overview and Quickstart before clicking on "API Dashboard ↗" - which requires an
+account with your full name and birthdate and tries to sell credits immediately. My assumption
+was that I wouldn't be able to use the endpoint for free and I was right.
+My initial attempts to run [the ChatGPT-interpreted path](open-ai-web-search-test-findings.md)
+completely errored-out:
 
 ```shell
-exclude_domains    → "Unknown parameter: 'tools[0].filters.type'"
-excluded_domains   → "Unknown parameter: 'tools[0].filters.excluded_domains'"
-blocked_domains    → "Unknown parameter: 'tools.web_search.filters.blocked_domains'"
+"Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}"
 ```
-
-The changing error path (`tools[0].filters` vs `tools.web_search.filters`) suggests
-the two tools hit different validation layers, the schema may be partially implemented.
-
-Allow-list filtering also proved unreliable: `allowed_domains` on `web_search_preview`
-worked once - r2, `filter_respected: true`, 2 "apnews.com" sources - then broke after
-switching to `web_search` per docs guidance. `web_search` rejected `filters` entirely
-with `"Unsupported parameter 'filters'"` on both `gpt-4o` and `gpt-5` models.

@@ -14,6 +14,16 @@ parent: Microsoft GitHub Copilot
 
 ---
 
+## Topic Guide
+
+- [Installation](#installation)
+- [Workflow](#workflow)
+- [Baseline Testing Path - Single-Run Reproducible Strategy](#baseline-testing-path---single-run-reproducible-strategy)
+- [Extended Testing, _Optional_](#extended-testing-optional)
+- [Analyzing Results](#analyzing-results)
+
+---
+
 ## Installation
 
 ```bash
@@ -33,6 +43,9 @@ pip install -r requirements.txt
 # Navigate to the Copilot testing directory
 cd copilot-web-content-retrieval
 ```
+
+>_For whatever reason, such as incompatible Python versions or some accidental corruption,
+>use `rm -rf venv` to remove the `venv` and start over_
 
 ## Workflow
 
@@ -72,7 +85,7 @@ cd copilot-web-content-retrieval
    | `test_id` | Test identifier | BL-1, SC-2, EC-1 |
    | `timestamp` | ISO 8601 timestamp | 2026-03-16T17:05:02.998376 |
    | `date` | Date tested | 2026-03-16 |
-   | `url` | Full URL tested | https://www.mongodb.com/docs...|
+   | `url` | Full URL tested | `https://www.mongodb.com/docs...` |
    | `method` | Retrieval method | `vscode-chat`* |
    | `model` | Model used | `Auto` - Copilot's agent router |
    | `input_est_chars` | Expected input size | 87040 |
@@ -94,7 +107,8 @@ cd copilot-web-content-retrieval
 
    >_*`vscode-chat` describes an intentionally manual testing process in which the
    >user copy-pastes prompts into the Copilot chat window, as Copilot has no documented
-   >backend web content retrieval mechanism - more information in the [Friction Note](friction-note.md)_;
+   >backend web content retrieval mechanism - more information in the
+   >[Friction Note](friction-note.md)_;
    >**_Optional field, measurement for raw track results only_
 
    ---
@@ -160,7 +174,7 @@ cd copilot-web-content-retrieval
 
 ---
 
-## Baseline Testing Path, Single-Run Reproducible Strategy
+## Baseline Testing Path - Single-Run Reproducible Strategy
 
 1. `BL-1`, `BL-2`: baseline, quick wins establish basic truncation threshold
 2. `SC-2`: code blocks, tests HTML-to-Markdown conversion

@@ -14,6 +14,16 @@ parent: Anysphere Cursor
 
 ---
 
+## Topic Guide
+
+- [Installation](#installation)
+- [Workflow](#workflow)
+- [Baseline Testing Path - Single-Run Reproducible Strategy](#baseline-testing-path---single-run-reproducible-strategy)
+- [Extended Testing, _Optional_](#extended-testing-optional)
+- [Analyzing Results](#analyzing-results)
+
+---
+
 ## Installation
 
 ```bash
@@ -33,6 +43,9 @@ pip install -r requirements.txt
 # Navigate to the Cursor testing directory
 cd cursor-web-fetch
 ```
+
+>_For whatever reason, such as incompatible Python versions or some accidental corruption,
+>use `rm -rf venv` to remove the `venv` and start over_
 
 ## Workflow
 
@@ -154,7 +167,7 @@ cd cursor-web-fetch
 
 ---
 
-## Baseline Testing Path, Single-Run Reproducible Strategy
+## Baseline Testing Path - Single-Run Reproducible Strategy
 
 1. `BL-1`, `BL-2`: baseline, quick wins establish basic truncation threshold
 2. `SC-2`: code blocks, tests HTML-to-Markdown conversion

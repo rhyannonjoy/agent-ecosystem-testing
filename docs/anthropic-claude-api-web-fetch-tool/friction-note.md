@@ -8,7 +8,14 @@ permalink: /docs/anthropic-claude-api-web-fetch-tool/friction-note
 
 ---
 
-## Anthropic API key
+## Topic Guide
+
+- [Anthropic API Key](#anthropic-api-key)
+- [API not available on the free-tier](#api-not-available-on-the-free-tier)
+
+---
+
+## Anthropic API Key
 
 The Claude docs AI assistant didn't return any results
 when asked how to obtain an API key to test the
@@ -51,18 +58,4 @@ otherwise you'll run into the following error:
 
 ```bash
 anthropic.BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_01...'}
-```
-
----
-
-## Rebuild `venv`
-
-```bash
-deactivate
-rm -rf venv
-/opt/homebrew/bin/python3.14 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-source .env
-python claude-api/web_fetch_test.py
 ```

@@ -9,6 +9,63 @@ parent: Microsoft GitHub Copilot
 
 ---
 
+## Topic Guide
+
+- [Agent's Choice: Truncation vs Architectural Excerpting](#agents-choice-truncation-vs-architectural-excerpting)
+- [Auto's Multi-Model Routing Instability](#autos-multi-model-routing-instability)
+- [Autonomous Tool Substitution: Local Code Execution Over URL Fetch](#autonomous-tool-substitution-local-code-execution-over-url-fetch)
+- [Extension Version Upgrade Mid-Testing](#extension-version-upgrade-mid-testing)
+- [`fetch_webpage` Not Consistently Invoked](#fetch_webpage-not-consistently-invoked)
+- [`fetch_webpage` Undocumented](#fetch_webpage-undocumented)
+- [Free Plan Quota Exhausted Mid-Testing](#free-plan-quota-exhausted-mid-testing)
+- [Metric Precision on the Interpreted Track](#metric-precision-on-the-interpreted-track)
+- [Output Integrity: Duplicated Response Sections](#output-integrity-duplicated-response-sections)
+- [Prompt Format Affects Output Structure](#prompt-format-affects-output-structure)
+
+---
+
+## Agent's Choice: Truncation vs. Architectural Excerpting
+
+Part of probing whether `fetch_webpage`'s output represents hard-cutoff truncation or a designed
+architectural behavior included a direct question to Copilot:
+
+```markdown
+"Please describe what web content truncation means to you. Is this an architecturally designed
+component of `fetch_webpage`?"
+```
+
+Before answering, the agent searched the workspace: reviewing `results.csv`,
+`web_content_retrieval_testing_framework.py`, and `framework-reference.md` - and grounded its
+response in the test data rather than general tool knowledge. This makes the answer worth noting,
+but also means the agent was partly reflecting the repo's own conclusions back. It isn't independent
+confirmation of `fetch_webpage`'s architecture, but the agent synthesizing the same behavioral
+evidence that produced the finding in the first place. With that caveat, the agent's characterization
+was precise. It distinguished two failure modes:
+
+- **Hard Cutoff**: the tool fetches a full page body and stops after some byte, character, or token
+budget
+- **Architectural Excerpting**: the tool never intends to return the full page, and instead returns
+a filtered, compressed, or relevance-ranked subset
+
+Based on the workspace evidence, the agent concluded `fetch_webpage` looks much closer to the
+second case: "bounded excerpt retrieval" rather than truncation in the traditional sense. It
+explicitly noted it can't prove the internal implementation from the public tool surface alone,
+but used the test data to suggest that the tool intentionally surfaces only a constrained context
+window, and not a faithful full-page dump.
+
+**Impact**: runs flagged as `truncated: yes` across the interpreted track are using the field correctly
+as an observable signal, as the full page wasn't returned, but the underlying cause might not be hitting
+a size limit. It's the tool's retrieval model selecting and compressing content before it reaches the
+agent. The `...` markers in output aren't byte-boundary cutoffs, they're the retrieval layer's own elision
+indicators. This distinction matters for interpreting `output_chars` across runs: variance in character
+count may reflect relevance-ranking variance as much as any consistent size ceiling.
+
+**Open Question**: if `fetch_webpage` is performing bounded excerpt retrieval by design, the `H1` hypothesis:
+character-based truncation at a fixed limit, may be testing the wrong thing entirely. `H1-yes` results
+confirm the full page wasn't returned, but can't confirm a fixed character ceiling exists to find.
+
+---
+
 ## Auto's Multi-Model Routing Instability
 
 Copilot's `Auto` model selection routes requests across multiple distinct backend models without user
