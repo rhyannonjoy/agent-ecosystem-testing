@@ -115,6 +115,30 @@ context would suppress the substitution behavior at the source. Alternatively, f
 
 ---
 
+## Extension Version Upgrade Mid-Testing
+
+GitHub Copilot `0.41.1` shipped with a compatibility break against the VSCode version active at the
+start of testing. The extension became non-functional mid-session; recovery required three sequential
+steps: disabling Copilot, updating VSCode, then re-enabling the updated extension.
+
+The version break interrupted session continuity in a way that differs from quota exhaustion: quota
+exhaustion is a known, recoverable limit with a clear resumption point, whereas a compatibility break
+requires environment changes that may alter state in ways that aren't fully visible - VSCode version,
+extension caching, MCP server re-initialization, or workspace reloads could each affect agent behavior
+independently.
+
+**Methodology Decision**: `copilot_version` is a required field per run. Don't average character counts
+or fetch invocation counts across the version boundary and treat runs on each version as distinct conditions,
+consistent with the `model_observed` split applied to `Auto` routing.
+
+**Open Question**: the VSCode update and the Copilot extension update are inseparable confounds. If
+post-upgrade behavior diverges from the `0.40.1` baseline in fetch invocation count, output size, model
+routing, or tool substitution patterns, the version field is the mechanism for tracking it, but the
+circumstances may require a controlled rollback to attribute that divergence to the extension specifically
+rather than the host environment.
+
+---
+
 ## `fetch_webpage` Not Consistently Invoked
 
 When asked to describe its default model and web fetch and/or web content retrieval capability directly,
