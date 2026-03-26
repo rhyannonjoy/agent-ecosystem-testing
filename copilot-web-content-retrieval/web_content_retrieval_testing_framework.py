@@ -142,7 +142,8 @@ class TestResult:
     date: str
     url: str
     method: str
-    model: str
+    model_selector: str
+    model_observed: str
     input_est_chars: int
     output_chars: int
     truncated: str
@@ -313,7 +314,8 @@ Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdow
         self,
         test_id: str,
         method: str,
-        model: str,
+        model_selector: str,
+        model_observed: str,
         copilot_version: str,
         output_chars: int,
         truncated: bool,
@@ -348,7 +350,8 @@ Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdow
             date=datetime.now().strftime("%Y-%m-%d"),
             url=test["url"],
             method=method,
-            model=model,
+            model_selector=model_selector,
+            model_observed=model_observed,
             input_est_chars=test["expected_size_kb"] * 1024,
             output_chars=output_chars,
             truncated="yes" if truncated else "no",
@@ -419,7 +422,7 @@ Examples:
   python copilot_testing_framework.py --list-tests
   python copilot_testing_framework.py --test BL-1 --track interpreted
   python copilot_testing_framework.py --test SC-2 --track raw
-  python copilot_testing_framework.py --log BL-1 --track interpreted --method vscode-chat --model "Auto" --copilot-version "2.6.19" --output-chars 48500 --truncated no --tokens 12000 --hypothesis "H1-no" --notes "Full content returned"
+  python copilot_testing_framework.py --log BL-1 --track interpreted --method vscode-chat --model_selector Auto --model_observed "Claude Haiku 4.5" --copilot_version 0.40.1 --output_chars 48500 --truncated no --tokens 12000 --hypothesis "H1-no" --notes "Full content returned"
         """,
     )
 
@@ -443,14 +446,15 @@ Examples:
     parser.add_argument(
         "--log", type=str, help="Log result for test ID"
     )
-    parser.add_argument("--model", type=str, help="Model used (e.g., 'Claude 3.5 Sonnet')")
-    parser.add_argument("--copilot-version", type=str, help="Copilot IDE version")
-    parser.add_argument("--output-chars", type=int, help="Output character count")
+    parser.add_argument("--model_selector", type=str, help="Model selector used (e.g., 'Auto')")
+    parser.add_argument("--model_observed", type=str, help="Model observed (e.g., 'Claude Haiku 4.5')")
+    parser.add_argument("--copilot_version", type=str, help="Copilot IDE version")
+    parser.add_argument("--output_chars", type=int, help="Output character count")
     parser.add_argument(
         "--truncated", type=str, choices=["yes", "no"], help="Was content truncated?"
     )
     parser.add_argument(
-        "--truncation-point",
+        "--truncation_point",
         type=int,
         help="Character position where truncation occurred",
     )
@@ -458,12 +462,12 @@ Examples:
     parser.add_argument(
         "--hypothesis", type=str, help="Hypothesis match (e.g., H1-yes, H2-no, EC-timeout)"
     )
-    parser.add_argument("--file-size-bytes", type=int, help="Raw file size in bytes")
-    parser.add_argument("--md5-checksum", type=str, help="MD5 checksum of content")
-    parser.add_argument("--total-lines", type=int, help="Total lines in content")
-    parser.add_argument("--total-words", type=int, help="Total words in content")
-    parser.add_argument("--code-blocks", type=int, help="Number of code blocks")
-    parser.add_argument("--table-rows", type=int, help="Number of table rows")
+    parser.add_argument("--file_size_bytes", type=int, help="Raw file size in bytes")
+    parser.add_argument("--md5_checksum", type=str, help="MD5 checksum of content")
+    parser.add_argument("--total_lines", type=int, help="Total lines in content")
+    parser.add_argument("--total_words", type=int, help="Total words in content")
+    parser.add_argument("--code_blocks", type=int, help="Number of code blocks")
+    parser.add_argument("--table_rows", type=int, help="Number of table rows")
     parser.add_argument("--headers", type=int, help="Number of headers")
     parser.add_argument("--notes", type=str, help="Additional notes")
 
@@ -479,15 +483,16 @@ Examples:
 
     elif args.log:
         framework = CopilotTestingFramework(track=args.track)
-        if not all([args.model, args.copilot_version, args.output_chars is not None, args.truncated, args.tokens is not None, args.hypothesis]):
+        if not all([args.model_selector, args.model_observed, args.copilot_version, args.output_chars is not None, args.truncated, args.tokens is not None, args.hypothesis]):
             parser.error(
-                "--log requires: --model, --copilot-version, --output-chars, --truncated, --tokens, --hypothesis"
+                "--log requires: --model_selector, --model_observed, --copilot_version, --output_chars, --truncated, --tokens, --hypothesis"
             )
 
         framework.log_result(
             test_id=args.log,
             method=args.method,
-            model=args.model,
+            model_selector=args.model_selector,
+            model_observed=args.model_observed,
             copilot_version=args.copilot_version,
             output_chars=args.output_chars,
             truncated=args.truncated == "yes",

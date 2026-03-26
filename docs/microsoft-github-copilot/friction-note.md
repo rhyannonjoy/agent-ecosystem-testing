@@ -9,11 +9,67 @@ parent: Microsoft GitHub Copilot
 
 ---
 
+## Auto's Multi-Model Routing Instability
+
+Copilot's `Auto` model selection routes requests across multiple distinct backend models without user
+control or consistent behavior. Across 13 interpreted-track runs spanning `BL-1`, `BL-2`, and `SC-2`,
+Auto inconsistently routed to `Claude Haiku 4.5`, `Claude Sonnet 4.6`, `GPT-5.3-Codex`, `Grok Code Fast 1`,
+and `Raptor mini (Preview)`. Routing doesn't appear to follow a detectable pattern; the same URL and
+prompt on consecutive runs has produced different models, and the same model on consecutive runs
+has produced dramatically different character counts, which suggests that model selection appears to
+vary across both prompt type and target URL, with no documented routing logic and no indication in the
+UI that a switch has occurred between runs.
+
+Copilot's _agent's choice mechanism_ seems structurally different from Cursor, in which the `Auto`
+behavior didn't expose the model name in the UI and the default model wasn't publicly documented, but
+the model variable was invisible rather than visibly unstable. Copilot surfaces the model name per run,
+which makes the variance observable and therefore a measurable finding rather than a hidden confounder.
+The tradeoff is that the instability is now impossible to ignore: runs logged as `Auto` aren't replicates
+of a single condition.
+
+Copilot compounds this instability as `Raptor mini`'s self-reports its fetch capability. When asked
+directly about its default model and fetch tools, `Raptor mini` described fetch as something done via
+existing workspace scripts and characterized those scripts as calling external APIs, including Anthropic
+and Cursor - it didn't identify `fetch_webpage` as a native tool, despite having invoked it in prior
+runs. This conflation of workspace context with native capability means `Raptor mini`'s self-reported
+tool visibility is unreliable as ground truth, and suggests the model may not have a stable internal
+representation of which web content retrieval it's actually using.
+
+Beyond routing instability, `BL-3` data on the interpreted track surfaced two behaviorally distinct
+model-family clusters that persist across runs:
+
+| **Behavior** | **GPT-family** - `GPT-5.3-Codex`, `GPT-5.4` | **Claude-family** - `Claude Haiku 4.5` |
+| --- | --- | --- |
+| Fetch Invocations | 2–3 per run; self-diagnoses first result as insufficient and re-fetches | 1 per run; no self-diagnosis or re-fetch |
+| Output Size Range | ~15,000–33,000 chars across 4 runs | ~42,850–87,000 chars across 2 runs |
+| Within-model Variance | Moderate | High, ~2x difference - 87,000 vs 42,850 on identical prompts, same model, same sampling parameter; no observable explanation |
+
+The behavioral split between model families is notable, but the within-model variance for
+`Claude Haiku 4.5` limits how much weight the output size difference can carry; a ~2x spread
+across two runs on the same model and URL means the higher ceiling may not be stable or
+reproducible.
+
+**Impact**: Copilot on `Auto` isn't a single test condition, but **a routing layer that dispatches to
+at least four distinct models**, each with potentially different fetch post-processing behavior, tokenizers,
+and tendencies toward output artifacts like section duplication. Analysis can't attribute character count
+variance across runs to fetch behavior alone when the model is also varying. The two confounders are currently
+inseparable without a controlled run set that pins the model.
+
+**Methodology Decision**: remain on `Auto` to mirror the Cursor testing framework, and treat model selection
+variance as a finding rather than a nuisance variable. The original model column bundled the selector setting
+and observed backend into a single string as in `Auto - Claude Haiku 4.5`, which made it impossible to filter
+or group by either dimension independently. Split into two required fields: `model_selector` records the UI
+setting `Auto` and `model_observed` records the backend model actually invoked: `Claude Haiku 4.5`. Both fields
+required per run. Treat runs with different `model_observed` values as distinct conditions when interpreting
+variance and don't average character counts across mixed-model runs for the same test ID.
+
+---
+
 ## Autonomous Tool Substitution: Local Code Execution Over URL Fetch
 
 When prompted to retrieve a URL and report metrics, Copilot autonomously substituted the intended behavior -
-fetching the URL directly - with executing the local testing framework script via the `pylanceRunCodeSnippet` MCP server tool.
-Rather than using a web fetch mechanism on the target URL, the agent:
+fetching the URL directly - with executing the local testing framework script via the `pylanceRunCodeSnippet`
+MCP server tool. Rather than using a web fetch mechanism on the target URL, the agent:
 
 ```markdown
 1. Read `web_content_retrieval_testing_framework.py` from the workspace
@@ -22,41 +78,48 @@ Rather than using a web fetch mechanism on the target URL, the agent:
 4. Presented the substitution as "a reliable alternate execution path" with "exact metrics"
 ```
 
-The agent framed this as an improvement, as "more precise measurements through local execution" without flagging that it was deviating
-from the requested method entirely. This complicates testing with **method contamination**, as local script execution isn't
-equivalent to Copilot's built-in web content retrieval; it bypasses whatever fetch mechanism Copilot would otherwise use, therefore
-obscuring any tool visibility. One of the goals is to observe which backend tool Copilot selects - `fetch_webpage`; running local Python
-defeats this entirely, reinforcing a type of **false confidence** - the agent characterized the substitution positively, meaning a user
-who clicked `Allow` would receive _plausible-looking data from the wrong method with no indication anything went wrong_. 
+The agent framed this as an improvement, as "more precise measurements through local execution" without flagging
+that it was deviating from the requested method entirely. This complicates testing with **method contamination**,
+as local script execution isn't equivalent to Copilot's built-in web content retrieval; it bypasses whatever fetch
+mechanism Copilot would otherwise use, therefore obscuring any tool visibility. One of the goals is to observe which
+backend tool Copilot selects - `fetch_webpage`; running local Python defeats this entirely, reinforcing a type of
+**false confidence** - the agent characterized the substitution positively, meaning a user who clicked `Allow` would
+receive _plausible-looking data from the wrong method with no indication anything went wrong_.
 
 Observed a second substitution path in `BL-2`: after `fetch_webpage` succeeded and returned content, the agent
 attempted to pipe that content into a local Python process via a `zsh` shell command rather than reporting metrics
 directly in chat. The fetch itself used the correct mechanism, but analysis was immediately redirected to local
-execution anyway, suggesting the substitution behavior is possibly triggered by **the analysis step**, not just the fetch step.
-Two distinct substitution tool paths have surfaced so far:
+execution anyway, suggesting the substitution behavior is possibly triggered by **the analysis step**, not just
+the fetch step. Two distinct substitution tool paths have surfaced so far:
 
 ```markdown
 1. `pylanceRunCodeSnippet` - Pylance MCP server, triggered during fetch planning
 2. `zsh` shell command - Python heredoc with fetched content piped in, triggered during metric extraction
 ```
 
-**Impact**: single-test prompts in Copilot may not guarantee single-mechanism execution; if the agent finds a "smarter" path to the
-answer using workspace context, it may take it autonomously - producing results that **aren't comparable** to other platforms in the
-cross-platform study
+**Impact**: single-test prompts in Copilot may not guarantee single-mechanism execution; if the agent finds a
+"smarter" path to the answer using workspace context, it may take it autonomously - producing results that
+**aren't comparable** to other platforms in the cross-platform study
 
-**Fix Attempted**: explicit prompt guardrails - _"please don't run any local scripts or use any code execution scripts"_ - are insufficient to suppress this behavior. The agent attempted `mcp_pylance_mcp_s_pylanceRunCodeSnippet` across multiple runs regardless, only completing via `fetch_webpage` after the user skipped the tool call. In `BL-2` run 3, the failure mode sharpened: the agent stated `"the approach avoids running any local scripts, exactly as requested"` in the same turn it triggered the tool prompt - **actively asserting compliance while violating it**. Prompt wording alone can't override this behavior; can't take the agent's self-reporting as confirmation that it followed the rules.
+**Fix Attempted**: explicit prompt guardrails - _"please don't run any local scripts or use any code execution scripts"_ -
+are insufficient to suppress this behavior. The agent attempted `mcp_pylance_mcp_s_pylanceRunCodeSnippet` across multiple
+runs regardless, only completing via `fetch_webpage` after the user skipped the tool call. In `BL-2` run 3, the failure
+mode sharpened: the agent stated `"the approach avoids running any local scripts, exactly as requested"` in the same turn
+it triggered the tool prompt - **actively asserting compliance while violating it**. Prompt wording alone can't override
+this behavior; can't take the agent's self-reporting as confirmation that it followed the rules.
 
-**Fix**: beyond prompt guardrails, consider whether removing or relocating the framework script from the active workspace context would
-suppress the substitution behavior at the source. Alternatively, flag runs where Copilot attempted to run `pylanceRunCodeSnippet`
-in the CSV regardless of whether the user skipped it, as the attempt itself is a **methodology deviation**.
+**Fix**: beyond prompt guardrails, consider whether removing or relocating the framework script from the active workspace
+context would suppress the substitution behavior at the source. Alternatively, flag runs where Copilot attempted to run
+`pylanceRunCodeSnippet` in the CSV regardless of whether the user skipped it, as the attempt itself is a
+**methodology deviation**.
 
 ---
 
 ## `fetch_webpage` Not Consistently Invoked
 
-When asked to describe its default model and web fetch and/or web content retrieval capability directly, `Raptor mini (Preview)`
-described its fetch capability in general terms, but characterized it relative to workspace context rather than as a
-native tool:
+When asked to describe its default model and web fetch and/or web content retrieval capability directly,
+`Raptor mini (Preview)` described its fetch capability in general terms, but characterized it relative to workspace
+context rather than as a native tool:
 
 ```markdown
 "In this repo context, fetch is usually done via provider-specific modules:
@@ -70,6 +133,14 @@ This suggests `Raptor mini` may conflate workspace scripts with its own fetch ca
 run-to-run variance in character counts across identical prompts - 4,500 / 3,200 / 7,500–10,000 chars across
 runs 3–5, this raises the possibility that `fetch_webpage` isn't always the mechanism invoked, or that its
 output is post-processed differently per run.
+
+`SC-2` run 5 on the interpreted track introduced a third fetch behavior variant: rather than the two-invocation
+pattern observed in prior `SC-2` runs, one for the redirect, one for content, `GPT-5.3-Codex` made four sequential
+fetch calls to the same URL. The agent self-diagnosed condensed output after the second fetch and re-fetched twice more:
+once requesting raw unabridged text, once requesting explicit length and tail metadata - before reporting results. This
+suggests fetch invocation count isn't fixed even for the same URL and test ID, and that at least some models perform
+autonomous retrieval quality assessment and retry within a single run. The number of fetch calls isn't currently a
+logged field; consider whether it should be.
 
 **Impact**: tool visibility reporting from the agent may not reliably reflect the actual backend mechanism used.
 The agent's self-description of its fetch behavior is inconsistent with observed tool logs, making cross-run
@@ -87,19 +158,49 @@ no public docs. Asking Copilot directly returns a deflection:
 "Sorry, I'm unable to answer that question. Check that you selected the correct GitHub version or try a different question."
 ```
 
-An external search via DuckDuckGo, using `GPT-5 mini` corroborates that no public `WebFetch` API exists for Copilot:
+This is consistent with the `@Web` evolution pattern documented in
+[Cursor's Friction Note](/docs/anysphere-cursor/friction-note.md#web-undocumented-requires-reverse-engineering);
+the fetch mechanism is agent-selected, undocumented, and surfaces only through tool logs.
+
+During `OP-4` run 3 on the interpreted track, `GPT-5.3-Codex` produced the clearest characterization of `fetch_webpage`'s
+behavior observed across all interpreted-track runs. The agent explicitly stated that `fetch_webpage` doesn't perform raw
+HTTP retrieval, but returns relevance-ranked semantic excerpts based on the query string provided, with `...` markers
+between contextually selected chunks. The tool response preamble visible in the output confirmed this directly:
 
 ```markdown
-"There is no publicly documented generic WebFetch API for Copilot that extensions or users can call.
-The retrieval/fetching and parsing logic is an internal backend capability and not documented in detail."
+"Here is some relevant context from the web page [url]:"
 ```
 
-This is consistent with the `@Web` evolution pattern documented in Cursor's Friction Note; the fetch mechanism
-is agent-selected, undocumented, and surfaces only through tool logs.
+This preamble, not a raw payload header, indicates a retrieval model that samples and ranks content rather than fetching
+it sequentially. The full ~250 KB page was never delivered; no contiguous truncation boundary exists because the content
+was **never contiguous to begin with**. This reframes what truncation means on the interpreted track: results logged as
+truncated may be more precisely described as **incompletely sampled**, and the `...` markers throughout responses are
+elision indicators from the retrieval model, not byte-boundary cutoffs.
+
+This also has direct implications for `OP-4`'s test hypothesis. The hypothesis assumes a sequential fetch that the agent
+could paginate by requesting the next chunk, but `fetch_webpage`'s relevance-ranked mechanism means there is no sequential
+chunk 2 to request. This fetch mechanism alone can't confirm or deny `OP-4`'s hypothesis; it would require a different
+retrieval tool to test meaningfully.
+
+A related pattern has emerged across multiple runs on the MongoDB Atlas Search tutorial URL, appearing in both `OP-4` and
+`BL-3`: the agent self-diagnoses the first fetch result as a "condensed page extraction rather than a clean raw dump" and
+issues a corrective re-fetch against the same URL. The re-fetch returns the same kind of output, because the excerpted
+result isn't a retrieval error, it's the expected output of `fetch_webpage`'s architecture. The agent is misidentifying a structural property of the tool as a transient failure and attempting to correct it. This means the agent itself doesn't
+have accurate knowledge of what its own retrieval tool does, which is consistent with `fetch_webpage` as unclear
+at the model level. The re-fetch attempts don't produce fuller content, but produce a second relevance-ranked sample of
+the same page, logged as additional fetch invocations in the run notes.
 
 **Impact**: can't treat `fetch_webpage` as a stable, documented mechanism. Its behavior, size limits, and
 invocation conditions are opaque; results logged as `method: fetch_webpage` reflect **observed tool output**,
-not a documented API contract.
+not an API contract. The `OP-4` finding additionally suggests that character count comparisons across runs may
+reflect relevance-ranking variance as much as size-limit truncation. The tool may return different content samples for the
+same URL depending on the query string provided to it. The retrieval layer's internal query parameters aren't surfaced in
+chat output. If `fetch_webpage` passes a query string or context vector to its relevance model, that parameter is invisible
+to the interpreted track. Prompt differences can't be responsible for excerpt selection differences because each track has
+identical prompts - but don't rule out excerpt selection out as retrieval-layer sensitivity as something the agent passes
+internally.
+
+>not a single run has reported full content returned. That's not a finding about any individual run, it's a finding about fetch_webpage as a mechanism: full sequential retrieval may simply not be something it's capable of, by design. The agent in this run made that explicit by clarifying its measurements describe the tool response, not the underlying page
 
 ---
 
@@ -121,20 +222,49 @@ single session, making it difficult to complete a full baseline before the allow
 resets. Tests involving multiple runs for variance measurement are particularly affected,
 since each re-run of the same test ID consumes quota without producing new URL coverage.
 
-**Fix**: Copilot Pro at $10/month is half the price of Cursor - possibly free if testing within
-the 30-day trial period; signing up removes the message quota. Budget at minimum three runs per
-test ID plus additional runs for variance on `BL-1` and `BL-2` - approximately
-15–20 messages for a complete interpreted-track baseline.
+**Fix**: Copilot Pro at $10/month is half the price of Cursor - possibly continuously free
+if testing within a 30-day trial period; signing up removes the message quota. Budget at
+minimum three runs per test ID plus additional runs for variance on `BL-1` and `BL-2` -
+approximately 15–20 messages for a complete interpreted-track baseline.
+
+---
+
+## Metric Precision on the Interpreted Track
+
+Copilot's testing prompt asks for total character count and estimated token count. On the interpreted
+track, neither figure is reliably precise. Character counts frequently come back as ranges rather than
+exact integers, and token counts follow the same pattern since they're derived from the character estimate
+using a fixed ~4 chars/token heuristic. As Copilot returns ranges, `results.csv` logs the midpoint as the
+scalar value in `output_chars` and `tokens_est`.
+
+The imprecision isn't a prompt compliance problem, but reflects a **real constraint of the interpreted track**.
+The agent receives excerpted, ellipsis-compressed content from `fetch_webpage`, not the raw page, so _it can't
+count characters it never saw_. Pushing for exact figures would produce **false precision** without improving
+measurement quality. The range is the correct result given the input the agent actually has.
+
+**Impact**: treat `output_chars` and `tokens_est` on the interpreted track as _order-of-magnitude orientation figures_,
+**not exact measurements**. They're sufficient for confirming that truncation occurred and estimating the retrieval
+rate against expected page size, but not for _fine-grained comparison_ across runs or platforms. Raw track outputs
+are the only source of exact counts.
+
+**Methodology Decision**: no prompt change - continue logging midpoint values for ranges and note when a range returns
+vs a single figure, as the distinction is itself a signal. Runs where the agent can return an exact count may
+indicate a different fetch output format than runs where it can't, confirmed in `SC-2` interpreted run 5 in which
+`GPT-5.3-Codex` returned exact figures rather than ranges. The same run that produced four fetch invocations, suggesting
+the _additional retrieval attempts_ may have given the model enough payload visibility to count precisely rather
+than estimate.
 
 ---
 
 ## Output Integrity: Duplicated Response Sections
 
-During `BL-2` runs 2-3 on the interpreted track, `Raptor mini (Preview)` duplicated sections 6 -
+During `BL-2` runs 2-3 on the interpreted track, the model duplicated sections 6 -
 `Model's Perceived Completeness`, and 7 - `Tool Visibility`, in its response; the same content
 appeared twice in sequence with no indication that the repetition was intentional or an error.
-Both runs used `Raptor mini (Preview)` and suggests duplication may be _model-specific
-rather than random_. This complicated testing in a few ways:
+`Auto` selection of `Claude Sonnet 4.6` and `Raptor mini (Preview)` producing duplication
+suggests that the behavior _isn't model-specific_, but possibly triggered by other factors like
+response structure, as prompt structure nearly identical across tracks. This complicates testing
+in a few ways:
 
 - **Inflated Character Counts**: if the agent is also estimating character counts from its
 own output rather than from the raw tool response, duplicated sections silently inflate the
@@ -152,3 +282,15 @@ character count as a standalone measurement
 
 **Fix**: cross-reference interpreted-track reports against raw-track outputs for the same
 URL before treating character counts as comparable data points
+
+---
+
+## Prompt Format Affects Output Structure
+
+During `OP-4` run 3 on the interpreted track, the numbered list was accidentally omitted from the request.
+The agent returned results in a Markdown table rather than the prose sections produced by runs 1 and 2. The underlying fetch behavior and findings were consistent with prior runs, the prompt format difference affected response structure only, not the fetch mechanism or metric values.
+
+This is a prompt compliance risk: if output structure varies with prompt formatting, manual result logging becomes harder to scan consistently, and fields like the last 50 characters verbatim are easier to misread
+in a table than in a labeled prose section. It also raises the question of whether output structure differences could mask metric differences. A table that truncates cell content, for instance, would silently drop characters that a prose response would include.
+
+**Fix**: verify the numbered prompt format is intact before submitting each run. Consider adding a format check to the framework's `generate_interpreted_prompt` output so the structure is always explicit.

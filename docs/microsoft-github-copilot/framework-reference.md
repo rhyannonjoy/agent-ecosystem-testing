@@ -116,14 +116,18 @@ cd copilot-web-content-retrieval
    python web_content_retrieval_testing_framework.py --log BL-1 \
    --track interpreted \
    --method vscode-chat \
-   --model "Auto, Raptor mini (Preview)" \
-   --copilot-version "0.40.1" \
-   --output-chars 48500 \
+   --model_selector Auto \
+   --model_observed "Raptor mini (Preview)"* \
+   --copilot_version 0.40.1 \
+   --output_chars 48500 \
    --truncated no \
    --tokens 12000 \
    --hypothesis "H1-no" \
    --notes "Full content returned, no truncation observed..."
    ```
+
+   >*_Quotations are only strictly required when the value contains spaces or special
+   >characters that the shell would otherwise split or misinterpret_
 
    ```bash
    # Verify key metrics before logging raw track runs
@@ -133,19 +137,20 @@ cd copilot-web-content-retrieval
    python web_content_retrieval_testing_framework.py --log BL-1 \
    --track raw \
    --method vscode-chat \
-   --model "Auto, Raptor mini (Preview)" \
-   --copilot-version "0.40.1" \
-   --output-chars 9876 \
+   --model_selector Auto \
+   --model_observed "Raptor mini (Preview)" \
+   --copilot_version 0.40.1 \
+   --output_chars 9876 \
    --truncated yes \
-   --truncation-point 9876 \
+   --truncation_point 9876 \
    --tokens 2469 \
    --hypothesis "H1-yes" \
-   --file-size-bytes 4817 \
-   --md5-checksum "d6ad8451d3778bf3544574431203a3a7" \
-   --total-lines 143 \
-   --total-words 564 \
-   --code-blocks 2 \
-   --table-rows 57 \
+   --file_size_bytes 4817 \
+   --md5_checksum "d6ad8451d3778bf3544574431203a3a7" \
+   --total_lines 143 \
+   --total_words 564 \
+   --code_blocks 2 \
+   --table_rows 57 \
    --headers 4 \
    --notes "vscode-chat returns converted..."
    ```
