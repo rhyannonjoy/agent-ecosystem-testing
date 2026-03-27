@@ -113,14 +113,27 @@ model-family clusters that persist across runs:
 
 | **Behavior** | **GPT-family** - `GPT-5.3-Codex`, `GPT-5.4` | **Claude-family** - `Claude Haiku 4.5` |
 | --- | --- | --- |
-| Fetch Invocations | 2–3 per run; self-diagnoses first result as insufficient and re-fetches | 1 per run; no self-diagnosis or re-fetch |
-| Output Size Range | ~15,000–33,000 chars across 4 runs | ~42,850–87,000 chars across 2 runs |
-| Within-model Variance | Moderate | High, ~2x difference - 87,000 vs 42,850 on identical prompts, same model, same sampling parameter; no observable explanation |
+| **Fetch Invocations** | 2–3 per run; self-diagnoses first result as insufficient and re-fetches | 1 per run; no self-diagnosis or re-fetch |
+| **Output Size Range** | ~15,000–33,000 chars across 4 runs | ~42,850–87,000 chars across 2 runs |
+| **Within-model Variance** | Moderate | High, ~2x difference - 87,000 vs 42,850 on identical prompts, same model, same sampling parameter; no observable explanation |
 
 The behavioral split between model families is notable, but the within-model variance for
 `Claude Haiku 4.5` limits how much weight the output size difference can carry; a ~2x spread
 across two runs on the same model and URL means the higher ceiling may not be stable or
 reproducible.
+
+A fourth routing variable surfaced during analysis: the request multiplier suffix visible in
+some model labels. When asked directly, Copilot described labels like `Claude Haiku 4.5 0.3x`
+as a request multiplier - each prompt on that model counts as `0.3` of a premium request unit
+against the plan quota, compared to `1.0` for a standard model. `Auto` routing therefore selects
+**not only** across model families but **across cost tiers** within the same model. Whether the
+multiplier also affects output budget, context window, or retrieval behavior isn't documented,
+but the `BL-3` data suggests it may: the two `Claude Haiku 4.5 0.3x` runs returned 87,000 and
+42,850 chars in single fetch invocations, while all other models on the same URL used 2–3
+fetches and returned 15,000–22,500 chars. The multiplier is a third uncontrolled variable in
+`Auto` routing alongside model family and model version, and it isn't logged separately;
+`model_observed` captures the full label including suffix, which is sufficient for
+grouping, but doesn't isolate the multiplier as an independent field.
 
 **Impact**: Copilot on `Auto` isn't a single test condition, but **a routing layer that dispatches to
 at least four distinct models**, each with potentially different fetch post-processing behavior, tokenizers,
@@ -174,7 +187,7 @@ execution. The agent framed the attempt as counting characters in the exact fetc
 not as a script; suggesting it may not classify targeted shell commands as "local scripts" for the purpose of evaluating
 prompt compliance. Three distinct substitution tool paths and trigger conditions observed:
 
-1. `pylanceRunCodeSnippet` — Pylance MCP server, triggered during fetch planning when workspace
+1. `pylanceRunCodeSnippet` - Pylance MCP server, triggered during fetch planning when workspace
 framework script is in context
 2. `zsh` shell command - Python heredoc with fetched content piped in, triggered during metric
 extraction after a successful fetch
