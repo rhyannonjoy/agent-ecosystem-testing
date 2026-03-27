@@ -1,26 +1,27 @@
 """
-Cursor Web Fetch Testing Framework
+Copilot Web Content Retrieval Testing Framework
 Generates standardized test prompts and logs results to CSV
 
 This framework mirrors the methodology used in agent-ecosystem-testing for
-Claude API, Gemini, and OpenAI platforms. Test URLs are sourced from the
-existing test suites to ensure **comparable results across platforms**.
+Claude API, Gemini, and OpenAI platforms - but specifically echoes Cursor's testing
+approach. Test URLs are sourced from the existing test suites to ensure **comparable
+results across platforms**.
 
 Key design decisions:
-1. URLs are proven web fetch test cases from existing suites (Claude API, Gemini)
+1. URLs are proven web content retrieval test cases from existing suites (Claude API, Gemini)
 2. Baseline tests, BL - use the same MongoDB docs pages as Claude API testing
 3. Structured content tests, SC - use API docs and reference materials
 4. Offset/Pagination Tests, OP - Test chunking, fragment navigation, and method comparison
 5. Edge case tests, EC - target specific truncation/rendering challenges
-6. Two-track measurement: interpreted (what Cursor reports) + raw (exact measurements)
+6. Two-track measurement: interpreted (what Copilot reports) + raw (exact measurements)
 
-This allows direct comparison: "Cursor truncates at X KB, Claude API at Y KB on same URL"
+This allows direct comparison: "Copilot truncates at X KB, Claude API at Y KB on same URL"
 
 Usage:
-    # From cursor-web-fetch/ directory
-    python web_fetch_testing_framework.py --list-tests
-    python web_fetch_testing_framework.py --test {test ID} --track interpreted
-    python web_fetch_testing_framework.py --log {test ID} --track interpreted --method @Web
+    # From copilot-web-content-retrieval/ directory
+    python web_content_retrieval_testing_framework.py --list-tests
+    python web_content_retrieval_testing_framework.py --test {test ID} --track interpreted
+    python web_content_retrieval_testing_framework.py --test {test ID} --track raw
 """
 
 import csv
@@ -60,7 +61,7 @@ TEST_URLS = {
     },
     
     # --- STRUCTURED CONTENT TESTS, SC ---
-    # Test how Cursor handles different content structures during truncation
+    # Test how Copilot handles different content structures during truncation
     "SC-1": {
         "name": "Markdown-heavy documentation",
         "url": "https://ai.google.dev/gemini-api/docs/url-context",
@@ -97,21 +98,14 @@ TEST_URLS = {
         "url": "https://en.wikipedia.org/wiki/Machine_learning#History",
         "expected_size_kb": 40,
         "category": "offset_pagination",
-        "note": "Tests if Cursor can jump to specific section via URL fragment",
-    },
-    "OP-3": {
-        "name": "MCP vs @Web side-by-side comparison",
-        "url": "https://httpbin.org/html",
-        "expected_size_kb": 5,
-        "category": "offset_pagination",
-        "note": "Small, predictable HTML; same URL for both @Web and mcp-server-fetch comparison",
+        "note": "Tests if Copilot can jump to specific section via URL fragment",
     },
     "OP-4": {
         "name": "Large document - agent auto-chunking test",
         "url": "https://www.mongodb.com/docs/atlas/atlas-search/tutorial/",
         "expected_size_kb": 250,
         "category": "offset_pagination",
-        "note": "Same as BL-3; tests if Cursor agent automatically requests next chunk after truncation",
+        "note": "Same as BL-3; tests if Copilot agent automatically requests next chunk after truncation",
     },
     
     # --- EDGE CASES / FAILURE MODES, EC ---
@@ -128,7 +122,7 @@ TEST_URLS = {
         "url": " https://httpbin.org/redirect/5",
         "expected_size_kb": 2,
         "category": "edge_cases",
-        "note": "Tests how many redirects Cursor follows before giving up or timeout",
+        "note": "Tests how many redirects Copilot follows before giving up or timeout",
     },
     "EC-6": {
         "name": "Very long single lines (no line breaks)",
@@ -148,7 +142,8 @@ class TestResult:
     date: str
     url: str
     method: str
-    model: str
+    model_selector: str
+    model_observed: str
     input_est_chars: int
     output_chars: int
     truncated: str
@@ -156,7 +151,7 @@ class TestResult:
     tokens_est: int
     hypothesis_match: str
     notes: str
-    cursor_version: str
+    copilot_version: str
     # Raw track fields (optional, only populated for raw track)
     file_size_bytes: Optional[int] = None
     md5_checksum: Optional[str] = None
@@ -166,8 +161,8 @@ class TestResult:
     table_rows: Optional[int] = None
     headers: Optional[int] = None
 
-class CursorTestingFramework:
-    """Manage Cursor web fetch testing"""
+class CopilotTestingFramework:
+    """Manage Copilot web content retrieval testing"""
 
     def __init__(self, results_dir: str = None, track: str = "interpreted"):
         self.track = track
@@ -175,7 +170,7 @@ class CursorTestingFramework:
         # Set results_dir based on track if not provided
         if results_dir is None:
             if track == "interpreted":
-                results_dir = "results/cursor-interpreted"
+                results_dir = "results/copilot-interpreted"
             else:
                 results_dir = f"results/{track}"
         
@@ -183,7 +178,7 @@ class CursorTestingFramework:
         self.results_dir.mkdir(parents=True, exist_ok=True)
         self.csv_path = self.results_dir / "results.csv"
 
-    def generate_interpreted_prompt(self, test_id: str, method: str = "@Web") -> str:
+    def generate_interpreted_prompt(self, test_id: str, method: str = "vscode-chat") -> str:
         """Generate a prompt for interpreted track testing"""
 
         if test_id not in TEST_URLS:
@@ -192,10 +187,11 @@ class CursorTestingFramework:
         test = TEST_URLS[test_id]
         url = test["url"]
 
-        if method == "@Web":
-            prompt = f"""I'm testing Cursor's web fetch capabilities for the Agent Ecosystem Testing project.
+        prompt = f"""I'm testing GitHub Copilot's web content retrieval capabilities for the Agent Ecosystem Testing project.
 
-Run this test only, don't proceed to any other tests. Please use the @Web command to fetch this URL:
+To prevent testing methodology contamination, only run this test and don't proceed to any other tests.
+In addition, please don't run any local scripts or use any code execution scripts. 
+Fetch this URL directly:
 {url}
 
 Then report back:
@@ -205,36 +201,15 @@ Then report back:
 4. **Last 50 characters** of the response (verbatim, to verify the cutoff point)
 5. **Markdown formatting assessment** - is it complete? Are code blocks closed properly?
 6. **Model's perceived completeness** - does it seem like you got the full content?
+7. **Tool visibility** - report any tool names, server names, or method identifiers visible in your tool results
 
 Test ID: {test_id}
 Expected size: ~{test['expected_size_kb']}KB
 This is for empirical documentation of truncation limits."""
 
-        elif method == "mcp-server-fetch":
-            prompt = f"""Testing mcp-server-fetch implementation for comparison with @Web.
-
-Please use mcp-server-fetch to fetch:
-{url}
-
-With parameters if supported:
-- maxCharacters: 100000
-- Raw output if possible
-
-Report:
-1. Success/failure
-2. Actual content length in characters
-3. Truncation indicators
-4. Whether output differs from @Web on same URL
-
-Test ID: {test_id}
-This is comparative testing for MCP vs native @Web behavior."""
-
-        else:
-            raise ValueError(f"Unknown method: {method}")
-
         return prompt
 
-    def generate_raw_prompt(self, test_id: str, method: str = "@Web") -> str:
+    def generate_raw_prompt(self, test_id: str, method: str = "vscode-chat") -> str:
         """Generate a prompt for raw track testing (request verbatim output)"""
 
         if test_id not in TEST_URLS:
@@ -243,10 +218,9 @@ This is comparative testing for MCP vs native @Web behavior."""
         test = TEST_URLS[test_id]
         url = test["url"]
 
-        prompt = f"""Testing web fetch for Agent Ecosystem Testing project - raw track.
+        prompt = f"""I'm testing GitHub Copilot's web content retrieval capabilities for the Agent Ecosystem Testing project - raw track.
 
-Please use {method} to fetch this URL and return the content EXACTLY as you received it:
-{url}
+Please retrieve the content from this URL and return it EXACTLY as you received it: {url}
 
 1. Run this test only, don't proceed to any other tests
 2. Save the content to raw_output_{test_id}.txt
@@ -255,11 +229,11 @@ Please use {method} to fetch this URL and return the content EXACTLY as you rece
 5. Count: total lines, total words, code blocks, table rows, headers
 6. Report hexdump of last 256 bytes
 7. Examine the last 256 bytes through hexdump: does content end cleanly with complete braces/tags/quotes or mid-character?
-8. After fetching, report any tool names, server names, or method identifiers visible in your tool results
+8. After retrieving, report any tool names, server names, or method identifiers visible in your tool results
 9. To protect data integrity, never overwrite or modify existing data in results.csv
 
 Test ID: {test_id}
-Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdown source. Cursor typically converts and filters this to a smaller size.)"""
+Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdown source. Copilot typically converts and filters this to a smaller size.)"""
 
         return prompt
 
@@ -285,7 +259,7 @@ Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdow
             },
             "fields_to_complete": {
                 "interpreted": [
-                    "Model Report (exact response from Cursor)",
+                    "Model Report (exact response from Copilot)",
                     "Estimated Length (KB or characters)",
                     "Truncation Perceived (yes/no, where)",
                     "Formatting Assessment",
@@ -321,7 +295,7 @@ Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdow
         print(f"\nURL: {harness['url']}")
         print(f"Expected Size: ~{harness['expected_size_kb']}KB\n")
 
-        print("PROMPT TO COPY INTO CURSOR:")
+        print("PROMPT TO COPY INTO COPILOT:")
         print("-" * 80)
         print(harness["instructions"][track])
         print("-" * 80)
@@ -340,8 +314,9 @@ Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdow
         self,
         test_id: str,
         method: str,
-        model: str,
-        cursor_version: str,
+        model_selector: str,
+        model_observed: str,
+        copilot_version: str,
         output_chars: int,
         truncated: bool,
         truncation_char_num: Optional[int],
@@ -375,7 +350,8 @@ Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdow
             date=datetime.now().strftime("%Y-%m-%d"),
             url=test["url"],
             method=method,
-            model=model,
+            model_selector=model_selector,
+            model_observed=model_observed,
             input_est_chars=test["expected_size_kb"] * 1024,
             output_chars=output_chars,
             truncated="yes" if truncated else "no",
@@ -383,7 +359,7 @@ Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdow
             tokens_est=tokens_est,
             hypothesis_match=hypothesis_match,
             notes=notes,
-            cursor_version=cursor_version,
+            copilot_version=copilot_version,
             file_size_bytes=file_size_bytes,
             md5_checksum=md5_checksum,
             total_lines=total_lines,
@@ -439,14 +415,14 @@ Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdow
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Cursor Web Fetch Testing Framework",
+        description="Copilot Web Fetch Testing Framework",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python web_fetch_testing_framework.py --list-tests
-  python web_fetch_testing_framework.py --test BL-1 --track interpreted
-  python web_fetch_testing_framework.py --test SC-2 --track raw
-  python web_fetch_testing_framework.py --log BL-1 --track interpreted --method @Web --model "Auto" --cursor-version "2.6.19" --output-chars 48500 --truncated no --tokens 12000 --hypothesis "H1-no" --notes "Full content returned"
+  python copilot_testing_framework.py --list-tests
+  python copilot_testing_framework.py --test BL-1 --track interpreted
+  python copilot_testing_framework.py --test SC-2 --track raw
+  python copilot_testing_framework.py --log BL-1 --track interpreted --method vscode-chat --model_selector Auto --model_observed "Claude Haiku 4.5" --copilot_version 0.40.1 --output_chars 48500 --truncated no --tokens 12000 --hypothesis "H1-no" --notes "Full content returned"
         """,
     )
 
@@ -464,21 +440,21 @@ Examples:
     parser.add_argument(
         "--method",
         type=str,
-        choices=["@Web", "mcp-server-fetch", "fetch-browser-mcp"],
-        default="@Web",
-        help="Fetch method to test",
+        default="vscode-chat",
+        help="Fetch method (currently only vscode-chat is tested)",
     )
     parser.add_argument(
         "--log", type=str, help="Log result for test ID"
     )
-    parser.add_argument("--model", type=str, help="Model used (e.g., 'Claude 3.5 Sonnet')")
-    parser.add_argument("--cursor-version", type=str, help="Cursor IDE version")
-    parser.add_argument("--output-chars", type=int, help="Output character count")
+    parser.add_argument("--model_selector", type=str, help="Model selector used (e.g., 'Auto')")
+    parser.add_argument("--model_observed", type=str, help="Model observed (e.g., 'Claude Haiku 4.5')")
+    parser.add_argument("--copilot_version", type=str, help="Copilot IDE version")
+    parser.add_argument("--output_chars", type=int, help="Output character count")
     parser.add_argument(
         "--truncated", type=str, choices=["yes", "no"], help="Was content truncated?"
     )
     parser.add_argument(
-        "--truncation-point",
+        "--truncation_point",
         type=int,
         help="Character position where truncation occurred",
     )
@@ -486,37 +462,38 @@ Examples:
     parser.add_argument(
         "--hypothesis", type=str, help="Hypothesis match (e.g., H1-yes, H2-no, EC-timeout)"
     )
-    parser.add_argument("--file-size-bytes", type=int, help="Raw file size in bytes")
-    parser.add_argument("--md5-checksum", type=str, help="MD5 checksum of content")
-    parser.add_argument("--total-lines", type=int, help="Total lines in content")
-    parser.add_argument("--total-words", type=int, help="Total words in content")
-    parser.add_argument("--code-blocks", type=int, help="Number of code blocks")
-    parser.add_argument("--table-rows", type=int, help="Number of table rows")
+    parser.add_argument("--file_size_bytes", type=int, help="Raw file size in bytes")
+    parser.add_argument("--md5_checksum", type=str, help="MD5 checksum of content")
+    parser.add_argument("--total_lines", type=int, help="Total lines in content")
+    parser.add_argument("--total_words", type=int, help="Total words in content")
+    parser.add_argument("--code_blocks", type=int, help="Number of code blocks")
+    parser.add_argument("--table_rows", type=int, help="Number of table rows")
     parser.add_argument("--headers", type=int, help="Number of headers")
     parser.add_argument("--notes", type=str, help="Additional notes")
 
     args = parser.parse_args()
 
     if args.list_tests:
-        framework = CursorTestingFramework(track=args.track)
+        framework = CopilotTestingFramework(track=args.track)
         framework.list_tests()
 
     elif args.test:
-        framework = CursorTestingFramework(track=args.track)
+        framework = CopilotTestingFramework(track=args.track)
         framework.print_test_harness(args.test, args.track)
 
     elif args.log:
-        framework = CursorTestingFramework(track=args.track)
-        if not all([args.model, args.cursor_version, args.output_chars is not None, args.truncated, args.tokens is not None, args.hypothesis]):
+        framework = CopilotTestingFramework(track=args.track)
+        if not all([args.model_selector, args.model_observed, args.copilot_version, args.output_chars is not None, args.truncated, args.tokens is not None, args.hypothesis]):
             parser.error(
-                "--log requires: --model, --cursor-version, --output-chars, --truncated, --tokens, --hypothesis"
+                "--log requires: --model_selector, --model_observed, --copilot_version, --output_chars, --truncated, --tokens, --hypothesis"
             )
 
         framework.log_result(
             test_id=args.log,
             method=args.method,
-            model=args.model,
-            cursor_version=args.cursor_version,
+            model_selector=args.model_selector,
+            model_observed=args.model_observed,
+            copilot_version=args.copilot_version,
             output_chars=args.output_chars,
             truncated=args.truncated == "yes",
             truncation_char_num=args.truncation_point,

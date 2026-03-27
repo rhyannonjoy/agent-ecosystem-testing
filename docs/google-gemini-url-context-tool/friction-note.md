@@ -10,7 +10,15 @@ parent: Google Gemini URL Context
 
 ---
 
-## Google AI Studio API key
+## Topic Guide
+
+- [Google AI Studio API Key](#google-ai-studio-api-key)
+- [Paid Tier Required](#paid-tier-required)
+- [Raw Track Roadblocks](#raw-track-roadblocks)
+
+---
+
+## Google AI Studio API Key
 
 Process for getting a Google AI Studio/Gemini API key was more straightforward than the
 for the Claude API. The Gemini API URL context docs includes a tools bar on the top
@@ -26,7 +34,7 @@ right of the page with a `Get API key` section.
 
 ---
 
-## API not available on the free tier - Raw Track
+## Paid Tier Required
 
 The free tier imposes two hard limits that make reliable test suite runs
 impossible without a paid account:

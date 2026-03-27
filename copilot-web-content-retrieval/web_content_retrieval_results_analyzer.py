@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-Cursor Testing Results Analyzer
+Copilot Web Content Retrieval Testing Results Analyzer
 - Analyzes CSV results, identifies truncation patterns, and generates summary report
 - Compares interpreted and raw track measurements
 - Matches findings to hypotheses, H1-H5
 
 Usage:
-    # From cursor-web-fetch/ directory
-    python web_fetch_results_analyzer.py --csv results/raw/results.csv --full
-    python web_fetch_results_analyzer.py --csv results/raw/results.csv --summary
-    python web_fetch_results_analyzer.py --csv results/raw/results.csv --method @Web
+    # From copilot-web-content-retrieval/ directory
+    python web_content_retrieval_results_analyzer.py --csv results/raw/results.csv --full
+    python web_content_retrieval_results_analyzer.py --csv results/raw/results.csv --summary
+    python web_content_retrieval_results_analyzer.py --csv results/raw/results.csv --method vscode-chat
 
-    python web_fetch_results_analyzer.py --csv results/cursor-interpreted/results.csv --full
-    python web_fetch_results_analyzer.py --csv results/cursor-interpreted/results.csv --summary
-    python web_fetch_results_analyzer.py --csv results/cursor-interpreted/results.csv --method @Web
+    python web_content_retrieval_results_analyzer.py --csv results/cursor-interpreted/results.csv --full
+    python web_content_retrieval_results_analyzer.py --csv results/cursor-interpreted/results.csv --summary
+    python web_content_retrieval_results_analyzer.py --csv results/cursor-interpreted/results.csv --method vscode-chat
 """
 
 import csv
@@ -23,8 +23,8 @@ from collections import defaultdict
 from statistics import mean, stdev
 import argparse
 
-class CursorResultsAnalyzer:
-    """Analyze Cursor testing results"""
+class CopilotResultsAnalyzer:
+    """Analyze Copilot testing results"""
 
     def __init__(self, csv_path: str):
         self.csv_path = Path(csv_path)
@@ -89,7 +89,7 @@ class CursorResultsAnalyzer:
         print(f"Test IDs loaded: {', '.join(test_ids_loaded)}\n")
 
     def filter_by_method(self, method: str):
-        """Filter results by fetch method"""
+        """Filter results by web content retrieval method"""
         return [r for r in self.results if r["method"] == method]
 
     def filter_by_track(self, track: str):
@@ -139,9 +139,9 @@ class CursorResultsAnalyzer:
         print()
 
     def analyze_by_method(self):
-        """Analyze differences between fetch methods"""
+        """Analyze differences between web content retrieval methods"""
         print("=" * 80)
-        print("METHOD COMPARISON (@Web vs MCP)")
+        print("METHOD COMPARISON (vscode-chat vs UI-chat)")
         print("=" * 80 + "\n")
 
         methods = set(r["method"] for r in self.results)
@@ -158,7 +158,7 @@ class CursorResultsAnalyzer:
             test_ids = set(r["test_id"] for r in results)
             if "OP-3" in test_ids:
                 op3_results = [r for r in results if r["test_id"] == "OP-3"]
-                print(f"  OP-3 (MCP vs @Web comparison):")
+                print(f"  OP-3 (vscode-chat vs UI-chat):")
                 for r in op3_results:
                     print(f"    - {r['output_chars']:,} chars, truncated: {r['truncated']}")
 
@@ -264,13 +264,13 @@ class CursorResultsAnalyzer:
 
         # MCP comparison status
         mcp_tests = [r for r in self.results if "mcp" in r["method"].lower()]
-        web_tests = [r for r in self.results if r["method"] == "@Web"]
+        web_tests = [r for r in self.results if r["method"] == "vscode-chat"]
 
         if mcp_tests and web_tests:
-            print("MCP vs @Web Status:")
-            print(f"  @Web tests: {len(web_tests)}")
+            print("vscode-chat vs UI-chat:")
+            print(f"  vscode-chat tests: {len(web_tests)}")
             print(f"  MCP tests: {len(mcp_tests)}")
-            print(f"  → Compare OP-3 results to determine if MCP overrides @Web limits\n")
+            print(f"  → Compare OP-3 results to determine if MCP overrides vscode-chat limits\n")
 
         # Auto-chunking analysis
         op4_results = self.filter_by_test_id("OP-4")
@@ -283,7 +283,7 @@ class CursorResultsAnalyzer:
 
         print("Next steps:")
         print("  1. Run remaining baseline tests (BL-3 if not complete)")
-        print("  2. Compare MCP vs @Web on OP-3")
+        print("  2. Compare vscode-chat vs UI-chat on OP-3 if applicable")
         print("  3. Run SC-1 through SC-4 for structure-aware truncation analysis")
         print("  4. Execute OP-4 to test auto-chunking behavior")
         print("  5. Review edge cases (EC-1, EC-3, EC-6)")
@@ -292,14 +292,12 @@ class CursorResultsAnalyzer:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Cursor Testing Results Analyzer",
+        description="Copilot Web Content Retrieval Testing Results Analyzer",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python web_fetch_results_analyzer.py --csv results/raw/results.csv --summary
-  python web_fetch_results_analyzer.py --csv results/cursor-interpreted/results.csv --summary
-  python web_fetch_results_analyzer.py --csv results/raw/results.csv --method "@Web"
-  python web_fetch_results_analyzer.py --csv results/raw/results.csv --markdown
+  python web_content_retrieval_results_analyzer.py --csv results/raw/results.csv --summary
+  python web_content_retrieval_results_analyzer.py --csv results/cursor-interpreted/results.csv --full
         """,
     )
 
@@ -319,7 +317,7 @@ Examples:
 
     args = parser.parse_args()
 
-    analyzer = CursorResultsAnalyzer(args.csv)
+    analyzer = CopilotResultsAnalyzer(args.csv)
 
     if args.full:
         print("\n" + "=" * 80)
