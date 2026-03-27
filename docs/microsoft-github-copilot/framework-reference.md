@@ -18,8 +18,7 @@ parent: Microsoft GitHub Copilot
 
 - [Installation](#installation)
 - [Workflow](#workflow)
-- [Baseline Testing Path - Single-Run Reproducible Strategy](#baseline-testing-path---single-run-reproducible-strategy)
-- [Extended Testing, _Optional_](#extended-testing-optional)
+- [Baseline Testing Path](#baseline-testing-path)
 - [Analyzing Results](#analyzing-results)
 
 ---
@@ -82,7 +81,7 @@ cd copilot-web-content-retrieval
 
    | Column | Description | Example |
    | --- | --- | --- |
-   | `test_id` | Test identifier | BL-1, SC-2, EC-1 |
+   | `test_id` | Test identifier | `BL-1`, `SC-2`, `EC-1` |
    | `timestamp` | ISO 8601 timestamp | 2026-03-16T17:05:02.998376 |
    | `date` | Date tested | 2026-03-16 |
    | `url` | Full URL tested | `https://www.mongodb.com/docs...` |
@@ -96,7 +95,7 @@ cd copilot-web-content-retrieval
    | `hypothesis_match` | Hypothesis matched | H1-no, H2-yes, H3-yes |
    | `notes` | Observations and findings | Pro-plan retry: successfully... |
    | `track` | Test track | interpreted/raw |
-   | `copilot_version` | Copilot chat version | 0.40.1, 0.40.1-pro |
+   | `copilot_version` | Copilot chat version | 0.40.1, 0.41.1-pro |
    | `file_size_bytes`** | Exact file size via `ls -l` | 28158 |
    | `md5_checksum`** | MD5 of saved output file | d542d945f2b5dc15c5254d... |
    | `total_lines`** | Line count | 979 |
@@ -174,23 +173,24 @@ cd copilot-web-content-retrieval
 
 ---
 
-## Baseline Testing Path - Single-Run Reproducible Strategy
+## Baseline Testing Path
 
-1. `BL-1`, `BL-2`: baseline, quick wins establish basic truncation threshold
-2. `SC-2`: code blocks, tests HTML-to-Markdown conversion
-3. `OP-4`: auto-chunking, determines DX and key ecosystem testing gap
-4. `BL-3`: hard ceiling to identify absolute limit
-5. `SC-1, SC-3, SC-4`: structured content to test structure-aware truncation hypothesis
-6. `EC-1, EC-3, EC-6`: edge cases to identify failure modes and unusual inputs
+Complete the interpreted track first to establish behavioral observations, then run
+the raw track for exact measurements. Run each test ID a minimum of 5 times to capture
+variance. `Auto` routing selects different models across runs, and output size can vary
+2–6x on identical prompts. Run both tracks for each test ID:
 
----
+1. `BL-1`, `BL-2` - baseline truncation threshold on small pages
+2. `SC-2` - code blocks, HTML-to-Markdown conversion behavior
+3. `OP-4` - auto-chunking hypothesis; establishes key ecosystem testing gap
+4. `BL-3` - hard ceiling; identify absolute output limit across model families
+5. `SC-1`, `SC-3`, `SC-4` - structured content; structure-aware truncation hypothesis
+6. `EC-1`, `EC-3`, `EC-6` - edge cases; failure modes and unusual inputs
 
-## Extended Testing, _Optional_
-
-- **Run raw track** on key tests `BL-1`, `SC-2`, `OP-4` for exact measurements
-- **Rerun interpreted** on 2-3 tests to measure variance across runs
-
----
+While the interpreted track captures Copilot's self-report and perceived completeness,
+the raw track provides ground truth measurements for validation. Cross-referencing
+reveals where Copilot's self-assessment diverges from reality. Comprehensive
+truncation pattern analysis requires both datasets.
 
 ## Analyzing Results
 
@@ -208,5 +208,5 @@ python web_content_retrieval_results_analyzer.py --csv results.csv --summary
 python web_content_retrieval_results_analyzer.py --csv results.csv --method "vscode-chat"
 ```
 
->_**Remember** to always provide the full relative path to the CSV file when running the analyzer,
+>_Provide the full relative path to the CSV file when running the analyzer,
 > including the subdirectory: `results/copilot-interpreted/results.csv` or `results/raw/results.csv`_

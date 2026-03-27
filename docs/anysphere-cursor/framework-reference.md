@@ -18,8 +18,7 @@ parent: Anysphere Cursor
 
 - [Installation](#installation)
 - [Workflow](#workflow)
-- [Baseline Testing Path - Single-Run Reproducible Strategy](#baseline-testing-path---single-run-reproducible-strategy)
-- [Extended Testing, _Optional_](#extended-testing-optional)
+- [Baseline Testing Path](#baseline-testing-path)
 - [Analyzing Results](#analyzing-results)
 
 ---
@@ -82,10 +81,10 @@ cd cursor-web-fetch
 
    | Column | Description | Example |
    | --- | --- | --- |
-   | `test_id` | Test identifier | BL-1, SC-2, EC-1 |
+   | `test_id` | Test identifier | `BL-1`, `SC-2`, `EC-1` |
    | `timestamp` | ISO 8601 timestamp | 2026-03-16T17:05:02.998376 |
    | `date` | Date tested | 2026-03-16 |
-   | `url` | Full URL tested | https://www.mongodb.com/docs...|
+   | `url` | Full URL tested | `https://www.mongodb.com/docs...` |
    | `method` | Fetch method | `@Web`* |
    | `model` | Model used | `Auto` - Cursor's agent router |
    | `input_est_chars` | Expected input size | 87040 |
@@ -167,7 +166,11 @@ cd cursor-web-fetch
 
 ---
 
-## Baseline Testing Path - Single-Run Reproducible Strategy
+## Baseline Testing Path
+
+Complete the interpreted track first to establish behavioral observations, then run
+the raw track for exact measurements. Run each test ID a minimum of 3 times to capture
+variance on both tracks:
 
 1. `BL-1`, `BL-2`: baseline, quick wins establish basic truncation threshold
 2. `SC-2`: code blocks, tests HTML-to-Markdown conversion
@@ -175,18 +178,16 @@ cd cursor-web-fetch
 4. `OP-4`: auto-chunking, determines DX and key ecosystem testing gap
 5. `BL-3`: hard ceiling to identify absolute limit
 6. `SC-1, SC-3, SC-4`: structured content to test structure-aware truncation hypothesis
-7. `EC-1, EC-3, EC-6`: edge cases to identify failure modes and unusual inputs
+7. `EC-1`, `EC-3`, `EC-6`: edge cases to identify failure modes and unusual inputs
 
->*_**OP-3** not executable as designed; `@Web` may route to `mcp_web_fetch` 
->internally; the two "sides" of the comparison aren't separable through `@Web` alone;
->see [Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool)_
+While the interpreted track captures Cursor's self-report and perceived completeness,
+the raw track provides ground truth measurements for validation. Cross-referencing
+reveals where Cursor's self-assessment diverges from reality. Comprehensive
+truncation pattern analysis requires both datasets.
 
----
-
-## Extended Testing, _Optional_
-
-- **Run raw track** on key tests `BL-1`, `SC-2`, `OP-4` for exact measurements
-- **Rerun interpreted** on 2-3 tests to measure variance across runs
+>*_**OP-3** not executable as designed; `@Web` may route to `mcp_web_fetch`;
+>the two "sides" of the comparison aren't separable through `@Web` alone;
+>see [Friction Note](friction-note.md#web-evolution-from-manual-context-to-automatic-agent-capability)_
 
 ---
 
@@ -206,5 +207,5 @@ python web_fetch_results_analyzer.py --csv results.csv --summary
 python web_fetch_results_analyzer.py --csv results.csv --method "@Web"
 ```
 
->_**Remember** to always provide the full relative path to the CSV file when running the analyzer,
+>_Provide the full relative path to the CSV file when running the analyzer,
 > including the subdirectory: `results/cursor-interpreted/results.csv` or `results/raw/results.csv`_
