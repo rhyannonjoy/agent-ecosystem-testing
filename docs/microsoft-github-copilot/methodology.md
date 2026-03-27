@@ -25,7 +25,7 @@ Copilot testing targets a consumer application with proprietary chat
 behavior and undocumented structure. Copilot's web fetch implementation
 doesn't have a public API; the backend tool, observed in runs as `fetch_webpage`,
 is agent-selected, not user-invocable, and surfaces only through tool logs.
-Compare to [Claude API Web Fetch testing](/docs/anthropic-claude-api-web-fetch-tool/methodology.md) -
+Compare to [Claude API Web Fetch testing](../anthropic-claude-api-web-fetch-tool/methodology.md) -
 
 | **Aspect** | **Claude API Testing** | **Copilot Testing** |
 | -------- | ------------------- | ----------------- |
