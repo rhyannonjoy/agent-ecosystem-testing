@@ -12,8 +12,8 @@ parent: Microsoft GitHub Copilot
 _**Chat-based measurement through interaction, without direct code instrumentation**_
 
 > _The Copilot testing framework shares its foundational approach with [the Cursor testing framework](/docs/anysphere-cursor/methodology):
-> intentionally unautomated, prompt-based inference through a consumer chat interface, with no
-> programmatic access to the underlying fetch mechanism. Unlike Cursor, Copilot exposes no user-facing fetch syntax -
+> intentionally not automated, prompt-based inference through a chat interface, with no
+> programmatic access to the underlying mechanisms. Unlike Cursor, Copilot exposes no user-facing fetch syntax -
 > web content retrieval happens entirely at the agent's discretion, via undocumented backend tools._
 
 ---
@@ -22,11 +22,10 @@ _**Testing a closed consumer application vs an open API**_
 
 Rather than target specific API endpoints with documented interfaces,
 Copilot testing targets a consumer application with proprietary chat
-behavior and undocumented fetch mechanisms. Copilot's web fetch implementation
-doesn't have a public API; the backend tool - observed in runs as `fetch_webpage` -
+behavior and undocumented structure. Copilot's web fetch implementation
+doesn't have a public API; the backend tool, observed in runs as `fetch_webpage`,
 is agent-selected, not user-invocable, and surfaces only through tool logs.
-Compare to this collection's
-[Claude API Web Fetch testing](/docs/anthropic-claude-api-web-fetch-tool/methodology) -
+Compare to [Claude API Web Fetch testing](/docs/anthropic-claude-api-web-fetch-tool/methodology) -
 
 | **Aspect** | **Claude API Testing** | **Copilot Testing** |
 | -------- | ------------------- | ----------------- |
@@ -38,11 +37,8 @@ Compare to this collection's
 | **Best Findings** | Hard limits - Claude API truncates at ~100KB | Comparative limits - _does `fetch_webpage` have a response size ceiling? Does it vary by model?_ |
 
 >_All results logged as `method: vscode-chat` reflect the user-facing interface
-used in prompts. The actual backend mechanism,`fetch_webpage` - identified
-through tool visibility reporting in agent responses, not through docs. Its
-invocation isn't guaranteed per run; read
-[Friction Note](friction-note.md#fetch_webpage-not-consistently-invoked)
-for full impact analysis._
+used in prompts. Identified through agent output, invocation of the backend mechanism `fetch_webpage` isn't guaranteed per run;
+read [Friction Note](friction-note.md#fetch_webpage-not-consistently-invoked) for analysis._
 
 ---
 

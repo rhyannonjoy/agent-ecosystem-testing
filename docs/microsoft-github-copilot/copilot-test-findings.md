@@ -35,15 +35,15 @@ mechanism; identified `fetch_webpage` through tool logs. Read the
 
 | **Limit** | **Observed** |
 | ------- | ---------- |
-| **Hard Character Limit** | None detected - `fetch_webpage` returns relevance-ranked excerpts by design, not raw pages with a byte ceiling |
-| **Hard Token Limit** | None detected as a fixed ceiling, avg 7,313 tokens across 55 runs; output varies by relevance ranking |
+| **Hard Character Limit** | _None detected_: `fetch_webpage` returns relevance-ranked excerpts by design, not raw pages with a byte ceiling |
+| **Hard Token Limit** | _None detected as a fixed ceiling_: avg 7,313 tokens across 55 runs; output varies by relevance ranking |
 | **Output Consistency** | _High variance_; `EC-3` JSON payload 651 chars to `SC-3` Wikipedia ~150,000 chars; same URL and model can produce 2x difference |
 | **Content Selection Behavior** | _Relevance-ranked excerpting_: tool returns semantically filtered chunks keyed to a query parameter, not sequential page content |
 | **Truncation Pattern** | `...` markers throughout output are retrieval-layer elision indicators, not byte-boundary cutoffs |
-| **Redirect Chains** | Successfully follows; tested 5-level redirect chain in `EC-3`;<br>User-Agent value internally truncated in returned JSON |
+| **Redirect Chains** | _Successfully follows_: tested 5-level redirect chain in `EC-3`;<br>User-Agent value internally truncated in returned JSON |
 | **Self-reported Completeness** | _Unreliable_: model flags `...` markers as truncation evidence may misattribute cause as structural property of `fetch_webpage`,<br>likely not hitting a size limit |
 | **Model Routing** | _Unstable_: `Auto` dispatches to at least 5 distinct models with no documented routing logic and no UI indication when switching occurs |
-| **Tool Substitution** | Agent autonomously attempts local code execution `pylanceRunCodeSnippet`, `zsh` despite explicit prompt guardrails |
+| **Tool Substitution** | _Agent autonomously attempts_ local code execution `pylanceRunCodeSnippet`, `zsh` despite explicit prompt guardrails |
 
 ## Results Details
 
@@ -56,7 +56,7 @@ mechanism; identified `fetch_webpage` through tool logs. Read the
 | **Truncation Events** | 54 / 55 |
 | **Average Output Size** | 29,239 chars |
 | **Average Token Count** | 7,313 tokens |
-| **Truncation Detection** | Model assertion, verbatim last-50-chars, Markdown integrity, `...` elision marker count |
+| **Truncation Detection** | Model assertion, verbatim last-50-chars,<br>Markdown integrity, `...` elision marker count |
 
 ## Cross-run Output Variance
 
@@ -379,7 +379,7 @@ Hover over any point to see test ID, model, and exact char count.
 
 | **Test** | **Category** | **r1 chars** | **r2<br>chars** | **r3 chars** | **r4 chars** | **r5 chars** | **Variance** |
 | ------ | ------- | ------: | ------: | ------: | ------: | ------: | ------: |
-| **BL-1** | Baseline - 87KB | 24,500 | 0 (timeout) | 4,500 | 3,200 | 8,750 | — |
+| **BL-1** | Baseline - 87KB | 24,500 | _timeout_ | 4,500 | 3,200 | 8,750 | * |
 | **BL-2** | Baseline - 20KB | 4,200 | 2,950 | 8,472 | 4,300 | 4,850 | 2.9x |
 | **BL-3** | Baseline - 256KB | 22,500 | 15,000 | 87,000 | 21,000 | 42,850 | 5.8x |
 | **SC-2** | Code blocks - 82KB | 13,847 | 8,000 | 12,500 | 13,250 | 16,900 | 2.1x |
@@ -390,11 +390,15 @@ Hover over any point to see test ID, model, and exact char count.
 | **EC-6** | Raw Markdown - 61KB | 60,000 | 60,000 | 40,000 | 40,000 | 40,000 | 1.5x |
 | **OP-4** | Auto-chunking - 256KB | 33,000 | 25,000 | 12,500 | 25,000 | 12,000 | 2.6x |
 
+>*_Excluding the timeout gives a variance of 7.7x, which is the highest variance of any test,
+>but calculating variance with 0 and/or timeout is meaningless when it represents a failed
+>run rather than a real retrieval result_
+
 ### Truncation Analysis
 
 | **#** | **Finding** | **Tests** | **Observed** | **Conclusion** |
 | --- | --- | --- | --- | --- |
-| **1** | **`fetch_webpage` performs relevance-ranked excerpting,<br>not raw HTTP retrieval** | All tests | Tool preamble visible across runs: "Here is some relevant context from the web page [URL]:" — output is semantically filtered chunks separated by `...` markers, not a sequential page dump with a byte cutoff | **`fetch_webpage` is an excerpt retrieval tool by design; character count variance across runs reflects relevance-ranking variance, not a size ceiling hit differently** |
+| **1** | **`fetch_webpage` performs relevance-ranked excerpting,<br>not raw HTTP retrieval** | All tests | Tool preamble visible across runs: "Here is some relevant context from the web page [URL]:" - output is semantically filtered chunks separated by `...` markers, not a sequential page dump with a byte cutoff | **`fetch_webpage` is an excerpt retrieval tool by design; character count variance across runs reflects relevance-ranking variance, not a size ceiling hit differently** |
 | **2** | **No fixed character or token ceiling detected** | `SC-3`,<br>`BL-3`,<br>`EC-6` | `SC-3` Wikipedia runs returned 115k-150k chars; `BL-3` `Claude Haiku` run returned 87k chars;<br>no run hit a clean hard cutoff boundary | **If a ceiling exists, it's high enough that no test has reached it; the practical constraint is the relevance model's excerpt selection, not a byte limit** |
 | **3** | **Output variance is high and model-dependent** | `BL-3`,<br>`SC-4`,<br>`OP-4` | `BL-3` shows 5.8x variance across 5 runs; `Claude Haiku 4.5` returned 87k chars in a single fetch with no self-diagnosis; GPT-family models returned 15k–22,500 chars with 2 fetches and<br>self-diagnosis | **Model routing is an uncontrolled variable; runs of the same test with different `model_observed` values aren't comparable** |
 | **4** | **GPT-family and Claude-family models exhibit distinct fetch behaviors** | `BL-3`,<br>`SC-3`,<br>`SC-4`,<br>`OP-4` | GPT-family: 2–4 fetch invocations per run, self-diagnoses first result as insufficient and re-fetches; Claude-family: 1 fetch invocation per run, no self-diagnosis or re-fetch, higher output size | **Behavioral split is model-family level, not run level noise; fetch invocation count and output size confounded with model routing** |
@@ -421,10 +425,10 @@ Hover over any point to see test ID, model, and exact char count.
 | **Test** | **Expected** | **Returned** | **Retrieval Rate** | **Agent's Characterization** |
 | --- | --- | --- | --- | --- |
 | `SC-3` - Wikipedia | ~102KB | 115,000–150,000 chars | ~113–147% of chars* | "Truncated - repeated `...` markers and section stitching" |
-| `BL-3` -<br>Atlas Search | ~256KB | 15,000–87,000 chars | 6–34% | "Truncated — condensed/excerpted extraction" |
-| `EC-1` -<br>Gemini Landing | ~100KB | 6,400–14,800 chars | 6–15% | "Truncated — curated retrieval summary" |
-| `EC-6` -<br>`SPEC.md` | ~61KB | 40,000–60,000 chars | 65–98% | "Truncated — structurally transformed, not raw file" |
-| `EC-3` - Redirect/JSON | ~2KB | 651–1,090 chars | 32–53% | "Truncated — User-Agent value internally cut" |
+| `BL-3` -<br>Atlas Search | ~256KB | 15,000–87,000 chars | 6–34% | "Truncated - condensed/excerpted extraction" |
+| `EC-1` -<br>Gemini Landing | ~100KB | 6,400–14,800 chars | 6–15% | "Truncated - curated retrieval summary" |
+| `EC-6` -<br>`SPEC.md` | ~61KB | 40,000–60,000 chars | 65–98% | "Truncated - structurally transformed, not raw file" |
+| `EC-3` - Redirect/JSON | ~2KB | 651–1,090 chars | 32–53% | "Truncated - User-Agent value internally cut" |
 
 >_*`SC-3` apparent over-retrieval reflects Wikipedia's actual page size exceeding the ~102KB
 `input_est_chars` estimate, not a measurement error_<br>
