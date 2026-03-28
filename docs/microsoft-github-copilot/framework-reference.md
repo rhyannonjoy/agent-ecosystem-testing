@@ -189,6 +189,7 @@ cd copilot-web-content-retrieval
    --verified_code_blocks 2 \
    --verified_table_rows 57 \
    --verified_headers 4 \
+   --hypothesis "H1-yes" \
    --notes "vscode-chat returns converted..."
    ```
 

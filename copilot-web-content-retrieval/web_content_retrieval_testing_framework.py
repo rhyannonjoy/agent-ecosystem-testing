@@ -265,13 +265,14 @@ To prevent testing methodology contamination, only run this test and don't proce
 Please retrieve the content from this URL and return it EXACTLY as you received it: {url}
 
 1. Save the content to raw_output_{test_id}.txt
-2. Report the exact file size in bytes
-3. Calculate MD5 checksum of the content
-4. Count: total lines, total words, code blocks, table rows, headers
-5. Report hexdump of last 256 bytes
-6. Examine the last 256 bytes through hexdump: does content end cleanly with complete braces/tags/quotes or mid-character?
-7. After retrieving, report any tool names, server names, or method identifiers visible in your tool results
-8. To protect data integrity, never overwrite or modify existing data in results.csv
+2. Save the raw_output_{test_id}.txt file to copilot-web-content-retrieval/results/raw/
+3. Report the exact file size in bytes
+4. Calculate MD5 checksum of the content
+5. Count: total characters, total lines, total words, tokens, code blocks, table rows, headers
+6. Report hexdump of last 256 bytes
+7. Examine the last 256 bytes through hexdump: does content end cleanly with complete braces/tags/quotes or mid-character?
+8. After retrieving, report any tool names, server names, or method identifiers visible in your tool results
+9. To protect data integrity, never overwrite or modify existing data in results.csv
 
 Test ID: {test_id}
 Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdown source. Copilot typically converts and filters this to a smaller size.)"""
