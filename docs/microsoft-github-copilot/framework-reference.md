@@ -79,36 +79,53 @@ cd copilot-web-content-retrieval
    Depending on the track, results stored in
    `copilot-web-content-retrieval/results/{track}/results.csv` with the following fields:
 
-   | Column | Description | Example |
+   | **Column** | **Description** | **Example** |
    | --- | --- | --- |
    | `test_id` | Test identifier | `BL-1`, `SC-2`, `EC-1` |
-   | `timestamp` | ISO 8601 timestamp | 2026-03-16T17:05:02.998376 |
-   | `date` | Date tested | 2026-03-16 |
+   | `timestamp` | ISO 8601 format | `2026-03-16T17:05:02.998376` |
+   | `date` | Date tested | `2026-03-16` |
    | `url` | Full URL tested | `https://www.mongodb.com/docs...` |
    | `method` | Retrieval method | `vscode-chat`* |
-   | `model` | Model used | `Auto` - Copilot's agent router |
-   | `input_est_chars` | Expected input size | 87040 |
-   | `output_chars` | Actual output length, chars via `wc -m` | 27890 |
-   | `truncated` | Truncation detected | yes/no |
-   | `truncation_char_num` | Character position if truncated | 5857 |
-   | `tokens` | Token count via `tiktoken` | 16890 |
-   | `hypothesis_match` | Hypothesis matched | H1-no, H2-yes, H3-yes |
-   | `notes` | Observations and findings | Pro-plan retry: successfully... |
-   | `track` | Test track | interpreted/raw |
-   | `copilot_version` | Copilot chat version | 0.40.1, 0.41.1-pro |
-   | `file_size_bytes`** | Exact file size via `ls -l` | 28158 |
-   | `md5_checksum`** | MD5 of saved output file | d542d945f2b5dc15c5254d... |
-   | `total_lines`** | Line count | 979 |
-   | `total_words`** | Word count | 4871 |
-   | `code_blocks`** | Fenced code block count | 24 |
-   | `table_rows`** | Table row count | 87 |
-   | `headers`** | Header count | 63 |
+   | `model_selector` | UI model selector setting | `Auto` |
+   | `model_observed` | Backend model invoked by Auto | `Claude Haiku 4.5`, `GPT-5.3-Codex` |
+   | `input_est_chars` | Expected input size in characters | `87040` |
+   | `hypothesis_match` | Hypothesis success/failure  | `H1-no`, `H2-yes`, `H3-yes` |
+   | `copilot_version` | Copilot extension version | `0.40.1`, `0.41.1-pro` |
+   | `notes` | Observations, findings | `Pro-plan retry: successfully...` |
+   | `output_chars` | Interpreted track: Copilot-measured output length | `27890` |
+   | `truncated` | Interpreted track: truncation detected | `yes`/`no` |
+   | `truncation_char_num` | Interpreted track: character position if truncated | `5857` |
+   | `tokens_est` | Interpreted track: estimated token count | `16890` |
+   | `tools_used`** | Raw track: requested tool chain | `fetch_webpage -> pylanceRunCodeSnippet` |
+   | `tools_blocked`** | Raw track: tools requested but blocked or skipped | `curl (default), terminal execution` |
+   | `execution_attempts`** | Raw track: total tool calls including fallbacks | `3` |
+   | `copilot_reported_output_chars`** | Raw track: Copilot-measured output character count | `9876` |
+   | `copilot_reported_truncated`** | Raw track: Copilot-measured truncation status | `yes`/`no` |
+   | `copilot_reported_truncation_point`** | Raw track: Copilot-measured truncation position | `9876` |
+   | `copilot_reported_tokens_est`** | Raw track: Copilot-estimated token count | `2469` |
+   | `copilot_reported_file_size_bytes`** | Raw track: Copilot-measured file size in bytes | `4817` |
+   | `copilot_reported_md5_checksum`** | Raw track: Copilot-measured MD5 checksum | `abc123...` |
+   | `copilot_reported_lines`** | Raw track: Copilot-measured line count | `143` |
+   | `copilot_reported_words`** | Raw track: Copilot-measured word count | `564` |
+   | `copilot_reported_code_blocks`** | Raw track: Copilot-measured code block count | `2` |
+   | `copilot_reported_table_rows`** | Raw track: Copilot-measured table row count | `57` |
+   | `copilot_reported_headers`** | Raw track: Copilot-measured header count | `4` |
+   | `verified_file_size_bytes`** | Raw track: Verifier-measured file size in bytes | `4817` |
+   | `verified_md5_checksum`** | Raw track: Verifier-measured MD5 checksum | `d6ad8451d3778bf3544574...` |
+   | `verified_total_lines`** | Raw track: Verifier-measured line count | `143` |
+   | `verified_total_words`** | Raw track: Verifier-measured word count | `564` |
+   | `verified_code_blocks`** | Raw track: Verifier-measured code block count | `2` |
+   | `verified_table_rows`** | Raw track: Verifier-measured table row count | `57` |
+   | `verified_headers`** | Raw track: Verifier-measured header count | `4` |
 
-   >_*`vscode-chat` describes an intentionally manual testing process in which the
-   >user copy-pastes prompts into the Copilot chat window, as Copilot has no documented
-   >backend web content retrieval mechanism - more information in the
-   >[Friction Note](friction-note.md)_;
-   >**_Optional field, measurement for raw track results only_
+   > _\*`vscode-chat` describes an intentionally manual testing process in which the
+   > user copy-pastes prompts into the Copilot chat window; Copilot has no documented
+   > backend web content retrieval mechanism; analysis in the
+   >[Friction Note](friction-note.md#fetch_webpage-undocumented)_
+
+   > _\*\*Optional field, raw track only. `copilot_reported` fields capture values
+   > measured by Copilot and may reflect execution tool output or payload estimates;
+   > `verify_raw_results` script calculates `verified` fields against saved output files._
 
    ---
 
@@ -120,9 +137,7 @@ cd copilot-web-content-retrieval
    - `H4`: MCP servers override native `vscode-chat` limits*
    - `H5`: Agent auto-chunks after truncation, requests next chunk automatically
 
-   >*_`vscode-chat` may route to different internally; mechanism is agent's choice and
-   >not user-controllable; H4 not testable through `vscode-chat` alone, visit the
-   >[Friction Note](friction-note.md)_
+   >*_`H4` not testable through `vscode-chat` alone; analysis in the [Friction Note](friction-note.md)_
 
    ```bash
    # Log interpreted track result
@@ -139,7 +154,7 @@ cd copilot-web-content-retrieval
    --notes "Full content returned, no truncation observed..."
    ```
 
-   >*_Quotations are only strictly required when the value contains spaces or special
+   >*_Quotations are only required when the value contains spaces or special
    >characters that the shell would otherwise split or misinterpret_
 
    ```bash
@@ -152,19 +167,28 @@ cd copilot-web-content-retrieval
    --method vscode-chat \
    --model_selector Auto \
    --model_observed "Raptor mini (Preview)" \
-   --copilot_version 0.40.1 \
-   --output_chars 9876 \
-   --truncated yes \
-   --truncation_point 9876 \
-   --tokens 2469 \
-   --hypothesis "H1-yes" \
-   --file_size_bytes 4817 \
-   --md5_checksum "d6ad8451d3778bf3544574431203a3a7" \
-   --total_lines 143 \
-   --total_words 564 \
-   --code_blocks 2 \
-   --table_rows 57 \
-   --headers 4 \
+   --copilot_version 0.41.1 \
+   --copilot_reported_output_chars 9876 \
+   --copilot_reported_truncated yes \
+   --copilot_reported_truncation_point 9876 \
+   --copilot_reported_tokens_est 2469 \
+   --copilot_reported_file_size_bytes 4817 \
+   --copilot_reported_md5_checksum abc123 \
+   --copilot_reported_lines 143 \
+   --copilot_reported_words 564 \
+   --copilot_reported_code_blocks 2 \
+   --copilot_reported_table_rows 57 \
+   --copilot_reported_headers 4 \
+   --tools_used "fetch_webpage -> pylanceRunCodeSnippet" \
+   --tools_blocked "terminal execution" \
+   --execution_attempts 2 \
+   --verified_file_size_bytes 4817 \
+   --verified_md5_checksum d6ad8451d3778bf3544574431203a3a7 \
+   --verified_total_lines 143 \
+   --verified_total_words 564 \
+   --verified_code_blocks 2 \
+   --verified_table_rows 57 \
+   --verified_headers 4 \
    --notes "vscode-chat returns converted..."
    ```
 
@@ -191,6 +215,8 @@ While the interpreted track captures Copilot's self-report and perceived complet
 the raw track provides ground truth measurements for validation. Cross-referencing
 reveals where Copilot's self-assessment diverges from reality. Comprehensive
 truncation pattern analysis requires both datasets.
+
+---
 
 ## Analyzing Results
 

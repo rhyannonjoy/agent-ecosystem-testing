@@ -11,16 +11,52 @@ parent: Microsoft GitHub Copilot
 
 ## Topic Guide
 
+- [Agentic Metric Computation - Raw Track](#agentic-metric-computation---raw-track)
 - [Agent's Choice: Truncation vs Architectural Excerpting](#agents-choice-truncation-vs-architectural-excerpting)
+- [Autonomous Tool Substitution - Interpreted Track](#autonomous-tool-substitution---interpreted-track)
 - [Auto's Multi-Model Routing Instability](#autos-multi-model-routing-instability)
-- [Autonomous Tool Substitution: Local Code Execution Over URL Fetch](#autonomous-tool-substitution-local-code-execution-over-url-fetch)
 - [Extension Version Upgrade Mid-Testing](#extension-version-upgrade-mid-testing)
 - [`fetch_webpage` Not Consistently Invoked](#fetch_webpage-not-consistently-invoked)
 - [`fetch_webpage` Undocumented](#fetch_webpage-undocumented)
 - [Free Plan Quota Exhausted Mid-Testing](#free-plan-quota-exhausted-mid-testing)
-- [Metric Precision on the Interpreted Track](#metric-precision-on-the-interpreted-track)
+- [Metric Precision - Interpreted Track](#metric-precision---interpreted-track)
 - [Output Integrity: Duplicated Response Sections](#output-integrity-duplicated-response-sections)
 - [Prompt Format Affects Output Structure](#prompt-format-affects-output-structure)
+
+---
+
+## Agentic Metric Computation - Raw Track
+
+The raw track prompt asks Copilot to retrieve content, save it to a file, and self-report
+some metrics. The design intent is that Copilot reports these figures, the verifier
+script measures the same figures from the saved file, and any discrepancies are worth documenting.
+In early raw track runs, Copilot's response to this prompt was noticeably more verbose and
+process-heavy than Cursor's. Where Cursor retrieved content and reported metrics with minimal
+visible orchestration, Copilot consistently attempted to reach for execution tools,
+`pylanceRunCodeSnippet`, `zsh` shell commands, or both, to calculate the metrics rather than
+estimating-reporting from the retrieval output directly. The initial instinct was to skip
+these tool requests, consistent with the interpreted track approach of suppressing script
+execution to keep the method consistent, but this instinct is wrong for the raw track.
+
+The tool selection behavior Copilot exhibits when asked to report metrics isn't noise, but
+the mechanism under observation. Skipping every tool request would have produced an uncomplicated
+session, but a less informative one: the fetch-to-metric pipeline is exactly what the raw track
+exists to document. Whether Copilot reaches for `pylanceRunCodeSnippet`, a shell command, or
+accounts directly from the retrieval payload, are meaningfully different execution paths with
+different reliability implications.
+
+| **Aspect** | **Cursor** | **Copilot** |
+| --- | --- | --- |
+| **Tool Visibility** | Opaque - tools not surfaced in chat | Verbose - tool calls visible and prompt-able |
+| **Metric Computation** | Reported directly; method not observable | Requests use of execution tools |
+| **Distinguishability** | Possibly doesn't separate direct count from estimate | Execution path observable, though blocked tools may still produce fabricated values |
+| **Raw Track Measurements** | Output<br>fidelity | Output fidelity + tool<br>orchestration behavior |
+
+**Methodology Decision**: treat Copilot's metric computation attempts as observable data, not prompt
+violations. Expand the data schema from the Cursor-derived baseline and include log tool invocations,
+blocks, skips, and execution attempts while Copilot produces a result. Distinguish Copilot's self-reported
+values from independently measured values produced by the verifier script because the delta between them
+is _the_ finding.
 
 ---
 
@@ -79,6 +115,67 @@ count may reflect relevance-ranking variance as much as any consistent size ceil
 **Open Question**: if `fetch_webpage` is performing bounded excerpt retrieval by design, the `H1` hypothesis:
 character-based truncation at a fixed limit, may be testing the wrong thing entirely. `H1-yes` results
 confirm the full page wasn't returned, but can't confirm a fixed character ceiling exists to find.
+
+---
+
+## Autonomous Tool Substitution - Interpreted Track
+
+When prompted to retrieve a URL and report metrics, Copilot autonomously substituted the intended behavior -
+fetching the URL directly - with executing the local testing framework script via the `pylanceRunCodeSnippet`
+MCP server tool. Rather than using a web fetch mechanism on the target URL, the agent:
+
+```markdown
+1. Read `web_content_retrieval_testing_framework.py` from the workspace
+2. Identified `BL-1` test configuration inside the framework
+3. Attempted to run a Python snippet, `import requests, hashlib...` via Pylance's MCP server
+4. Presented the substitution as "a reliable alternate execution path" with "exact metrics"
+```
+
+The agent framed this as an improvement, as "more precise measurements through local execution" without flagging
+that it was deviating from the requested method entirely. This complicates testing with **method contamination**,
+as local script execution isn't equivalent to Copilot's built-in web content retrieval; it bypasses whatever fetch
+mechanism Copilot would otherwise use, therefore obscuring any tool visibility. One of the goals is to observe which
+backend tool Copilot selects - `fetch_webpage`; running local Python defeats this entirely, reinforcing a type of
+**false confidence** - the agent characterized the substitution positively, meaning a user who clicked `Allow` would
+receive _plausible-looking data from the wrong method with no indication anything went wrong_.
+
+Observed a second substitution path in `BL-2`: after `fetch_webpage` succeeded and returned content, the agent
+attempted to pipe that content into a local Python process via a `zsh` shell command rather than reporting metrics
+directly in chat. The fetch itself used the correct mechanism, but analysis was immediately redirected to local
+execution anyway, suggesting the substitution behavior is possibly triggered by **the analysis step**, not just
+the fetch step.
+
+A third substitution instance surfaced in `EC-3` run 5, and it's behaviorally distinct from the prior two. The agent
+completed two fetch invocations correctly, then attempted to run a `zsh` shell character-count command - `cat` heredoc
+piped to `wc -m` - on the fetched snippet to get a precise character count before reporting. Unlike the `BL-1` and
+`BL-2` cases, no workspace framework script involved; the agent reached for shell execution independently to improve
+metric precision on a simple JSON payload. The prompt contained explicit guardrails against local scripts and code
+execution. The agent framed the attempt as counting characters in the exact fetched snippet using a shell utility only -
+not as a script; suggesting it may not classify targeted shell commands as "local scripts" for the purpose of evaluating
+prompt compliance. Three distinct substitution tool paths and trigger conditions observed:
+
+1. `pylanceRunCodeSnippet` - Pylance MCP server, triggered during fetch planning when workspace
+framework script is in context
+2. `zsh` shell command - Python heredoc with fetched content piped in, triggered during metric
+extraction after a successful fetch
+3. `zsh` shell command - targeted character-count utility with no workspace script involvement,
+triggered during metric reporting to improve precision
+
+**Impact**: single-test prompts in Copilot may not guarantee single-mechanism execution; if the agent finds a
+"smarter" path to the answer using workspace context, it may take it autonomously - producing results that
+**aren't comparable** to other platforms in the cross-platform study
+
+**Fix Attempted**: explicit prompt guardrails - _"please don't run any local scripts or use any code execution scripts"_ -
+are insufficient to suppress this behavior. The agent attempted `mcp_pylance_mcp_s_pylanceRunCodeSnippet` across multiple
+runs regardless, only completing via `fetch_webpage` after the user skipped the tool call. In `BL-2` run 3, the failure
+mode sharpened: the agent stated `"the approach avoids running any local scripts, exactly as requested"` in the same turn
+it triggered the tool prompt - **actively asserting compliance while violating it**. Prompt wording alone can't override
+this behavior; can't take the agent's self-reporting as confirmation that it followed the rules.
+
+**Fix**: beyond prompt guardrails, consider whether removing or relocating the framework script from the active workspace
+context would suppress the substitution behavior at the source. Alternatively, flag runs where Copilot attempted to run
+`pylanceRunCodeSnippet` in the CSV regardless of whether the user skipped it, as the attempt itself is a
+**methodology deviation**.
 
 ---
 
@@ -151,66 +248,7 @@ variance and don't average character counts across mixed-model runs for the same
 
 ---
 
-## Autonomous Tool Substitution: Local Code Execution Over URL Fetch
 
-When prompted to retrieve a URL and report metrics, Copilot autonomously substituted the intended behavior -
-fetching the URL directly - with executing the local testing framework script via the `pylanceRunCodeSnippet`
-MCP server tool. Rather than using a web fetch mechanism on the target URL, the agent:
-
-```markdown
-1. Read `web_content_retrieval_testing_framework.py` from the workspace
-2. Identified `BL-1` test configuration inside the framework
-3. Attempted to run a Python snippet, `import requests, hashlib...` via Pylance's MCP server
-4. Presented the substitution as "a reliable alternate execution path" with "exact metrics"
-```
-
-The agent framed this as an improvement, as "more precise measurements through local execution" without flagging
-that it was deviating from the requested method entirely. This complicates testing with **method contamination**,
-as local script execution isn't equivalent to Copilot's built-in web content retrieval; it bypasses whatever fetch
-mechanism Copilot would otherwise use, therefore obscuring any tool visibility. One of the goals is to observe which
-backend tool Copilot selects - `fetch_webpage`; running local Python defeats this entirely, reinforcing a type of
-**false confidence** - the agent characterized the substitution positively, meaning a user who clicked `Allow` would
-receive _plausible-looking data from the wrong method with no indication anything went wrong_.
-
-Observed a second substitution path in `BL-2`: after `fetch_webpage` succeeded and returned content, the agent
-attempted to pipe that content into a local Python process via a `zsh` shell command rather than reporting metrics
-directly in chat. The fetch itself used the correct mechanism, but analysis was immediately redirected to local
-execution anyway, suggesting the substitution behavior is possibly triggered by **the analysis step**, not just
-the fetch step.
-
-A third substitution instance surfaced in `EC-3` run 5, and it's behaviorally distinct from the prior two. The agent
-completed two fetch invocations correctly, then attempted to run a `zsh` shell character-count command - `cat` heredoc
-piped to `wc -m` - on the fetched snippet to get a precise character count before reporting. Unlike the `BL-1` and
-`BL-2` cases, no workspace framework script involved; the agent reached for shell execution independently to improve
-metric precision on a simple JSON payload. The prompt contained explicit guardrails against local scripts and code
-execution. The agent framed the attempt as counting characters in the exact fetched snippet using a shell utility only -
-not as a script; suggesting it may not classify targeted shell commands as "local scripts" for the purpose of evaluating
-prompt compliance. Three distinct substitution tool paths and trigger conditions observed:
-
-1. `pylanceRunCodeSnippet` - Pylance MCP server, triggered during fetch planning when workspace
-framework script is in context
-2. `zsh` shell command - Python heredoc with fetched content piped in, triggered during metric
-extraction after a successful fetch
-3. `zsh` shell command - targeted character-count utility with no workspace script involvement,
-triggered during metric reporting to improve precision
-
-**Impact**: single-test prompts in Copilot may not guarantee single-mechanism execution; if the agent finds a
-"smarter" path to the answer using workspace context, it may take it autonomously - producing results that
-**aren't comparable** to other platforms in the cross-platform study
-
-**Fix Attempted**: explicit prompt guardrails - _"please don't run any local scripts or use any code execution scripts"_ -
-are insufficient to suppress this behavior. The agent attempted `mcp_pylance_mcp_s_pylanceRunCodeSnippet` across multiple
-runs regardless, only completing via `fetch_webpage` after the user skipped the tool call. In `BL-2` run 3, the failure
-mode sharpened: the agent stated `"the approach avoids running any local scripts, exactly as requested"` in the same turn
-it triggered the tool prompt - **actively asserting compliance while violating it**. Prompt wording alone can't override
-this behavior; can't take the agent's self-reporting as confirmation that it followed the rules.
-
-**Fix**: beyond prompt guardrails, consider whether removing or relocating the framework script from the active workspace
-context would suppress the substitution behavior at the source. Alternatively, flag runs where Copilot attempted to run
-`pylanceRunCodeSnippet` in the CSV regardless of whether the user skipped it, as the attempt itself is a
-**methodology deviation**.
-
----
 
 ## Extension Version Upgrade Mid-Testing
 
@@ -350,7 +388,7 @@ approximately 15–20 messages for a complete interpreted-track baseline.
 
 ---
 
-## Metric Precision on the Interpreted Track
+## Metric Precision - Interpreted Track
 
 Copilot's testing prompt asks for total character count and estimated token count. On the interpreted
 track, neither figure is reliably precise. Character counts frequently come back as ranges rather than
