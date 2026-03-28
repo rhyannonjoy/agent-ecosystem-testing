@@ -65,7 +65,7 @@ cd copilot-web-content-retrieval
    python web_content_retrieval_testing_framework.py --test BL-1 --track interpreted
 
    # Raw track - request verbatim output
-   python web_content_retrieval_testing_framework.py --test BL-2 --track raw
+   python web_content_retrieval_testing_framework.py --test BL-1 --track raw
    ```
 
 3. **Copy Prompt → Run in Copilot**
@@ -114,6 +114,8 @@ cd copilot-web-content-retrieval
    | `verified_md5_checksum`** | Raw track: Verifier-measured MD5 checksum | `d6ad8451d3778bf3544574...` |
    | `verified_total_lines`** | Raw track: Verifier-measured line count | `143` |
    | `verified_total_words`** | Raw track: Verifier-measured word count | `564` |
+   | `verified_tokens`** | Raw track: Verifier-measured token count | `197` |
+   | `verified_chars_per_token`** | Raw track: Verifier-measured chars/token ratio | `4.43` |
    | `verified_code_blocks`** | Raw track: Verifier-measured code block count | `2` |
    | `verified_table_rows`** | Raw track: Verifier-measured table row count | `57` |
    | `verified_headers`** | Raw track: Verifier-measured header count | `4` |
@@ -186,6 +188,8 @@ cd copilot-web-content-retrieval
    --verified_md5_checksum d6ad8451d3778bf3544574431203a3a7 \
    --verified_total_lines 143 \
    --verified_total_words 564 \
+   --verified_tokens 197 \
+   --verified_chars_per_token 4.43 \
    --verified_code_blocks 2 \
    --verified_table_rows 57 \
    --verified_headers 4 \
@@ -195,6 +199,8 @@ cd copilot-web-content-retrieval
 
    >_Ensure to provide all required flags: `--method`, `--model`, `--copilot-version`,
    ><br>`--output-chars`, `--truncated`, `--tokens`, `--hypothesis`_
+   ><br>
+   >_Raw track only: to prevent test contamination, remove raw output text files between runs_
 
 ---
 

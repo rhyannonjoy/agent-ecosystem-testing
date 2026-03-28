@@ -5,9 +5,9 @@ Verifies key metrics for raw track testing in the Agent Ecosystem Testing framew
 
 Usage:
     # From the copilot-web-content-retrieval directory
-    python3 web_content_retrieval_verify_raw_results.py {test ID}
-    python3 web_content_retrieval_verify_raw_results.py BL-1 SC-2 EC-1  # Multiple tests
-    python3 web_content_retrieval_verify_raw_results.py --all  # All raw output files
+    python web_content_retrieval_verify_raw_results.py {test ID}
+    python web_content_retrieval_verify_raw_results.py BL-1 SC-2 EC-1  # Multiple tests
+    python web_content_retrieval_verify_raw_results.py --all  # All raw output files
 """
 
 import argparse

@@ -1,0 +1,17 @@
+HTTP/2 200 
+content-type: text/html; charset=UTF-8
+accept-ranges: bytes
+cache-control: public,max-age=0,must-revalidate
+cache-status: "Netlify Edge"; fwd=miss
+date: Sat, 28 Mar 2026 17:43:16 GMT
+server: istio-envoy
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-nf-request-id: 01KMTRP1A2V01GCCR8Z9TYJVZ9
+x-envoy-upstream-service-time: 287
+etag: "3e33f304c4063c29a5b9a0c0561ba878-ssl"
+x-cache: Miss from cloudfront
+via: 1.1 74e8c76139b8c7f9b11d5e4441c2a7a2.cloudfront.net (CloudFront)
+x-amz-cf-pop: SEA900-P10
+x-amz-cf-id: 4O-vQ9C8z1H86O70Uh7sq2EbkO5Bw3ZfzGEP9cqdIJHBOFdW5_L4kQ==
+age: 0
+

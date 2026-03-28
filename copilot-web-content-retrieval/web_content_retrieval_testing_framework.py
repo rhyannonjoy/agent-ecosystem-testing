@@ -198,6 +198,8 @@ class TestResult:
     verified_md5_checksum: Optional[str] = None
     verified_total_lines: Optional[int] = None
     verified_total_words: Optional[int] = None
+    verified_tokens: Optional[int] = None
+    verified_chars_per_token: Optional[float] = None
     verified_code_blocks: Optional[int] = None
     verified_table_rows: Optional[int] = None
     verified_headers: Optional[int] = None
@@ -388,6 +390,8 @@ Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdow
         verified_md5_checksum: Optional[str] = None,
         verified_total_lines: Optional[int] = None,
         verified_total_words: Optional[int] = None,
+        verified_tokens: Optional[int] = None,
+        verified_chars_per_token: Optional[float] = None,
         verified_code_blocks: Optional[int] = None,
         verified_table_rows: Optional[int] = None,
         verified_headers: Optional[int] = None,
@@ -440,6 +444,8 @@ Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdow
             verified_md5_checksum=verified_md5_checksum,
             verified_total_lines=verified_total_lines,
             verified_total_words=verified_total_words,
+            verified_tokens=verified_tokens,
+            verified_chars_per_token=verified_chars_per_token,
             verified_code_blocks=verified_code_blocks,
             verified_table_rows=verified_table_rows,
             verified_headers=verified_headers,
@@ -533,6 +539,8 @@ Examples:
     --verified_md5_checksum d6ad8451d3778bf3544574431203a3a7 \\
     --verified_total_lines 143 \\
     --verified_total_words 564 \\
+    --verified_tokens 197 \\
+    --verified_chars_per_token 4.43 \\
     --verified_code_blocks 2 \\
     --verified_table_rows 57 \\
     --verified_headers 4 \\
@@ -618,6 +626,12 @@ Examples:
     parser.add_argument("--verified_md5_checksum", type=str, help="[Raw] Verifier-measured MD5 checksum")
     parser.add_argument("--verified_total_lines", type=int, help="[Raw] Verifier-measured line count")
     parser.add_argument("--verified_total_words", type=int, help="[Raw] Verifier-measured word count")
+    parser.add_argument("--verified_tokens", type=int, help="[Raw] Verifier-measured token count")
+    parser.add_argument(
+        "--verified_chars_per_token",
+        type=float,
+        help="[Raw] Verifier-measured chars/token ratio",
+    )
     parser.add_argument("--verified_code_blocks", type=int, help="[Raw] Verifier-measured code block count")
     parser.add_argument("--verified_table_rows", type=int, help="[Raw] Verifier-measured table row count")
     parser.add_argument("--verified_headers", type=int, help="[Raw] Verifier-measured header count")
@@ -676,6 +690,8 @@ Examples:
             verified_md5_checksum=args.verified_md5_checksum,
             verified_total_lines=args.verified_total_lines,
             verified_total_words=args.verified_total_words,
+            verified_tokens=args.verified_tokens,
+            verified_chars_per_token=args.verified_chars_per_token,
             verified_code_blocks=args.verified_code_blocks,
             verified_table_rows=args.verified_table_rows,
             verified_headers=args.verified_headers,
