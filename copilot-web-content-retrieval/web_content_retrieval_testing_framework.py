@@ -264,6 +264,7 @@ This is for empirical documentation of truncation limits."""
         prompt = f"""I'm testing GitHub Copilot's web content retrieval capabilities for the Agent Ecosystem Testing project - raw track.
 
 To prevent testing methodology contamination, only run this test and don't proceed to any other tests.
+It's important that you complete the steps below without using any Python scripts in this code base.
 Please retrieve the content from this URL and return it EXACTLY as you received it: {url}
 
 1. Save the content to raw_output_{test_id}.txt
@@ -486,7 +487,6 @@ Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdow
                 print(f"  {test_id}: {test['name']} (~{test['expected_size_kb']}KB)")
 
         print()
-
 
 def main():
     parser = argparse.ArgumentParser(

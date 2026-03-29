@@ -109,3 +109,15 @@ For the notes addition, I'd add something like this to the existing log:
 the headers file appearance is itself a behavioral data point about agentic over-delivery, and the accept-ranges finding directly addresses whether chunked HTTP retrieval could explain the size ceiling, and the answer is no.
 
 ---
+
+SC- 1
+
+`fetch_webpage` sometimes retrieves static HTML source without executing JS, so rendered documentation prose is absent despite full 125KB retrieval
+
+nearly identical raw outputs 1-3, what starting to look at is the Method/identifier strings visible: generate_content, url_context_metadata, URL_RETRIEVAL_STATUS_SUCCESS, URL_RETRIEVAL_STATUS_UNSAFE
+
+Fourth run chunk-based reassembly, not semantic filtering; the retrieval layer is doing HTML-to-text conversion that strips rendering but preserves material icon text nodes; sections are represented, but it's also summarizing/filtering in non-linear order; it's a combination of both, there is ellipsical `...`
+
+Hypothesis: H3-yes is the strongest reading; the content ends cleanly, structure is preserved within sections, and the transformation respects markdown boundaries. But the non-linear order means it's not truly structure-aware in a reading-order sense.
+
+---
