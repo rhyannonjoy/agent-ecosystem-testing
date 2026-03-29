@@ -12,6 +12,7 @@ parent: Microsoft GitHub Copilot
 ## Topic Guide
 
 - [Agentic Metric Computation - Raw Track](#agentic-metric-computation---raw-track)
+- [Agentic Over-Delivery - Raw Track](#agentic-over-delivery---raw-track)
 - [Agent's Choice: Truncation vs Architectural Excerpting](#agents-choice-truncation-vs-architectural-excerpting)
 - [Autonomous Tool Substitution - Interpreted Track](#autonomous-tool-substitution---interpreted-track)
 - [Auto's Multi-Model Routing Instability](#autos-multi-model-routing-instability)
@@ -57,6 +58,63 @@ violations. Expand the data schema from the Cursor-derived baseline and include 
 blocks, skips, and execution attempts while Copilot produces a result. Distinguish Copilot's self-reported
 values from independently measured values produced by the verifier script because the delta between them
 is _the_ finding.
+
+---
+
+## Agentic Over-Delivery - Raw Track
+
+Across 15 raw track runs of the baseline tests, Copilot non-deterministically created a second file alongside
+the requested raw output artifact: `raw_output_{test_id}.headers.txt` containing the HTTP response headers
+from the fetch operation. The prompt never requests this file. No run explicitly asked Copilot to capture headers.
+The behavior appears is agent-initiated. Copilot deciding autonomously that capturing response metadata would be
+useful, and it occurs inconsistently, making it uncontrollable as a variable and unverifiable as a complete dataset.
+
+This is agentic over-delivery. The agent doesn't just complete the task; it expands the task boundary based on its
+own assessment of what would be useful, producing artifacts the researcher didn't ask for and may not notice. In this
+case the headers files are harmless and informative, but the same behavior pattern is what drives tool substitution -
+the agent deciding `curl` is a better fetch mechanism than whatever's requested, and preamble injection - the agent
+deciding to frame the output with context. The headers file is the benign end of the same behavioral spectrum.
+The headers themselves are substantively informative on a question the test suite was implicitly asking.
+The `BL-3` run 5 headers file shows:
+
+```bash
+accept-ranges: bytes
+content-type: text/html; charset=UTF-8
+cache-status: "Netlify Edge"; hit
+server: istio-envoy
+x-cache: Miss from cloudfront
+via: 1.1 ffe9646b2ea911744e2d51fc0715cedc.cloudfront.net (CloudFront)
+```
+
+`accept-ranges`: bytes is the most significant field for the testing framework's purposes. This header indicates the
+server supports HTTP range requests, the client could request specific byte ranges of the document rather than the full
+payload. If `fetch_webpage` used range requests, it would be a plausible explanation for the size ceiling: the tool
+could be requesting _only the first N bytes of each page_, producing consistent small outputs not because of content
+filtering but because of partial HTTP retrieval.
+
+The raw track data rules this out. If `fetch_webpage` used byte-range requests, the saved files would be sequential
+from the document's beginning, the first 7 KB of the HTML, the first 18 KB, etc. Instead, the saved content is non-sequential:
+the `BL-3` run 5 file contains content from throughout the page - intro, middle sections, footer, TOC - with `...` ellipsis
+markers between chunks, in a reading order that doesn't match the page's top-to-bottom structure. The intro paragraph appears
+near the bottom of the saved file despite being first on the rendered page. Byte-range retrieval can't produce non-sequential
+content. `fetch_webpage` is performing full-document retrieval followed by internal transformation, not partial HTTP retrieval.
+
+The dual CDN layer visible in the headers, Netlify Edge serving as the front cache and CloudFront behind it, also has
+methodological implications. The `cache-status: "Netlify Edge"`; hit combined with `x-cache: Miss from cloudfront` indicates
+the response is from Netlify's edge cache rather than CloudFront or origin. Cache state variance between layers is a plausible
+explanation for why runs with identical URLs and prompts sometimes produce different MD5 checksums: if a cache layer invalidates
+between runs, the origin response may differ slightly from the cached response. This is a confounder that exists upstream of
+`fetch_webpage` and isn't controllable from the test prompt.
+
+**Impact**: the `accept-ranges` finding closes the byte-range retrieval hypothesis. The size ceiling on `fetch_webpage` output
+isn't an artifact of HTTP partial content requests. It reflects tool-internal transformation behavior: full retrieval followed
+by chunk extraction, structural conversion, and relevance-based assembly. Though never requested, the header files provide
+evidence that rule out an alternative explanation that the raw output text files can't support alone.
+
+**Open Question**: the non-deterministic appearance of headers files means the dataset is incomplete; some runs have headers,
+most don't. The current data can't determine whether the headers vary across runs for the same URL, indicating CDN cache state
+changes, or remain stable, indicating a consistent upstream response. A controlled run set that explicitly captures headers every
+time would close this gap, but would require prompt and test condition modification.
 
 ---
 
