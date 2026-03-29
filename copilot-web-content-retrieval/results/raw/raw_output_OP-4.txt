@@ -1,0 +1,632 @@
+Here is some relevant context from the web page https://www.mongodb.com/docs/atlas/atlas-search/tutorial/:
+...
+# MongoDB Search Quick Start
+...
+## NOTE
+
+
+This tutorial includes examples for a selection of clients. For all supported
+clients, see the [Indexes](https://www.mongodb.com/docs/atlas/atlas-search/manage-indexes/#std-label-fts-manage-indexes) and [Queries](https://www.mongodb.com/docs/atlas/atlas-search/query-ref/#std-label-ref-query-management) pages.
+
+ 
+## Create a MongoDB Search Index
+
+ 
+...
+...
+# MongoDB Search Quick Start
+...
+## What is a Search Index?
+
+ [Image: Chevron Right Icon]
+
+  
+a MongoDB Search index is a data structure that categorizes data in an easily searchable format.
+It maps terms with documents that contain those terms to enable fast retrieval
+of documents at query-time.
+
+
+You must configure a MongoDB Search index to query data using MongoDB Search. We recommend that you index the fields that you regularly use to sort or
+filter your data.
+
+
+To learn more, see [Supported Clients.](https://www.mongodb.com/docs/atlas/atlas-search/manage-indexes/#std-label-fts-manage-indexes)
+
+
+In this section, you create a MongoDB Search index on the sample [movies](https://www.mongodb.com/docs/atlas/sample-data/sample-mflix/#std-label-mflix-movies) collection. You can create the MongoDB Search index in either an Atlas cluster or a deployment hosted on your local computer.
+
+  Atlas Cluster Local Deployment 1 
+...
+...
+# MongoDB Search Quick Start
+...
+## Create the MongoDB Search index.
+
+
+a. 
+When the sample data finishes loading, click Create Search Index.
+b. 
+Make the following selections on the page and then click Next.
+
+ 
+|  |
+|  |
+| Search Type | Select the Atlas Search index type. |
+| Index Name and Data Source | Specify the following information: Index Name: default Database and Collection: sample_mflix movies |
+| Configuration Method | For a guided experience, select Visual Editor. To edit the raw index definition, select JSON Editor. |
+c. 
+Define the index.
+
+
+The following index definition dynamically indexes the fields in the `movies` collection.
+
+  Visual Editor JSON Editor
+Review the `"default"` index definition for the `movies` collection.
+d. 
+Click Create Search Index.
+e. 
+Wait for the index to finish building.
+
+
+The index should take about one minute to build. While it is building, the Status column reads `Build in Progress`. When it is finished building, the Status column reads `Active`.
+
+  
+## Build a MongoDB Search Query
+
+ 
+...
+...
+# MongoDB Search Quick Start
+...
+## What are Atlas Search queries?
+
+ [Image: Chevron Right Icon]
+
+  
+MongoDB Search queries take the form of an [aggregation pipeline stage](https://www.mongodb.com/docs/manual/aggregation/). You use MongoDB Search primarily with the [$search](https://www.mongodb.com/docs/atlas/atlas-search/aggregation-stages/search/#mongodb-pipeline-pipe.-search) stage, which must be the first stage in the query pipeline. You can also use
+this stage in conjunction with other stages in your pipeline.
+
+
+When you run a MongoDB Search query, MongoDB Search uses the search index to locate and retrieve relevant data from the collection.
+...
+...
+# MongoDB Search Quick Start
+...
+## What are Atlas Search queries?
+...
+MongoDB Search also provides the [$searchMeta](https://www.mongodb.com/docs/atlas/atlas-search/aggregation-stages/searchMeta/#mongodb-pipeline-pipe.-searchMeta) stage, multiple sub-pipelines, and several query [operators](https://www.mongodb.com/docs/atlas/atlas-search/operators-and-collectors/#std-label-operators-ref) and [collectors](https://www.mongodb.com/docs/atlas/atlas-search/operators-and-collectors/#std-label-collectors-ref) that you can use to further refine your search results.
+
+
+To learn more, see [Queries and Indexes.](https://www.mongodb.com/docs/atlas/atlas-search/searching/#std-label-fts-about-queries)
+
+
+In this section, you run queries against the indexed collection.
+
+ 1 
+...
+...
+# MongoDB Search Quick Start
+...
+## In Atlas, go to the Search & Vector Search page for your cluster.
+
+
+You can go the MongoDB Search page from the Search & Vector Search option, or the Data Explorer.
+
+  Search & Vector Search Data Explorer
+a. 
+If it's not already displayed, select the organization that contains your
+project from the  Organizations menu in the navigation bar.
+b. 
+If it's not already displayed, select your project from the Projects menu in the navigation bar.
+c. 
+In the sidebar, click Search & Vector Search under the Database heading.
+
+
+If you have no clusters, click Create cluster to create one. To learn more, see [Create a Cluster.](https://www.mongodb.com/docs/atlas/tutorial/create-new-cluster/#std-label-create-new-cluster)
+d. 
+If your project has multiple clusters, select the cluster you want to use from
+the Select cluster dropdown, then click Go to Search.
+...
+...
+# MongoDB Search Quick Start
+...
+## In Atlas, go to the Search & Vector Search page for your cluster.
+...
+The [Search & Vector Search](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Fclusters%2FatlasSearch%2F%3Ccluster%3E) page displays.
+
+ 2 
+...
+...
+# MongoDB Search Quick Start
+...
+## Go to the Search Tester.
+
+
+Click the Query button to the right of the index to query.
+
+ 3 
+## View and edit the query syntax.
+
+
+Click Edit Query to view a default query syntax sample in  JSON format.
+
+ 4 
+## Run a basic query.
+
+
+Run a basic `$search` query by using the [text](https://www.mongodb.com/docs/atlas/atlas-search/operators-collectors/text/#std-label-text-ref) operator.
+
+
+This query has the following search criteria:
+
+
+• 
+The `plot` field must contain the word `baseball`.
+
+
+Paste the following query into the Query Editor, and then click the Search button in the Query Editor.
+
+   `1`[`2`  `{`3`    $search`:`4`      `{`5`        text`:` `{`6`          query`:` `"baseball"`,`7`
+          path`:` `"plot"`8`      `}`9`    `}`10`  `}`11`]` [Image: Copy Icon]
+
+   VIEW OUTPUT
+...
+...
+# MongoDB Search Quick Start
+...
+## NOTE
+
+
+The Search Tester might not display all the fields in the documents it returns. To view all the
+fields, including the field that you specify in the query path, expand the
+document in the results.
+
+ 5 
+...
+...
+# MongoDB Search Quick Start
+...
+## Refine your search.
+
+
+MongoDB Search provides several [operators](https://www.mongodb.com/docs/atlas/atlas-search/operators-and-collectors/#std-label-fts-operators) that you can use to build complex queries and retrieve more specific results
+for your use case. Update your `$search` query to use the [compound](https://www.mongodb.com/docs/atlas/atlas-search/operators-collectors/compound/#std-label-compound-ref) operator to combine multiple operators into a single query.
+
+
+This query has the following search criteria:
+
+
+• 
+The `plot` field must contain the word `baseball`.
+• 
+The `genres` field must not contain either `Comedy` or `Romance`.
+
+
+Paste the following query into the Query Editor, and then click the Search button in the Query Editor.
+
+   
+```
+
+| 1 | [ |
+| --- | --- |
+| 2 |  { |
+| 3 |  "$search": { |
+| 4 |  "compound": { |
+| 5 |  "must": [ |
+...
+...
+# MongoDB Search Quick Start
+...
+## Refine your search.
+...
+| 6 |  { |
+| 7 |  "text": { |
+| 8 |  "query": "baseball", |
+| 9 |  "path": "plot" |
+| 10 |  } |
+| 11 |  } |
+| 12 |  ], |
+| 13 |  "mustNot": [ |
+| 14 |  { |
+| 15 |  "text": { |
+| 16 |  "query": ["Comedy", "Romance"], |
+| 17 |  "path": "genres" |
+| 18 |  } |
+| 19 |  } |
+| 20 |  ] |
+| 21 |  } |
+| 22 |  } |
+| 23 |  } |
+| 24 | ] |
+
+
+```
+ [Image: Copy Icon]
+
+   VIEW OUTPUT 6 
+...
+...
+# MongoDB Search Quick Start
+...
+## Process your results.
+
+
+MongoDB Search provides several [search options](https://www.mongodb.com/docs/atlas/atlas-search/search-options/#std-label-fts-search-options) that you can use to further process your MongoDB Search query results. Add the [sort](https://www.mongodb.com/docs/atlas/atlas-search/sort/#std-label-sort-ref) option to your query to display the results in a specific order.
+
+
+This query has the following search criteria:
+
+
+• 
+The `plot` field must contain the word `baseball`.
+• 
+The `genres` field must not contain either `Comedy` or `Romance`.
+• 
+Sort the results by the `released` date field in descending order. MongoDB Search returns the most recent movies first.
+
+
+Copy and paste the following query into the Query Editor, and then click the Search button in the Query Editor.
+
+   
+```
+
+| 1 | [ |
+| --- | --- |
+| 2 |  { |
+| 3 |  "$search": { |
+| 4 |  "compound": { |
+...
+...
+# MongoDB Search Quick Start
+...
+## Process your results.
+...
+| 5 |  "must": [ |
+| 6 |  { |
+| 7 |  "text": { |
+| 8 |  "query": "baseball", |
+| 9 |  "path": "plot" |
+| 10 |  } |
+| 11 |  } |
+| 12 |  ], |
+| 13 |  "mustNot": [ |
+| 14 |  { |
+| 15 |  "text": { |
+| 16 |  "query": ["Comedy", "Romance"], |
+| 17 |  "path": "genres" |
+| 18 |  } |
+| 19 |  } |
+| 20 |  ] |
+| 21 |  }, |
+| 22 |  "sort": { |
+| 23 |  "released": -1 |
+| 24 |  } |
+| 25 |  } |
+| 26 |  } |
+| 27 | ] |
+
+
+```
+ [Image: Copy Icon]
+
+   VIEW OUTPUT 
+...
+...
+# MongoDB Search Quick Start
+...
+## Continue Learning
+
+ 
+### Run Autocomplete and Partial Match Queries
+
+
+You can use MongoDB Search to run autocomplete and partial queries that return results for partial words.
+This is useful to retrieve results with increasing accuracy as more characters
+are entered in your application's search field. You must index the fields as the MongoDB Search [autocomplete](https://www.mongodb.com/docs/atlas/atlas-search/field-types/autocomplete-type/#std-label-bson-data-types-autocomplete) type to use the [autocomplete](https://www.mongodb.com/docs/atlas/atlas-search/operators-collectors/autocomplete/#std-label-autocomplete-ref) operator.
+
+
+To get started, see [How to Run Autocomplete and Partial Match MongoDB Search Queries.](https://www.mongodb.com/docs/atlas/atlas-search/tutorial/partial-match/#std-label-partial-match-tutorial)
+
+ 
+...
+...
+# MongoDB Search Quick Start
+...
+## Continue Learning
+...
+### Group Search Results with Facets
+
+
+You can use MongoDB Search to run facet queries that group search results by string, date, or numeric
+values. You must create an index with a [facet definition](https://www.mongodb.com/docs/atlas/atlas-search/operators-collectors/facet/#std-label-fts-facet-definition) to use the [facet (MongoDB Search Operator)](https://www.mongodb.com/docs/atlas/atlas-search/operators-collectors/facet/#std-label-fts-facet-ref) collector.
+
+
+To get started, see [How to Use Facets with MongoDB Search.](https://www.mongodb.com/docs/atlas/atlas-search/tutorial/facet-tutorial/#std-label-facet-tutorial)
+
+ 
+...
+...
+# MongoDB Search Quick Start
+...
+## Continue Learning
+...
+### Use the MongoDB Search Playground
+
+
+Use the [MongoDB Search Playground](https://search-playground.mongodb.com/). to try different MongoDB Search features by configuring search indexes and running queries without an Atlas account, cluster, or collection.
+
+
+To learn more, see [MongoDB Search Playground.](https://www.mongodb.com/docs/atlas/atlas-search/playground/#std-label-fts-playground)
+
+ 
+### Learn with a Course
+
+
+To learn more about MongoDB Search, you can take Unit 1 of the [Atlas Search Course on MongoDB University](https://learn.mongodb.com/learning-paths/atlas-search). The 2.25 hour unit includes an overview of MongoDB Search and lessons on how to create MongoDB Search indexes, use [$search](https://www.mongodb.com/docs/atlas/atlas-search/aggregation-stages/search/#mongodb-pipeline-pipe.-search) with different operators, and generate search [facets.](https://www.mongodb.com/docs/atlas/atlas-search/operators-collectors/facet/#std-label-fts-facet-ref)
+
+  
+...
+...
+# MongoDB Search Quick Start
+...
+## Continue Learning
+...
+### Learn by Watching
+
+
+You can also watch the following videos to learn more about MongoDB Search:
+
+ 
+...
+...
+# MongoDB Search Quick Start
+...
+## Continue Learning
+
+ 
+### Run Autocomplete and Partial Match Queries
+...
+### Group Search Results with Facets
+...
+### Use the MongoDB Search Playground
+...
+### Learn with a Course
+...
+### Learn by Watching
+...
+...
+# MongoDB Search Quick Start
+...
+## Video: What is Atlas Search?
+
+
+Watch an overview of Atlas Search and how to get started.
+
+ [Image: Chevron Right Icon]
+
+  
+Watch an overview of Atlas and MongoDB Search and get started setting up MongoDB Search for your data. The video demonstrates how to load sample data on your cluster,
+create a MongoDB Search index, and run a sample query using Search Tester and Data Explorer.
+
+
+Duration: 10 Minutes
+
+      [Image: Play Icon]
+
+ 
+## Video: Atlas Search Indexes and Queries
+
+
+Watch a video that demonstrates how to configure an Atlas Search index and run
+queries.
+
+ [Image: Chevron Right Icon]
+
+  
+Follow along with the following video to learn how to configure your MongoDB Search index and run queries from your application.
+
+
+Duration: 7 Minutes
+
+      [Image: Play Icon]
+
+ 
+      ...
+...
+# MongoDB Search Quick Start
+...
+## Video: Restaurant Finder Demo
+
+
+Watch a video tutorial that demonstrates a demo application that uses Atlas
+Search.
+
+ [Image: Chevron Right Icon]
+
+  
+Follow along with the following video tutorial walk-through that demonstrates
+how to build MongoDB Search queries for a Restaurant Finder demo application, which is also available at [www.atlassearchrestaurants.com.](https://www.atlassearchrestaurants.com/)
+
+
+Duration: 20 Minutes
+
+      [Image: Play Icon]
+
+ [Arrow Left Icon Back Search](https://www.mongodb.com/docs/atlas/atlas-search/) [Arrow Right Icon Next Autocomplete and Partial Matching](https://www.mongodb.com/docs/atlas/atlas-search/tutorial/partial-match/)  [MongoDB logo](https://www.mongodb.com/)![Language Selector Icon](https://webimages.mongodb.com/_com_assets/cms/kr6zmbrgbwlke2l97-atlas-global-deployments.svg?auto=format%252Ccompress)
+
+ English [Image: Image]
+
+ © 2026 MongoDB, Inc.
+About
+
+
+[Careers](https://www.mongodb.com/careers)
+...
+...
+# MongoDB Search Quick Start
+...
+## Video: Restaurant Finder Demo
+...
+[Investor Relations](https://investors.mongodb.com/)
+[Legal](https://www.mongodb.com/legal)
+[Privacy Policy](https://www.mongodb.com/legal/privacy/privacy-policy)
+[GitHub](https://github.com/mongodb)
+[Security Information](https://www.mongodb.com/company/contact/mongodb-vulnerability-disclosure-policy)
+[Trust Center](https://www.mongodb.com/products/platform/trust)
+[Connect with Us](https://www.mongodb.com/company/contact/social-media-hub)
+
+
+Support
+
+
+[Contact Us](https://www.mongodb.com/company/contact)
+[Customer Portal](https://support.mongodb.com/welcome)
+[Atlas Status](https://status.mongodb.com/)
+[Customer Support](https://www.mongodb.com/services/support)
+Manage Cookies
+
+
+Deployment Options
+
+
+[MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register)
+[Enterprise Advanced](https://www.mongodb.com/try/download/enterprise)
+[Community Edition](https://www.mongodb.com/try/download/community)
+
+
+Data Basics
+...
+...
+# MongoDB Search Quick Start
+...
+## Video: Restaurant Finder Demo
+...
+[Vector Databases](https://www.mongodb.com/resources/basics/databases/vector-databases)
+[NoSQL Databases](https://www.mongodb.com/resources/basics/databases/nosql-explained)
+[Document Databases](https://www.mongodb.com/resources/basics/databases/document-databases)
+[RAG Database](https://www.mongodb.com/resources/basics/artificial-intelligence/retrieval-augmented-generation)
+[ACID Transactions](https://www.mongodb.com/resources/basics/databases/acid-transactions)
+[MERN Stack](https://www.mongodb.com/resources/languages/mern-stack)
+[MEAN Stack](https://www.mongodb.com/resources/languages/mean-stack)
+
+ Navigated to MongoDB Search Quick Start   ![Image](https://trkn.us/pixel/conv/ppt=25790;g=sitewide;gid=65909;ord=1774745797357t6993hj0m2c)
+...
+...
+# MongoDB Search Quick Start
+...
+## Additional Links
+- [MongoDB logo](https://www.mongodb.com/)
+...
+# MongoDB Search Quick Start
+
+  [Image: Caret Right Icon]
+
+
+On this page
+
+ 
+Create a MongoDB Search Index
+Set up your Atlas cluster.
+Load the sample dataset.
+Create the MongoDB Search index.
+Build a MongoDB Search Query
+In Atlas, go to the Search & Vector Search page for your cluster.
+Go to the Search Tester.
+View and edit the query syntax.
+Run a basic query.
+Refine your search.
+Process your results.
+Continue Learning
+
+Rate this page [Image: Favorite Icon]
+
+ [Image: Favorite Icon]
+
+ [Image: Favorite Icon]
+
+ [Image: Favorite Icon]
+
+ [Image: Favorite Icon]
+
+[Image: Info With Circle Icon]
+
+ MongoDB Search and MongoDB Vector Search with MongoDB Community is in Preview.
+The feature and the corresponding documentation might change at any time during
+the Preview period. To learn more, see [Preview Features](https://www.mongodb.com/docs/preview-features/). DEPLOYMENT TYPE   Atlas (Cloud)LANGUAGE   Atlas UI
+MongoDB Search is an embedded full-text search feature that gives you a seamless, scalable
+experience for building relevance-based app features. This quick start describes
+...
+...
+# MongoDB Search Quick Start
+...
+how to get started in the following steps:
+
+
+1. 
+Create a MongoDB Search index on a sample collection.
+2. 
+Build a MongoDB Search query to search the collection. You will learn how to:
+
+
+  ◦ 
+Run a basic query to search for a term in a field
+  ◦ 
+Use an operator to refine your search
+  ◦ 
+Add a search option to process your results
+
+
+Time required: 15 minutes
+
+
+## NOTE
+...
+## Create a MongoDB Search Index
+
+ 
+## What is a Search Index?
+...
+## Create the MongoDB Search index.
+...
+## Build a MongoDB Search Query
+
+ 
+## What are Atlas Search queries?
+...
+## In Atlas, go to the Search & Vector Search page for your cluster.
+...
+## Go to the Search Tester.
+...
+## View and edit the query syntax.
+...
+## Run a basic query.
+...
+## NOTE
+...
+## Refine your search.
+...
+## Process your results.
+...
+## Continue Learning
+...
+## Video: What is Atlas Search?
+...
+## Video: Atlas Search Indexes and Queries
+...
+## Video: Restaurant Finder Demo
+...
+...
+# MongoDB Search Quick Start
+...
+## Additional Links
+...
+    [Learn the "why" behind slow queries and how to fix them in our 2-Part Webinar.
+Register now >](https://www.mongodb.com/resources/products/capabilities/webinar-mongodb-query-performance-optimization)   [Image: Chevron Down Icon]
+
+DOCS MENU   [Image: Sparkle Icon]
+
+  [Image: Image]
+
+  [Docs Home](https://www.mongodb.com/docs/)/ [Development](https://www.mongodb.com/docs/development)/ [Search](https://www.mongodb.com/docs/atlas/atlas-search)   
+# MongoDB Search Quick Start
+...
