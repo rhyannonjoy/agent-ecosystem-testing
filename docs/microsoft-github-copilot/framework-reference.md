@@ -89,7 +89,7 @@ cd copilot-web-content-retrieval
    | `model_selector` | UI model selector setting | `Auto` |
    | `model_observed` | Backend model invoked by Auto | `Claude Haiku 4.5`, `GPT-5.3-Codex` |
    | `input_est_chars` | Expected input size in characters | `87040` |
-   | `hypothesis_match` | Hypothesis success/failure  | `H1-no`, `H2-yes`, `H3-yes` |
+   | `hypothesis_match` | Hypothesis success/failure | `H1-no`, `H2-yes`, `H3-partial` |
    | `copilot_version` | Copilot extension version | `0.40.1`, `0.41.1-pro` |
    | `notes` | Observations, findings | `Pro-plan retry: successfully...` |
    | `output_chars` | Interpreted track: Copilot-measured output length | `27890` |
