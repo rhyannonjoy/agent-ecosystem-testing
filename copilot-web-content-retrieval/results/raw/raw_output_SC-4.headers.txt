@@ -1,0 +1,24 @@
+HTTP/2 200 
+server: nginx/1.18.0 (Ubuntu)
+content-type: text/html
+last-modified: Tue, 24 Feb 2026 13:42:54 GMT
+etag: "699daade-10056"
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+x-content-type-options: nosniff
+referrer-policy: strict-origin-when-cross-origin
+permissions-policy: interest-cohort=()
+via: 1.1 varnish, 1.1 varnish
+cache-control: no-store, max-age=0
+accept-ranges: bytes
+age: 238982
+date: Mon, 30 Mar 2026 16:09:26 GMT
+x-served-by: cache-iad-kcgs7200139-IAD, cache-bfi-krnt7300047-BFI
+x-cache: HIT, HIT
+x-cache-hits: 0, 0
+x-timer: S1774886967.823041,VS0,VE2
+vary: Accept-Encoding
+strict-transport-security: max-age=31557600
+alt-svc: h3=":443";ma=86400,h3-29=":443";ma=86400,h3-27=":443";ma=86400
+content-length: 65622
+

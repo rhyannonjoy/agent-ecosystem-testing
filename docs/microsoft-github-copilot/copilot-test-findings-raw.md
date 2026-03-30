@@ -121,3 +121,54 @@ Fourth run chunk-based reassembly, not semantic filtering; the retrieval layer i
 Hypothesis: H3-yes is the strongest reading; the content ends cleanly, structure is preserved within sections, and the transformation respects markdown boundaries. But the non-linear order means it's not truly structure-aware in a reading-order sense.
 
 ---
+
+SC-4
+
+re: headers
+
+It has no effect on what the client does with a complete response after receiving it. The header is passive infrastructure metadata; it doesn't constrain the agent's post-retrieval behavior in any way.
+
+Complete retrieval and useful output are separable. The 65,622-byte transfer confirms curl got the whole page. The raw HTML output confirms nothing transformed it afterward. These are two independent outcomes that happened to co-occur, and the reason they co-occurred is the curl substitution itself; curl is a transport tool with no content transformation layer. It has no relevance model, no Markdown renderer, no excerpt assembler. It delivers bytes and stops. Whatever transformation fetch_webpage applies to produce readable output, curl simply doesn't have it.
+
+The raw HTML output isn't a retrieval failure and it isn't caused by accept-ranges. It's the expected output of a tool that was never designed to produce anything else. The agent substituted a complete-retrieval tool for a transformation-capable tool, got complete retrieval, and delivered it verbatim. From a data fidelity standpoint the transfer is perfect. From a usability standpoint it's the wrong tool for the task.
+
+`fetch_webpage` transforms aggressively and doesn't document what it discards. curl doesn't transform at all and doesn't document that it's being substituted. The agent's self-report that it can suppress summarization on request is inaccurate in both cases: you can't suppress fetch_webpage's transformation layer through prompting, and curl has no transformation layer to suppress or enable.
+
+What the SC-series data is accumulating is evidence that the agent's tool selection for a "fetch this URL" task isn't stable, not documented, and not controllable from the prompt. fetch_webpage and curl produce outputs that are so different in character: relevance-ranked excerpts versus complete raw HTML; that they can't be treated as equivalent conditions in the same test series. Your run_notes field capturing which tool was invoked is doing the right work here; the tool used is currently the most important variable in predicting output type, more so than URL, model, or prompt wording.
+
+## `fetch_webpage` Output Quality Correlates With Source HTML Structure
+
+Across SC-series raw track runs on `fetch_webpage`, output quality varies with the
+structural characteristics of the source page. SC-4 run 3 (`Claude Sonnet 4.6`) retrieved
+markdownguide.org/basic-syntax/ via `fetch_webpage` and produced well-formed processed
+Markdown: complete prose sections, code blocks, blockquotes, tables, and navigational
+structure, at 29,984 bytes against a 65,622-byte HTML source, a 46% retrieval rate.
+This is the highest-fidelity `fetch_webpage` output observed across the SC series.
+
+markdownguide.org is structurally favorable for HTML-to-Markdown conversion: minimal
+JavaScript, clean semantic HTML, content that maps directly onto Markdown primitives
+(headings, fenced code blocks, tables, blockquotes), and no CDN-rendered or
+JavaScript-dependent content sections. Pages with heavier JavaScript, navigation
+chrome, or dynamic content have consistently produced lower-fidelity output across
+other test IDs.
+
+This finding suggests `fetch_webpage`'s transformation quality isn't uniform, it
+reflects the convertibility of the source HTML as much as any fixed tool capability.
+Retrieval rate and output fidelity comparisons across test IDs should account for
+source page structure as a variable, not only URL length, page size, or content domain.
+
+The conversion isn't lossless even on favorable source material: table column headers
+were dropped, the top navigation panel was relocated to the bottom of the output, and
+ad network content was included alongside page content. The 46% retrieval rate and
+structural losses confirm that `fetch_webpage` is performing transformation, not
+faithful reproduction, even under favorable conditions.
+
+**Stability caveat**: 2 of 5 SC-4 runs produced transformed Markdown via `fetch_webpage`;
+the remaining 3 produced raw HTML via `curl` substitution. The favorable output is
+real but not reliable. Source HTML structure may be a necessary condition for
+high-fidelity `fetch_webpage` output but isn't sufficient to guarantee it, since
+tool selection remains outside prompt control.
+
+---
+
+SC-4 The agent solved for fidelity and lost readability, which is exactly the inverse failure mode.
