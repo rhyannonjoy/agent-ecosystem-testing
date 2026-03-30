@@ -12,7 +12,7 @@ parent: Microsoft GitHub Copilot
 ## Topic Guide
 
 - [Agentic Metric Computation - Raw Track](#agentic-metric-computation---raw-track)
-- [Agentic Over-Delivery - Raw Track](#agentic-over-delivery---raw-track)
+- [Agentic Over-Delivery, Headers Generation - Raw Track](#agentic-over-delivery-headers-generation---raw-track)
 - [Agent's Choice: Truncation vs Architectural Excerpting](#agents-choice-truncation-vs-architectural-excerpting)
 - [Autonomous Tool Substitution - Interpreted Track](#autonomous-tool-substitution---interpreted-track)
 - [Auto's Multi-Model Routing Instability](#autos-multi-model-routing-instability)
@@ -62,7 +62,7 @@ is _the_ finding.
 
 ---
 
-## Agentic Over-Delivery - Raw Track
+## Agentic Over-Delivery, Headers Generation - Raw Track
 
 Across 15 raw track runs of the baseline tests, Copilot non-deterministically created a second file alongside
 the requested raw output artifact: `raw_output_{test_id}.headers.txt` containing the HTTP response headers
@@ -112,10 +112,78 @@ isn't an artifact of HTTP partial content requests. It reflects tool-internal tr
 by chunk extraction, structural conversion, and relevance-based assembly. Though never requested, the header files provide
 evidence that rule out an alternative explanation that the raw output text files can't support alone.
 
-**Open Question**: the non-deterministic appearance of headers files means the dataset is incomplete; some runs have headers,
+**Open Question**: the nondeterministic appearance of headers files means the dataset is incomplete; some runs have headers,
 most don't. The current data can't determine whether the headers vary across runs for the same URL, indicating CDN cache state
 changes, or remain stable, indicating a consistent upstream response. A controlled run set that explicitly captures headers every
 time would close this gap, but would require prompt and test condition modification.
+
+### Headers Generation: Two Distinct Trigger Paths
+
+`SC-3` run 5 produced a headers file on a Wikipedia URL, but the mechanism differs materially from the `BL-3` case. In `SC-3`,
+runs 4 and 5 didn't use `fetch_webpage` at all. The agent substituted `curl` for the fetch step. Run 5's headers file is `curl`
+output, not a `fetch_webpage` side artifact. `curl` invoked with response header capture flags returns headers as a natural part
+of its output; this isn't agentic over-delivery in the same sense as the `BL-3` case. It's the expected behavior of a different
+tool entirely. At least two distinct mechanisms can produce headers files in the dataset:
+
+- **`fetch_webpage` side artifact**: the agent autonomously saves response metadata alongside the raw output file,
+  as observed in `BL-3`. The retrieval tool is `fetch_webpage`. The headers reflect whatever upstream infrastructure
+  `fetch_webpage` hit on that run.
+- **`curl` substitution artifact**: the agent has replaced `fetch_webpage` with a direct HTTP call. Headers are
+  a structural output of `curl` when invoked with header-capture flags, not an autonomous agent decision to
+  capture metadata.
+
+The two cases look identical in the filesystem, as both produce a `.headers.txt` file, but have different
+implications. A headers file from a `fetch_webpage` run is incidental agent behavior. A headers file from
+a `curl` run is evidence of tool substitution, and the headers themselves reflect different infrastructure:
+direct origin or CDN response rather than whatever `fetch_webpage`'s internal retrieval layer contacts.
+
+The `SC-3` run 5 headers are the most complete in the dataset and directly informative on the size question:
+
+```bash
+content-length: 793987
+x-cache: cp4043 miss, cp4043 hit/8
+age: 14495
+cache-control: private, s-maxage=0, max-age=0, must-revalidate, no-transform
+server: mw-web.eqiad.main-544b794998-564l7
+x-client-ip: 50.147.232.34
+```
+
+`content-length: 793987` approximately 775 KB, is the full Wikipedia page as served by origin. Whatever
+size ceiling `fetch_webpage` runs have been hitting on this URL, it isn't the server imposing it, as the call
+transferred the whole document. Any reduction in `fetch_webpage` runs is entirely tool-internal.
+
+`age: 14495` means the cached copy was approximately four hours old at fetch time. Combined with Wikipedia's
+`last-modified` timestamp of March 28, cache age is a plausible source of content-length variance across
+runs if maintainers edited the page between fetches. This is the same CDN confounder documented in the `BL-3`
+analysis, with direct evidence of cache age now available.
+
+`x-client-ip: 50.147.232.34` is the outbound IP as seen by Wikipedia's infrastructure, the IP of Copilot's
+execution environment, not the local machine. This confirms `curl` ran in Copilot's sandboxed environment
+rather than delegating to a local shell. The fetch originated from Copilot's own infrastructure regardless
+of which retrieval mechanism in use.
+
+`server: mw-web.eqiad.main-544b794998-564l7` identifies the specific Wikimedia backend pod in the `eqiad`
+datacenter. This level of specificity is only visible because `curl` bypassed any retrieval abstraction
+layer and contacted Wikipedia's infrastructure directly.
+
+All five `SC-3` runs used the same prompt against the same URL, selected `GPT-5.3-Codex`, and produced
+only raw HTML with plain language content completely absent. The tool substitution on runs 4 and 5 didn't
+change the output; the all-HTML output isn't explained by `curl` bypassing `fetch_webpage`'s transformation
+layer. The cause is elsewhere: possibly the URL type, Wikipedia's HTML structure, `GPT-5.3-Codex`'s handling
+of that structure, or some interaction between them, which isn't resolvable from the `SC-3` data alone.
+
+**Impact**: headers files in the dataset aren't a uniform signal. Before treating a headers file as evidence
+of agentic over-delivery, confirm which retrieval mechanism produced it. `fetch_webpage` headers files and
+`curl` headers files both appear as `.headers.txt` artifacts but represent different agent behaviors with
+different methodological implications. The log `notes` field should distinguish these cases. The 3-in-30
+approximate rate of headers file appearance across all runs may be a compound of both trigger paths rather
+than a single nondeterministic behavior.
+
+**Open Question**: it isn't yet established whether `curl` substitution always produces a headers file, or
+only sometimes, and whether `fetch_webpage`'s headers-generation is query-dependent, URL-dependent, or
+genuinely nondeterministic. A controlled run set that logs retrieval mechanism alongside headers file
+presence for every run would separate the two populations and establish whether the 3/30 rate holds
+within each mechanism or possibly driven by one of them.
 
 ---
 

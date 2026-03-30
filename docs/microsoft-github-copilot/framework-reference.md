@@ -200,7 +200,8 @@ cd copilot-web-content-retrieval
    >_Ensure to provide all required flags: `--method`, `--model`, `--copilot-version`,
    ><br>`--output-chars`, `--truncated`, `--tokens`, `--hypothesis`_
    ><br>
-   >_Raw track only: to prevent test contamination, remove raw output text files between runs_
+   >_Raw track only: consider renaming raw output text files to capture variance;
+   >upon consistent results, remove files from the project to prevent test contamination between runs_
 
 ---
 
