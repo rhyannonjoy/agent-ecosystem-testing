@@ -23,6 +23,7 @@ parent: Microsoft GitHub Copilot
 - [Metric Precision - Interpreted Track](#metric-precision---interpreted-track)
 - [Output Integrity: Duplicated Response Sections](#output-integrity-duplicated-response-sections)
 - [Prompt Format Affects Output Structure](#prompt-format-affects-output-structure)
+- [Prompt Refinement Can't Suppress Retrieval-Layer Transformation](#prompt-refinement-cant-suppress-retrieval-layer-transformation)
 
 ---
 
@@ -511,3 +512,29 @@ This is a prompt compliance risk: if output structure varies with prompt formatt
 in a table than in a labeled prose section. It also raises the question of whether output structure differences could mask metric differences. A table that truncates cell content, for instance, would silently drop characters that a prose response would include.
 
 **Fix**: verify the numbered prompt format is intact before submitting each run. Consider adding a format check to the framework's `generate_interpreted_prompt` output so the structure is always explicit.
+
+---
+
+## Prompt Refinement Can't Suppress Retrieval-Layer Transformation
+
+A direct test of whether prompt engineering can override `fetch_webpage`'s internal transformation behavior produced a negative result: no prompt wording, however explicit, recovers full sequential page content from `fetch_webpage` because the transformation occurs before the model receives the payload.
+
+The original raw track prompt instructs Copilot to retrieve a URL and return content exactly as received. After observing that Copilot's output was filtered for "relevance," non-linear, accordion-like, and structurally reassembled rather than sequential, Copilot revised the prompt to better suppress this behavior. The revised prompt was significantly more verbose and explicit, adding structured delimiters `BEGIN_RAW_CONTENT` / `END_RAW_CONTENT`, explicit metadata fields, conditional flags - `TRANSFORMED_BY_RETRIEVAL_LAYER:YES`, `TRUNCATION_DETECTED:YES`, and a direct instruction to report `RAW_BYTE_IDENTICAL_UNSUPPORTED` if byte-identical transfer isn't possible. _Both prompts produced the same output: the same non-sequential, ellipsis-compressed, structurally reassembled content from the same URL_.
+
+This result is consistent with the `fetch_webpage` architectural characterization documented in [`fetch_webpage` Undocumented](#fetch_webpage-undocumented). The model-authored prompt revision is better in format, in that it produces more parseable metadata and gives the agent an explicit compliance exit ramp via `RAW_BYTE_IDENTICAL_UNSUPPORTED` - but it doesn't and can't produce different retrieval content, because the instructions reach the model after `fetch_webpage` has already processed and transformed the page. Telling the model not to summarize is downstream of the summarization.
+
+When asked directly about its retrieval behavior, `GPT-5.3-Codex` confirmed this architecture while simultaneously mischaracterizing it as suppressible:
+
+```markdown
+"If you ask for raw or near-raw retrieval, I can avoid summarization-focused rewriting and return the fetched content with minimal transformation."
+
+"Practical note: some minimal handling may still occur for readability or tool-output shaping."
+```
+
+The agent frames retrieval-layer transformation as a stylistic choice it can dial back on request, while simultaneously acknowledging that some transformation is unavoidable. The framing obscures the distinction between two separate processes: the model's post-retrieval rewriting, which prompt instructions can suppress, and `fetch_webpage`'s internal relevance-ranking and excerpt assembly, which they can't. A user following the agent's own instructions, "just ask for raw output," would receive the same transformed content with more **confident framing around it**, with no indication that the transformation was architectural rather than stylistic.
+
+**Impact**: prompt refinement is the wrong tool for this problem. The revised Copilot prompt is more useful than the original for metadata parsing and for giving the agent explicit language to signal when byte-identical retrieval is unsupported, but neither prompt recovers content that `fetch_webpage` didn't return. Characterizing Copilot's output as "summarized" or "filtered by the model" is also imprecise. The more accurate characterization, consistent across multiple run observations, is that `fetch_webpage` performs relevance-ranked excerpt assembly and the model receives a pre-transformed payload. The model's post-retrieval behavior is layered on top of that and is the only layer prompt instructions reach.
+
+**Open Question**: Copilot's self-report suggests the query parameter is agent-authored per invocation and not exposed in chat output. If the query string drives excerpt selection, variance in output content across identical runs may reflect query string variance rather than retrieval-layer nondeterminism. This parameter is currently not loggable from the interpreted or raw track without access to tool call internals. A controlled test passing a fixed, explicit query string, if the tool surface allows it, would isolate whether query variance is a meaningful source of output variance.
+
+---

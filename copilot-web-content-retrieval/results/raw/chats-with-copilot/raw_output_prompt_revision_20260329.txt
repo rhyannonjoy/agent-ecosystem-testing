@@ -1,0 +1,66 @@
+Your current prompt is very detailed, but it mixes two goals:
+1) return raw retrieved content
+2) perform downstream analysis/reporting
+
+That combination often causes assistants to reshape content into summaries or structured narratives. To improve raw-output success, use a strict two-phase contract and force exact output formatting.
+
+Recommended prompt (copy/paste):
+
+I am running a raw web retrieval test for Agent Ecosystem Testing.
+Do only this test. Do not run Python. Do not perform unrelated tasks.
+
+URL: {url}
+TEST_ID: {test_id}
+OUTPUT_DIR: copilot-web-content-retrieval/results/raw
+OUTPUT_FILE: raw_output_{test_id}.txt
+
+Critical requirements:
+- Retrieve webpage content using your webpage retrieval capability.
+- Return the retrieved content with no summarization, no paraphrasing, no cleanup, no markdown conversion, and no added commentary.
+- If byte-identical raw transfer is not possible in your environment, explicitly say: RAW_BYTE_IDENTICAL_UNSUPPORTED
+- Do not include explanations before or after the content block.
+- Do not wrap content in markdown code fences.
+
+Execution steps:
+1. Save retrieved content to OUTPUT_DIR/OUTPUT_FILE.
+2. If OUTPUT_FILE already exists, create OUTPUT_DIR/raw_output_{test_id}_{timestamp}.txt instead (never overwrite).
+3. Report only this metadata in a separate section after saving:
+   FILE_PATH:
+   FILE_SIZE_BYTES:
+   MD5:
+   CHAR_COUNT:
+   LINE_COUNT:
+   WORD_COUNT:
+   TOKEN_COUNT_ESTIMATE:
+   CODE_BLOCK_COUNT:
+   TABLE_ROW_COUNT:
+   HEADER_COUNT:
+   HEXDUMP_LAST_256_BYTES:
+   TAIL_INTEGRITY_CHECK: COMPLETE|TRUNCATED|UNCERTAIN
+   TOOLING_IDENTIFIERS_OBSERVED:
+
+Required output format (exactly):
+BEGIN_RAW_CONTENT
+[retrieved content only]
+END_RAW_CONTENT
+BEGIN_METADATA
+[field:value lines only]
+END_METADATA
+
+Constraints:
+- Never modify results.csv.
+- No extra prose outside the required blocks.
+
+Why this works better:
+- It separates raw payload from analysis output.
+- It forbids prose around the payload.
+- It defines exact delimiters, reducing model tendency to summarize.
+- It includes an explicit fallback (RAW_BYTE_IDENTICAL_UNSUPPORTED) when the tool path cannot provide byte-identical source.
+
+Optional hardening additions:
+- Add: "If content is transformed by your retrieval layer, report TRANSFORMED_BY_RETRIEVAL_LAYER:YES in metadata."
+- Add: "Preserve original newline style if available; otherwise report NEWLINE_MODE_NORMALIZED:YES."
+- Add: "If truncation limits apply, report TRUNCATION_DETECTED:YES and TRUNCATION_POINT_BYTES if known."
+
+Practical note:
+Even with a strict prompt, some retrieval stacks normalize or filter content before it reaches the assistant. So the most realistic target is near-raw output with explicit transformation disclosure, not guaranteed byte-for-byte origin HTML in every environment.
