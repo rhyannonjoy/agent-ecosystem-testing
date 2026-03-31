@@ -1,0 +1,201 @@
+Here is some relevant context from the web page https://ai.google.dev/gemini-api/docs:
+...
+# Gemini API   arrow_drop_down
+...
+## 
+...
+...
+# Gemini API   arrow_drop_down
+...
+## Meet the models
+
+link
+
+[View all](https://ai.google.dev/gemini-api/docs/models)[Gemini 3.1 Pro New Our most intelligent model, the best in the world for
+multimodal understanding, all built on state-of-the-art reasoning.](https://ai.google.dev/gemini-api/docs/models/gemini-3.1-pro-preview)[Gemini 3 Flash New Frontier-class performance rivaling larger models at a
+fraction of the cost.](https://ai.google.dev/gemini-api/docs/models/gemini-3-flash-preview)[Gemini 3.1 Flash-Lite New High-volume, cost-sensitive workhorse model with the
+performance and quality of the Gemini 3 series.](https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite-preview)[Nano Banana 2 and Nano Banana Pro State-of-the-art image generation and editing
+...
+...
+# Gemini API   arrow_drop_down
+...
+## Meet the models
+...
+models.](https://ai.google.dev/gemini-api/docs/image-generation)[Veo 3.1 Our state-of-the-art video generation model, with native audio.](https://ai.google.dev/gemini-api/docs/video)[Gemini Robotics A vision-language model (VLM) that brings Gemini's agentic
+capabilities to robotics and enables advanced reasoning in the physical world.](https://ai.google.dev/gemini-api/docs/robotics-overview)
+...
+...
+# Gemini API   arrow_drop_down
+...
+## Explore Capabilities
+
+[Native Image Generation (Nano Banana) Generate and edit highly contextual images
+natively with Gemini 2.5 Flash Image.](https://ai.google.dev/gemini-api/docs/image-generation)[Long Context Input millions of tokens to Gemini models and derive understanding
+from unstructured images, videos, and documents.](https://ai.google.dev/gemini-api/docs/long-context)[Structured Outputs Constrain Gemini to respond with JSON, a structured data
+format suitable for automated processing.](https://ai.google.dev/gemini-api/docs/structured-output)[Function Calling Build agentic workflows by connecting Gemini to external APIs
+and tools.](https://ai.google.dev/gemini-api/docs/function-calling)[Video Generation with Veo 3.1 Create high-quality video content from text or
+image prompts with our state-of-the-art model.](https://ai.google.dev/gemini-api/docs/video)[Voice Agents with Live API Build real-time voice applications and agents with
+...
+...
+# Gemini API   arrow_drop_down
+...
+## Explore Capabilities
+...
+the Live API.](https://ai.google.dev/gemini-api/docs/live)[Tools Connect Gemini to the world through built-in tools like Google Search, URL
+Context, Google Maps, Code Execution and Computer Use.](https://ai.google.dev/gemini-api/docs/tools)[Document Understanding Process up to 1000 pages of PDF files with full
+multimodal understanding or other text-based file types.](https://ai.google.dev/gemini-api/docs/document-processing)[Thinking Explore how thinking capabilities improve reasoning for complex tasks
+and agents.](https://ai.google.dev/gemini-api/docs/thinking)[Google AI Studio logo Google AI Studio Test prompts, manage your API keys,
+monitor usage, and build prototypes.](https://aistudio.google.com/)[Developer Community Ask questions and find solutions from other developers and
+Google engineers.](https://discuss.ai.google.dev/c/gemini-api/4)[API Reference Find detailed information about the Gemini API in the official
+...
+...
+# Gemini API   arrow_drop_down
+...
+## Explore Capabilities
+...
+reference documentation.](https://ai.google.dev/api)[Status Check the status of Gemini API, Google AI Studio, and our model services.](https://aistudio.google.com/status) 
+Except as otherwise noted, the content of this page is licensed under the [Creative Commons Attribution 4.0 License](https://creativecommons.org/licenses/by/4.0/), and code samples are licensed under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0). For details, see the [Google Developers Site Policies](https://developers.google.com/site-policies). Java is a registered trademark of Oracle and/or its affiliates.
+
+
+Last updated 2026-03-25 UTC.
+...
+...
+# Gemini API   arrow_drop_down
+...
+## Additional Links
+- [Gemini API](https://ai.google.dev/)
+- [Gemini API](https://ai.google.dev/gemini-api/docs)
+- [Docs](https://ai.google.dev/gemini-api/docs)
+- [API reference](https://ai.google.dev/api)
+- [Get API key](https://aistudio.google.com/apikey)
+- [Cookbook](https://github.com/google-gemini/cookbook)
+- [Community](https://discuss.ai.google.dev/c/gemini-api/)
+- [Overview](https://ai.google.dev/gemini-api/docs)
+- [Quickstart](https://ai.google.dev/gemini-api/docs/quickstart)
+- [API keys](https://ai.google.dev/gemini-api/docs/api-key)
+- [Libraries](https://ai.google.dev/gemini-api/docs/libraries)
+- [Pricing](https://ai.google.dev/gemini-api/docs/pricing)
+- [Batch API](https://ai.google.dev/gemini-api/docs/batch-api)
+...
+...
+# Gemini API   arrow_drop_down
+...
+## Additional Links
+...
+- [Interactions API](https://ai.google.dev/gemini-api/docs/interactions)
+- [Coding agent setup](https://ai.google.dev/gemini-api/docs/coding-agents)
+- [All models](https://ai.google.dev/gemini-api/docs/models)
+- [Gemini 3](https://ai.google.dev/gemini-api/docs/gemini-3)
+- [Nano Banana](https://ai.google.dev/gemini-api/docs/image-generation)
+- [Veo](https://ai.google.dev/gemini-api/docs/video)
+- [Lyria 3](https://ai.google.dev/gemini-api/docs/music-generation)
+- [Lyria RealTime](https://ai.google.dev/gemini-api/docs/realtime-music-generation)
+- [Imagen](https://ai.google.dev/gemini-api/docs/imagen)
+- [Text-to-speech](https://ai.google.dev/gemini-api/docs/speech-generation)
+- [Embeddings](https://ai.google.dev/gemini-api/docs/embeddings)
+...
+...
+# Gemini API   arrow_drop_down
+...
+## Additional Links
+...
+- [Robotics](https://ai.google.dev/gemini-api/docs/robotics-overview)
+- [Text](https://ai.google.dev/gemini-api/docs/text-generation)
+- [Documents](https://ai.google.dev/gemini-api/docs/document-processing)
+- [Structured outputs](https://ai.google.dev/gemini-api/docs/structured-output)
+- [Function calling](https://ai.google.dev/gemini-api/docs/function-calling)
+- [Long context](https://ai.google.dev/gemini-api/docs/long-context)
+- [Overview](https://ai.google.dev/gemini-api/docs/agents)
+- [Deep Research Agent](https://ai.google.dev/gemini-api/docs/deep-research)
+- [Overview](https://ai.google.dev/gemini-api/docs/tools)
+- [Google Search](https://ai.google.dev/gemini-api/docs/google-search)
+- [Google Maps](https://ai.google.dev/gemini-api/docs/maps-grounding)
+...
+...
+# Gemini API   arrow_drop_down
+...
+## Additional Links
+...
+- [Code execution](https://ai.google.dev/gemini-api/docs/code-execution)
+- [URL context](https://ai.google.dev/gemini-api/docs/url-context)
+- [Computer Use](https://ai.google.dev/gemini-api/docs/computer-use)
+- [File Search](https://ai.google.dev/gemini-api/docs/file-search)
+- [Combine Tools and Function calling](https://ai.google.dev/gemini-api/docs/tool-combination)
+- [Overview](https://ai.google.dev/gemini-api/docs/live-api)
+- [Capabilities](https://ai.google.dev/gemini-api/docs/live-api/capabilities)
+- [Tool use](https://ai.google.dev/gemini-api/docs/live-api/tools)
+- [Session management](https://ai.google.dev/gemini-api/docs/live-api/session-management)
+- [Ephemeral tokens](https://ai.google.dev/gemini-api/docs/live-api/ephemeral-tokens)
+...
+...
+# Gemini API   arrow_drop_down
+...
+## Additional Links
+...
+- [Best practices](https://ai.google.dev/gemini-api/docs/live-api/best-practices)
+- [Context caching](https://ai.google.dev/gemini-api/docs/caching)
+- [OpenAI compatibility](https://ai.google.dev/gemini-api/docs/openai)
+- [Media resolution](https://ai.google.dev/gemini-api/docs/media-resolution)
+- [Token counting](https://ai.google.dev/gemini-api/docs/tokens)
+- [Prompt engineering](https://ai.google.dev/gemini-api/docs/prompting-strategies)
+- [Release notes](https://ai.google.dev/gemini-api/docs/changelog)
+- [Deprecations](https://ai.google.dev/gemini-api/docs/deprecations)
+- [Rate limits](https://ai.google.dev/gemini-api/docs/rate-limits)
+- [Billing info](https://ai.google.dev/gemini-api/docs/billing)
+- [Migrate to Gen AI SDK](https://ai.google.dev/gemini-api/docs/migrate)
+...
+...
+# Gemini API   arrow_drop_down
+...
+## Additional Links
+...
+- [API troubleshooting](https://ai.google.dev/gemini-api/docs/troubleshooting)
+- [Partner and library integrations](https://ai.google.dev/gemini-api/docs/partner-integration)
+- [Terms of service](https://ai.google.dev/gemini-api/terms)
+- [Available regions](https://ai.google.dev/gemini-api/docs/available-regions)
+- [Abuse monitoring](https://ai.google.dev/gemini-api/docs/usage-policies)
+- [Feedback information](https://ai.google.dev/gemini-api/docs/feedback-policies)
+- [Home](https://ai.google.dev/)
+- [Gemini API](https://ai.google.dev/gemini-api)
+- [Docs](https://ai.google.dev/gemini-api/docs)
+- [Terms](https://policies.google.com/terms)
+- [Privacy](https://policies.google.com/privacy)
+...
+# Gemini API   arrow_drop_down
+
+ 
+We have updated our [Terms of Service](https://ai.google.dev/gemini-api/terms).
+
+
+The fastest path from prompt to production with Gemini, Veo, Nano Banana, and
+more.
+
+ PythonJavaScriptGoJavaC#REST  content_copy 
+```
+from google import genai
+
+client = genai.Client()
+
+response = client.models.generate_content(
+    model="gemini-3-flash-preview",
+    contents="Explain how AI works in a few words",
+)
+
+print(response.text)
+
+```
+[Start building](https://ai.google.dev/gemini-api/docs/quickstart)
+Follow our Quickstart guide to get an API key and make your first API call in
+minutes.
+
+
+## 
+## Meet the models
+...
+## Explore Capabilities
+...
+## Additional Links
+...
+  Skip to main content   menu[Gemini API](https://ai.google.dev/)     search     light_mode Language [Sign in](https://ai.google.dev/_d/signin?continue=https%3A%2F%2Fai.google.dev%2Fgemini-api%2Fdocs&prompt=select_account)      Try the new [Gemini 3.1 Flash Live](https://ai.google.dev/gemini-api/docs/live-api) audio-to-audio model in [AI Studio](https://aistudio.google.com/live?model=gemini-3.1-flash-live-preview).
+# Gemini API   arrow_drop_down
+...

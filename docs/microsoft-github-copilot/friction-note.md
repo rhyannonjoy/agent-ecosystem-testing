@@ -140,10 +140,10 @@ output, not a `fetch_webpage` side artifact. `curl` invoked with response header
 of its output; this isn't agentic over-delivery in the same sense as the `BL-3` case. It's the expected behavior of a different
 tool entirely. At least two distinct mechanisms can produce headers files in the dataset:
 
-- **`fetch_webpage` side artifact**: the agent autonomously saves response metadata alongside the raw output file,
+- **`fetch_webpage` Side Artifact**: the agent autonomously saves response metadata alongside the raw output file,
 as observed in `BL-3`. The retrieval tool is `fetch_webpage`. The headers reflect whatever upstream infrastructure
 `fetch_webpage` hit on that run.
-- **`curl` substitution artifact**: the agent replaces `fetch_webpage` with a direct HTTP call. Headers are
+- **`curl` Substitution Artifact**: the agent replaces `fetch_webpage` with a direct HTTP call. Headers are
 a structural output of `curl` when invoked with header-capture flags, not an autonomous agent decision to
 capture metadata. `curl` is a transport tool with no content transformation layer that delivers bytes and
 stops. `SC-3` run 5 retrieved 793,987 bytes from Wikipedia and `SC-4` run 2 retrieved 65,622 bytes from
@@ -241,6 +241,17 @@ reconciliation is that the `SC-4` run 3 agent is generalizing from its own run h
 headers appeared only on `curl` runs, without access to the full dataset. The claim is locally
 consistent, but globally incomplete, and it illustrates a risk of the agent's self-analysis: it
 synthesizes from whatever workspace artifacts are visible, not from the complete record.
+
+A structurally distinct instance of the same behavior appeared in `EC-1` run 5 with `GPT-5.3-Codex`.
+The prompt requests a hexdump of the last 256 bytes as a reported metric but inline, as part of the
+report. The agent saved it instead to `raw_output_EC-1.last256.hexdump.txt` in addition to printing
+it in chat. No prior run across the raw track dataset persisted hexdump output as a file artifact.
+The content is accurate and confirms clean HTML closure with no mid-character truncation. But the
+delivery decision was autonomous: the agent determined that a diagnostic output explicitly requested
+in one form would be more useful in another form, and acted on that without prompting. This differs
+from the headers file cases, which are either tool-substitution side effects or unrequested
+metadata capture. The hexdump artifact is the agent reformatting a prompted output, not adding an
+unrequested one, which makes it a subtler instance of the same boundary-expansion behavior.
 
 **Impact**: unsolicited cross-run analysis is a signal that workspace artifact accumulation
 is becoming an active variable in agent behavior. As the results directory grows, the agent
