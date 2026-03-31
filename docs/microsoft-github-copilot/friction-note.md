@@ -19,6 +19,7 @@ parent: Microsoft GitHub Copilot
 - [`Auto`'s Multi-Model Routing Instability](#autos-multi-model-routing-instability)
 - [Explicit Tool Substitution Reasoning - Raw Track](#explicit-tool-substitution-reasoning---raw-track)
 - [Extension Version Upgrade Mid-Testing](#extension-version-upgrade-mid-testing)
+- [`fetch_webpage` Intra-Value Truncation and Silent Reconstruction](#fetch_webpage-intra-value-truncation-and-silent-reconstruction)
 - [`fetch_webpage` Not Consistently Invoked](#fetch_webpage-not-consistently-invoked)
 - [`fetch_webpage` Undocumented](#fetch_webpage-undocumented)
 - [Free Plan Quota Exhausted Mid-Testing](#free-plan-quota-exhausted-mid-testing)
@@ -524,6 +525,55 @@ rather than the host environment.
 
 ---
 
+## `fetch_webpage` Intra-Value Truncation and Silent Reconstruction
+
+`EC-3` run 1 with `Claude Sonnet 4.6` surfaced a truncation behavior not previously observed in the dataset:
+`fetch_webpage` eliding content inside a single JSON field value rather than between content chunks. The agent's
+tool visibility report flagged:
+
+```markdown
+"Apparent truncation marker: `...` appeared mid-User-Agent string in tool output,
+indicating the tool truncated content internally"
+```
+
+The `...` appeared inside the User-Agent header value in `fetch_webpage`'s tool response payload, a single string
+field, not a boundary between excerpted sections. The saved `raw_output_EC-3.txt` file contains the complete
+`User-Agent` string with no elision. The tool response and the saved file contain different versions of the same field.
+
+This creates an evidential gap with two plausible explanations. The agent may have reconstructed the complete `User-Agent`
+string from its own prior knowledge of what VS Code Copilot's `User-Agent` looks like, silently substituting a known value
+for the truncated one before saving. If so, the saved file contains a partially fabricated value rather than a purely
+retrieved one; unflagged and undetectable without the tool response log for comparison. Alternatively, a second retrieval
+call returned the complete string, but no second `fetch_webpage` invocation is visible in the tool chain. Neither explanation
+is confirmable from the observable output alone.
+
+What the tool visibility report confirms is that `fetch_webpage`'s `...` elision operates at the field-value level, not only
+at the chunk-boundary level documented elsewhere. The inter-chunk `...` markers seen across interpreted-track runs appear
+between excerpted content sections. This intra-value `...` appeared inside a single string field. Both are `fetch_webpage`
+elision, but truncating at different granularities: one discards whole sections, the other truncates within a field. The `EC-3`
+case is the only run where the tool response and the saved file are directly comparable on this point, because the tool
+visibility table surfaces what the tool returned before the agent processed it.
+
+The agent's self-report that it doesn't delegate web fetch tasks to a subagent isn't contradicted by this finding. The truncation
+is consistent with `fetch_webpage`'s behavior throughout this testing. What's new is the location of the truncation and the
+possibility that the agent silently completed the truncated value rather than reporting the gap, which is a different fabrication
+risk from the metric estimation errors documented elsewhere. Metric estimates are labeled as estimates. A silently completed
+field value carries no such label.
+
+**Impact**: the tool response and the saved file aren't guaranteed to be identical even when the circumstances don't require an
+explicit transformation. `fetch_webpage` may truncate inside field values, and the agent may silently reconstruct those values
+before saving. The saved file is the only artifact the verifier checks; if reconstruction occurred, the verifier has no mechanism
+to detect it. This is only visible when the agent surfaces tool response contents explicitly in its report and not all runs do this.
+Runs where the agent doesn't report tool response detail may contain silently reconstructed values with no observable signal that
+reconstruction occurred.
+
+**Open Question**: the `EC-3` URL is a redirect chain terminating at a JSON API endpoint, which is structurally unlike any other
+URL in the test suite. Determining whether intra-value truncation is specific to JSON responses, to short field values that look
+like they might continue, or is a general `fetch_webpage` behavior that's simply invisible in HTML and Markdown output,
+requires additional runs on JSON-returning URLs.
+
+---
+
 ## `fetch_webpage` Not Consistently Invoked
 
 When asked to describe its default model and web fetch and/or web content retrieval capability directly,
@@ -594,7 +644,8 @@ retrieval tool to test meaningfully.
 A related pattern has emerged across multiple runs on the MongoDB Atlas Search tutorial URL, appearing in both `OP-4` and
 `BL-3`: the agent self-diagnoses the first fetch result as a "condensed page extraction rather than a clean raw dump" and
 issues a corrective re-fetch against the same URL. The re-fetch returns the same kind of output, because the excerpted
-result isn't a retrieval error, it's the expected output of `fetch_webpage`'s architecture. The agent is misidentifying a structural property of the tool as a transient failure and attempting to correct it. This means the agent itself doesn't
+result isn't a retrieval error, it's the expected output of `fetch_webpage`'s architecture. The agent is misidentifying a
+structural property of the tool as a transient failure and attempting to correct it. This means the agent itself doesn't
 have accurate knowledge of what its own retrieval tool does, which is consistent with `fetch_webpage` as unclear
 at the model level. The re-fetch attempts don't produce fuller content, but produce a second relevance-ranked sample of
 the same page, logged as additional fetch invocations in the run notes.
@@ -608,8 +659,6 @@ chat output. If `fetch_webpage` passes a query string or context vector to its r
 to the interpreted track. Prompt differences can't be responsible for excerpt selection differences because each track has
 identical prompts - but don't rule out excerpt selection out as retrieval-layer sensitivity as something the agent passes
 internally.
-
->not a single run has reported full content returned. That's not a finding about any individual run, it's a finding about fetch_webpage as a mechanism: full sequential retrieval may simply not be something it's capable of, by design. The agent in this run made that explicit by clarifying its measurements describe the tool response, not the underlying page
 
 ---
 
