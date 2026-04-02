@@ -12,11 +12,11 @@ parent: Microsoft GitHub Copilot
 **[Copilot-interpreted Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/copilot-web-content-retrieval/web_content_retrieval_testing_framework.py)**:
 
     1. Run `python web_content_retrieval_testing_framework.py --test {test ID} --track interpreted`
-    2. Review the Terminal output
+    2. Review the terminal output
     3. Copy the provided prompt asking the model to report on fetch results:
        character count, token estimate, truncation status, content completeness,
        Markdown formatting integrity, and tool visibility
-    4. Open a new Copilot chat session in VSCode and paste the prompt into the chat window
+    4. Open a new Copilot chat session in VS Code and paste the prompt into the chat window
     5. Skip any tool call prompts for local scripts or code execution
     6. Capture model's full text response and observations as the interpreted finding;
        gap between the model's self-report and actual fetch behavior is a finding
@@ -42,8 +42,8 @@ mechanism; identified `fetch_webpage` through tool logs. Read the
 | **Truncation Pattern** | `...` markers throughout output are retrieval-layer elision indicators, not byte-boundary cutoffs |
 | **Redirect Chains** | _Successfully follows_: tested 5-level redirect chain in `EC-3`;<br>User-Agent value internally truncated in returned JSON |
 | **Self-reported Completeness** | _Unreliable_: model flags `...` markers as truncation evidence may misattribute cause as structural property of `fetch_webpage`,<br>likely not hitting a size limit |
-| **Model Routing** | _Unstable_: `Auto` dispatches to at least 5 distinct models with no documented routing logic and no UI indication when switching occurs |
-| **Tool Substitution** | _Agent autonomously attempts_ local code execution `pylanceRunCodeSnippet`, `zsh` despite explicit prompt guardrails |
+| **Model Routing** | _Unstable_: `Auto` dispatches to at least 5 distinct models with no documented routing logic and no UI indication<br> when switching occurs |
+| **Tool Substitution** | _Agent autonomously attempts_ local code execution `pylanceRunCodeSnippet`, `zsh` despite prompt guardrails |
 
 ## Results Details
 
@@ -398,7 +398,7 @@ Hover over any point to see test ID, model, and exact char count.
 
 | **#** | **Finding** | **Tests** | **Observed** | **Conclusion** |
 | --- | --- | --- | --- | --- |
-| **1** | **`fetch_webpage` performs relevance-ranked excerpting,<br>not raw HTTP retrieval** | All tests | Tool preamble visible across runs: "Here is some relevant context from the web page [URL]:" - output is semantically filtered chunks separated by `...` markers, not a sequential page dump with a byte cutoff | **`fetch_webpage` is an excerpt retrieval tool by design; character count variance across runs reflects relevance-ranking variance, not a size ceiling hit differently** |
+| **1** | **`fetch_webpage` performs relevance-ranked excerpting,<br>not raw HTTP retrieval** | All<br>tests | Tool preamble visible across runs: "Here is some relevant context from the web page [URL]:" - output is semantically filtered chunks separated by `...` markers, not a sequential page dump with a byte cutoff | **`fetch_webpage` is an excerpt retrieval tool by design; character count variance across runs reflects relevance-ranking variance, not a size ceiling hit differently** |
 | **2** | **No fixed character or token ceiling detected** | `SC-3`,<br>`BL-3`,<br>`EC-6` | `SC-3` Wikipedia runs returned 115k-150k chars; `BL-3` `Claude Haiku` run returned 87k chars;<br>no run hit a clean hard cutoff boundary | **If a ceiling exists, it's high enough that no test has reached it; the practical constraint is the relevance model's excerpt selection, not a byte limit** |
 | **3** | **Output variance is high and model-dependent** | `BL-3`,<br>`SC-4`,<br>`OP-4` | `BL-3` shows 5.8x variance across 5 runs; `Claude Haiku 4.5` returned 87k chars in a single fetch with no self-diagnosis; GPT-family models returned 15k–22,500 chars with 2 fetches and<br>self-diagnosis | **Model routing is an uncontrolled variable; runs of the same test with different `model_observed` values aren't comparable** |
 | **4** | **GPT-family and Claude-family models exhibit distinct fetch behaviors** | `BL-3`,<br>`SC-3`,<br>`SC-4`,<br>`OP-4` | GPT-family: 2–4 fetch invocations per run, self-diagnoses first result as insufficient and re-fetches; Claude-family: 1 fetch invocation per run, no self-diagnosis or re-fetch, higher output size | **Behavioral split is model-family level, not run level noise; fetch invocation count and output size confounded with model routing** |

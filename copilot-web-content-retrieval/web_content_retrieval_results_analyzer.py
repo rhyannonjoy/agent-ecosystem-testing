@@ -11,9 +11,12 @@ Usage:
     python web_content_retrieval_results_analyzer.py --csv results/raw/results.csv --summary
     python web_content_retrieval_results_analyzer.py --csv results/raw/results.csv --method vscode-chat
 
-    python web_content_retrieval_results_analyzer.py --csv results/cursor-interpreted/results.csv --full
-    python web_content_retrieval_results_analyzer.py --csv results/cursor-interpreted/results.csv --summary
-    python web_content_retrieval_results_analyzer.py --csv results/cursor-interpreted/results.csv --method vscode-chat
+    python web_content_retrieval_results_analyzer.py --csv results/copilot-interpreted/results.csv --full
+    python web_content_retrieval_results_analyzer.py --csv results/copilot-interpreted/results.csv --summary
+    python web_content_retrieval_results_analyzer.py --csv results/copilot-interpreted/results.csv --method vscode-chat
+
+    python web_content_retrieval_results_analyzer.py \
+        --csv results/copilot-interpreted/results.csv results/raw/results.csv --full
 """
 
 import csv
@@ -26,67 +29,130 @@ import argparse
 class CopilotResultsAnalyzer:
     """Analyze Copilot testing results"""
 
-    def __init__(self, csv_path: str):
-        self.csv_path = Path(csv_path)
-        if not self.csv_path.exists():
-            raise FileNotFoundError(f"CSV file not found: {csv_path}")
+    def __init__(self, csv_paths):
+        if isinstance(csv_paths, (str, Path)):
+            csv_paths = [csv_paths]
+
+        self.csv_paths = [Path(csv_path) for csv_path in csv_paths]
+        for csv_path in self.csv_paths:
+            if not csv_path.exists():
+                raise FileNotFoundError(f"CSV file not found: {csv_path}")
 
         self.results = []
         self._load_csv()
 
-    def _load_csv(self):
-        """Load results from CSV and infer track from file path"""
-        # Infer track from file path
-        path_str = str(self.csv_path).lower()
-        if 'raw' in path_str:
-            inferred_track = 'raw'
-        elif 'interpreted' in path_str or 'cursor-interpreted' in path_str:
-            inferred_track = 'interpreted'
-        else:
-            inferred_track = 'unknown'
-        
-        loaded_count = 0
-        skipped_count = 0
-        test_ids_loaded = []
-        
-        with open(self.csv_path, "r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row_num, row in enumerate(reader, start=2):  # Start at 2 (line 1 is header)
-                try:
-                    # Convert numeric fields
-                    row["input_est_chars"] = int(row["input_est_chars"])
-                    row["output_chars"] = int(row["output_chars"])
-                    row["tokens_est"] = int(row["tokens_est"])
-                    if row.get("truncation_char_num") and row["truncation_char_num"] != "":
-                        row["truncation_char_num"] = int(row["truncation_char_num"])
-                    else:
-                        row["truncation_char_num"] = None
-                    
-                    # Add inferred track (override if track column exists but is empty/wrong)
-                    if 'track' not in row or not row.get('track') or row.get('track', '').strip() == '':
-                        row['track'] = inferred_track
-                    
-                    self.results.append(row)
-                    test_ids_loaded.append(row.get('test_id', 'UNKNOWN'))
-                    loaded_count += 1
-                    
-                except ValueError as e:
-                    print(f"⚠️  Skipped row {row_num} (test_id: {row.get('test_id', 'UNKNOWN')}) - conversion error: {e}")
-                    skipped_count += 1
-                except KeyError as e:
-                    print(f"⚠️  Skipped row {row_num} - missing field: {e}")
-                    skipped_count += 1
-                except Exception as e:
-                    print(f"⚠️  Skipped row {row_num} - unexpected error: {e}")
-                    skipped_count += 1
+    @staticmethod
+    def _parse_optional_int(value):
+        """Convert a CSV field to int when populated, otherwise return None."""
+        if value is None:
+            return None
 
-        print(f"Loaded {loaded_count} test results from {self.csv_path.name}")
-        if skipped_count > 0:
-            print(f"⚠️  Skipped {skipped_count} rows due to errors")
-        print(f"Inferred track: {inferred_track}")
-        
-        # Show all test IDs loaded for verification
-        print(f"Test IDs loaded: {', '.join(test_ids_loaded)}\n")
+        if isinstance(value, int):
+            return value
+
+        value = str(value).strip()
+        if value == "":
+            return None
+
+        return int(value)
+
+    def _normalize_row(self, row, inferred_track: str):
+        """Normalize interpreted and raw CSV schemas into shared analysis fields."""
+        normalized_row = dict(row)
+
+        normalized_row["input_est_chars"] = self._parse_optional_int(row.get("input_est_chars")) or 0
+
+        if 'track' not in normalized_row or not normalized_row.get('track') or normalized_row.get('track', '').strip() == '':
+            normalized_row['track'] = inferred_track
+
+        normalized_row["output_chars"] = self._parse_optional_int(row.get("output_chars"))
+        normalized_row["tokens_est"] = self._parse_optional_int(row.get("tokens_est"))
+        normalized_row["truncation_char_num"] = self._parse_optional_int(row.get("truncation_char_num"))
+
+        if normalized_row["track"] == "raw":
+            normalized_row["output_chars"] = (
+                normalized_row["output_chars"]
+                or self._parse_optional_int(row.get("verified_file_size_bytes"))
+                or self._parse_optional_int(row.get("copilot_reported_output_chars"))
+                or self._parse_optional_int(row.get("copilot_reported_file_size_bytes"))
+                or 0
+            )
+            normalized_row["tokens_est"] = (
+                normalized_row["tokens_est"]
+                or self._parse_optional_int(row.get("verified_tokens"))
+                or self._parse_optional_int(row.get("copilot_reported_tokens_est"))
+                or 0
+            )
+            normalized_row["truncation_char_num"] = (
+                normalized_row["truncation_char_num"]
+                or self._parse_optional_int(row.get("copilot_reported_truncation_point"))
+            )
+            if not normalized_row.get("truncated"):
+                normalized_row["truncated"] = row.get("copilot_reported_truncated", "")
+        else:
+            normalized_row["output_chars"] = normalized_row["output_chars"] or 0
+            normalized_row["tokens_est"] = normalized_row["tokens_est"] or 0
+
+        return normalized_row
+
+    def _load_csv(self):
+        """Load results from one or more CSV files and infer track per file path"""
+        total_loaded_count = 0
+        total_skipped_count = 0
+
+        for csv_path in self.csv_paths:
+            path_str = str(csv_path).lower()
+            if 'raw' in path_str:
+                inferred_track = 'raw'
+            elif 'interpreted' in path_str or 'copilot-interpreted' in path_str:
+                inferred_track = 'interpreted'
+            else:
+                inferred_track = 'unknown'
+
+            loaded_count = 0
+            skipped_count = 0
+            test_ids_loaded = []
+
+            with open(csv_path, "r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row_num, row in enumerate(reader, start=2):  # Start at 2 (line 1 is header)
+                    try:
+                        normalized_row = self._normalize_row(row, inferred_track)
+
+                        self.results.append(normalized_row)
+                        test_ids_loaded.append(normalized_row.get('test_id', 'UNKNOWN'))
+                        loaded_count += 1
+
+                    except ValueError as e:
+                        print(
+                            f"⚠️  Skipped row {row_num} from {csv_path.name} "
+                            f"(test_id: {row.get('test_id', 'UNKNOWN')}) - conversion error: {e}"
+                        )
+                        skipped_count += 1
+                    except KeyError as e:
+                        print(f"⚠️  Skipped row {row_num} from {csv_path.name} - missing field: {e}")
+                        skipped_count += 1
+                    except Exception as e:
+                        print(f"⚠️  Skipped row {row_num} from {csv_path.name} - unexpected error: {e}")
+                        skipped_count += 1
+
+            total_loaded_count += loaded_count
+            total_skipped_count += skipped_count
+
+            print(f"Loaded {loaded_count} test results from {csv_path.name}")
+            if skipped_count > 0:
+                print(f"⚠️  Skipped {skipped_count} rows due to errors")
+            print(f"Inferred track: {inferred_track}")
+            print(f"Test IDs loaded: {', '.join(test_ids_loaded)}\n")
+
+        if len(self.csv_paths) > 1:
+            print(
+                f"Merged {total_loaded_count} total test results from "
+                f"{len(self.csv_paths)} CSV files"
+            )
+            if total_skipped_count > 0:
+                print(f"⚠️  Skipped {total_skipped_count} total rows due to errors")
+            print()
 
     def filter_by_method(self, method: str):
         """Filter results by web content retrieval method"""
@@ -170,6 +236,11 @@ class CopilotResultsAnalyzer:
         print("INTERPRETED vs RAW TRACK COMPARISON")
         print("=" * 80 + "\n")
 
+        tracks_present = {r.get("track") for r in self.results}
+        if not {"interpreted", "raw"}.issubset(tracks_present):
+            print("Both interpreted and raw track results are required for comparison.\n")
+            return
+
         # Group by test_id
         tests_by_id = defaultdict(list)
         for r in self.results:
@@ -246,7 +317,11 @@ class CopilotResultsAnalyzer:
     def generate_summary_report(self):
         """Generate comprehensive summary report"""
         print(f"\nTotal tests run: {len(self.results)}")
-        print(f"Results from: {self.csv_path}\n")
+        if len(self.csv_paths) == 1:
+            print(f"Results from: {self.csv_paths[0]}\n")
+        else:
+            joined_paths = ", ".join(str(path) for path in self.csv_paths)
+            print(f"Results from: {joined_paths}\n")
 
         # Overall stats
         truncated = len([r for r in self.results if r["truncated"] == "yes"])
@@ -297,12 +372,17 @@ def main():
         epilog="""
 Examples:
   python web_content_retrieval_results_analyzer.py --csv results/raw/results.csv --summary
-  python web_content_retrieval_results_analyzer.py --csv results/cursor-interpreted/results.csv --full
+  python web_content_retrieval_results_analyzer.py --csv results/copilot-interpreted/results.csv --full
+    python web_content_retrieval_results_analyzer.py --csv results/copilot-interpreted/results.csv results/raw/results.csv --full
         """,
     )
 
     parser.add_argument(
-        "--csv", type=str, required=True, help="Path to results CSV file"
+                "--csv",
+                type=str,
+                nargs="+",
+                required=True,
+                help="One or two paths to results CSV files to analyze together",
     )
     parser.add_argument(
         "--summary", action="store_true", help="Print comprehensive summary"
@@ -316,6 +396,9 @@ Examples:
     )
 
     args = parser.parse_args()
+
+    if len(args.csv) > 2:
+        parser.error("--csv accepts at most two files: interpreted and raw")
 
     analyzer = CopilotResultsAnalyzer(args.csv)
 

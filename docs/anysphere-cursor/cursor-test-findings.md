@@ -13,7 +13,7 @@ parent: Anysphere Cursor
 **[Cursor-interpreted Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/cursor-web-fetch/web_fetch_testing_framework.py)**:
 
     1. Run `python web_fetch_testing_framework.py --test {test ID} --track interpreted`
-    2. Review the Terminal output
+    2. Review the terminal output
     3. Copy the provided prompt asking the model to report on `@Web`* fetch results:
        character count, token estimate, truncation status, content completeness,
        Markdown formatting integrity

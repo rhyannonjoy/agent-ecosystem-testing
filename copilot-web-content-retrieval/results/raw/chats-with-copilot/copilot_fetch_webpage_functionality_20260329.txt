@@ -1,0 +1,58 @@
+I’m GitHub Copilot, using GPT-5.3-Codex.
+
+Here is how webpage retrieval works in this environment:
+
+1. What fetch_webpage does  
+It is a direct tool call I can make with:
+- one or more URLs
+- a query describing what to extract
+
+It returns the main content from those pages, which I then summarize or analyze for you.
+
+2. Do I use other agents for that by default?  
+Usually no. For a normal “fetch this page and summarize it” request, I call fetch_webpage directly myself.
+
+3. When I might use another agent  
+I may use a subagent for broader tasks, like:
+- searching a large codebase for related references
+- doing multi-step research across many sources
+- gathering context before implementation
+
+That is optional and task-dependent, not required for basic webpage fetches.
+
+4. What “conversations” with agents look like  
+They are structured task handoffs, not open-ended chats:
+- I send one detailed prompt with objective and expected output.
+- The subagent runs independently and returns one final report.
+- It is stateless per invocation.
+- I then integrate that result into my response to you.
+
+5. What you will see  
+You will see my final answer and summaries of what I did. Internal reasoning traces are not exposed verbatim, but I can always give you a clear, high-level breakdown of which tools were used and why.
+
+6. How I retrieve content from webpages
+I retrieve webpage content by calling the fetch_webpage tool with:
+- one or more URLs
+- a query that specifies what information to extract
+
+The tool returns the main page content relevant to that request, and I then analyze it into the format you asked for (for example: bullets, comparison points, or a concise summary).
+
+7. Do I use the same method every time?
+I use the same core mechanism (fetch_webpage) for webpage retrieval, but not the same workflow every time.
+- If your request is simple, I usually do one direct fetch plus summarization.
+- If your request is complex (multiple URLs, comparisons, strict filtering, structured output), I tailor the query and analysis steps.
+- In some broader research tasks, I may optionally use a subagent for supporting context, but the webpage retrieval itself still comes from tool-based fetches.
+
+So: same core retrieval tool, different extraction and analysis strategy depending on your goal.
+
+8. If you want webpage content exactly as retrieved
+Yes, you can request that. If you ask for raw or near-raw retrieval, I can avoid summarization-focused rewriting and return the fetched content with minimal transformation.
+
+9. Can I suppress summarization and analysis?
+Yes. You can explicitly ask for:
+- "raw fetched output only"
+- "no summary"
+- "no interpretation"
+- "verbatim or minimally processed content"
+
+Practical note: some minimal handling may still occur for readability or tool-output shaping (for example, separating content blocks), but I can keep it as close as possible to retrieved content when you request that mode.

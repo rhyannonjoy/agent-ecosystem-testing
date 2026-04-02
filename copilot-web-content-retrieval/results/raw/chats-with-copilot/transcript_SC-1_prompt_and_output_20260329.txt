@@ -1,0 +1,1030 @@
+TRANSCRIPT
+DATE: 2026-03-29
+
+USER_PROMPT
+I am running a raw web retrieval test for Agent Ecosystem Testing.
+Do only this test. Do not run Python. Do not perform unrelated tasks.
+
+URL: https://ai.google.dev/gemini-api/docs/url-context
+TEST_ID: SC-1
+OUTPUT_DIR: copilot-web-content-retrieval/results/raw
+OUTPUT_FILE: raw_output_SC-1_copilot_edited.txt
+
+Critical requirements:
+- Retrieve webpage content using your webpage retrieval capability.
+- Return the retrieved content with no summarization, no paraphrasing, no cleanup, no markdown conversion, and no added commentary.
+- If byte-identical raw transfer is not possible in your environment, explicitly say: RAW_BYTE_IDENTICAL_UNSUPPORTED
+- Do not include explanations before or after the content block.
+- Do not wrap content in markdown code fences.
+
+Execution steps:
+1. Save retrieved content to copilot-web-content-retrival/results/raw.
+2. If OUTPUT_FILE already exists, create OUTPUT_DIR/raw_output_SC-1_copilot_edited.txt instead (never overwrite).
+3. Report only this metadata in a separate section after saving:
+   FILE_PATH:
+   FILE_SIZE_BYTES:
+   MD5:
+   CHAR_COUNT:
+   LINE_COUNT:
+   WORD_COUNT:
+   TOKEN_COUNT_ESTIMATE:
+   CODE_BLOCK_COUNT:
+   TABLE_ROW_COUNT:
+   HEADER_COUNT:
+   HEXDUMP_LAST_256_BYTES:
+   TAIL_INTEGRITY_CHECK: COMPLETE|TRUNCATED|UNCERTAIN
+   TOOLING_IDENTIFIERS_OBSERVED:
+4. If content is transformed by your retrieval layer, report TRANSFORMED_BY_RETRIEVAL_LAYER:YES in metadata
+5. Preserve original newline style if available; otherwise report NEWLINE_MODE_NORMALIZED:YES.
+6. If truncation limits apply, report TRUNCATION_DETECTED:YES and TRUNCATION_POINT_BYTES if known.
+
+Required output format (exactly):
+BEGIN_RAW_CONTENT
+# URL context   arrow_drop_down
+
+
+## On this page
+
+expand_more
+How it works
+Combining with other tools
+  Grounding with search
+Understanding the response
+  Safety checks
+  Token count
+Supported models
+Best Practices
+more_horiz
+
+
+The URL context tool lets you provide additional context to the models in the
+form of URLs. By including URLs in your request, the model will access the content
+from those pages (as long as it's not a URL type listed in the limitations section) to inform and enhance its response.
+
+
+The URL context tool is useful for tasks like the following:
+
+
+• Extract Data: Pull specific info like prices, names, or key findings from multiple URLs.
+• Compare Documents: Analyze multiple reports, articles, or PDFs to identify differences and track
+trends.
+• Synthesize & Create Content: Combine information from several source URLs to generate accurate summaries,
+blog posts, or reports.
+• Analyze Code & Docs: Point to a GitHub repository or technical documentation to explain code,
+generate setup instructions, or answer questions.
+
+
+The following example shows how to compare two recipes from different websites.
+...
+...
+# URL context   arrow_drop_down
+
+
+## On this page
+...
+ PythonJavascriptREST  
+```
+from google import genai
+from google.genai.types import Tool, GenerateContentConfig
+
+client = genai.Client()
+model_id = "gemini-3-flash-preview"
+
+tools = [
+  {"url_context": {}},
+]
+
+url1 = "https://www.foodnetwork.com/recipes/ina-garten/perfect-roast-chicken-recipe-1940592"
+url2 = "https://www.allrecipes.com/recipe/21151/simple-whole-roast-chicken/"
+
+response = client.models.generate_content(
+    model=model_id,
+    contents=f"Compare the ingredients and cooking times from the recipes at {url1} and {url2}",
+    config=GenerateContentConfig(
+        tools=tools,
+    )
+)
+
+for each in response.candidates[0].content.parts:
+    print(each.text)
+
+# For verification, you can inspect the metadata to see which URLs the model retrieved
+print(response.candidates[0].url_context_metadata)
+
+```
+...
+...
+# URL context   arrow_drop_down
+...
+## How it works
+
+
+The URL Context tool uses a two-step retrieval process to balance speed, cost,
+and access to fresh data. When you provide a URL, the tool first attempts to
+fetch the content from an internal index cache. This acts as a highly optimized
+cache. If a URL is not available in the index (for example, if it's a very new
+page), the tool automatically falls back to do a live fetch. This directly accesses
+the URL to retrieve its content in real-time.
+
+
+...
+...
+# URL context   arrow_drop_down
+...
+## Combining with other tools
+...
+### Grounding with search
+
+
+When both URL context and [Grounding with Google Search](https://ai.google.dev/gemini-api/docs/grounding) are enabled, the model can use its search capabilities to find relevant
+information online and then use the URL context tool to get a more in-depth
+understanding of the pages it finds. This approach is powerful for prompts that require
+both broad searching and deep analysis of specific pages.
+
+ PythonJavascriptREST  
+```
+from google import genai
+from google.genai.types import Tool, GenerateContentConfig, GoogleSearch, UrlContext
+
+client = genai.Client()
+model_id = "gemini-3-flash-preview"
+
+tools = [
+      {"url_context": {}},
+      {"google_search": {}}
+  ]
+
+response = client.models.generate_content(
+    model=model_id,
+    contents="Give me three day events schedule based on   YOUR_URLedit. Also let me know what needs to taken care of considering weather and commute.",
+    config=GenerateContentConfig(
+        tools=tools,
+    )
+)
+...
+...
+# URL context   arrow_drop_down
+...
+## Combining with other tools
+...
+### Grounding with search
+...
+for each in response.candidates[0].content.parts:
+    print(each.text)
+# get URLs retrieved for context
+print(response.candidates[0].url_context_metadata)
+
+
+```
+...
+...
+# URL context   arrow_drop_down
+...
+## Combining with other tools
+
+
+You can combine the URL context tool with other tools to create more powerful
+workflows.
+
+
+Gemini 3 models support combining built-in tools (like URL Context) with custom tools (function
+calling). Learn more on the [tool combinations](https://ai.google.dev/gemini-api/docs/tool-combination) page.
+
+
+### Grounding with search
+...
+...
+# URL context   arrow_drop_down
+...
+## Understanding the response
+...
+### Safety checks
+
+
+The system performs a content moderation check on the URL to confirm they meet
+safety standards. If the URL you provided fails this check, you will get an `url_retrieval_status` of `URL_RETRIEVAL_STATUS_UNSAFE`.
+
+
+...
+...
+# URL context   arrow_drop_down
+...
+## Understanding the response
+...
+### Token count
+
+
+The content retrieved from the URLs you specify in your prompt is counted as
+part of the input tokens. You can see the token count for your prompt and tools
+usage in the [usage_metadata](https://ai.google.dev/api/generate-content#UsageMetadata) object of the model output. The following is an example output:
+
+  
+```
+'usage_metadata': {
+  'candidates_token_count': 45,
+  'prompt_token_count': 27,
+  'prompt_tokens_details': [{'modality': <MediaModality.TEXT: 'TEXT'>,
+    'token_count': 27}],
+  'thoughts_token_count': 31,
+  'tool_use_prompt_token_count': 10309,
+  'tool_use_prompt_tokens_details': [{'modality': <MediaModality.TEXT: 'TEXT'>,
+    'token_count': 10309}],
+  'total_token_count': 10412
+  }
+
+```
+...
+...
+# URL context   arrow_drop_down
+...
+## Understanding the response
+...
+### Token count
+...
+Price per token depends on the model used, see the [pricing](https://ai.google.dev/gemini-api/docs/pricing) page for details.
+...
+...
+# URL context   arrow_drop_down
+...
+## Understanding the response
+
+
+When the model uses the URL context tool, the response includes a `url_context_metadata` object. This object lists the URLs the model retrieved content from and the
+status of each retrieval attempt, which is useful for verification and debugging.
+
+
+The following is an example of that part of the response (parts of the response
+have been omitted for brevity):
+
+  
+```
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "... \n"
+          }
+        ],
+        "role": "model"
+      },
+      ...
+      "url_context_metadata": {
+        "url_metadata": [
+          {
+            "retrieved_url": "https://www.foodnetwork.com/recipes/ina-garten/perfect-roast-chicken-recipe-1940592",
+            "url_retrieval_status": "URL_RETRIEVAL_STATUS_SUCCESS"
+          },
+          {
+            "retrieved_url": "https://www.allrecipes.com/recipe/21151/simple-whole-roast-chicken/",
+...
+...
+# URL context   arrow_drop_down
+...
+## Understanding the response
+...
+            "url_retrieval_status": "URL_RETRIEVAL_STATUS_SUCCESS"
+          }
+        ]
+      }
+    }
+  ]
+}
+
+```
+
+For complete detail about this object , see the [UrlContextMetadata API reference](https://ai.google.dev/api/generate-content#UrlContextMetadata).
+
+
+### Safety checks
+...
+### Token count
+...
+...
+# URL context   arrow_drop_down
+...
+## Supported models
+
+
+|  |
+|  |
+| Gemini 3.1 Pro Preview | ✔️ |
+| Gemini 3.1 Flash-Lite Preview | ✔️ |
+| Gemini 3 Flash Preview | ✔️ |
+| Gemini 2.5 Pro | ✔️ |
+| Gemini 2.5 Flash | ✔️ |
+| Gemini 2.5 Flash-Lite | ✔️ |
+
+
+## Best Practices
+
+
+• Provide specific URLs: For the best results, provide direct URLs to the content you want the model to
+analyze. The model will only retrieve content from the URLs you provide, not
+any content from nested links.
+• Check for accessibility: Verify that the URLs you provide don't lead to pages that require a login or
+are behind a paywall.
+• Use the complete URL: Provide the full URL, including the protocol (e.g., https://www.google.com
+instead of just google.com).
+
+
+...
+...
+# URL context   arrow_drop_down
+...
+## Limitations
+...
+### Supported and unsupported content types
+
+
+The tool can extract content from URLs with the following content types:
+
+
+• Text (text/html, application/json, text/plain, text/xml, text/css,
+text/javascript , text/csv, text/rtf)
+• Image (image/png, image/jpeg, image/bmp, image/webp)
+• PDF (application/pdf)
+
+
+The following content types are not supported:
+
+
+• Paywalled content
+• YouTube videos (See [video understanding](https://ai.google.dev/gemini-api/docs/video-understanding#youtube) to learn how to process YouTube URLs)
+• Google workspace files like Google docs or spreadsheets
+• Video and audio files
+
+
+...
+...
+# URL context   arrow_drop_down
+...
+## Limitations
+
+
+• Function calling: Tool use (URL Context, Grounding with Google Search, etc) with
+function calling is currently unsupported.
+• Request limit: The tool can process up to 20 URLs per request.
+• URL content size: The maximum size for content retrieved from a single URL is
+34MB.
+• Public accessibility: The URLs must be publicly accessible on the web. Localhost
+addresses (e.g., localhost, 127.0.0.1), private networks, and tunneling
+services (e.g., ngrok, pinggy) are not supported.
+• Gemini API only: URL Context is only available in the Gemini API, not through
+Vertex AI.
+
+
+### Supported and unsupported content types
+...
+...
+# URL context   arrow_drop_down
+...
+## What's next
+
+
+• Explore the [URL context cookbook](https://colab.sandbox.google.com/github/google-gemini/cookbook/blob/main/quickstarts/Grounding.ipynb#url-context) for more examples.
+
+  Was this helpful?  Send feedback 
+Except as otherwise noted, the content of this page is licensed under the [Creative Commons Attribution 4.0 License](https://creativecommons.org/licenses/by/4.0/), and code samples are licensed under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0). For details, see the [Google Developers Site Policies](https://developers.google.com/site-policies). Java is a registered trademark of Oracle and/or its affiliates.
+
+
+Last updated 2026-03-25 UTC.
+
+   
+
+...
+...
+# URL context   arrow_drop_down
+...
+## Additional Links
+- [Gemini API](https://ai.google.dev/)
+- [Gemini API](https://ai.google.dev/gemini-api/docs)
+- [Docs](https://ai.google.dev/gemini-api/docs)
+- [API reference](https://ai.google.dev/api)
+- [Get API key](https://aistudio.google.com/apikey)
+- [Cookbook](https://github.com/google-gemini/cookbook)
+- [Community](https://discuss.ai.google.dev/c/gemini-api/)
+- [Overview](https://ai.google.dev/gemini-api/docs)
+- [Quickstart](https://ai.google.dev/gemini-api/docs/quickstart)
+- [API keys](https://ai.google.dev/gemini-api/docs/api-key)
+- [Libraries](https://ai.google.dev/gemini-api/docs/libraries)
+- [Pricing](https://ai.google.dev/gemini-api/docs/pricing)
+- [Batch API](https://ai.google.dev/gemini-api/docs/batch-api)
+...
+...
+# URL context   arrow_drop_down
+...
+## Additional Links
+...
+- [Interactions API](https://ai.google.dev/gemini-api/docs/interactions)
+- [Coding agent setup](https://ai.google.dev/gemini-api/docs/coding-agents)
+- [All models](https://ai.google.dev/gemini-api/docs/models)
+- [Gemini 3](https://ai.google.dev/gemini-api/docs/gemini-3)
+- [Nano Banana](https://ai.google.dev/gemini-api/docs/image-generation)
+- [Veo](https://ai.google.dev/gemini-api/docs/video)
+- [Lyria 3](https://ai.google.dev/gemini-api/docs/music-generation)
+- [Lyria RealTime](https://ai.google.dev/gemini-api/docs/realtime-music-generation)
+- [Imagen](https://ai.google.dev/gemini-api/docs/imagen)
+- [Text-to-speech](https://ai.google.dev/gemini-api/docs/speech-generation)
+- [Embeddings](https://ai.google.dev/gemini-api/docs/embeddings)
+...
+...
+# URL context   arrow_drop_down
+...
+## Additional Links
+...
+- [Robotics](https://ai.google.dev/gemini-api/docs/robotics-overview)
+- [Text](https://ai.google.dev/gemini-api/docs/text-generation)
+- [Documents](https://ai.google.dev/gemini-api/docs/document-processing)
+- [Structured outputs](https://ai.google.dev/gemini-api/docs/structured-output)
+- [Function calling](https://ai.google.dev/gemini-api/docs/function-calling)
+- [Long context](https://ai.google.dev/gemini-api/docs/long-context)
+- [Overview](https://ai.google.dev/gemini-api/docs/agents)
+- [Deep Research Agent](https://ai.google.dev/gemini-api/docs/deep-research)
+- [Overview](https://ai.google.dev/gemini-api/docs/tools)
+- [Google Search](https://ai.google.dev/gemini-api/docs/google-search)
+- [Google Maps](https://ai.google.dev/gemini-api/docs/maps-grounding)
+...
+...
+# URL context   arrow_drop_down
+...
+## Additional Links
+...
+- [Code execution](https://ai.google.dev/gemini-api/docs/code-execution)
+- [URL context](https://ai.google.dev/gemini-api/docs/url-context)
+- [Computer Use](https://ai.google.dev/gemini-api/docs/computer-use)
+- [File Search](https://ai.google.dev/gemini-api/docs/file-search)
+- [Combine Tools and Function calling](https://ai.google.dev/gemini-api/docs/tool-combination)
+- [Overview](https://ai.google.dev/gemini-api/docs/live-api)
+- [Capabilities](https://ai.google.dev/gemini-api/docs/live-api/capabilities)
+- [Tool use](https://ai.google.dev/gemini-api/docs/live-api/tools)
+- [Session management](https://ai.google.dev/gemini-api/docs/live-api/session-management)
+- [Ephemeral tokens](https://ai.google.dev/gemini-api/docs/live-api/ephemeral-tokens)
+...
+...
+# URL context   arrow_drop_down
+...
+## Additional Links
+...
+- [Best practices](https://ai.google.dev/gemini-api/docs/live-api/best-practices)
+- [Context caching](https://ai.google.dev/gemini-api/docs/caching)
+- [OpenAI compatibility](https://ai.google.dev/gemini-api/docs/openai)
+- [Media resolution](https://ai.google.dev/gemini-api/docs/media-resolution)
+- [Token counting](https://ai.google.dev/gemini-api/docs/tokens)
+- [Prompt engineering](https://ai.google.dev/gemini-api/docs/prompting-strategies)
+- [Release notes](https://ai.google.dev/gemini-api/docs/changelog)
+- [Deprecations](https://ai.google.dev/gemini-api/docs/deprecations)
+- [Rate limits](https://ai.google.dev/gemini-api/docs/rate-limits)
+- [Billing info](https://ai.google.dev/gemini-api/docs/billing)
+- [Migrate to Gen AI SDK](https://ai.google.dev/gemini-api/docs/migrate)
+...
+...
+# URL context   arrow_drop_down
+...
+## Additional Links
+...
+- [API troubleshooting](https://ai.google.dev/gemini-api/docs/troubleshooting)
+- [Partner and library integrations](https://ai.google.dev/gemini-api/docs/partner-integration)
+- [Terms of service](https://ai.google.dev/gemini-api/terms)
+- [Available regions](https://ai.google.dev/gemini-api/docs/available-regions)
+- [Abuse monitoring](https://ai.google.dev/gemini-api/docs/usage-policies)
+- [Feedback information](https://ai.google.dev/gemini-api/docs/feedback-policies)
+- [Home](https://ai.google.dev/)
+- [Gemini API](https://ai.google.dev/gemini-api)
+- [Docs](https://ai.google.dev/gemini-api/docs)
+- [Terms](https://policies.google.com/terms)
+- [Privacy](https://policies.google.com/privacy)
+...
+# URL context   arrow_drop_down
+
+
+## On this page
+...
+## How it works
+...
+## Combining with other tools
+...
+## Understanding the response
+...
+## Supported models
+...
+## Best Practices
+...
+## Limitations
+...
+## What's next
+...
+## Additional Links
+...
+  Skip to main content   menu[Gemini API](https://ai.google.dev/)     search     light_mode Language [Sign in](https://ai.google.dev/_d/signin?continue=https%3A%2F%2Fai.google.dev%2Fgemini-api%2Fdocs%2Furl-context&prompt=select_account)      Try the new [Gemini 3.1 Flash Live](https://ai.google.dev/gemini-api/docs/live-api) audio-to-audio model in [AI Studio](https://aistudio.google.com/live?model=gemini-3.1-flash-live-preview).
+# URL context   arrow_drop_down
+...
+END_RAW_CONTENT
+BEGIN_METADATA
+[field:value lines only]
+END_METADATA
+
+ASSISTANT_OUTPUT
+BEGIN_RAW_CONTENT
+# URL context   arrow_drop_down
+
+
+## On this page
+
+expand_more
+How it works
+Combining with other tools
+  Grounding with search
+Understanding the response
+  Safety checks
+  Token count
+Supported models
+Best Practices
+more_horiz
+
+
+The URL context tool lets you provide additional context to the models in the
+form of URLs. By including URLs in your request, the model will access the content
+from those pages (as long as it's not a URL type listed in the limitations section) to inform and enhance its response.
+
+
+The URL context tool is useful for tasks like the following:
+
+
+• Extract Data: Pull specific info like prices, names, or key findings from multiple URLs.
+• Compare Documents: Analyze multiple reports, articles, or PDFs to identify differences and track
+trends.
+• Synthesize & Create Content: Combine information from several source URLs to generate accurate summaries,
+blog posts, or reports.
+• Analyze Code & Docs: Point to a GitHub repository or technical documentation to explain code,
+generate setup instructions, or answer questions.
+
+
+The following example shows how to compare two recipes from different websites.
+...
+...
+# URL context   arrow_drop_down
+
+
+## On this page
+...
+ PythonJavascriptREST  
+```
+from google import genai
+from google.genai.types import Tool, GenerateContentConfig
+
+client = genai.Client()
+model_id = "gemini-3-flash-preview"
+
+tools = [
+  {"url_context": {}},
+]
+
+url1 = "https://www.foodnetwork.com/recipes/ina-garten/perfect-roast-chicken-recipe-1940592"
+url2 = "https://www.allrecipes.com/recipe/21151/simple-whole-roast-chicken/"
+
+response = client.models.generate_content(
+    model=model_id,
+    contents=f"Compare the ingredients and cooking times from the recipes at {url1} and {url2}",
+    config=GenerateContentConfig(
+        tools=tools,
+    )
+)
+
+for each in response.candidates[0].content.parts:
+    print(each.text)
+
+# For verification, you can inspect the metadata to see which URLs the model retrieved
+print(response.candidates[0].url_context_metadata)
+
+```
+...
+...
+# URL context   arrow_drop_down
+...
+## How it works
+
+
+The URL Context tool uses a two-step retrieval process to balance speed, cost,
+and access to fresh data. When you provide a URL, the tool first attempts to
+fetch the content from an internal index cache. This acts as a highly optimized
+cache. If a URL is not available in the index (for example, if it's a very new
+page), the tool automatically falls back to do a live fetch. This directly accesses
+the URL to retrieve its content in real-time.
+
+
+...
+...
+# URL context   arrow_drop_down
+...
+## Combining with other tools
+...
+### Grounding with search
+
+
+When both URL context and [Grounding with Google Search](https://ai.google.dev/gemini-api/docs/grounding) are enabled, the model can use its search capabilities to find relevant
+information online and then use the URL context tool to get a more in-depth
+understanding of the pages it finds. This approach is powerful for prompts that require
+both broad searching and deep analysis of specific pages.
+
+ PythonJavascriptREST  
+```
+from google import genai
+from google.genai.types import Tool, GenerateContentConfig, GoogleSearch, UrlContext
+
+client = genai.Client()
+model_id = "gemini-3-flash-preview"
+
+tools = [
+      {"url_context": {}},
+      {"google_search": {}}
+  ]
+
+response = client.models.generate_content(
+    model=model_id,
+    contents="Give me three day events schedule based on   YOUR_URLedit. Also let me know what needs to taken care of considering weather and commute.",
+    config=GenerateContentConfig(
+        tools=tools,
+    )
+)
+...
+...
+# URL context   arrow_drop_down
+...
+## Combining with other tools
+...
+### Grounding with search
+...
+for each in response.candidates[0].content.parts:
+    print(each.text)
+# get URLs retrieved for context
+print(response.candidates[0].url_context_metadata)
+
+
+```
+...
+...
+# URL context   arrow_drop_down
+...
+## Combining with other tools
+
+
+You can combine the URL context tool with other tools to create more powerful
+workflows.
+
+
+Gemini 3 models support combining built-in tools (like URL Context) with custom tools (function
+calling). Learn more on the [tool combinations](https://ai.google.dev/gemini-api/docs/tool-combination) page.
+
+
+### Grounding with search
+...
+...
+# URL context   arrow_drop_down
+...
+## Understanding the response
+...
+### Safety checks
+
+
+The system performs a content moderation check on the URL to confirm they meet
+safety standards. If the URL you provided fails this check, you will get an `url_retrieval_status` of `URL_RETRIEVAL_STATUS_UNSAFE`.
+
+
+...
+...
+# URL context   arrow_drop_down
+...
+## Understanding the response
+...
+### Token count
+
+
+The content retrieved from the URLs you specify in your prompt is counted as
+part of the input tokens. You can see the token count for your prompt and tools
+usage in the [usage_metadata](https://ai.google.dev/api/generate-content#UsageMetadata) object of the model output. The following is an example output:
+
+  
+```
+'usage_metadata': {
+  'candidates_token_count': 45,
+  'prompt_token_count': 27,
+  'prompt_tokens_details': [{'modality': <MediaModality.TEXT: 'TEXT'>,
+    'token_count': 27}],
+  'thoughts_token_count': 31,
+  'tool_use_prompt_token_count': 10309,
+  'tool_use_prompt_tokens_details': [{'modality': <MediaModality.TEXT: 'TEXT'>,
+    'token_count': 10309}],
+  'total_token_count': 10412
+  }
+
+```
+...
+...
+# URL context   arrow_drop_down
+...
+## Understanding the response
+...
+### Token count
+...
+Price per token depends on the model used, see the [pricing](https://ai.google.dev/gemini-api/docs/pricing) page for details.
+...
+...
+# URL context   arrow_drop_down
+...
+## Understanding the response
+
+
+When the model uses the URL context tool, the response includes a `url_context_metadata` object. This object lists the URLs the model retrieved content from and the
+status of each retrieval attempt, which is useful for verification and debugging.
+
+
+The following is an example of that part of the response (parts of the response
+have been omitted for brevity):
+
+  
+```
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "... \n"
+          }
+        ],
+        "role": "model"
+      },
+      ...
+      "url_context_metadata": {
+        "url_metadata": [
+          {
+            "retrieved_url": "https://www.foodnetwork.com/recipes/ina-garten/perfect-roast-chicken-recipe-1940592",
+            "url_retrieval_status": "URL_RETRIEVAL_STATUS_SUCCESS"
+          },
+          {
+            "retrieved_url": "https://www.allrecipes.com/recipe/21151/simple-whole-roast-chicken/",
+...
+...
+# URL context   arrow_drop_down
+...
+## Understanding the response
+...
+            "url_retrieval_status": "URL_RETRIEVAL_STATUS_SUCCESS"
+          }
+        ]
+      }
+    }
+  ]
+}
+
+```
+
+For complete detail about this object , see the [UrlContextMetadata API reference](https://ai.google.dev/api/generate-content#UrlContextMetadata).
+
+
+### Safety checks
+...
+### Token count
+...
+...
+# URL context   arrow_drop_down
+...
+## Supported models
+
+
+|  |
+|  |
+| Gemini 3.1 Pro Preview | ✔️ |
+| Gemini 3.1 Flash-Lite Preview | ✔️ |
+| Gemini 3 Flash Preview | ✔️ |
+| Gemini 2.5 Pro | ✔️ |
+| Gemini 2.5 Flash | ✔️ |
+| Gemini 2.5 Flash-Lite | ✔️ |
+
+
+## Best Practices
+
+
+• Provide specific URLs: For the best results, provide direct URLs to the content you want the model to
+analyze. The model will only retrieve content from the URLs you provide, not
+any content from nested links.
+• Check for accessibility: Verify that the URLs you provide don't lead to pages that require a login or
+are behind a paywall.
+• Use the complete URL: Provide the full URL, including the protocol (e.g., https://www.google.com
+instead of just google.com).
+
+
+...
+...
+# URL context   arrow_drop_down
+...
+## Limitations
+...
+### Supported and unsupported content types
+
+
+The tool can extract content from URLs with the following content types:
+
+
+• Text (text/html, application/json, text/plain, text/xml, text/css,
+text/javascript , text/csv, text/rtf)
+• Image (image/png, image/jpeg, image/bmp, image/webp)
+• PDF (application/pdf)
+
+
+The following content types are not supported:
+
+
+• Paywalled content
+• YouTube videos (See [video understanding](https://ai.google.dev/gemini-api/docs/video-understanding#youtube) to learn how to process YouTube URLs)
+• Google workspace files like Google docs or spreadsheets
+• Video and audio files
+
+
+...
+...
+# URL context   arrow_drop_down
+...
+## Limitations
+
+
+• Function calling: Tool use (URL Context, Grounding with Google Search, etc) with
+function calling is currently unsupported.
+• Request limit: The tool can process up to 20 URLs per request.
+• URL content size: The maximum size for content retrieved from a single URL is
+34MB.
+• Public accessibility: The URLs must be publicly accessible on the web. Localhost
+addresses (e.g., localhost, 127.0.0.1), private networks, and tunneling
+services (e.g., ngrok, pinggy) are not supported.
+• Gemini API only: URL Context is only available in the Gemini API, not through
+Vertex AI.
+
+
+### Supported and unsupported content types
+...
+...
+# URL context   arrow_drop_down
+...
+## What's next
+
+
+• Explore the [URL context cookbook](https://colab.sandbox.google.com/github/google-gemini/cookbook/blob/main/quickstarts/Grounding.ipynb#url-context) for more examples.
+
+  Was this helpful?  Send feedback 
+Except as otherwise noted, the content of this page is licensed under the [Creative Commons Attribution 4.0 License](https://creativecommons.org/licenses/by/4.0/), and code samples are licensed under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0). For details, see the [Google Developers Site Policies](https://developers.google.com/site-policies). Java is a registered trademark of Oracle and/or its affiliates.
+
+
+Last updated 2026-03-25 UTC.
+
+   
+
+...
+...
+# URL context   arrow_drop_down
+...
+## Additional Links
+- [Gemini API](https://ai.google.dev/)
+- [Gemini API](https://ai.google.dev/gemini-api/docs)
+- [Docs](https://ai.google.dev/gemini-api/docs)
+- [API reference](https://ai.google.dev/api)
+- [Get API key](https://aistudio.google.com/apikey)
+- [Cookbook](https://github.com/google-gemini/cookbook)
+- [Community](https://discuss.ai.google.dev/c/gemini-api/)
+- [Overview](https://ai.google.dev/gemini-api/docs)
+- [Quickstart](https://ai.google.dev/gemini-api/docs/quickstart)
+- [API keys](https://ai.google.dev/gemini-api/docs/api-key)
+- [Libraries](https://ai.google.dev/gemini-api/docs/libraries)
+- [Pricing](https://ai.google.dev/gemini-api/docs/pricing)
+- [Batch API](https://ai.google.dev/gemini-api/docs/batch-api)
+...
+...
+# URL context   arrow_drop_down
+...
+## Additional Links
+...
+- [Interactions API](https://ai.google.dev/gemini-api/docs/interactions)
+- [Coding agent setup](https://ai.google.dev/gemini-api/docs/coding-agents)
+- [All models](https://ai.google.dev/gemini-api/docs/models)
+- [Gemini 3](https://ai.google.dev/gemini-api/docs/gemini-3)
+- [Nano Banana](https://ai.google.dev/gemini-api/docs/image-generation)
+- [Veo](https://ai.google.dev/gemini-api/docs/video)
+- [Lyria 3](https://ai.google.dev/gemini-api/docs/music-generation)
+- [Lyria RealTime](https://ai.google.dev/gemini-api/docs/realtime-music-generation)
+- [Imagen](https://ai.google.dev/gemini-api/docs/imagen)
+- [Text-to-speech](https://ai.google.dev/gemini-api/docs/speech-generation)
+- [Embeddings](https://ai.google.dev/gemini-api/docs/embeddings)
+...
+...
+# URL context   arrow_drop_down
+...
+## Additional Links
+...
+- [Robotics](https://ai.google.dev/gemini-api/docs/robotics-overview)
+- [Text](https://ai.google.dev/gemini-api/docs/text-generation)
+- [Documents](https://ai.google.dev/gemini-api/docs/document-processing)
+- [Structured outputs](https://ai.google.dev/gemini-api/docs/structured-output)
+- [Function calling](https://ai.google.dev/gemini-api/docs/function-calling)
+- [Long context](https://ai.google.dev/gemini-api/docs/long-context)
+- [Overview](https://ai.google.dev/gemini-api/docs/agents)
+- [Deep Research Agent](https://ai.google.dev/gemini-api/docs/deep-research)
+- [Overview](https://ai.google.dev/gemini-api/docs/tools)
+- [Google Search](https://ai.google.dev/gemini-api/docs/google-search)
+- [Google Maps](https://ai.google.dev/gemini-api/docs/maps-grounding)
+...
+...
+# URL context   arrow_drop_down
+...
+## Additional Links
+...
+- [Code execution](https://ai.google.dev/gemini-api/docs/code-execution)
+- [URL context](https://ai.google.dev/gemini-api/docs/url-context)
+- [Computer Use](https://ai.google.dev/gemini-api/docs/computer-use)
+- [File Search](https://ai.google.dev/gemini-api/docs/file-search)
+- [Combine Tools and Function calling](https://ai.google.dev/gemini-api/docs/tool-combination)
+- [Overview](https://ai.google.dev/gemini-api/docs/live-api)
+- [Capabilities](https://ai.google.dev/gemini-api/docs/live-api/capabilities)
+- [Tool use](https://ai.google.dev/gemini-api/docs/live-api/tools)
+- [Session management](https://ai.google.dev/gemini-api/docs/live-api/session-management)
+- [Ephemeral tokens](https://ai.google.dev/gemini-api/docs/live-api/ephemeral-tokens)
+...
+...
+# URL context   arrow_drop_down
+...
+## Additional Links
+...
+- [Best practices](https://ai.google.dev/gemini-api/docs/live-api/best-practices)
+- [Context caching](https://ai.google.dev/gemini-api/docs/caching)
+- [OpenAI compatibility](https://ai.google.dev/gemini-api/docs/openai)
+- [Media resolution](https://ai.google.dev/gemini-api/docs/media-resolution)
+- [Token counting](https://ai.google.dev/gemini-api/docs/tokens)
+- [Prompt engineering](https://ai.google.dev/gemini-api/docs/prompting-strategies)
+- [Release notes](https://ai.google.dev/gemini-api/docs/changelog)
+- [Deprecations](https://ai.google.dev/gemini-api/docs/deprecations)
+- [Rate limits](https://ai.google.dev/gemini-api/docs/rate-limits)
+- [Billing info](https://ai.google.dev/gemini-api/docs/billing)
+- [Migrate to Gen AI SDK](https://ai.google.dev/gemini-api/docs/migrate)
+...
+...
+# URL context   arrow_drop_down
+...
+## Additional Links
+...
+- [API troubleshooting](https://ai.google.dev/gemini-api/docs/troubleshooting)
+- [Partner and library integrations](https://ai.google.dev/gemini-api/docs/partner-integration)
+- [Terms of service](https://ai.google.dev/gemini-api/terms)
+- [Available regions](https://ai.google.dev/gemini-api/docs/available-regions)
+- [Abuse monitoring](https://ai.google.dev/gemini-api/docs/usage-policies)
+- [Feedback information](https://ai.google.dev/gemini-api/docs/feedback-policies)
+- [Home](https://ai.google.dev/)
+- [Gemini API](https://ai.google.dev/gemini-api)
+- [Docs](https://ai.google.dev/gemini-api/docs)
+- [Terms](https://policies.google.com/terms)
+- [Privacy](https://policies.google.com/privacy)
+...
+# URL context   arrow_drop_down
+
+
+## On this page
+...
+## How it works
+...
+## Combining with other tools
+...
+## Understanding the response
+...
+## Supported models
+...
+## Best Practices
+...
+## Limitations
+...
+## What's next
+...
+## Additional Links
+...
+  Skip to main content   menu[Gemini API](https://ai.google.dev/)     search     light_mode Language [Sign in](https://ai.google.dev/_d/signin?continue=https%3A%2F%2Fai.google.dev%2Fgemini-api%2Fdocs%2Furl-context&prompt=select_account)      Try the new [Gemini 3.1 Flash Live](https://ai.google.dev/gemini-api/docs/live-api) audio-to-audio model in [AI Studio](https://aistudio.google.com/live?model=gemini-3.1-flash-live-preview).
+# URL context   arrow_drop_down
+...
+END_RAW_CONTENT
+BEGIN_METADATA
+FILE_PATH:copilot-web-content-retrieval/results/raw/raw_output_SC-1_copilot_edited.txt
+FILE_SIZE_BYTES:15463
+MD5:8a222a168f884757f0133219fe2d5c6e
+CHAR_COUNT:15399
+LINE_COUNT:479
+WORD_COUNT:1606
+TOKEN_COUNT_ESTIMATE:3850
+CODE_BLOCK_COUNT:4
+TABLE_ROW_COUNT:8
+HEADER_COUNT:66
+HEXDUMP_LAST_256_BYTES:742670726f6d70743d73656c6563745f6163636f756e742920202020202054727920746865206e6577205b47656d696e6920332e3120466c617368204c6976655d2868747470733a2f2f61692e676f6f676c652e6465762f67656d696e692d6170692f646f63732f6c6976652d6170692920617564696f2d746f2d617564696f206d6f64656c20696e205b41492053747564696f5d2868747470733a2f2f616973747564696f2e676f6f676c652e636f6d2f6c6976653f6d6f64656c3d67656d696e692d332e312d666c6173682d6c6976652d70726576696577292e0a232055524c20636f6e746578742020206172726f775f64726f705f646f776e0a2e2e2e
+TAIL_INTEGRITY_CHECK:UNCERTAIN
+TOOLING_IDENTIFIERS_OBSERVED:fetch_webpage
+RAW_BYTE_IDENTICAL_UNSUPPORTED:YES
+TRANSFORMED_BY_RETRIEVAL_LAYER:YES
+NEWLINE_MODE_NORMALIZED:YES
+TRUNCATION_DETECTED:YES
+TRUNCATION_POINT_BYTES:UNKNOWN
+END_METADATA

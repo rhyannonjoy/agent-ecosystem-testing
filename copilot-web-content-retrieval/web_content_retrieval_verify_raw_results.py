@@ -4,10 +4,10 @@ Raw Output Verification Script
 Verifies key metrics for raw track testing in the Agent Ecosystem Testing framework
 
 Usage:
-    # From copilot-web-content-retrieval/ directory
-    python3 web_content_retrieval_verify_raw_results.py {test ID}
-    python3 web_content_retrieval_verify_raw_results.py BL-1 SC-2 EC-1  # Multiple tests
-    python3 web_content_retrieval_verify_raw_results.py --all  # All raw output files
+    # From the copilot-web-content-retrieval directory
+    python web_content_retrieval_verify_raw_results.py {test ID}
+    python web_content_retrieval_verify_raw_results.py BL-1 SC-2 EC-1  # Multiple tests
+    python web_content_retrieval_verify_raw_results.py --all  # All raw output files
 """
 
 import argparse
@@ -22,7 +22,6 @@ except ImportError:
     print("Warning: tiktoken not installed. Token counts will be unavailable.")
     print("Install with: pip install tiktoken")
     tiktoken = None
-
 
 def calculate_metrics(filepath: Path) -> Dict[str, any]:
     """Calculate all metrics for a raw output file"""
@@ -64,33 +63,42 @@ def calculate_metrics(filepath: Path) -> Dict[str, any]:
     # Content structure metrics
     code_blocks = content.count('```')
     headers = sum(1 for line in content.split('\n') if line.strip().startswith('#'))
-    
+
+    # Table row count: lines that start and end with | are Markdown table rows.
+    # This includes header rows and separator rows (e.g. |---|---|) — consistent
+    # with how Copilot counts them, since it has no way to exclude separators either.
+    # A single | on an otherwise empty line is excluded via the len > 1 guard.
+    table_rows = sum(
+        1 for line in content.split('\n')
+        if line.strip().startswith('|') and line.strip().endswith('|') and len(line.strip()) > 1
+    )
+
     # Detect potential truncation indicators
     truncation_indicators = []
     last_256 = content[-256:] if len(content) > 256 else content
     
-    # Check for unclosed markdown code blocks (odd number of ```)
+    # Check for unclosed Markdown code blocks (odd number of ```)
     if content.count('```') % 2 != 0:
-        truncation_indicators.append("Unclosed markdown code block")
+        truncation_indicators.append("Unclosed Markdown code block")
     
     # Check for mid-word truncation (ends with alphanumeric, not whitespace/punctuation)
     last_char = content[-1] if content else ''
     if last_char.isalnum():
         truncation_indicators.append("Ends mid-word (last char is alphanumeric)")
     
-    # Check for incomplete markdown links
+    # Check for incomplete Markdown links
     if last_256.count('[') > last_256.count(']'):
-        truncation_indicators.append("Unclosed markdown link bracket")
+        truncation_indicators.append("Unclosed Markdown link bracket")
     if last_256.count('](') > last_256.count(')'):
-        truncation_indicators.append("Incomplete markdown link")
+        truncation_indicators.append("Incomplete Markdown link")
     
     # Check for incomplete table row (starts with | but doesn't complete)
     last_line = content.split('\n')[-1] if '\n' in content else content
     if last_line.strip().startswith('|') and not last_line.strip().endswith('|'):
-        truncation_indicators.append("Incomplete markdown table row")
+        truncation_indicators.append("Incomplete Markdown table row")
     
     # Note: We do NOT check for HTML braces/brackets since content may be 
-    # converted from HTML to markdown, stripping those elements
+    # converted from HTML to Markdown, stripping those elements
     
     return {
         "exists": True,
@@ -101,11 +109,11 @@ def calculate_metrics(filepath: Path) -> Dict[str, any]:
         "token_count": token_count,
         "md5_checksum": md5_hash,
         "code_blocks": code_blocks // 2 if code_blocks > 0 else 0,  # Divide by 2 (opening + closing)
+        "table_rows": table_rows,
         "headers": headers,
         "truncation_indicators": truncation_indicators,
         "last_50_chars": content[-50:] if len(content) > 50 else content,
     }
-
 
 def format_size(bytes_count: int) -> str:
     """Format byte count as human-readable size"""
@@ -115,7 +123,6 @@ def format_size(bytes_count: int) -> str:
         return f"{bytes_count / 1024:.2f}KB"
     else:
         return f"{bytes_count / (1024 * 1024):.2f}MB"
-
 
 def print_metrics_table(results: Dict[str, Dict]):
     """Print metrics in a formatted table"""
@@ -158,6 +165,7 @@ def print_metrics_table(results: Dict[str, Dict]):
         # Content structure
         print(f"\n  Content Structure:")
         print(f"    Code Blocks:    {metrics['code_blocks']}")
+        print(f"    Table Rows:     {metrics['table_rows']}")
         print(f"    Headers:        {metrics['headers']}")
         
         # Checksum
@@ -177,7 +185,6 @@ def print_metrics_table(results: Dict[str, Dict]):
         print(f"    '{last_50}'")
         
         print()
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -282,7 +289,6 @@ Examples:
     print("=" * 100)
     print(f"Summary: {successful}/{len(results)} files verified successfully")
     print("=" * 100 + "\n")
-
 
 if __name__ == "__main__":
     main()

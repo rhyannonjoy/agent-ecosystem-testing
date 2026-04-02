@@ -23,12 +23,12 @@ but the raw data shows truncation, that discrepancy belongs in the spec.
 | | Interpreted Track | Raw Track |
 | - | ---------------------- | -------------------------- |
 | **Measures** | Model's interpretation of what it fetched | Filesystem measurements of saved output |
-| **Character counts** | Model estimates, vary 2-3× across sessions on small files | `wc -c` on disk - exact, reproducible |
+| **Character Counts** | Model estimates, vary 2-3× across sessions on small files | `wc -c` on disk - exact, reproducible |
 | **Completeness** | Model's prose assessment of truncation | MD5 comparison, hexdump analysis, fence counting |
-| **Token counts** | Model estimates, ~4 chars/token assumption | `tiktoken cl100k_base`<br>exact OpenAI encoding |
+| **Token Counts** | Model estimates, ~4 chars/token assumption | `tiktoken cl100k_base`<br>exact OpenAI encoding |
 | **Reproducibility** | High variance on small docs, 1.9KB→5.6KB same URL | Perfect reproducibility,<br>same URL = same MD5 |
-| **Output format** | Chat UI Markdown rendering | Raw file on disk, `raw_output_{test_id}.txt` |
-| **Best used for** | Understanding model<br>perception gaps | Citable measurements for the spec |
+| **Output Format** | Chat UI Markdown rendering | Raw file on disk, `raw_output_{test_id}.txt` |
+| **Best For** | Understanding model<br>perception gaps | Citable measurements for the spec |
 
 ## Key Observations
 
@@ -123,25 +123,20 @@ but the raw data shows truncation, that discrepancy belongs in the spec.
 
 ## Implications for Agent Developers
 
-### Use Raw Track Measurements for:
+| **Use Case** | **Interpreted Track** | **Raw Track** |
+| --- | --- | --- |
+| **Exact Size limits per Backend** | ✗ Model estimates only; backend not identified | ✓ Character ceilings per backend: `WebFetch` ~28KB, `urllib` ~72KB, unknown path 245KB+ |
+| **Content-type Detection** | ✗ No access to raw file | ✓ Chars/token ratio classifies content type: <3.0 = code/markup, >4.0 = prose |
+| **Reproducibility Verification** | ✗ 2–3× variance on small files across sessions | ✓  MD5 checksums confirm byte-identical output for regression testing |
+| **Ground Truth Baselines** | ✗ Self-report only | ✓ What Cursor actually fetched vs what the model claims |
+| **Model Perception Gaps** | ✓ Reveals when models misreport completeness or characterize filtered excerpts as complete | ✗ Verifier confirms file integrity but not model's interpretation |
+| **UI Rendering Behavior** | ✓ Reflects how Cursor displays content in chat | ✗ Saved file diverges from chat display |
+| **Session-dependent Variance** | ✓ Captures whether new chat sessions affect output | ✗ File output is deterministic; session effects not visible |
+| **User-facing Experience** | ✓ What end users see vs what agents retrieve | ✗ Raw file isn't what<br>the user sees |
 
-- **Exact Size Limits**: character ceilings per backend - 28KB, 72KB, 245KB+
-- **Content-type Detection**: chars/token ratio classification
-- **Reproducibility Verification**: MD5 checksums for regression testing
-- **Ground Truth Baselines**: what Cursor actually fetched vs what model claims
-
-### Use Interpreted Track for:
-
-- **Model Perception Gaps**: understanding when models misreport completeness
-- **UI Rendering Behavior**: how Cursor displays content in chat
-- **Session-dependent Variance**: whether new chat sessions affect output
-- **User-facing Experience**: what end users see vs what agents retrieve
-
-### Critical Takeaway:
-
-**For automation, use raw measurements.** Model self-reports are unreliable for
-detecting truncation or content subsetting. The interpreted track reveals this gap;
-the raw track provides the ground truth.
+> **Critical takeaway**: for automation, use raw measurements. Model self-reports are
+> unreliable for detecting truncation or content subsetting. The interpreted track
+> reveals this gap; the raw track provides the ground truth.
 
 ---
 

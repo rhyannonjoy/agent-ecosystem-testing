@@ -141,7 +141,7 @@ cd cursor-web-fetch
    python web_fetch_verify_raw_results.py BL-1
 
    # Log raw track result
-   python web_fetch_testing_framework.py --log BL-2 \
+   python web_fetch_testing_framework.py --log BL-1 \
    --track raw \
    --method @Web \
    --model "Auto" \

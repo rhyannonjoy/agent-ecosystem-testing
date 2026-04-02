@@ -1,0 +1,57 @@
+For fetch_webpage, the query should be a short extraction objective, not just a topic word.
+
+Good query patterns:
+- "Extract the page title, publish date, author, and 5 key takeaways."
+- "Find all pricing tiers, monthly cost, and usage limits. Return as bullets."
+- "Summarize only sections about API authentication and rate limits."
+- "Compare statements about privacy policy changes across these URLs."
+
+What makes a query effective:
+- Scope: say exactly what section or topic you care about.
+- Output shape: ask for bullets, table-like structure, key points, or fields.
+- Constraints: include limits (for example, "top 5 points" or "only factual claims").
+- Relevance filter: specify what to ignore (ads, nav text, unrelated sections).
+
+How I analyze and summarize after retrieval:
+1. Parse the fetched content and isolate text relevant to your query.
+2. Prioritize high-signal passages (headings, policy statements, definitions, numbers).
+3. Normalize information into a clear structure (fields, bullets, or side-by-side comparison).
+4. Summarize at the requested granularity (short summary vs detailed breakdown).
+5. Flag uncertainty when content is ambiguous, missing, or contradictory.
+
+Reusable query templates
+
+Use this base format:
+"From [URL or URL set], extract [specific information] from [specific sections/scope], and return as [output format]. Prioritize [signal types], limit to [constraints], and ignore [irrelevant content]."
+
+Templates by task:
+
+1) News article summary
+"Extract headline, publication date, author, and the top 5 factual takeaways from this article. Return concise bullets with one supporting sentence each. Ignore ads, newsletter prompts, and related-story blocks."
+
+2) API docs extraction
+"From this documentation page, extract authentication methods, required headers, base URL, rate limits, and error codes. Return in sections with exact values where available. Ignore marketing copy and non-API sections."
+
+3) Pricing page comparison (multi-URL)
+"Compare pricing across these URLs. Extract plan names, monthly/annual price, included usage limits, overage costs, and trial details. Return a side-by-side table-style bullet list and highlight missing fields."
+
+4) Legal/policy review
+"Summarize clauses related to data retention, third-party sharing, user deletion rights, and policy update notices. Return by clause topic with direct factual statements and note any ambiguous language."
+
+5) Product feature scan
+"Extract all product features and categorize them by theme (security, collaboration, analytics, integrations). Return as grouped bullets and include any stated limitations or plan restrictions."
+
+6) Release notes digest
+"From these release notes pages, extract new features, bug fixes, breaking changes, and deprecations for versions released in [time window]. Return chronologically with one-line impact notes."
+
+7) Research evidence pull
+"Identify claims supported by data, including statistics, sample sizes, dates, and cited sources. Return as claim-evidence pairs and flag claims that lack explicit evidence."
+
+8) Contact/support details
+"Extract support channels, support hours, response-time commitments, escalation paths, and region/language coverage. Return as a structured checklist."
+
+Quick fill-in template:
+"Extract [FIELDS] from [SCOPE]. Return as [FORMAT]. Prioritize [HEADINGS/NUMBERS/DEFINITIONS/QUOTES]. Include only [TIME RANGE or TOP N]. Ignore [NAV/ADS/FOOTER/UNRELATED]. Flag [MISSING/AMBIGUOUS/CONFLICTING] information."
+
+Example filled template:
+"Extract plan name, monthly price, annual price, API rate limit, and trial length from pricing and FAQ sections. Return as bullets grouped by plan. Prioritize numeric values and explicit policy statements. Include only currently available plans. Ignore blog links and footer text. Flag missing or conflicting numbers."

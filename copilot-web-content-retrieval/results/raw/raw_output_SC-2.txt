@@ -1,0 +1,328 @@
+Here is some relevant context from the web page https://platform.claude.com/docs/en/api/messages:
+...
+# Messages
+
+
+##### [Create a Message](https://platform.claude.com/docs/en/api/messages/create)
+
+POST/v1/messages
+##### [Count tokens in a Message](https://platform.claude.com/docs/en/api/messages/count_tokens)
+
+POST/v1/messages/count_tokens
+...
+...
+# Messages
+...
+##### Models
+
+   Base64ImageSource = object { data, media_type, type }   Base64PDFSource = object { data, media_type, type }   BashCodeExecutionOutputBlock = object { file_id, type }   BashCodeExecutionOutputBlockParam = object { file_id, type }   BashCodeExecutionResultBlock = object { content, return_code, stderr, 2 more }   BashCodeExecutionResultBlockParam = object { content, return_code, stderr, 2 more }   BashCodeExecutionToolResultBlock = object { content, tool_use_id, type }   BashCodeExecutionToolResultBlockParam = object { content, tool_use_id, type, cache_control }   BashCodeExecutionToolResultError = object { error_code, type }   BashCodeExecutionToolResultErrorCode = "invalid_tool_input"or"unavailable"or"too_many_requests"or2 more   BashCodeExecutionToolResultErrorParam = object { error_code, type }   CacheControlEphemeral = object { type, ttl }   CacheCreation = object { ephemeral_...
+...
+# Messages
+...
+##### Models
+...
+Code execution tool with REPL state persistence (daemon mode + gVisor
+checkpoint).
+
+   CodeExecutionToolResultBlock = object { content, tool_use_id, type }   CodeExecutionToolResultBlockContent = CodeExecutionToolResultErrororCodeExecutionResultBlockorEncryptedCodeExecutionResultBlock
+Code execution result with encrypted stdout for PFC + web_search results.
+
+   CodeExecutionToolResultBlockParam = object { content, tool_use_id, type, cache_control }   CodeExecutionToolResultBlockParamContent = CodeExecutionToolResultErrorParamorCodeExecutionResultBlockParamorEncryptedCodeExecutionResultBlockParam
+Code execution result with encrypted stdout for PFC + web_search results.
+
+   CodeExecutionToolResultError = object { error_code, type }   CodeExecutionToolResultErrorCode = "invalid_tool_input"or"unavailable"or"too_many_requests"or"execution_time_exceeded"   CodeExecutionToolResultErrorParam = object { error_code, type }   Container = object { id, expires_at }
+Information about the container used in the request (for the code execution
+tool)
+...
+...
+# Messages
+...
+##### Models
+...
+   ContainerUploadBlock = object { file_id, type }
+Response model for a file uploaded to the container.
+
+   ContainerUploadBlockParam = object { file_id, type, cache_control }
+A content block that represents a file to be uploaded to the container Files
+uploaded via this block will be available in the container's input directory.
+
+   ContentBlock = TextBlockorThinkingBlockorRedactedThinkingBlockor9 more
+Response model for a file uploaded to the container.
+
+   ContentBlockParam = TextBlockParamorImageBlockParamorDocumentBlockParamor13 more
+Regular text content.
+
+   ContentBlockSource = object { content, type }   ContentBlockSourceContent = TextBlockParamorImageBlockParam   DirectCaller = object { type }
+Tool invocation directly from the model.
+
+   DocumentBlock = object { citations, source, title, type }   DocumentBlockParam = object { source, type, cache_control, 3 more }   EncryptedCodeExecutionResultBlock = object { content, encrypted_stdout, return_code, 2 more }
+Code execution result with encrypted stdout for PFC + web_search results.
+...
+...
+# Messages
+...
+##### Models
+...
+   EncryptedCodeExecutionResultBlockParam = object { content, encrypted_stdout, return_code, 2 more }
+Code execution result with encrypted stdout for PFC + web_search results.
+
+   ImageBlockParam = object { source, type, cache_control }   InputJSONDelta = object { partial_json, type }   JSONOutputFormat = object { schema, type }   MemoryTool20250818 = object { name, type, allowed_callers, 4 more }   Message = object { id, container, content, 6 more }   MessageCountTokensTool = ToolorToolBash20250124orCodeExecutionTool20250522or13 more
+Code execution tool with REPL state persistence (daemon mode + gVisor
+checkpoint).
+...
+...
+# Messages
+...
+##### Models
+...
+   MessageDeltaUsage = object { cache_creation_input_tokens, cache_read_input_tokens, input_tokens, 2 more }   MessageParam = object { content, role }   MessageTokensCount = object { input_tokens }   Metadata = object { user_id }   Model = "claude-opus-4-6"or"claude-sonnet-4-6"or"claude-haiku-4-5"or12 moreorstring
+The model that will complete your prompt.
+...
+...
+# Messages
+...
+##### Models
+...
+   OutputConfig = object { effort, format }   PlainTextSource = object { data, media_type, type }   RawContentBlockDelta = TextDeltaorInputJSONDeltaorCitationsDeltaor2 more   RawContentBlockDeltaEvent = object { delta, index, type }   RawContentBlockStartEvent = object { content_block, index, type }   RawContentBlockStopEvent = object { index, type }   RawMessageDeltaEvent = object { delta, type, usage }   RawMessageStartEvent = object { message, type }   RawMessageStopEvent = object { type }   RawMessageStreamEvent = RawMessageStartEventorRawMessageDeltaEventorRawMessageStopEventor3 more   RedactedThinkingBlock = object { data, type }   RedactedThinkingBlockParam = object { data, type }   SearchResultBlockParam = object { content, source, title, 3 more }   ServerToolCaller = object { tool_id, type }
+Tool invocation generated by a server-side tool.
+...
+...
+# Messages
+...
+##### Models
+...
+   ServerToolCaller20260120 = object { tool_id, type }   ServerToolUsage = object { web_fetch_requests, web_search_requests }   ServerToolUseBlock = object { id, caller, input, 2 more }   ServerToolUseBlockParam = object { id, input, name, 3 more }   SignatureDelta = object { signature, type }   StopReason = "end_turn"or"max_tokens"or"stop_sequence"or3 more   TextBlock = object { citations, text, type }   TextBlockParam = object { text, type, cache_control, citations }   TextCitation = CitationCharLocationorCitationPageLocationorCitationContentBlockLocationor2 more   TextCitationParam = CitationCharLocationParamorCitationPageLocationParamorCitationContentBlockLocationParamor2 more   TextDelta = object { text, type }   TextEditorCodeExecutionCreateResultBlock = object { is_file_update, type }   TextEditorCodeExecutionCreateResultBlockParam = object { is_file_update, type }   TextEditorCodeExecutionStrReplaceResultBlock...
+...
+# Messages
+...
+##### Models
+...
+Configuration for enabling Claude's extended thinking.
+
+   ThinkingDelta = object { thinking, type }   Tool = object { input_schema, name, allowed_callers, 7 more }   ToolBash20250124 = object { name, type, allowed_callers, 4 more }   ToolChoice = ToolChoiceAutoorToolChoiceAnyorToolChoiceToolorToolChoiceNone
+How the model should use the provided tools. The model can use a specific tool,
+any available tool, decide by itself, or not use tools at all.
+
+   ToolChoiceAny = object { type, disable_parallel_tool_use }
+The model will use any available tools.
+
+   ToolChoiceAuto = object { type, disable_parallel_tool_use }
+The model will automatically decide whether to use tools.
+
+   ToolChoiceNone = object { type }
+The model will not be allowed to use tools.
+
+   ToolChoiceTool = object { name, type, disable_parallel_tool_use }
+The model will use the specified tool with `tool_choice.name`.
+...
+...
+# Messages
+...
+##### Models
+...
+   ToolReferenceBlock = object { tool_name, type }   ToolReferenceBlockParam = object { tool_name, type, cache_control }
+Tool reference block that can be included in tool_result content.
+...
+...
+# Messages
+...
+##### Models
+...
+   ToolResultBlockParam = object { tool_use_id, type, cache_control, 2 more }   ToolSearchToolBm25_20251119 = object { name, type, allowed_callers, 3 more }   ToolSearchToolRegex20251119 = object { name, type, allowed_callers, 3 more }   ToolSearchToolResultBlock = object { content, tool_use_id, type }   ToolSearchToolResultBlockParam = object { content, tool_use_id, type, cache_control }   ToolSearchToolResultError = object { error_code, error_message, type }   ToolSearchToolResultErrorCode = "invalid_tool_input"or"unavailable"or"too_many_requests"or"execution_time_exceeded"   ToolSearchToolResultErrorParam = object { error_code, type }   ToolSearchToolSearchResultBlock = object { tool_references, type }   ToolSearchToolSearchResultBlockParam = object { tool_references, type }   ToolTextEditor20250124 = object { name, type, allowed_callers, 4 more }   ToolText...
+...
+# Messages
+...
+##### Models
+...
+Code execution tool with REPL state persistence (daemon mode + gVisor
+checkpoint).
+
+   ToolUseBlock = object { id, caller, input, 2 more }   ToolUseBlockParam = object { id, input, name, 3 more }   URLImageSource = object { type, url }   URLPDFSource = object { type, url }   Usage = object { cache_creation, cache_creation_input_tokens, cache_read_input_tokens, 5 more }   UserLocation = object { type, city, country, 2 more }   WebFetchBlock = object { content, retrieved_at, type, url }   WebFetchBlockParam = object { content, type, url, retrieved_at }   WebFetchTool20250910 = object { name, type, allowed_callers, 8 more }   WebFetchTool20260209 = object { name, type, allowed_callers, 8 more }   WebFetchTool20260309 = object { name, type, allowed_callers, 9 more }
+Web fetch tool with use_cache parameter for bypassing cached content.
+...
+...
+# Messages
+...
+##### Models
+...
+   WebFetchToolResultBlock = object { caller, content, tool_use_id, type }   WebFetchToolResultBlockParam = object { content, tool_use_id, type, 2 more }   WebFetchToolResultErrorBlock = object { error_code, type }   WebFetchToolResultErrorBlockParam = object { error_code, type }   WebFetchToolResultErrorCode = "invalid_tool_input"or"url_too_long"or"url_not_allowed"or5 more   WebSearchResultBlock = object { encrypted_content, page_age, title, 2 more }   WebSearchResultBlockParam = object { encrypted_content, title, type, 2 more }   WebSearchTool20250305 = object { name, type, allowed_callers, 7 more }   WebSearchTool20260209 = object { name, type, allowed_callers, 7 more }   WebSearchToolRequestError = object { error_code, type }   WebSearchToolResultBlock = object { caller, content, tool_use_id, type }   WebSearchToolResultBlockContent = WebSearchToolResultError...
+...
+# Messages
+...
+#### MessagesBatches
+
+
+##### [Create a Message Batch](https://platform.claude.com/docs/en/api/messages/batches/create)
+
+POST/v1/messages/batches
+##### [Retrieve a Message Batch](https://platform.claude.com/docs/en/api/messages/batches/retrieve)
+
+GET/v1/messages/batches/{message_batch_id}
+##### [List Message Batches](https://platform.claude.com/docs/en/api/messages/batches/list)
+
+GET/v1/messages/batches
+##### [Cancel a Message Batch](https://platform.claude.com/docs/en/api/messages/batches/cancel)
+
+POST/v1/messages/batches/{message_batch_id}/cancel
+##### [Delete a Message Batch](https://platform.claude.com/docs/en/api/messages/batches/delete)
+
+DELETE/v1/messages/batches/{message_batch_id}
+##### [Retrieve Message Batch results](https://platform.claude.com/docs/en/api/messages/batches/results)
+
+GET/v1/messages/batches/{message_batch_id}/results
+...
+...
+# Messages
+...
+#### MessagesBatches
+...
+##### Models
+
+   DeletedMessageBatch = object { id, type }   MessageBatch = object { id, archived_at, cancel_initiated_at, 7 more }   MessageBatchCanceledResult = object { type }   MessageBatchErroredResult = object { error, type }   MessageBatchExpiredResult = object { type }   MessageBatchIndividualResponse = object { custom_id, result }
+This is a single line in the response `.jsonl` file and does not represent the response as a whole.
+
+   MessageBatchRequestCounts = object { canceled, errored, expired, 2 more }   MessageBatchResult = MessageBatchSucceededResultorMessageBatchErroredResultorMessageBatchCanceledResultorMessageBatchExpiredResult
+Processing result for this request.
+
+   MessageBatchSucceededResult = object { message, type } [Claude API Docs home page](https://platform.claude.com/docs)[X (Twitter)](https://x.com/claudeai)[LinkedIn](https://www.linkedin.com/showcase/claude)[Instagram](https://instagram.com/claudeai)
+...
+...
+# Messages
+...
+#### MessagesBatches
+
+
+##### [Create a Message Batch](https://platform.claude.com/docs/en/api/messages/batches/create)
+...
+##### [Retrieve a Message Batch](https://platform.claude.com/docs/en/api/messages/batches/retrieve)
+...
+##### [List Message Batches](https://platform.claude.com/docs/en/api/messages/batches/list)
+...
+##### [Cancel a Message Batch](https://platform.claude.com/docs/en/api/messages/batches/cancel)
+...
+##### [Delete a Message Batch](https://platform.claude.com/docs/en/api/messages/batches/delete)
+...
+##### [Retrieve Message Batch results](https://platform.claude.com/docs/en/api/messages/batches/results)
+...
+##### Models
+...
+...
+# Messages
+...
+### Solutions
+
+
+[AI agents](https://claude.com/solutions/agents)
+[Code modernization](https://claude.com/solutions/code-modernization)
+[Coding](https://claude.com/solutions/coding)
+[Customer support](https://claude.com/solutions/customer-support)
+[Education](https://claude.com/solutions/education)
+[Financial services](https://claude.com/solutions/financial-services)
+[Government](https://claude.com/solutions/government)
+[Life sciences](https://claude.com/solutions/life-sciences)
+
+
+### Partners
+
+
+[Amazon Bedrock](https://claude.com/partners/amazon-bedrock)
+[Google Cloud's Vertex AI](https://claude.com/partners/google-cloud-vertex-ai)
+
+
+...
+...
+# Messages
+...
+### Learn
+
+
+[Blog](https://claude.com/blog)
+[Catalog](https://claude.ai/catalog/artifacts)
+[Courses](https://www.anthropic.com/learn)
+[Use cases](https://claude.com/resources/use-cases)
+[Connectors](https://claude.com/partners/mcp)
+[Customer stories](https://claude.com/customers)
+[Engineering at Anthropic](https://www.anthropic.com/engineering)
+[Events](https://www.anthropic.com/events)
+[Powered by Claude](https://claude.com/partners/powered-by-claude)
+[Service partners](https://claude.com/partners/services)
+[Startups program](https://claude.com/programs/startups)
+
+
+...
+...
+# Messages
+...
+### Company
+
+
+[Anthropic](https://www.anthropic.com/company)
+[Careers](https://www.anthropic.com/careers)
+[Economic Futures](https://www.anthropic.com/economic-futures)
+[Research](https://www.anthropic.com/research)
+[News](https://www.anthropic.com/news)
+[Responsible Scaling Policy](https://www.anthropic.com/news/announcing-our-updated-responsible-scaling-policy)
+[Security and compliance](https://trust.anthropic.com/)
+[Transparency](https://www.anthropic.com/transparency)
+
+
+### Help and security
+
+
+[Availability](https://www.anthropic.com/supported-countries)
+[Status](https://status.claude.com/)
+[Support](https://support.claude.com/)
+[Discord](https://www.anthropic.com/discord)
+
+
+...
+...
+# Messages
+...
+### Terms and policies
+
+
+[Privacy policy](https://www.anthropic.com/legal/privacy)
+[Responsible disclosure policy](https://www.anthropic.com/responsible-disclosure-policy)
+[Terms of service: Commercial](https://www.anthropic.com/legal/commercial-terms)
+[Terms of service: Consumer](https://www.anthropic.com/legal/consumer-terms)
+[Usage policy](https://www.anthropic.com/legal/aup)
+
+  Ask Docs    
+...
+# Messages
+
+
+##### [Create a Message](https://platform.claude.com/docs/en/api/messages/create)
+...
+##### [Count tokens in a Message](https://platform.claude.com/docs/en/api/messages/count_tokens)
+...
+##### Models
+...
+#### MessagesBatches
+...
+### Solutions
+...
+### Partners
+...
+### Learn
+...
+### Company
+...
+### Help and security
+...
+### Terms and policies
+...
+ 
+
+[Claude API Docs Home](https://platform.claude.com/docs/en/home)API ReferenceMessages [Image: Image]
+
+[Image: Image]
+
+[Image: Image]
+
+[Image: Image]
+
+Copy page cURL
+# Messages
+...
