@@ -24,6 +24,7 @@ negotiation - for platforms that don't document these details.
 | Anthropic Claude API | [web fetch](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool) | `claude-api/` |
 | Anysphere Cursor IDE | [`@Web` context attachment](https://cursor.com/docs/agent/prompting) | `cursor-web-fetch/` |
 | Google Gemini API | [URL context](https://ai.google.dev/gemini-api/docs/url-context) | `gemini-url-context/` |
+| Microsoft GitHub Copilot | `fetch_webpage` and/or `curl` | `copilot-web-content-retrieval/` |
 | OpenAI: Chat Completions API, Responses API | [web search](https://developers.openai.com/api/docs/guides/tools-web-search) | `open-ai-web-search/` |
 
 Each platform has two tracks:
@@ -31,10 +32,13 @@ Each platform has two tracks:
 - **Interpreted** - ask the model to reflect on what it retrieved; captures self-perception and estimation variance
 - **Raw** - Python extracts measurements directly from the response object; produces citable, reproducible numbers
 
-> _Cursor testing uses a hybrid approach: raw track saves verbatim output to disk for programmatic analysis; interpreted track asks
-> Cursor to self-report metrics from `@Web`-attached content; visit the
+> _Cursor and Copilot testing use a hybrid approach: raw track saves verbatim output to disk
+> for programmatic analysis; interpreted track asks the agent to self-report metrics from
+> fetched content. Visit the
 > [Cursor Friction Note](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/anysphere-cursor/friction-note)
-> for methodology challenges unique to IDE-based testing_
+> and
+> [Copilot Friction Note](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/microsoft-github-copilot/friction-note)
+> for methodology challenges unique to IDE-based testing._
 
 ---
 
@@ -80,6 +84,11 @@ python open-ai-web-search/web_search_test.py
 # Raw
 python open-ai-web-search/web_search_test_raw.py
 
+# Copilot-interpreted
+python copilot-web-content-retrieval/web_content_retrieval_testing_framework.py --test {test ID} --track interpreted
+# Raw
+python copilot-web-content-retrieval/web_content_retrieval_testing_framework.py --test {test ID} --track raw
+
 # Cursor-interpreted
 python cursor-web-fetch/web_fetch_testing_framework.py --test {test ID} --track interpreted
 # Raw
@@ -93,7 +102,7 @@ python gemini-url-context/url_context_test_raw.py
 
 > _**Free Tier Limits**: Claude API not available on the free-tier, the API is pay-as-you-go;
 5 RPM and 20 RPD limits for `gemini-2.5-flash` - running both tracks in the same day exhaust
-the daily quota; plan runs across days or use a paid tier; Cursor tests available on Pro Plan;
+the daily quota; plan runs across days or use a paid tier; Copilot and Cursor tests available on Pro Plan;
 OpenAI requires a minimum credit top-up (~$5) before any API call succeeds regardless of model -
 `insufficient_quota` is an account-level block, not a rate limit; set `RATE_LIMIT_SLEEP_SECONDS = 0`
 in the scripts if you're on a paid tier_
@@ -115,6 +124,30 @@ and truncation signals programmatically from the `web_fetch_tool_result` block.
 
 ---
 
+## Copilot Test Details
+
+Unlike API-based platforms, Copilot testing uses manual chat sessions in the VS Code IDE.
+The framework generates prompts, but execution requires copy-paste into the Copilot chat
+window. Both tracks test 11 distinct URLs across baseline, structured content, offset,
+and edge case categories. The primary finding is that Copilot autonomously selects between
+two retrieval mechanisms -`fetch_webpage` and `curl` - with no prompt control, and the
+mechanism selected determines output format more than any other variable.
+
+| Test Category | Question | What it tests |
+| --- | --- | --- |
+| Baseline | _What does Copilot retrieve by default? How does output vary across model routing and HTML vs Markdown URLs?_ | MongoDB docs pages at 20KB–256KB; HTML and Markdown URL variants |
+| Structured Content | _How does Copilot handle tables, code blocks, nested headings, and JavaScript-rendered pages?_ | Wikipedia, Anthropic API docs, Markdown Guide, Google Gemini docs |
+| Offset/Pagination | _Does Copilot auto-chunk after apparent truncation? Can it paginate a large document?_ | 256KB MongoDB tutorial; fragment navigation |
+| Edge Cases | _How does Copilot handle redirect chains, SPAs, raw Markdown files, and JSON endpoints?_ | 5-level redirect chain, Gemini landing page, GitHub raw `.md`, `httpbin.org` |
+
+> _Copilot has no publicly documented web fetch mechanism. `fetch_webpage` surfaced
+> through tool logs. When `curl` substitution occurs, it happens without disclosure
+> in the chat UI. Read the
+> [Friction Note](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/microsoft-github-copilot/friction-note)
+> for analysis._
+
+---
+
 ## Cursor IDE Test Details
 
 Unlike testing platforms with API web fetch tools, Cursor testing uses manual chat sessions with the Cursor IDE. The framework
@@ -122,10 +155,10 @@ generates prompts, but execution is intentionally not automated and requires cop
 
 | Test Category | Question | What it tests |
 | --- | --- | --- |
-| Baseline | *What's the reproducibility baseline? Do same URLs always return identical content?* | Small docs pages (4-20KB), tested multiple times to measure variance |
-| Structure-Aware | *Does Cursor truncate intelligently at content boundaries, or cut mid-content?* | Wikipedia pages, Markdown guides, docs with complex structure |
-| Output Pattern | *What triggers Markdown conversion vs raw HTML?* | Large tutorials, JavaScript-heavy SPAs, timeout scenarios |
-| Edge Cases | *How does Cursor handle redirects, JSON endpoints, raw Markdown files, and version drift?* | 5-level redirect chains, API endpoints, GitHub raw `.md` URLs |
+| Baseline | _What's the reproducibility baseline? Do same URLs always return identical content?_ | Small docs pages (4-20KB), tested multiple times to measure variance |
+| Structure-Aware | _Does Cursor truncate intelligently at content boundaries, or cut mid-content?_ | Wikipedia pages, Markdown guides, docs with complex structure |
+| Output Pattern | _What triggers Markdown conversion vs raw HTML?_ | Large tutorials, JavaScript-heavy SPAs, timeout scenarios |
+| Edge Cases | _How does Cursor handle redirects, JSON endpoints, raw Markdown files, and version drift?_ | 5-level redirect chains, API endpoints, GitHub raw `.md` URLs |
 
 ---
 
