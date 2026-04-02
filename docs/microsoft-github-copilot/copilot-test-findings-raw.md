@@ -102,6 +102,6 @@ Copilot's self-report, enabling direct comparison. Read the
 
 >_Across all raw track runs, Copilot self-reported no truncation regardless of whether
 >the saved file was a relevance-ranked excerpt, a complete raw HTML file, or a
->byte-perfect Markdown transfer. "No truncation reported" is not a reliable signal for
+>byte-perfect Markdown transfer. "No truncation reported" isn't a reliable signal for
 >any of the three retrieval outcomes. The verification script and the saved file are
 >the only authoritative ground truth._

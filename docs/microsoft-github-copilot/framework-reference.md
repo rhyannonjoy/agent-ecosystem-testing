@@ -87,9 +87,9 @@ cd copilot-web-content-retrieval
    | `url` | Full URL tested | `https://www.mongodb.com/docs...` |
    | `method` | Retrieval method | `vscode-chat`* |
    | `model_selector` | UI model selector setting | `Auto` |
-   | `model_observed` | Backend model invoked by Auto | `Claude Haiku 4.5`, `GPT-5.3-Codex` |
+   | `model_observed` | Backend model invoked by Auto | `Claude Haiku 4.5`,<br>`GPT-5.3-Codex` |
    | `input_est_chars` | Expected input size in characters | `87040` |
-   | `hypothesis_match` | Hypothesis success/failure | `H1-no`, `H2-yes`, `H3-partial` |
+   | `hypothesis_match` | Hypothesis success/failure | `H1-no`, `H2-yes`,<br>`H3-partial` |
    | `copilot_version` | Copilot extension version | `0.40.1`, `0.41.1-pro` |
    | `notes` | Observations, findings | `Pro-plan retry: successfully...` |
    | `output_chars` | Interpreted track: Copilot-measured output length | `27890` |
@@ -198,9 +198,9 @@ cd copilot-web-content-retrieval
    ```
 
    >_Ensure to provide all required flags: `--method`, `--model`, `--copilot-version`,
-   ><br>`--output-chars`, `--truncated`, `--tokens`, `--hypothesis`_
+   ><br>`--output-chars`, `--truncated`, `--tokens`, `--hypothesis`_<br>
    ><br>
-   >_Raw track only: consider renaming raw output text files to capture variance;
+   >_**Raw track only**: consider renaming raw output text files to capture variance;
    >upon consistent results, remove files from the project to prevent test contamination between runs_
 
 ---
@@ -240,6 +240,10 @@ python web_content_retrieval_results_analyzer.py --csv results.csv --summary
 
 # Analyze specific methods
 python web_content_retrieval_results_analyzer.py --csv results.csv --method "vscode-chat"
+
+# Compare interpreted and raw results
+python web_content_retrieval_results_analyzer.py \
+        --csv results/copilot-interpreted/results.csv results/raw/results.csv --full
 ```
 
 >_Provide the full relative path to the CSV file when running the analyzer,
