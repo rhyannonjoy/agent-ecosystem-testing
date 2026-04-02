@@ -27,6 +27,7 @@ parent: Microsoft GitHub Copilot
 - [Output Integrity: Duplicated Response Sections](#output-integrity-duplicated-response-sections)
 - [Prompt Format Affects Output Structure](#prompt-format-affects-output-structure)
 - [Prompt Refinement Can't Suppress Retrieval-Layer Transformation](#prompt-refinement-cant-suppress-retrieval-layer-transformation)
+- [Truncation Taxonomy](#truncation-taxonomy)
 
 ---
 
@@ -798,13 +799,26 @@ in a table than in a labeled prose section. It also raises the question of wheth
 
 ## Prompt Refinement Can't Suppress Retrieval-Layer Transformation
 
-A direct test of whether prompt engineering can override `fetch_webpage`'s internal transformation behavior produced a negative result: no prompt wording, however explicit, recovers full sequential page content from `fetch_webpage` because the transformation occurs before the model receives the payload.
+A direct test of whether prompt engineering can override `fetch_webpage`'s internal transformation behavior produced
+a negative result: no prompt wording, however explicit, recovers full sequential page content from `fetch_webpage`
+because the transformation occurs before the model receives the payload.
 
-The original raw track prompt instructs Copilot to retrieve a URL and return content exactly as received. After observing that Copilot's output was filtered for "relevance," non-linear, accordion-like, and structurally reassembled rather than sequential, Copilot revised the prompt to better suppress this behavior. The revised prompt was significantly more verbose and explicit, adding structured delimiters `BEGIN_RAW_CONTENT` / `END_RAW_CONTENT`, explicit metadata fields, conditional flags - `TRANSFORMED_BY_RETRIEVAL_LAYER:YES`, `TRUNCATION_DETECTED:YES`, and a direct instruction to report `RAW_BYTE_IDENTICAL_UNSUPPORTED` if byte-identical transfer isn't possible. _Both prompts produced the same output: the same non-sequential, ellipsis-compressed, structurally reassembled content from the same URL_.
+The original raw track prompt instructs Copilot to retrieve a URL and return content exactly as received. After
+observing output filtered for "relevance" that results in non-linear, accordion-like, and structurally
+reassembled rather than sequential, Copilot revised the prompt to better suppress this behavior. The revised prompt
+was significantly more verbose and explicit, adding structured delimiters `BEGIN_RAW_CONTENT` / `END_RAW_CONTENT`,
+explicit metadata fields, conditional flags - `TRANSFORMED_BY_RETRIEVAL_LAYER:YES`, `TRUNCATION_DETECTED:YES`, and
+a direct instruction to report `RAW_BYTE_IDENTICAL_UNSUPPORTED` if byte-identical transfer isn't possible. _Both prompts
+produced the same output: the same non-sequential, ellipsis-compressed, structurally reassembled content from the same URL_.
 
-This result is consistent with the `fetch_webpage` architectural characterization documented in [`fetch_webpage` Undocumented](#fetch_webpage-undocumented). The model-authored prompt revision is better in format, in that it produces more parseable metadata and gives the agent an explicit compliance exit ramp via `RAW_BYTE_IDENTICAL_UNSUPPORTED` - but it doesn't and can't produce different retrieval content, because the instructions reach the model after `fetch_webpage` has already processed and transformed the page. Telling the model not to summarize is downstream of the summarization.
+This result is consistent with the `fetch_webpage` architectural characterization documented in
+[`fetch_webpage` Undocumented](#fetch_webpage-undocumented). The model-authored prompt revision is better in format, in that
+it produces more parseable metadata and gives the agent an explicit compliance exit ramp via `RAW_BYTE_IDENTICAL_UNSUPPORTED` -
+but it doesn't and can't produce different retrieval content, because the instructions reach the model after `fetch_webpage`
+has already processed and transformed the page. Telling the model not to summarize is downstream of the summarization.
 
-When asked directly about its retrieval behavior, `GPT-5.3-Codex` confirmed this architecture while simultaneously mischaracterizing it as suppressible:
+When asked directly about its retrieval behavior, `GPT-5.3-Codex` confirmed this architecture while simultaneously
+mischaracterizing it as suppressible:
 
 ```markdown
 "If you ask for raw or near-raw retrieval, I can avoid summarization-focused rewriting and return the fetched content with minimal transformation."
@@ -812,10 +826,83 @@ When asked directly about its retrieval behavior, `GPT-5.3-Codex` confirmed this
 "Practical note: some minimal handling may still occur for readability or tool-output shaping."
 ```
 
-The agent frames retrieval-layer transformation as a stylistic choice it can dial back on request, while simultaneously acknowledging that some transformation is unavoidable. The framing obscures the distinction between two separate processes: the model's post-retrieval rewriting, which prompt instructions can suppress, and `fetch_webpage`'s internal relevance-ranking and excerpt assembly, which they can't. A user following the agent's own instructions, "just ask for raw output," would receive the same transformed content with more **confident framing around it**, with no indication that the transformation was architectural rather than stylistic.
+The agent frames retrieval-layer transformation as a stylistic choice it can dial back on request, while simultaneously
+acknowledging that some transformation is unavoidable. The framing obscures the distinction between two separate processes: the
+model's post-retrieval rewriting, which prompt instructions can suppress, and `fetch_webpage`'s internal relevance-ranking and
+excerpt assembly, which they can't. A user following the agent's own instructions, "just ask for raw output," would receive the
+same transformed content with more **confident framing around it**, with no indication that the transformation was architectural
+rather than stylistic.
 
-**Impact**: prompt refinement is the wrong tool for this problem. The revised Copilot prompt is more useful than the original for metadata parsing and for giving the agent explicit language to signal when byte-identical retrieval is unsupported, but neither prompt recovers content that `fetch_webpage` didn't return. Characterizing Copilot's output as "summarized" or "filtered by the model" is also imprecise. The more accurate characterization, consistent across multiple run observations, is that `fetch_webpage` performs relevance-ranked excerpt assembly and the model receives a pre-transformed payload. The model's post-retrieval behavior is layered on top of that and is the only layer prompt instructions reach.
+**Impact**: prompt refinement is the wrong tool for this problem. The revised Copilot prompt is more useful than the original for
+metadata parsing and for giving the agent explicit language to signal when byte-identical retrieval isn't supported, but neither
+prompt recovers content that `fetch_webpage` didn't return. Characterizing Copilot's output as "summarized" or "filtered by the model"
+is also imprecise. The more accurate characterization, consistent across multiple run observations, is that `fetch_webpage` performs
+relevance-ranked excerpt assembly and the model receives a pre-transformed payload. Models layer post-retrieval behavior on top of
+that and is the only layer prompt instructions reach.
 
-**Open Question**: Copilot's self-report suggests the query parameter is agent-authored per invocation and not exposed in chat output. If the query string drives excerpt selection, variance in output content across identical runs may reflect query string variance rather than retrieval-layer nondeterminism. This parameter is currently not loggable from the interpreted or raw track without access to tool call internals. A controlled test passing a fixed, explicit query string, if the tool surface allows it, would isolate whether query variance is a meaningful source of output variance.
+**Open Question**: Copilot's self-report suggests the query parameter is agent-authored per invocation and not exposed in chat output.
+If the query string drives excerpt selection, variance in output content across identical runs may reflect query string variance rather
+than retrieval-layer nondeterminism. This parameter isn't currently loggable from the interpreted or raw track without access to tool
+call internals. A controlled test passing a fixed, explicit query string, if the tool surface allows it, would isolate whether query
+variance is a meaningful source of output variance.
+
+---
+
+## Truncation Taxonomy
+
+Across both tracks, three structurally distinct truncation phenomena appear in the dataset. They produce
+similar-looking outcomes: less content than the page contains, or the agent reports no truncation when
+the content is incomplete or unusable; but they have different causes, different locations in the
+pipeline, and different implications for what the saved file and the verifier can confirm.
+
+**Summary**
+
+| **Phenomenon** | **Retrieval complete?** | **Agent reports truncation?** | **Verification detects?** |
+| --- | --- | --- | --- |
+| **Retrieval-layer architectural excerpting** | No, file reflects excerpted content | No, agent sees what `fetch_webpage` delivered | Indirectly with truncation indicators and size vs expected |
+| **Complete retrieval, format-driven unreadability** | Yes, full bytes transferred | No, file complete, agent confirms it | No, verification confirms integrity, not usability |
+| **Chat rendering truncation** | Yes, full bytes transferred and saved | No, file complete | No, requires comparing chat output to verified file |
+
+1. `fetch_webpage` - retrieval-layer architectural excerpting
+
+    `fetch_webpage` performs relevance-ranked excerpt assembly before the model receives the
+    payload. It's unclear whether the model ever sees the full page. The saved file reflects
+    what `fetch_webpage` returned, not what the page contains. The `...` ellipsis markers in
+    the output are the retrieval layer's own elision indicators, not byte-boundary cutoffs.
+    Prompting can't suppress this behavior because it's architectural, and possibly because
+    the instructions reach the model after the transformation has already occurred. The agent
+    typically reports no truncation, because from its perspective the content it received
+    was complete; possible no visibility into what `fetch_webpage` discarded before delivery.
+    Additional analysis documented in [Prompt Refinement Can't Suppress Retrieval-Layer
+    Transformation](#prompt-refinement-cant-suppress-retrieval-layer-transformation) and
+    [`fetch_webpage` Undocumented](#fetch_webpage-undocumented).
+
+2. `curl` - complete retrieval but format-driven unreadability
+
+    When the agent substitutes `curl` for `fetch_webpage`, it retrieves the full page
+    byte-perfectly, as confirmed by `content-length` matching saved file size exactly across
+    runs. Content doesn't appear truncated at the retrieval layer. so the agent doesn't report
+    truncation because the file is complete. However, the output is raw bytes in whatever format
+    the server returned, which is raw HTML for most URLs, raw JSON for `EC-3`, raw Markdown for `EC-6`.
+    The content is technically present but not in a form that serves the test's measurement goals.
+    While this isn't exactly truncation, it's an inverse failure mode in which the verification
+    script can confirm file integrity, but not usability. Additional analysis documented in
+    [`Autonomous Tool Substitution`](#autonomous-tool-substitution---interpreted-track).
+
+3. `EC-6` run 5 only - chat rendering truncation
+
+    With `GPT-5.4` Copilot produced the only observed instance of chat rendering truncation in the dataset.
+    The agent retrieved the full `SPEC.md` file byte-perfectly via `curl`, saved it correctly, and reported
+    accurate metrics. However, when it printed the retrieved content verbatim in the chat UI as part of
+    **agentic over-delivery behavior**, the chat output was visibly cut off, stopping partway through
+    `Category 6` with syntax-highlighted rendered Markdown. No truncation indicators observed in the saved
+    raw output file.
+
+    The cause of the chat cutoff is unknown. The chat display stopped producing output mid-section without
+    any signal that content was missing. Possible causes include an output generation limit, a VS Code chat
+    UI rendering constraint, or a response timeout - none of which are distinguishable from the chat output
+    alone. Verification relying on the chat display alone would see a document that ends mid-section with no
+    indication that the underlying file is intact. This reinforces the methodology principle that the
+    verification script is the authoritative measurement layer, not the chat response.
 
 ---
