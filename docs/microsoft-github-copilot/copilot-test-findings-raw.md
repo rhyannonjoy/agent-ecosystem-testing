@@ -42,15 +42,15 @@ Copilot's self-report, enabling direct comparison. Read the
 | **Retrieval Completeness** | _Format-dependent_: `curl` runs confirm 100% byte retrieval; `fetch_webpage` runs return relevance-ranked subset with no fixed character ceiling observed |
 | **Truncation Pattern** | `fetch_webpage` - retrieval-layer excerpting , `curl` - complete retrieval with format-driven unreadability, and chat rendering cutoff |
 | **Tool Substitution** | _Autonomous and model-dependent_: `curl` substitution occurs without prompt instruction and without disclosure; `GPT-5.4` substituted in all `EC-6``curl` runs; `Claude Sonnet 4.6` substituted after citing `fetch_webpage` limitations |
-| **Self-reported Metrics** | _Mixed reliability_: file size and word count typically accurate; token estimates vary by methodology - chars/4 heuristic, word count substitution, cl100k_base; structural counts - code blocks, table rows are methodology-dependent and under-specified |
-| **Agentic Over-Delivery** | _Consistent pattern_: agent autonomously produces unrequested artifacts including headers files, hexdump files, analysis reports, and verbatim content in chat; artifact type correlates with retrieval mechanism |
+| **Self-reported Metrics** | _Mixed reliability_: file size and word count typically accurate; token estimates vary by methodology - chars/4 heuristic, word count substitution, `cl100k_base`; structural counts - code blocks, table rows are methodology-dependent and under-specified |
+| **Agentic Over-Delivery** | _Consistent pattern_: agent autonomously produces unrequested artifacts including headers files, hexdump files, analysis reports, and verbatim content in chat; type correlates with retrieval mechanism |
 | **Model Routing** | _Unstable_: `Auto` dispatches across model families within a single test series; tool selection behavior, metric accuracy, and output format all vary by model |
 
 ## Results Details
 
 | --- | --- |
 | **Model Selector** | `Auto` |
-| **Models Observed** | `Claude Haiku 4.5`, `Claude Sonnet 4.6`, `GPT-4.1-Codex`, `GPT-4.5-Codex`, `GPT-5.3-Codex`, `GPT-5.4` |
+| **Models Observed** | `Claude Haiku 4.5`, `Claude Sonnet 4.6`, `GPT-4.1-Codex`,<br>`GPT-4.5-Codex`, `GPT-5.3-Codex`, `GPT-5.4` |
 | **Total Tests** | 55 |
 | **Distinct URLs** | 11 |
 | **Input Size Range** | ~2KB–256KB |
@@ -68,10 +68,10 @@ Copilot's self-report, enabling direct comparison. Read the
 | **#** | **Finding** | **Tests** | **Observed** | **Conclusion** |
 | --- | --- | --- | --- | --- |
 | **1** | **Tool selection is the primary variable in output type** | All tests | `fetch_webpage` produces relevance-ranked Markdown excerpts; `curl` produces byte-perfect raw files in server format; same URL, model, and prompt produces either outcome non-deterministically | **`tools_used` field captures which retrieval mechanism used, which is more predictive of output format than URL, page size, model, or prompt wording** |
-| **2** | **`fetch_webpage` performs HTML-to-Markdown transformation with non-linear reassembly** | `BL-3`, `SC-1`, `SC-4` | Raw output order doesn't match page reading order; intro appears near bottom, not top; `...` separators and repeated H1 headers are chunking artifacts not page content; UI elements stripped, footer preserved verbatim | **`fetch_webpage` is performing structural transformation with chunk-based reassembly, not truncation or semantic filtering; output reflects tool's internal chunking format, not page structure** |
-| **3** | **`curl` substitution delivers complete files but at the cost of readability** | `SC-3`, `SC-4`, `EC-1`, `EC-3` runs 4–5, `EC-6` runs 1, 3–5 | `content-length` matches saved file size exactly across all `curl` runs; Wikipedia 793,987 bytes, `markdownguide.org` 65,622 bytes, `SPEC.md` 85,325 bytes all transferred completely; output is raw HTML, JSON, or Markdown with no transformation | **Complete retrieval and useful output are separable; `curl` achieves the former and fails the latter by design; the substitution is a presentation failure, not a retrieval failure** |
+| **2** | **`fetch_webpage` performs HTML-to-Markdown transformation with non-linear reassembly** | `BL-3`, `SC-1`, `SC-4` | Raw output order doesn't match page reading order; intro appears near bottom, not top; `...` separators and repeated H1 headers are chunking artifacts not page content; UI elements stripped, footer<br>preserved verbatim | **`fetch_webpage` is performing structural transformation with chunk-based reassembly, not truncation or semantic filtering; output reflects tool's internal chunking format, not page structure** |
+| **3** | **`curl` substitution delivers complete files but at the cost of readability** | `SC-3`, `SC-4`, `EC-1`, `EC-3` runs<br>4–5, `EC-6` runs 1, 3–5 | `content-length` matches saved file size exactly across all `curl` runs; Wikipedia 793,987 bytes, `markdownguide.org` 65,622 bytes, `SPEC.md` 85,325 bytes all transferred completely; output is raw HTML, JSON, or Markdown with no transformation | **Complete retrieval and useful output are separable; `curl` achieves the former and fails the latter by design; the substitution is a presentation failure, not a retrieval failure** |
 | **4** | **`fetch_webpage` output quality correlates with source HTML structure** | `SC-4` run 3 | `Claude Sonnet 4.6` via `fetch_webpage` on `markdownguide.org` produced well-formed processed Markdown; returned 29,984 bytes against a 65,622-byte HTML source | **Source HTML convertibility is a necessary condition for high-fidelity `fetch_webpage` output but not sufficient; tool selection remains outside prompt control and 3 of 5 `SC-4` runs produced raw HTML via `curl` on the same URL** |
-| **5** | **Tool substitution changes the identity Copilot presents to target servers** | `EC-3` runs 4–5 | `fetch_webpage` presents a fetch_webpage presents a full browser-style User-Agent identifying VS Code as `Code/1.113.0` running on Chrome and Electron; curl presents `curl/8.7.1`; `httpbin.org` `/get` echoes received headers, making the identity difference directly observable in the response payload | **Tool substitution has infrastructure implications beyond output format; servers that serve different content by User-Agent would return different responses to `fetch_webpage` vs `curl` runs on the same URL** |
+| **5** | **Tool substitution changes the identity Copilot presents to target servers** | `EC-3` runs 4–5 | `fetch_webpage` presents a fetch_webpage presents a full browser-style User-Agent identifying VS Code as `Code/1.113.0` running on Chrome and Electron; `curl` presents `curl/8.7.1`; `httpbin.org` `/get` echoes received headers, making the identity difference directly observable in the response payload | **Tool substitution has infrastructure implications beyond output format; servers that serve different content by User-Agent would return different responses to `fetch_webpage` vs `curl` runs on the same URL** |
 | **6** | **Copilot-reported metric accuracy varies systematically by field type** | All raw tests | File size and word count: reliable; character counts: encoding-methodology dependent - `wc -c` vs Unicode code points; token counts: three distinct failure modes - chars/4 undercount, word count substitution, `cl100k_base`; structural counts: methodology-dependent on HTML vs Markdown content | **Metric fields aren't uniformly reliable; token count is least reliable and most dependent on which computation path the agent selects; verification script is the authoritative source for all counts** |
 | **7** | **Structural count discrepancies reflect output format, not counting errors** | `SC-4` runs 4–5 | Copilot reported 24 code blocks and 35 table rows on raw HTML file; verifier reported 0 code blocks and 0 table rows; both are correct, as Copilot counted HTML `<pre>` and `<tr>` tags, verification script counted Markdown fence patterns and pipe rows | **Code block and table row counts aren't comparable across runs that produce different output formats; zeros in verification output mark runs where expected output format never arrived, not measurement failures** |
 | **8** | **Agentic over-delivery escalates with workspace artifact accumulation** | `SC-3`, `SC-4`, `EC-1`, `EC-6` | Agent produces unrequested artifacts - headers files, hexdump files, analysis reports, verbatim content in chat - at increasing rates across the run series; later runs reference prior run artifacts in reasoning chains and generate cross-run comparisons unprompted | **Workspace artifact volume is an uncontrolled session variable; later runs in a session are behaviorally different from earlier runs due to accumulated context; session ordering is a methodology confounder** |
@@ -84,7 +84,7 @@ Copilot's self-report, enabling direct comparison. Read the
 | --- | --- | --- | --- |
 | `fetch_webpage` | ~20 runs | Relevance-ranked Markdown excerpts with `...` elision | Partial; excerpted subset of page |
 | `curl` | ~30 runs | Raw bytes in server format - HTML, JSON, or Markdown | Complete; byte-perfect transfer confirmed |
-| `fetch_webpage` + `curl` - sequential | ~5 runs | `fetch_webpage` attempted first, `curl` used for file save | File complete; chat content may differ |
+| `fetch_webpage` + `curl` - sequential | ~5 runs | `fetch_webpage` attempted first, `curl` used for<br>file save | File complete; chat content may differ |
 
 >_Mechanism counts are approximate; some runs used hybrid approaches where `fetch_webpage` retrieved content and `curl` used separately for headers
 >or verification. The `tools_used` field is the authoritative source per run._
@@ -97,21 +97,11 @@ Copilot's self-report, enabling direct comparison. Read the
 | `EC-3` runs 4–5 | 254 bytes | 254 bytes | ✓ | chars/4 undercount by ~45 | Smaller payload; minimal headers |
 | `SC-4` run 3 | 29,984 bytes | 29,984 bytes | ✓ | +35 chars - multi-byte UTF-8 | Code blocks: 48 vs 25; table rows: omitted |
 | `SC-4` runs 2,4 | 65,622 bytes | 65,622 bytes | ✓ | HTML-dense; heuristic undercounts | Code blocks: HTML vs Markdown methodology mismatch |
-| `EC-6` runs 3–5 | 85,325 bytes | 85,325 bytes | ✓ | Node regex ~27 tokens under cl100k_base | Code blocks: 1 vs 4  - column-1 pattern only |
+| `EC-6` runs 3–5 | 85,325 bytes | 85,325 bytes | ✓ | Node regex ~27 tokens under `cl100k_base` | Code blocks:<br>1 vs 4  - column-1 pattern only |
 | `EC-1` run 5 | 138,715 bytes | 138,715 bytes | ✓ | Word count substituted for token estimate - 5x undercount | 0 code blocks, 0 table rows, 0 headers - raw HTML |
 
-## Perception Gap
-
-| **Test** | **Expected** | **Verified Size** | **Mechanism** | **Copilot's Self-report** |
-| --- | --- | --- | --- | --- |
-| `SC-3` - Wikipedia | ~100KB | 793,987 bytes | `curl` | No truncation; raw HTML |
-| `EC-6` - `SPEC.md` | ~61KB | 85,325 bytes | `curl` | No truncation; complete file |
-| `EC-1` - Gemini Landing | ~100KB | 138,715 bytes | `curl` | No truncation; raw HTML |
-| `SC-4` run 3 | ~30KB | 29,984 bytes | `fetch_webpage` | No truncation; processed Markdown |
-| `EC-3` runs 1–3 | ~2KB | 868 bytes | `fetch_webpage` | No truncation reported |
-| `EC-3` runs 4–5 | ~2KB | 254 bytes | `curl` | No truncation; filtered headers content |
-
-**Core implication**: on the raw track, "no truncation reported" appears in all three truncation categories —
-`fetch_webpage` excerpting, `curl` complete retrieval but unreadable, and the single chat rendering cutoff
-instance. Copilot's truncation self-report isn't a reliable signal for any of the three phenomena. The
-verification script and the saved raw output text file are the only authoritative ground truth._
+>_Across all raw track runs, Copilot self-reported no truncation regardless of whether
+>the saved file was a relevance-ranked excerpt, a complete raw HTML file, or a
+>byte-perfect Markdown transfer. "No truncation reported" is not a reliable signal for
+>any of the three retrieval outcomes. The verification script and the saved file are
+>the only authoritative ground truth._
