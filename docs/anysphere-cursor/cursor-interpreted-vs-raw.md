@@ -125,14 +125,14 @@ but the raw data shows truncation, that discrepancy belongs in the spec.
 
 | **Use Case** | **Interpreted Track** | **Raw Track** |
 | --- | --- | --- |
-| Exact size limits per backend | ✗ model estimates only; backend not identified | ✓ character ceilings per backend: `WebFetch` ~28KB, `urllib` ~72KB, unknown path 245KB+ |
-| Content-type detection | ✗ no access to raw file | ✓ chars/token ratio classifies content type: <3.0 = code/markup, >4.0 = prose |
-| Reproducibility verification | ✗ 2–3× variance on small files across sessions | ✓  MD5 checksums confirm byte-identical output for regression testing |
-| Ground truth baselines | ✗ self-report only | ✓ what Cursor actually fetched vs what the model claims |
-| Model perception gaps | ✓ reveals when models misreport completeness or characterize filtered excerpts as complete | ✗ verifier confirms file integrity but not model's interpretation |
-| UI rendering behavior | ✓ reflects how Cursor displays content in chat | ✗ saved file diverges from chat display |
-| Session-dependent variance | ✓ captures whether new chat sessions affect output | ✗ file output is deterministic; session effects not visible |
-| User-facing experience | ✓ what end users see vs what agents retrieve | ✗ raw file isn't what the user sees |
+| **Exact Size limits per Backend** | ✗ Model estimates only; backend not identified | ✓ Character ceilings per backend: `WebFetch` ~28KB, `urllib` ~72KB, unknown path 245KB+ |
+| **Content-type Detection** | ✗ No access to raw file | ✓ Chars/token ratio classifies content type: <3.0 = code/markup, >4.0 = prose |
+| **Reproducibility Verification** | ✗ 2–3× variance on small files across sessions | ✓  MD5 checksums confirm byte-identical output for regression testing |
+| **Ground Truth Baselines** | ✗ Self-report only | ✓ What Cursor actually fetched vs what the model claims |
+| **Model Perception Gaps** | ✓ Reveals when models misreport completeness or characterize filtered excerpts as complete | ✗ Verifier confirms file integrity but not model's interpretation |
+| **UI Rendering Behavior** | ✓ Reflects how Cursor displays content in chat | ✗ Saved file diverges from chat display |
+| **Session-dependent Variance** | ✓ Captures whether new chat sessions affect output | ✗ File output is deterministic; session effects not visible |
+| **User-facing Experience** | ✓ What end users see vs what agents retrieve | ✗ Raw file isn't what<br>the user sees |
 
 > **Critical takeaway**: for automation, use raw measurements. Model self-reports are
 > unreliable for detecting truncation or content subsetting. The interpreted track

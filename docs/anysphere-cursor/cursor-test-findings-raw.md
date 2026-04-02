@@ -13,7 +13,7 @@ parent: Anysphere Cursor
 **[Raw Track Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/cursor-web-fetch/web_fetch_testing_framework.py)**:
 
     1. Run `python web_fetch_testing_framework.py --test {test ID} --track raw`
-    2. Review the Terminal output
+    2. Review the terminal output
     3. Copy the provided prompt asking `@Web`* to fetch the URL and save verbatim output
     4. Open a new Cursor chat session and paste the prompt into the chat window
     5. Examine the saved `raw_output{test ID}.txt` file

@@ -48,7 +48,7 @@ for full impact analysis._
 ---
 
 **Goal**: use Cursor IDE with two complementary tracks -
-the Cursor-interpreted track catches perception gaps, while the raw track
+interpreted catches perception gaps, while the raw
 produces reproducible numbers for documentation -
 
 | | **Cursor-interpreted Track** | **Raw Track** |
