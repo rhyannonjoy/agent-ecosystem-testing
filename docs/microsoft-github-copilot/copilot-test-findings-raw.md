@@ -9,186 +9,109 @@ parent: Microsoft GitHub Copilot
 
 ---
 
-`BL-1` run 5
+**[Raw Track Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/copilot-web-content-retrieval/web_content_retrieval_testing_framework.py)**:
 
-1. `accept-ranges: bytes` - Yes, this is significant. It means the MongoDB server supports HTTP range requests (RFC 7233). GPT models could theoretically request partial content like Range: bytes=0-100000, but there's no evidence they're doing so - the full 508KB was downloaded in one shot.
-2. Headers file capture - Copilot explicitly saved the HTTP response headers separately, showing it's aware of HTTP metadata. This is interesting behavior that didn't appear in earlier runs.
-3. Self-report accuracy improved - This run shows Copilot correctly reporting 15,370 words (matching verifier), unlike run 4's 80,668 overestimate. Same model family, different accuracy - suggests nondeterministic counting logic or different execution path.
-4. Structure detection - Copilot found HTML structures (code blocks, table rows, headers) that the verifier can't detect because it only knows Markdown syntax. This is expected but worth documenting.
-5. CDN metadata visible - CloudFront delivery, Netlify Edge, cache miss - all potentially relevant for understanding how content is served and whether caching affects retrieval behavior.
+    1. Run `python web_content_retrieval_testing_framework.py --test {test ID} --track raw`
+    2. Review the terminal output
+    3. Copy the provided prompt asking Copilot to retrieve the URL, save the content
+       exactly as received, report file size, MD5 checksum, character/line/word/token
+       counts, code blocks, table rows, headers, hexdump of last 256 bytes, and any
+       visible tool/server identifiers
+    4. Open a new Copilot chat session in VSCode and paste the prompt into the chat window
+    5. Allow terminal tool calls; skip any tool call prompts for Python scripts
+    6. Run the verifier: `python web_content_retrieval_verify_raw_results.py {test ID}`
+    7. Log both Copilot-reported and verifier-measured values as separate fields;
+       the delta between them is the finding
+    8. Ensure log results are saved to `/results/raw/results.csv`
 
----
-
-`BL-2` run 1
-
-Claude models may apply aggressive content filtering even on native Markdown URLs, not just
-HTML-to-Markdown conversion
-
-1. Truncation explicitly acknowledged - Copilot reported "content does NOT end cleanly" with ellipsis markers (...), confirming intentional summarization not accidental cutoff
-2. execution_attempts = 5 - You're right to count action verbs: "Retrieved" (1), "Created" (2), "Ran" terminal command (3), "Ran" terminal again (4), "Ran content-agent" script (5) = 5 execution attempts
-3. Mixed HTML/Markdown output - Table HTML preserved (<tr>) but surrounded by markdown structure, confirming Copilot isn't doing clean format conversion but selective filtering
-4. CDN staging server - Content came from cdn.mongodb.com not production docs.mongodb.com, which could affect content/headers
-5. Summarization markers - Ellipsis characters are literal truncation/summarization indicators, not natural content endings
-6. Claude vs GPT divergence confirmed - Claude: 6.13KB filtered markdown with summarization; GPT (BL-1): 496KB raw HTML complete. Dramatic difference in retrieval strategy between model families on identical content (just different URL encoding).
-7. Structure detection issues - Code blocks, table rows, headers all show divergence between Copilot's counts and verifier's, likely because: (a) Copilot counted HTML table syntax while verifier looks for markdown tables, and (b) summarization omitted sections the verifier could have counted
-
-run 2
-
-1. Consistent across runs - BL-2 run 1: 6,273 bytes; BL-2 run 2: 6,272 bytes. Only 1 byte difference, confirming deterministic summarization ceiling for Claude models on markdown URLs.
-2. execution_attempts = 4 - Counted as: "Retrieved" (1), "Fetched" (2), "Saved" (3), "Created" file + "Ran" command twice (4). You're right - significantly fewer steps than BL-1's multi-tool chain.
-3. Simpler tool chain - Only fetch_webpage used, no curl -> dd -> wc -> md5 -> python3 fallback chain. Markdown URLs trigger cleaner execution path.
-4. MD5 match confirms integrity - Copilot and verifier agree on checksum aec771dbf406a02e09efba1c4bc8ac4e, validating file wasn't corrupted.
-5. Ellipsis markers confirmed - Final 3 bytes are literal ASCII periods 2e 2e 2e (hexdump shows this), confirming intentional summarization markers not data corruption.
-6. Staging CDN metadata - URLs point to mongodb-cdn-api.staging.corp.mongodb.com, revealing internal infrastructure details visible in href attributes.
-7. Less noisy interaction: compare BL-1 (GPT, HTML): verbose multi-step terminal output, fallback chains, headers files. BL-2 (Claude, Markdown): concise report, single tool, clean output. Markdown URLs produce quieter, more deterministic behavior.
-8. Structure count divergence pattern repeats - Same discrepancies as run 1: Copilot sees HTML table syntax (14 rows), verifier sees markdown (0 rows). Confirms these aren't random errors but systematic detection differences.
-
-run 3
-
-saved file begins with Copilot's own framing text rather than the raw payload; prompt compliance failure
+>*_Results logged as "Methods tested: `vscode-chat`" reflect a manually
+operated testing process in which prompts are copy-pasted into the Copilot
+chat window. The raw track captures the actual saved file independently of
+Copilot's self-report, enabling direct comparison. Read the
+[Friction Note](friction-note.md) for methodology complications._
 
 ---
 
-SC-2
+## Platform Limit Summary
 
-GPT family also uses the markdown with Copilot's own framing text rather than the raw payload; prompt compliance failure with HTML to Markdown conversion; semantically truncated/ellipsized rather than byte-truncated
+| **Limit** | **Observed** |
+| ------- | ---------- |
+| **Retrieval Mechanism** | _Unstable_: agent autonomously selects between `fetch_webpage` and `curl` with no prompt control; selection determines output format more than any other variable |
+| **`fetch_webpage` Output** | _Relevance-ranked excerpts_: HTML-to-Markdown transformation with chunk-based reassembly, non-linear ordering, and `...` elision markers; never returns full sequential page content |
+| **`curl` Output** | _Byte-perfect full retrieval_: complete file transfer confirmed by `content-length` matching saved file size; no transformation layer; delivers raw bytes in server format |
+| **Retrieval Completeness** | _Format-dependent_: `curl` runs confirm 100% byte retrieval; `fetch_webpage` runs return relevance-ranked subset with no fixed character ceiling observed |
+| **Truncation Pattern** | `fetch_webpage` - retrieval-layer excerpting , `curl` - complete retrieval with format-driven unreadability, and chat rendering cutoff |
+| **Tool Substitution** | _Autonomous and model-dependent_: `curl` substitution occurs without prompt instruction and without disclosure; `GPT-5.4` substituted in all `EC-6``curl` runs; `Claude Sonnet 4.6` substituted after citing `fetch_webpage` limitations |
+| **Self-reported Metrics** | _Mixed reliability_: file size and word count typically accurate; token estimates vary by methodology - chars/4 heuristic, word count substitution, cl100k_base; structural counts - code blocks, table rows are methodology-dependent and under-specified |
+| **Agentic Over-Delivery** | _Consistent pattern_: agent autonomously produces unrequested artifacts including headers files, hexdump files, analysis reports, and verbatim content in chat; artifact type correlates with retrieval mechanism |
+| **Model Routing** | _Unstable_: `Auto` dispatches across model families within a single test series; tool selection behavior, metric accuracy, and output format all vary by model |
 
----
+## Results Details
 
-OP-4
+| --- | --- |
+| **Model Selector** | `Auto` |
+| **Models Observed** | `Claude Haiku 4.5`, `Claude Sonnet 4.6`, `GPT-4.1-Codex`, `GPT-4.5-Codex`, `GPT-5.3-Codex`, `GPT-5.4` |
+| **Total Tests** | 55 |
+| **Distinct URLs** | 11 |
+| **Input Size Range** | ~2KB–256KB |
+| **Truncation Events** | Copilot self-reported 16 / 55 |
+| **Average Output Size** | 787,084 chars |
+| **Average Token Count** | 284,463 tokens |
+| **Verification Method** | Python verification script measuring raw output; delta between Copilot-reported and verified values |
 
-This is the opposite of every SC-2 run, where Copilot aggressively converted HTML to Markdown. Here Copilot saved the raw HTML verbatim with no conversion. Yet the plain language tutorial content is absent, the HTML is likely JavaScript-rendered content that was not executed, so only the HTML shell was captured, not the rendered text.
+>_The raw track average output size is dramatically higher than the interpreted track average because curl substitution runs deliver
+>complete files while `fetch_webpage` runs return relevance-ranked excerpts. Averaging across both mechanisms in the same figure
+>produces a number that doesn't describe either._
 
-The failure mode is pre-truncation, the retrieval layer never got renderable content to begin with.
+### Truncation Analysis
 
-Run 3 adds the "Here is some relevant context from the web page" framing wrapper (same as SC-2 runs), which was absent in Run 2. Same model selector, same URL, different framing behavior, suggests the framing injection is non-deterministic at the retrieval layer level
+| **#** | **Finding** | **Tests** | **Observed** | **Conclusion** |
+| --- | --- | --- | --- | --- |
+| **1** | **Tool selection is the primary variable in output type** | All tests | `fetch_webpage` produces relevance-ranked Markdown excerpts; `curl` produces byte-perfect raw files in server format; same URL, model, and prompt produces either outcome non-deterministically | **`tools_used` field captures which retrieval mechanism used, which is more predictive of output format than URL, page size, model, or prompt wording** |
+| **2** | **`fetch_webpage` performs HTML-to-Markdown transformation with non-linear reassembly** | `BL-3`, `SC-1`, `SC-4` | Raw output order doesn't match page reading order; intro appears near bottom, not top; `...` separators and repeated H1 headers are chunking artifacts not page content; UI elements stripped, footer preserved verbatim | **`fetch_webpage` is performing structural transformation with chunk-based reassembly, not truncation or semantic filtering; output reflects tool's internal chunking format, not page structure** |
+| **3** | **`curl` substitution delivers complete files but at the cost of readability** | `SC-3`, `SC-4`, `EC-1`, `EC-3` runs 4–5, `EC-6` runs 1, 3–5 | `content-length` matches saved file size exactly across all `curl` runs; Wikipedia 793,987 bytes, `markdownguide.org` 65,622 bytes, `SPEC.md` 85,325 bytes all transferred completely; output is raw HTML, JSON, or Markdown with no transformation | **Complete retrieval and useful output are separable; `curl` achieves the former and fails the latter by design; the substitution is a presentation failure, not a retrieval failure** |
+| **4** | **`fetch_webpage` output quality correlates with source HTML structure** | `SC-4` run 3 | `Claude Sonnet 4.6` via `fetch_webpage` on `markdownguide.org` produced well-formed processed Markdown; returned 29,984 bytes against a 65,622-byte HTML source | **Source HTML convertibility is a necessary condition for high-fidelity `fetch_webpage` output but not sufficient; tool selection remains outside prompt control and 3 of 5 `SC-4` runs produced raw HTML via `curl` on the same URL** |
+| **5** | **Tool substitution changes the identity Copilot presents to target servers** | `EC-3` runs 4–5 | `fetch_webpage` presents a fetch_webpage presents a full browser-style User-Agent identifying VS Code as `Code/1.113.0` running on Chrome and Electron; curl presents `curl/8.7.1`; `httpbin.org` `/get` echoes received headers, making the identity difference directly observable in the response payload | **Tool substitution has infrastructure implications beyond output format; servers that serve different content by User-Agent would return different responses to `fetch_webpage` vs `curl` runs on the same URL** |
+| **6** | **Copilot-reported metric accuracy varies systematically by field type** | All raw tests | File size and word count: reliable; character counts: encoding-methodology dependent - `wc -c` vs Unicode code points; token counts: three distinct failure modes - chars/4 undercount, word count substitution, `cl100k_base`; structural counts: methodology-dependent on HTML vs Markdown content | **Metric fields aren't uniformly reliable; token count is least reliable and most dependent on which computation path the agent selects; verification script is the authoritative source for all counts** |
+| **7** | **Structural count discrepancies reflect output format, not counting errors** | `SC-4` runs 4–5 | Copilot reported 24 code blocks and 35 table rows on raw HTML file; verifier reported 0 code blocks and 0 table rows; both are correct, as Copilot counted HTML `<pre>` and `<tr>` tags, verification script counted Markdown fence patterns and pipe rows | **Code block and table row counts aren't comparable across runs that produce different output formats; zeros in verification output mark runs where expected output format never arrived, not measurement failures** |
+| **8** | **Agentic over-delivery escalates with workspace artifact accumulation** | `SC-3`, `SC-4`, `EC-1`, `EC-6` | Agent produces unrequested artifacts - headers files, hexdump files, analysis reports, verbatim content in chat - at increasing rates across the run series; later runs reference prior run artifacts in reasoning chains and generate cross-run comparisons unprompted | **Workspace artifact volume is an uncontrolled session variable; later runs in a session are behaviorally different from earlier runs due to accumulated context; session ordering is a methodology confounder** |
+| **9** | **Headers files are produced by two distinct mechanisms with different implications** | `BL-3`, `SC-3`, `SC-4`, `EC-6` | `fetch_webpage` runs sometimes save HTTP metadata autonomously; `curl` runs produce headers as structural output of the tool when invoked with capture flags - expected behavior; both produce `.headers.txt` files but represent different phenomena | **Headers file presence isn't a uniform signal; confirm which retrieval mechanism produced it before interpreting as agentic over-delivery; `curl` headers expose direct CDN infrastructure details invisible through `fetch_webpage`'s abstraction layer** |
+| **10** | **Redirect chains followed transparently; JSON payloads subject to intra-value truncation** | `EC-3` all runs | 5-level redirect chain followed silently to `/get`; returned JSON structurally complete but User-Agent value internally truncated with `...` in `fetch_webpage` tool response; saved file contained complete value, suggesting silent reconstruction from prior knowledge | **`fetch_webpage`'s `...` elision operates at field-value level, not only at chunk-boundary level; saved file and tool response may differ; reconstruction is undetectable without tool response log** |
 
----
+## Retrieval Mechanism Distribution
 
-Halfway into the raw track, Copilot started to make observations about its own tasks, started comparing the run raw outputs
+| **Mechanism** | **Runs Observed** | **Output Format** | **File Completeness** |
+| --- | --- | --- | --- |
+| `fetch_webpage` | ~20 runs | Relevance-ranked Markdown excerpts with `...` elision | Partial; excerpted subset of page |
+| `curl` | ~30 runs | Raw bytes in server format - HTML, JSON, or Markdown | Complete; byte-perfect transfer confirmed |
+| `fetch_webpage` + `curl` - sequential | ~5 runs | `fetch_webpage` attempted first, `curl` used for file save | File complete; chat content may differ |
 
----
+>_Mechanism counts are approximate; some runs used hybrid approaches where `fetch_webpage` retrieved content and `curl` used separately for headers
+>or verification. The `tools_used` field is the authoritative source per run._
 
-BL-3
+## Verifier Delta Summary
 
-1. Order isn't preserved. The rendered page opens with the intro paragraph, the numbered overview steps, and "Time required: 15 minutes" - none of that appears at the top of the raw output. The raw output jumps straight to ## NOTE as the first content block, skipping the entire introductory section. The rendered page's NOTE box appears after the intro; in the raw output it's first.
+| **Test** | **Copilot-reported Size** | **Verified Size** | **MD5 Match?** | **Token Delta** | **Structural Count Notes** |
+| --- | --- | --- | --- | --- | --- |
+| `EC-3` runs 1–3 | 868–869 bytes | 868–869 bytes | ✓ | chars/4 or word-count substitution | 0 code blocks, 0 table rows, 0 headers - JSON |
+| `EC-3` runs 4–5 | 254 bytes | 254 bytes | ✓ | chars/4 undercount by ~45 | Smaller payload; minimal headers |
+| `SC-4` run 3 | 29,984 bytes | 29,984 bytes | ✓ | +35 chars - multi-byte UTF-8 | Code blocks: 48 vs 25; table rows: omitted |
+| `SC-4` runs 2,4 | 65,622 bytes | 65,622 bytes | ✓ | HTML-dense; heuristic undercounts | Code blocks: HTML vs Markdown methodology mismatch |
+| `EC-6` runs 3–5 | 85,325 bytes | 85,325 bytes | ✓ | Node regex ~27 tokens under cl100k_base | Code blocks: 1 vs 4  - column-1 pattern only |
+| `EC-1` run 5 | 138,715 bytes | 138,715 bytes | ✓ | Word count substituted for token estimate - 5x undercount | 0 code blocks, 0 table rows, 0 headers - raw HTML |
 
-2. The `...` separators between repeated # MongoDB Search Quick Start headers aren't in the rendered page at all. The page has one # MongoDB Search Quick Start H1 at the top. The raw output repeats it dozens of times as a section delimiter pattern, this is an artifact of the retrieval layer's chunking or context injection format, not a reflection of page structure. The rendered page uses a single H1 and then H2/H3 subheadings throughout.
+## Perception Gap
 
-3. Content is selectively extracted, not verbatim. The rendered page includes: the preview warning banner, deployment type/language selector UI, star rating widget, the "On this page" sidebar TOC, accordion expand/collapse UI elements, and the full footer. None of these appear in the raw output in their rendered form, they're either stripped entirely or converted to minimal text like `[Image: Chevron Right Icon]`
+| **Test** | **Expected** | **Verified Size** | **Mechanism** | **Copilot's Self-report** |
+| --- | --- | --- | --- | --- |
+| `SC-3` - Wikipedia | ~100KB | 793,987 bytes | `curl` | No truncation; raw HTML |
+| `EC-6` - `SPEC.md` | ~61KB | 85,325 bytes | `curl` | No truncation; complete file |
+| `EC-1` - Gemini Landing | ~100KB | 138,715 bytes | `curl` | No truncation; raw HTML |
+| `SC-4` run 3 | ~30KB | 29,984 bytes | `fetch_webpage` | No truncation; processed Markdown |
+| `EC-3` runs 1–3 | ~2KB | 868 bytes | `fetch_webpage` | No truncation reported |
+| `EC-3` runs 4–5 | ~2KB | 254 bytes | `curl` | No truncation; filtered headers content |
 
-4. The accordion pattern is flattened. On the rendered page, "What is a Search Index?" and "What are Atlas Search queries?" are expandable accordions with chevron indicators. In the raw output they appear as ## What is a Search Index? followed by [Image: Chevron Right Icon] and then the content, the interactive structure is lost but the content is present.
-
-5. The code blocks are present but reformatted. The rendered page shows syntax-highlighted JSON in a proper code editor widget with line numbers and a copy button. The raw output preserves these as Markdown code blocks or as pipe-delimited table rows, the content is there but the formatting is transformed.
-
-6. The "On this page" TOC appears at the end, not the side. In the rendered page it's a fixed sidebar. In the raw output it appears near the bottom of the document as a flat list, the retrieval layer apparently appends it rather than stripping it.
-
-7. The footer content is included verbatim. Careers, Investor Relations, Legal, Privacy Policy, GitHub, etc. all appear in the raw output. This is low-value boilerplate that a summarizer would typically strip, its presence confirms the retrieval layer is not doing semantic relevance filtering on footer content.
-
-What kind of relevance/summarization is Copilot doing?
-
-It isn't doing semantic summarization; the tutorial prose content is preserved with high fidelity. It is doing structural transformation: HTML-to-Markdown conversion, accordion flattening, sidebar repositioning, UI element stripping, and injecting the repeated # MongoDB Search Quick Start header pattern as a chunking artifact. The `...` ellipsis separators between sections appear to be the retrieval layer's way of indicating content gaps or section boundaries in its internal chunked representation, they aren't present in the source page.
-The most significant finding: the order is partially preserved but the opening is truncated from the front. The rendered page's intro (the paragraph beginning "MongoDB Search is an embedded full-text search feature...") does appear in the raw output, but only near the bottom in the repeated TOC/summary section; not at the top where the page actually renders it. The retrieval layer appears to be injecting content in a non-linear order that reflects its internal document chunking rather than the page's visual reading order.
-
-the framing wrapper is injected upstream of the retrieval result, not part of the page content, and that the underlying retrieved content is nearly identical between calls.
-
-`fetch_webpage` performs HTML-to-Markdown structural transformation with chunk-based reassembly, not truncation or semantic filtering
-
-The retrieval layer is doing chunked extraction with injected section headers as delimiters, non-linear reassembly (intro appears near the bottom, not the top), UI stripping (accordions flattened, widgets removed), and footer preservation (boilerplate included verbatim, no semantic relevance filtering). The ... separators and repeated # MongoDB Search Quick Start headers are chunking artifacts, not page content.
-
-The headers file is genuinely informative. Looking at what's visible:
-
-content-type: text/html; charset=UTF-8 - confirms the server returned HTML, not markdown. fetch_webpage's markdown conversion happens client-side in the tool layer, not server-side.
-accept-ranges: bytes - the server supports range requests (HTTP 206 partial content). This is significant: it means byte-range fetching is technically possible, but fetch_webpage doesn't appear to use it - it requests the full document and then truncates/transforms internally.
-cache-status: "Netlify Edge"; hit - the response was served from Netlify's edge cache, not origin. Combined with x-cache: Miss from cloudfront and the CloudFront via header, there are two CDN layers (Netlify Edge in front, CloudFront behind), which explains why the same URL can return slightly different content across runs if cache state varies.
-etag: "720fd920e3b8e6c735a0b2e9c7c54138-ssl" - the etag is stable, suggesting the underlying content hasn't changed between runs, which supports the interpretation that output variance across runs reflects fetch_webpage's internal chunking behavior, not server-side content changes.
-
-For the notes addition, I'd add something like this to the existing log:
-"Copilot non-deterministically created a headers file (raw_output_BL-3.headers.txt) alongside the body artifact - behavior not requested by the prompt and not consistent across runs, suggesting the agent autonomously decided to capture HTTP response metadata. Headers confirm server returned text/html not markdown - fetch_webpage's conversion is tool-side not server-side. accept-ranges: bytes indicates the server supports partial content requests but fetch_webpage does not appear to use range requests, performing full-document retrieval with internal transformation instead. Dual CDN layer visible (Netlify Edge hit, CloudFront miss) - cache state variance across layers is a plausible explanation for output differences between runs where MD5 differs despite identical URL and prompt."
-
-the headers file appearance is itself a behavioral data point about agentic over-delivery, and the accept-ranges finding directly addresses whether chunked HTTP retrieval could explain the size ceiling, and the answer is no.
-
----
-
-SC- 1
-
-`fetch_webpage` sometimes retrieves static HTML source without executing JS, so rendered documentation prose is absent despite full 125KB retrieval
-
-nearly identical raw outputs 1-3, what starting to look at is the Method/identifier strings visible: generate_content, url_context_metadata, URL_RETRIEVAL_STATUS_SUCCESS, URL_RETRIEVAL_STATUS_UNSAFE
-
-Fourth run chunk-based reassembly, not semantic filtering; the retrieval layer is doing HTML-to-text conversion that strips rendering but preserves material icon text nodes; sections are represented, but it's also summarizing/filtering in non-linear order; it's a combination of both, there is ellipsical `...`
-
-Hypothesis: H3-yes is the strongest reading; the content ends cleanly, structure is preserved within sections, and the transformation respects markdown boundaries. But the non-linear order means it's not truly structure-aware in a reading-order sense.
-
----
-
-SC-4
-
-re: headers
-
-It has no effect on what the client does with a complete response after receiving it. The header is passive infrastructure metadata; it doesn't constrain the agent's post-retrieval behavior in any way.
-
-Complete retrieval and useful output are separable. The 65,622-byte transfer confirms curl got the whole page. The raw HTML output confirms nothing transformed it afterward. These are two independent outcomes that happened to co-occur, and the reason they co-occurred is the curl substitution itself; curl is a transport tool with no content transformation layer. It has no relevance model, no Markdown renderer, no excerpt assembler. It delivers bytes and stops. Whatever transformation fetch_webpage applies to produce readable output, curl simply doesn't have it.
-
-The raw HTML output isn't a retrieval failure and it isn't caused by accept-ranges. It's the expected output of a tool that was never designed to produce anything else. The agent substituted a complete-retrieval tool for a transformation-capable tool, got complete retrieval, and delivered it verbatim. From a data fidelity standpoint the transfer is perfect. From a usability standpoint it's the wrong tool for the task.
-
-`fetch_webpage` transforms aggressively and doesn't document what it discards. curl doesn't transform at all and doesn't document that it's being substituted. The agent's self-report that it can suppress summarization on request is inaccurate in both cases: you can't suppress fetch_webpage's transformation layer through prompting, and curl has no transformation layer to suppress or enable.
-
-What the SC-series data is accumulating is evidence that the agent's tool selection for a "fetch this URL" task isn't stable, not documented, and not controllable from the prompt. fetch_webpage and curl produce outputs that are so different in character: relevance-ranked excerpts versus complete raw HTML; that they can't be treated as equivalent conditions in the same test series. Your run_notes field capturing which tool was invoked is doing the right work here; the tool used is currently the most important variable in predicting output type, more so than URL, model, or prompt wording.
-
-## `fetch_webpage` Output Quality Correlates With Source HTML Structure
-
-Across SC-series raw track runs on `fetch_webpage`, output quality varies with the
-structural characteristics of the source page. SC-4 run 3 (`Claude Sonnet 4.6`) retrieved
-markdownguide.org/basic-syntax/ via `fetch_webpage` and produced well-formed processed
-Markdown: complete prose sections, code blocks, blockquotes, tables, and navigational
-structure, at 29,984 bytes against a 65,622-byte HTML source, a 46% retrieval rate.
-This is the highest-fidelity `fetch_webpage` output observed across the SC series.
-
-markdownguide.org is structurally favorable for HTML-to-Markdown conversion: minimal
-JavaScript, clean semantic HTML, content that maps directly onto Markdown primitives
-(headings, fenced code blocks, tables, blockquotes), and no CDN-rendered or
-JavaScript-dependent content sections. Pages with heavier JavaScript, navigation
-chrome, or dynamic content have consistently produced lower-fidelity output across
-other test IDs.
-
-This finding suggests `fetch_webpage`'s transformation quality isn't uniform, it
-reflects the convertibility of the source HTML as much as any fixed tool capability.
-Retrieval rate and output fidelity comparisons across test IDs should account for
-source page structure as a variable, not only URL length, page size, or content domain.
-
-The conversion isn't lossless even on favorable source material: table column headers
-were dropped, the top navigation panel was relocated to the bottom of the output, and
-ad network content was included alongside page content. The 46% retrieval rate and
-structural losses confirm that `fetch_webpage` is performing transformation, not
-faithful reproduction, even under favorable conditions.
-
-**Stability caveat**: 2 of 5 SC-4 runs produced transformed Markdown via `fetch_webpage`;
-the remaining 3 produced raw HTML via `curl` substitution. The favorable output is
-real but not reliable. Source HTML structure may be a necessary condition for
-high-fidelity `fetch_webpage` output but isn't sufficient to guarantee it, since
-tool selection remains outside prompt control.
-
----
-
-SC-4 The agent solved for fidelity and lost readability, which is exactly the inverse failure mode.
-
----
-
-EC-3
-
-The most significant finding here isn't the size difference - it's what the response content reveals about identity. Runs 1–3 used fetch_webpage which impersonates a browser with a full VS Code Copilot Chrome/Electron User-Agent. Run 4 used curl which identified itself honestly as curl/8.7.1. The httpbin.org /get endpoint echoes whatever headers it received, so the response payload is a direct record of how Copilot presented itself to the server. This means tool substitution doesn't just change retrieval behavior - it changes the identity the agent presents to target infrastructure, which has implications for any test URL that serves different content based on User-Agent.
-
-One observation worth adding to your EC-3 dataset notes outside the log: across runs 4 and 5, the only difference between the two saved files is the X-Amzn-Trace-Id value. Every other field - args, Accept, Host, User-Agent, origin, url - is identical. The trace ID is a per-request UUID generated by AWS, so this confirms that runs 4 and 5 are genuinely independent curl requests to the same endpoint, not a cached or duplicated artifact. The different MD5 checksums are entirely explained by that single field changing between requests. This is actually the cleanest variance isolation in the entire EC-3 dataset: you can attribute the MD5 difference to exactly one field, one value, one mechanism.
-
----
-
-EC-6
-
-Three things worth flagging. The code block self-correction the agent made - noting its earlier count only checked backtick-triple patterns at column 1 - is the first instance in the EC-6 dataset of the agent auditing its own structural count methodology mid-run and logging the discrepancy. That's worth preserving in notes as a distinct behavior. The x-cache: MISS combined with source-age: 0 is also significant: this is the only EC-6 run where you can confirm a live origin fetch rather than a CDN-cached response, which explains why the file size differs from run 2 despite both being v0.3.0. And the content-type: text/plain in the headers is relevant to the broader dataset - GitHub raw serves Markdown as text/plain, not text/markdown, which means agents that use content negotiation (Accept: text/markdown) would not get preferential treatment on this URL regardless of which retrieval mechanism they use.
-
-for this URL, agents using Accept: text/markdown should not expect preferential treatment, regardless of retrieval mechanism. The server appears to serve the raw file as plain text, not a negotiated Markdown-specific variant.
-
-Within the same file version, curl produces byte-identical results across runs, which is consistent with what EC-3 demonstrated on the httpbin.org JSON payload.
-
-The identical x-github-request-id across runs 4 and 5 is also anomalous and worth logging. GitHub generates unique request IDs per HTTP request. Two distinct curl invocations returning the same request ID suggests either infrastructure-level request deduplication or a caching artifact at the Fastly layer that served run 5 from a stored response to run 4's request. The x-cache: HIT with x-cache-hits: 0 is consistent with this - the cache populated from run 4 and was immediately consumed by run 5 before accumulating additional hits.
+**Core implication**: on the raw track, "no truncation reported" appears in all three truncation categories —
+`fetch_webpage` excerpting, `curl` complete retrieval but unreadable, and the single chat rendering cutoff
+instance. Copilot's truncation self-report isn't a reliable signal for any of the three phenomena. The
+verification script and the saved raw output text file are the only authoritative ground truth._
