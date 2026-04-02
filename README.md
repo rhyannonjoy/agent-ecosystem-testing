@@ -48,6 +48,7 @@ Each platform has two tracks:
 
 - Python 3.8+
 - API keys for the applicable platforms
+- Copilot chat if applicable
 - Cursor IDE if applicable
 
 ### Install
