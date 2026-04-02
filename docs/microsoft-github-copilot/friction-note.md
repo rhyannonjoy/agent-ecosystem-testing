@@ -23,6 +23,7 @@ parent: Microsoft GitHub Copilot
 - [`fetch_webpage` Not Consistently Invoked](#fetch_webpage-not-consistently-invoked)
 - [`fetch_webpage` Undocumented](#fetch_webpage-undocumented)
 - [Free Plan Quota Exhausted Mid-Testing](#free-plan-quota-exhausted-mid-testing)
+- [Metric Definition Underspecification - Raw Track](#metric-definition-underspecification---raw-track)
 - [Metric Precision - Interpreted Track](#metric-precision---interpreted-track)
 - [Output Integrity: Duplicated Response Sections](#output-integrity-duplicated-response-sections)
 - [Prompt Format Affects Output Structure](#prompt-format-affects-output-structure)
@@ -34,7 +35,7 @@ parent: Microsoft GitHub Copilot
 ## Agentic Metric Computation - Raw Track
 
 The raw track prompt asks Copilot to retrieve content, save it to a file, and self-report
-some metrics. The design intent is that Copilot reports these figures, the verifier
+some metrics. The design intent is that Copilot reports these figures, the verification
 script measures the same figures from the saved file, and any discrepancies are worth documenting.
 In early raw track runs, Copilot's response to this prompt was noticeably more verbose and
 process-heavy than Cursor's. Where Cursor retrieved content and reported metrics with minimal
@@ -42,7 +43,7 @@ visible orchestration, Copilot consistently requested permission to use executio
 `pylanceRunCodeSnippet`, `zsh` shell commands, or both, to calculate the metrics rather than
 estimating-reporting from the retrieval output directly. The initial instinct was to skip
 these tool requests, consistent with the interpreted track approach of suppressing script
-execution to keep the method consistent, but this instinct is wrong for the raw track.
+execution to keep the method consistent, but _this instinct is wrong for the raw track_.
 
 The tool selection behavior Copilot exhibits when asked to report metrics isn't noise, but
 the mechanism under observation. Skipping every tool request would have produced an uncomplicated
@@ -52,19 +53,19 @@ retrieval payload, they're meaningfully different execution paths with different
 
 | **Aspect** | **Cursor** | **Copilot** |
 | --- | --- | --- |
-| **Tool Visibility** | Opaque - tools not surfaced in chat | Verbose - tool calls visible and prompt-able |
+| **Tool Visibility** | Opaque - tools not surfaced in chat | Verbose - tool calls visible<br>and prompt-able |
 | **Metric Computation** | Reported directly; method not observable | Requests use of execution tools |
 | **Distinguishability** | Possibly doesn't separate direct count from estimate | Execution path observable, though blocked tools may still produce fabricated values |
-| **Raw Track Measurements** | Output<br>fidelity | Output fidelity + tool<br>orchestration behavior |
+| **Raw Track Measurements** | Output<br>fidelity | Output fidelity and tool<br>orchestration behavior |
 
 `SC-4` run 3 used `Claude Sonnet 4.6` and `fetch_webpage` to produce the sharpest metric discrepancy
 in the raw track dataset. Copilot reported two separate code block counts in the same response -
 `fenced code block delimiter lines: 48` and `code blocks (pairs): 24` without reconciling them or flagging
-the inconsistency. The verifier measured 25, consistent with the pairs count but not the delimiter count.
+the inconsistency. The verification script measured 25, consistent with the pairs count but not the delimiter count.
 The delimiter count likely reflects the agent counting opening and closing fence markers as individual lines
 rather than as matched pairs, a counting methodology difference that the prompt doesn't specify. Copilot also
-omitted table rows entirely from its report despite the prompt requesting them; the verifier measured 111.
-The character count delta - Copilot: 29,984 vs verifier: 29,949, a difference of 35 - Copilot output explains
+omitted table rows entirely from its report despite the prompt requesting them; the verification script measured 111.
+The character count delta - Copilot: 29,984 vs verification script: 29,949, a difference of 35 - Copilot output explains
 that `wc -c` counts bytes rather than Unicode code points, with the gap representing multi-byte `UTF-8`
 characters including emojis. File size, word count, and header count matched exactly. The pattern suggests
 metric precision varies by field type: size and word counts are reliable, character counts require encoding
@@ -74,7 +75,7 @@ not specified in the prompt.
 **Methodology Decision**: treat Copilot's metric computation attempts as observable data, not prompt
 violations. Expand the data schema from the Cursor-derived baseline and include log tool invocations,
 blocks, skips, and execution attempts while Copilot produces a result. Distinguish Copilot's self-reported
-values from independently measured values produced by the verifier script because the delta between them
+values from independently measured values produced by the verification script because the delta between them
 is _the_ finding.
 
 ---
@@ -84,7 +85,7 @@ is _the_ finding.
 Across 15 raw track runs of the baseline tests, Copilot non-deterministically created a second file alongside
 the requested raw output artifact: `raw_output_{test_id}.headers.txt` containing the HTTP response headers
 from the fetch operation. The prompt never requests this file. No run explicitly asked Copilot to capture headers.
-The behavior appears is agent-initiated. Copilot deciding autonomously that capturing response metadata would be
+This behavior is agent-initiated. Copilot deciding autonomously that capturing response metadata would be
 useful, and it occurs inconsistently, making it uncontrollable as a variable and unverifiable as a complete dataset.
 
 This is agentic over-delivery. The agent doesn't just complete the task; it expands the task boundary based on its
@@ -129,10 +130,10 @@ isn't an artifact of HTTP partial content requests. It reflects tool-internal tr
 by chunk extraction, structural conversion, and relevance-based assembly. Though never requested, the header files provide
 evidence that rule out an alternative explanation that the raw output text files can't support alone.
 
-**Open Question**: the nondeterministic appearance of headers files means the dataset is incomplete; some runs have headers,
-most don't. The current data can't determine whether the headers vary across runs for the same URL, indicating CDN cache state
-changes, or remain stable, indicating a consistent upstream response. A controlled run set that explicitly captures headers every
-time would close this gap, but would require prompt and test condition modification.
+>_Open Question: the nondeterministic appearance of headers files means the dataset is incomplete; some runs have headers,
+>most don't. The current data can't determine whether the headers vary across runs for the same URL, indicating CDN cache state
+>changes, or remain stable, indicating a consistent upstream response. A controlled run set that explicitly captures headers every
+>time would close this gap, but would require prompt and test condition modification_.
 
 ### Headers Generation: Two Distinct Trigger Paths
 
@@ -200,14 +201,14 @@ different methodological implications. The log `notes` field should distinguish 
 approximate rate of headers file appearance across all runs may be a compound of both trigger paths rather
 than a single nondeterministic behavior.
 
-**Open Question**: it isn't yet established whether `curl` substitution always produces a headers file, or
-only sometimes, and whether `fetch_webpage`'s headers-generation is query-dependent, URL-dependent, or
-genuinely nondeterministic. A controlled run set that logs retrieval mechanism alongside headers file
-presence for every run would separate the two populations and establish whether the 4/32 rate holds
-within each mechanism or possibly driven by one of them. A second open question follows from the inverse
-failure mode finding: whether any prompt condition, model, or tool configuration exists within Copilot's
-current surface that produces both complete retrieval and useful plain-language output in the same run.
-_The dataset has no confirmed instance of this_.
+>_Open Question: it isn't established whether `curl` substitution always produces a headers file, or
+>only sometimes, and whether `fetch_webpage`'s headers-generation is query-dependent, URL-dependent, or
+>genuinely nondeterministic. A controlled run set that logs retrieval mechanism alongside headers file
+>presence for every run would separate the two populations and establish whether the 4/32 rate holds
+>within each mechanism or possibly driven by one of them. A second open question follows from the inverse
+>failure mode finding: whether any prompt condition, model, or tool configuration exists within Copilot's
+>current surface that produces both complete retrieval and useful plain-language output in the same run.
+>The dataset has no confirmed instance of this_.
 
 ---
 
@@ -263,7 +264,7 @@ ordering confounder: run 3 of `SC-4` has access to run 1 and run 2 artifacts; ru
 
 **Fix**: consider whether clearing or relocating prior run artifacts between sessions, or
 running each test ID in a fresh workspace context may suppress this behavior. Alternatively,
-treat unsolicited comparison output as a logged variable: note its presence in `run_notes`
+treat unsolicited comparison output as a logged variable: note its presence in the results log
 and flag which runs triggered it, as its appearance may correlate with workspace artifact
 volume or specific model routing.
 
@@ -321,9 +322,9 @@ agent. The `...` markers in output aren't byte-boundary cutoffs, they're the ret
 indicators. This distinction matters for interpreting `output_chars` across runs: variance in character
 count may reflect relevance-ranking variance as much as any consistent size ceiling.
 
-**Open Question**: if `fetch_webpage` is performing bounded excerpt retrieval by design, the `H1` hypothesis:
-character-based truncation at a fixed limit, may be testing the wrong thing entirely. `H1-yes` results
-confirm the full page wasn't returned, but can't confirm a fixed character ceiling exists to find.
+>_Open Question: if `fetch_webpage` is performing bounded excerpt retrieval by design, the `H1` hypothesis:
+>character-based truncation at a fixed limit, may be testing the wrong thing entirely. `H1-yes` results
+>confirm the full page wasn't returned, but can't confirm a fixed character ceiling exists to find_.
 
 ---
 
@@ -439,7 +440,7 @@ as a request multiplier - each prompt on that model counts as `0.3` of a premium
 against the plan quota, compared to `1.0` for a standard model. `Auto` routing therefore selects
 **not only** across model families but **across cost tiers** within the same model. Whether the
 multiplier also affects output budget, context window, or retrieval behavior isn't documented,
-but the `BL-3` data suggests it may: the two `Claude Haiku 4.5 0.3x` runs returned 87,000 and
+but the `BL-3` data suggests it may: the two `Claude Haiku 4.5` runs returned 87,000 and
 42,850 chars in single fetch invocations, while all other models on the same URL used 2–3
 fetches and returned 15,000–22,500 chars. The multiplier is a third uncontrolled variable in
 `Auto` routing alongside model family and model version, and it isn't logged separately;
@@ -504,13 +505,13 @@ any clarification forces a choice between the two halves of the requirement.
 
 ## Extension Version Upgrade Mid-Testing
 
-GitHub Copilot `0.41.1` shipped with a compatibility break against the VSCode version active at the
+GitHub Copilot `0.41.1` shipped with a compatibility break against the VS Code version active at the
 start of testing. The extension became non-functional mid-session; recovery required three sequential
 steps: disabling Copilot, updating VSCode, then re-enabling the updated extension.
 
 The version break interrupted session continuity in a way that differs from quota exhaustion: quota
 exhaustion is a known, recoverable limit with a clear resumption point, whereas a compatibility break
-requires environment changes that may alter state in ways that aren't fully visible - VSCode version,
+requires environment changes that may alter state in ways that aren't fully visible - VS Code version,
 extension caching, MCP server re-initialization, or workspace reloads could each affect agent behavior
 independently.
 
@@ -518,11 +519,11 @@ independently.
 or fetch invocation counts across the version boundary and treat runs on each version as distinct conditions,
 consistent with the `model_observed` split applied to `Auto` routing.
 
-**Open Question**: the VSCode update and the Copilot extension update are inseparable confounds. If
-post-upgrade behavior diverges from the `0.40.1` baseline in fetch invocation count, output size, model
-routing, or tool substitution patterns, the version field is the mechanism for tracking it, but the
-circumstances may require a controlled rollback to attribute that divergence to the extension specifically
-rather than the host environment.
+>_Open Question: the VS Code update and the Copilot extension update are inseparable confounds. If
+>post-upgrade behavior diverges from the `0.40.1` baseline in fetch invocation count, output size, model
+>routing, or tool substitution patterns, the version field is the mechanism for tracking it, but the
+>circumstances may require a controlled rollback to attribute that divergence to the extension specifically
+>rather than the host environment_.
 
 ---
 
@@ -563,15 +564,15 @@ field value carries no such label.
 
 **Impact**: the tool response and the saved file aren't guaranteed to be identical even when the circumstances don't require an
 explicit transformation. `fetch_webpage` may truncate inside field values, and the agent may silently reconstruct those values
-before saving. The saved file is the only artifact the verifier checks; if reconstruction occurred, the verifier has no mechanism
+before saving. The saved file is the only artifact the verification script checks; if reconstruction occurred, the verification script has no mechanism
 to detect it. This is only visible when the agent surfaces tool response contents explicitly in its report and not all runs do this.
 Runs where the agent doesn't report tool response detail may contain silently reconstructed values with no observable signal that
 reconstruction occurred.
 
-**Open Question**: the `EC-3` URL is a redirect chain terminating at a JSON API endpoint, which is structurally unlike any other
-URL in the test suite. Determining whether intra-value truncation is specific to JSON responses, to short field values that look
-like they might continue, or is a general `fetch_webpage` behavior that's simply invisible in HTML and Markdown output,
-requires additional runs on JSON-returning URLs.
+>_Open Question: the `EC-3` URL is a redirect chain terminating at a JSON API endpoint, which is structurally unlike any other
+>URL in the test suite. Determining whether intra-value truncation is specific to JSON responses, to short field values that look
+>like they might continue, or is a general `fetch_webpage` behavior that's simply invisible in HTML and Markdown output,
+>requires additional runs on JSON-returning URLs_.
 
 ---
 
@@ -688,16 +689,16 @@ approximately 15–20 messages for a complete interpreted-track baseline.
 
 ---
 
-### Metric Definition Underspecification - Raw Track
+## Metric Definition Underspecification - Raw Track
 
 `SC-4` run 4 surfaced a metric counting ambiguity that raw HTML output exposes but
 processed Markdown output conceals. Copilot reported 24 code blocks and 35 table rows
-from the raw HTML file; the verifier reported 0 code blocks and 0 table rows from the
+from the raw HTML file; the verification script reported 0 code blocks and 0 table rows from the
 same file. Both counts are correct within their respective methodologies:
 
 - Copilot counted HTML structural elements: `<pre>` tags for code blocks, `<tr>` tags
   for table rows
-- The verifier counted Markdown syntax patterns: fenced code blocks (` ``` `) for code
+- The verification script counted Markdown syntax patterns: fenced code blocks (` ``` `) for code
   blocks, pipe-delimited rows (`|`) for table rows
 
 On a processed Markdown file, `SC-4` run 3, both methodologies converge because the
@@ -707,7 +708,7 @@ the counts incomparable across runs that produce different output formats, which
 exactly the condition the `SC` series produces nondeterministically.
 
 The token count discrepancy follows a related pattern. Copilot's `chars/4` heuristic
-reported 16,485 tokens; the verifier's `cl100k_base` tokenizer measured 18,645, a gap
+reported 16,485 tokens; the verification script's `cl100k_base` tokenizer measured 18,645, a gap
 of 2,160. HTML is token-dense relative to prose because tag syntax, angle brackets,
 attribute names, quoted values, it's likely to tokenize less efficiently than natural
 language. The fixed heuristic underestimates this systematically, and the underestimate
@@ -715,14 +716,14 @@ scales with the proportion of HTML markup in the file. On processed Markdown out
 heuristic performs better because the markup density is lower.
 
 **Impact**: the metric incomparability across `SC-4` runs is a symptom of a deeper framework
-assumption failure. The verifier script, the prompt's metric definitions, and the cross-run
+assumption failure. The verification script script, the prompt's metric definitions, and the cross-run
 comparison structure all assume processed Markdown output, because that's what a web content
 retrieval tool might produce. When `curl` substitution delivers raw HTML instead, that assumption
-breaks silently: the verifier produces zeros, Copilot counts HTML structural elements, and neither
+breaks silently: the verification script produces zeros, Copilot counts HTML structural elements, and neither
 figure is wrong so much as answering a different question than the framework intended. The breakdown
 isn't a measurement precision problem, but evidence that tool selection instability propagates upward
 into the entire measurement layer. A framework designed to measure retrieval quality can't do that job
-_when the retrieval mechanism is itself the uncontrolled variable_. Fixing the verifier to handle both
+_when the retrieval mechanism is itself the uncontrolled variable_. Fixing the verification script to handle both
 formats would recover some comparability, but it would also normalize a failure mode that the zeros
 currently make visible. The zeros are informative: they mark the runs where the expected output never
 arrived.
@@ -840,11 +841,11 @@ is also imprecise. The more accurate characterization, consistent across multipl
 relevance-ranked excerpt assembly and the model receives a pre-transformed payload. Models layer post-retrieval behavior on top of
 that and is the only layer prompt instructions reach.
 
-**Open Question**: Copilot's self-report suggests the query parameter is agent-authored per invocation and not exposed in chat output.
-If the query string drives excerpt selection, variance in output content across identical runs may reflect query string variance rather
-than retrieval-layer nondeterminism. This parameter isn't currently loggable from the interpreted or raw track without access to tool
-call internals. A controlled test passing a fixed, explicit query string, if the tool surface allows it, would isolate whether query
-variance is a meaningful source of output variance.
+>_Open Question: Copilot's self-report suggests the query parameter is agent-authored per invocation and not exposed in chat output.
+>If the query string drives excerpt selection, variance in output content across identical runs may reflect query string variance rather
+>than retrieval-layer nondeterminism. This parameter isn't currently loggable from the interpreted or raw track without access to tool
+>call internals. A controlled test passing a fixed, explicit query string, if the tool surface allows it, would isolate whether query
+>variance is a meaningful source of output variance_.
 
 ---
 
@@ -853,17 +854,15 @@ variance is a meaningful source of output variance.
 Across both tracks, three structurally distinct truncation phenomena appear in the dataset. They produce
 similar-looking outcomes: less content than the page contains, or the agent reports no truncation when
 the content is incomplete or unusable; but they have different causes, different locations in the
-pipeline, and different implications for what the saved file and the verifier can confirm.
-
-**Summary**
+pipeline, and different implications for what the saved file and the verification script can confirm.
 
 | **Phenomenon** | **Retrieval complete?** | **Agent reports truncation?** | **Verification detects?** |
 | --- | --- | --- | --- |
-| **Retrieval-layer architectural excerpting** | No, file reflects excerpted content | No, agent sees what `fetch_webpage` delivered | Indirectly with truncation indicators and size vs expected |
-| **Complete retrieval, format-driven unreadability** | Yes, full bytes transferred | No, file complete, agent confirms it | No, verification confirms integrity, not usability |
-| **Chat rendering truncation** | Yes, full bytes transferred and saved | No, file complete | No, requires comparing chat output to verified file |
+| **Retrieval-layer architectural excerpting** | No, file reflects excerpted content | No, agent sees<br>what `fetch_webpage` delivered | Indirectly with truncation indicators and size vs expected |
+| **Complete retrieval, format-driven unreadability** | Yes, full bytes transferred | No, file complete, agent confirms it | No, verification script confirms integrity, not usability |
+| **Chat rendering truncation** | Yes, full bytes transferred<br>and saved | No, file complete | No, requires comparing chat output to<br> verified file |
 
-1. `fetch_webpage` - retrieval-layer architectural excerpting
+1. **`fetch_webpage` - retrieval-layer architectural excerpting**
 
     `fetch_webpage` performs relevance-ranked excerpt assembly before the model receives the
     payload. It's unclear whether the model ever sees the full page. The saved file reflects
@@ -877,7 +876,7 @@ pipeline, and different implications for what the saved file and the verifier ca
     Transformation](#prompt-refinement-cant-suppress-retrieval-layer-transformation) and
     [`fetch_webpage` Undocumented](#fetch_webpage-undocumented).
 
-2. `curl` - complete retrieval but format-driven unreadability
+2. **`curl` - complete retrieval but format-driven unreadability**
 
     When the agent substitutes `curl` for `fetch_webpage`, it retrieves the full page
     byte-perfectly, as confirmed by `content-length` matching saved file size exactly across
@@ -889,7 +888,7 @@ pipeline, and different implications for what the saved file and the verifier ca
     script can confirm file integrity, but not usability. Additional analysis documented in
     [`Autonomous Tool Substitution`](#autonomous-tool-substitution---interpreted-track).
 
-3. `EC-6` run 5 only - chat rendering truncation
+3. **`EC-6` run 5 only - chat rendering truncation**
 
     With `GPT-5.4` Copilot produced the only observed instance of chat rendering truncation in the dataset.
     The agent retrieved the full `SPEC.md` file byte-perfectly via `curl`, saved it correctly, and reported
@@ -904,5 +903,3 @@ pipeline, and different implications for what the saved file and the verifier ca
     alone. Verification relying on the chat display alone would see a document that ends mid-section with no
     indication that the underlying file is intact. This reinforces the methodology principle that the
     verification script is the authoritative measurement layer, not the chat response.
-
----
