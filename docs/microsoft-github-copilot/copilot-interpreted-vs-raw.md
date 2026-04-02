@@ -7,6 +7,18 @@ parent: Microsoft GitHub Copilot
 
 ## Copilot-interpreted vs Raw
 
+The central finding from both tracks is that `fetch_webpage`'s relevance-ranked
+excerpting is architectural and not suppressible by prompt, and that `curl`
+substitution, when it occurs, produces complete files the verification script confirms as
+intact but in raw server format with no transformation layer. These two behaviors produce
+outputs so different in character that neither track alone is sufficient to characterize
+Copilot's web fetch behavior. Cross-referencing both is the only way to separate retrieval
+mechanism from retrieval quality.
+
+---
+
+## Track Design
+
 Two test tracks measure the same Copilot web fetch behaviors:
 
 **Copilot-interpreted** track captures what the model _believes_ it retrieved: how much
@@ -19,26 +31,22 @@ saved file, not the model's estimate.
 
 The gap between these two tracks is itself a finding. If Copilot reports "no truncation"
 in chat but the raw data shows a relevance-ranked excerpt, that discrepancy belongs in the
-findings. If Copilot reports "no truncation" and the raw data confirms a complete file,
+spec. If Copilot reports "no truncation" and the raw data confirms a complete file,
 but the file is raw HTML with no readable content, that's a different kind of discrepancy.
 
 | | Interpreted Track | Raw Track |
 | - | ---------------------- | -------------------------- |
-| **Measures** | Model's interpretation of what it fetched | Filesystem measurements of saved output |
-| **Character Counts** | Model estimates; range-reported or heuristic | `wc -c` on disk - exact, reproducible |
-| **Completeness** | Model's prose assessment of truncation | MD5 comparison, hexdump analysis, verification script |
-| **Token Counts** | Model estimates; chars/4 heuristic, word count substitution, or Node regex | `cl100k_base` - exact tokenizer |
+| **Measures** | Model's interpretation of what it fetched | Filesystem measurements<br>of saved output |
+| **Character Counts** | Model estimates; range-reported or heuristic | `wc -c` on disk -<br>exact, reproducible |
+| **Completeness** | Model's prose assessment<br>of truncation | MD5 comparison, hexdump analysis, verification script |
+| **Token Counts** | Model estimates; chars/4 heuristic, word count substitution, or Node regex | `cl100k_base` -<br>exact tokenizer |
 | **Reproducibility** | High variance; same URL and model can produce 2x difference | Byte-identical within same file version; different versions detectable by MD5 |
 | **Output Format** | Chat UI rendering | Raw file on disk, `raw_output_{test_id}.txt` |
 | **Best For** | Understanding model perception gaps and `fetch_webpage` behavior | Citable measurements; retrieval mechanism identification |
 
----
-
 ## Key Observations
 
-1. **Tracks disagree on truncation**
-
-    The analyzer flagged divergence on truncation status across 8 of 11 test IDs:
+1. **Tracks disagree on truncation**: analyzer script flagged divergence across tests -
 
     | **Test ID** | **Interpreted: Truncated** | **Raw: Truncated** | **Output size difference** |
     | --- | --- | --- | --- |
@@ -59,17 +67,17 @@ but the file is raw HTML with no readable content, that's a different kind of di
     [truncation taxonomy](friction-note.md#truncation-taxonomy). The interpreted track is detecting
     `fetch_webpage`'s relevance-ranked excerpting and correctly identifying that the full page
     wasn't returned. The raw track is measuring the saved file, which on `curl` substitution
-    runs is complete and byte-perfect. Both are right about what they're measuring, but they're
-    measuring different things.
+    runs is complete and byte-perfect. Both are right about what they're measuring, but _they're
+    measuring different things_.
 
 2. **Output size difference reflects mechanism, not content**
 
-    The `SC-2` divergence, 17,203,733 chars - is the most extreme in the dataset and
+    The `SC-2` divergence ~17,203,733 chars - is the most extreme in the dataset and
     illustrates why averaging across mechanisms is misleading. The interpreted track received
     relevance-ranked excerpts from `fetch_webpage` averaging ~13,000 chars. The raw track
     received complete files via `curl` averaging ~17 million chars across 5 runs. These aren't
-    two measurements of the same thing; they're two different retrieval mechanisms producing
-    fundamentally different outputs on the same URL.
+    two measurements of the same thing; they're _two different retrieval mechanisms producing
+    fundamentally different outputs on the same URL_.
 
 3. **`fetch_webpage` and `curl` produce non-comparable results**
 
@@ -86,60 +94,53 @@ but the file is raw HTML with no readable content, that's a different kind of di
     excerpting as truncation rather than a design property of the tool. On the raw track,
     the model reports no truncation in most `curl` runs, which is accurate for file
     completeness, but misses that the delivered format is unusable. "No truncation reported"
-    appears in all three truncation categories documented in
+    appears in all truncation categories documented in
     [the Friction Note](friction-note.md#truncation-taxonomy).
 
 5. **Token estimation accuracy differs by track and model**
 
-    The interpreted track has no access to the actual file, so Copilot derives from whatever
-    `fetch_webpage` returned as a relevance-ranked subset. The raw track has the complete file,
+    The interpreted track doesn't produce a raw output file, so Copilot derives from whatever
+    `fetch_webpage` returned as a relevance-ranked subset. The raw track saves the raw output file,
     but token estimation methodology varies: chars/4 heuristic undercounts HTML-dense content,
     word count substitution produces ~5x undercount on some runs, and Node regex tokenization
     differs from `cl100k_base` by ~27 tokens on Markdown content. The verification script's
     `cl100k_base` count is the only consistently reliable figure across both tracks.
 
-6. **Hypothesis H1 result differs by track**
+6. **Hypotheses largely not testable as designed**
 
-    The interpreted track returned `H1-yes` in 54 of 55 runs because the model received less than
-    the full page. The raw track returned `H1-yes` in only 16 of 55 runs because the saved file was
-    flagged as truncated. Tool use explains this difference: `curl` substitution runs produce
-    complete files, so the raw track verifier finds no truncation indicators, while the interpreted
-    track model received excerpts from `fetch_webpage` and correctly flagged them as incomplete.
-    `H1-yes` on the interpreted track means "the model didn't receive the full page." `H1-yes` on the
-    raw track means "the saved file contains truncation indicators." These are different claims.
+    The hypothesis framework assumes a conventional retrieval pipeline: an agent fetches
+    a URL, content passes through a size ceiling, the model receives a truncated-but-sequential
+    result. **Copilot's behavior doesn't fit this model**. `fetch_webpage` performs relevance-ranked
+    excerpt assembly with no detectable fixed ceiling, which rules out `H1` and `H2` as the primary
+    mechanism. `curl` substitution delivers complete files with no truncation at all, making `H1`
+    vacuously false for those runs. `H3` - structure-aware truncation isn't testable when the
+    retrieval mechanism is unknown at run time. `H4` - MCP servers override native limits and
+    `H5` - agent auto-chunks after truncation, weren't observable because the substitution behavior
+    itself was the finding. The analyzer script returned `H1-yes` in 60 of 110 combined runs, but
+    those results reflect three different underlying phenomena: architectural excerpting, complete
+    retrieval, and chat rendering cutoff, which the hypothesis framework wasn't designed to
+    distinguish. The hypotheses remain in the dataset as logged fields, but the primary finding
+    is that Copilot's retrieval behavior _requires a different analytical frame than the one the
+    hypotheses assumed_.
 
 ---
 
 ## Implications for Agent Developers
 
+The tool used matters more than the prompt, model, or URL. `fetch_webpage` and `curl` produce outputs
+so different in character that runs using different mechanisms aren't replicates of the same condition -
+even when the URL, model, and prompt are identical. The raw track can confirm which mechanism ran by
+checking the saved file and `tools_used` field. The interpreted track can't; the model's self-report is
+the only signal, and it isn't reliable. Cross-referencing both tracks is the only way to separate what
+Copilot retrieved from what it understood about what it retrieved.
+
 | **Use Case** | **Interpreted Track** | **Raw Track** |
 | --- | --- | --- |
-| Retrieval mechanism identification | ✗ mechanism not reliably surfaced | ✓ `tools_used` field and headers files identify `fetch_webpage` vs `curl` |
-| File integrity verification | ✗ no saved file; model estimates only | ✓ MD5 checksums, byte counts, hexdump tail analysis |
-| Format classification | Partial - model describes output format in prose | ✓ verification script detects HTML vs Markdown vs JSON from saved file |
-| Ground truth baselines | ✗ self-report only | ✓ what Copilot actually saved vs what the model claims |
-| Model perception gaps | ✓ reveals misreporting of completeness and cause | Partial - verifier confirms file integrity but not model's interpretation |
-| `fetch_webpage` behavior characterization | ✓ relevance-ranking, elision patterns, non-linear reassembly visible in chat | Partial - file reflects tool output but internal query parameters not surfaced |
-| Tool substitution detection | ✓ model reasoning sometimes reveals `curl` preference explicitly | ✓ `tools_used` field confirms mechanism; headers files corroborate |
-| User-facing experience | ✓ reflects what a developer interacting with Copilot actually sees | ✗ saved file diverges from chat display on over-delivery runs |
-
-> **Critical takeaway**: the tool used matters more than the prompt, model, or URL.
-> `fetch_webpage` and `curl` produce outputs so different in character that runs using different mechanisms
-> can't be treated as replicates of the same condition. The interpreted track sees only
-> `fetch_webpage` output. The raw track sees both, mixed non-deterministically. Neither
-> track alone is sufficient to characterize Copilot's web fetch behavior;
-> cross-referencing both is the only way to separate retrieval mechanism from retrieval
-> quality.
-
----
-
-## Platform Architecture Comparison
-
-| **Step** | **Copilot-interpreted** | **Copilot Raw** |
-| --- | --- | --- |
-| **Retrieval** | `fetch_webpage` invoked; model receives relevance-ranked excerpt | `fetch_webpage` or `curl` invoked; mechanism not disclosed in chat |
-| **Content** | Relevance-ranked Markdown excerpts with `...` elision markers | Raw bytes in server format - HTML, JSON, or Markdown - depending on mechanism |
-| **Completeness Signal** | Model flags `...` markers and section gaps as truncation | Verification script checks file size, MD5, hexdump tail, truncation indicators |
-| **Token counts** | Heuristic estimate from excerpt; underreports actual page size | `cl100k_base` on saved file; reflects actual content type density |
-| **Reproducibility** | High variance; same URL and model produce 2x difference across runs | Byte-identical within same file version on `curl` runs; `fetch_webpage` runs vary |
-| **Key Finding** | `fetch_webpage` excerpting is architectural, not suppressible by prompt | Tool substitution is the primary variable; `curl` produces complete but unusable output |
+| **Retrieval Mechanism Identification** | ✗ Mechanism not<br>reliably surfaced | ✓ `tools_used` field and headers files identify `fetch_webpage` <br>vs `curl` |
+| **File Integrity Verification** | ✗ No saved file;<br>model estimates only | ✓ MD5 checksums, byte counts, hexdump tail analysis |
+| **Format<br>Classification** | _Partial_ - model describes output format in prose | ✓ Verification script detects HTML vs Markdown vs JSON from saved file |
+| **Ground Truth Baselines** | ✗ Self-report only | ✓ What Copilot actually saved vs what the model claims |
+| **Model<br>Perception Gaps** | ✓ Reveals misreporting of completeness and cause | _Partial_ - verifier confirms file integrity but<br>not model's interpretation |
+| **`fetch_webpage` Behavior Characterization** | ✓ Relevance-ranking, elision patterns, non-linear reassembly visible in chat | _Partial_ - file reflects tool output but internal query parameters not surfaced |
+| **Tool Substitution Detection** | ✓ Model reasoning sometimes reveals `curl` preference explicitly | ✓ `tools_used` field confirms mechanism; headers files corroborate |
+| **User-facing Experience** | ✓ Reflects what a developer interacting with Copilot actually sees | ✗ Saved file diverges from chat display <br>on over-delivery runs |
