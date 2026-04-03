@@ -55,6 +55,21 @@ navigation:
         url: "/docs/anysphere-cursor/framework-reference"
       - title: "Friction Note"
         url: "/docs/anysphere-cursor/friction-note"
+  
+  - title: "Cognition Windsurf Cascade"
+    sections:
+      - title: "Methodology"
+        url: "/docs/cognitition-windsurf-cascade/methodology"
+      - title: "Interpreted vs Raw"
+        url: "/docs/cognitition-windsurf-cascade/cascade-interpreted-vs-raw"
+      - title: "Findings: Interpreted"
+        url: "/docs/cognitition-windsurf-cascade/cascade-test-findings"
+      - title: "Findings: Raw"
+        url: "/docs/cognitition-windsurf-cascade/cascade-test-findings-raw"
+      - title: "Framework Reference"
+        url: "/docs/cognitition-windsurf-cascade/framework-reference"
+      - title: "Friction Note"
+        url: "/docs/cognitition-windsurf-cascade/friction-note"
     
   - title: "Google Gemini API"
     sections:
