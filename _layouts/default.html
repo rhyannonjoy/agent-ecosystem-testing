@@ -91,26 +91,68 @@
     .sidebar-section {
       margin-bottom: 0;
       border-bottom: 1px solid var(--border);
-      padding-bottom: 1.25rem;
-      margin-bottom: 0.75rem;
     }
 
     .sidebar-section:last-child {
       border-bottom: none;
     }
 
-    .sidebar-section-title {
+    /* Top-level single link (no children) */
+    .sidebar-link-top {
+      display: block;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      color: var(--text);
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: all 0.15s ease;
+    }
+
+    .sidebar-link-top:hover {
+      border-left-color: var(--link);
+      color: var(--link);
+    }
+
+    .sidebar-link-top.active {
+      border-left-color: var(--link);
+      color: var(--link);
+      font-weight: 600;
+      background: rgba(92, 74, 30, 0.04);
+    }
+
+    /* Collapsible group */
+    .sidebar-group {}
+
+    .sidebar-group-toggle {
+      width: 100%;
+      background: none;
+      border: none;
+      cursor: pointer;
       padding: 0.75rem 1.25rem;
       font-size: 0.75rem;
       font-weight: 600;
       letter-spacing: 0.05em;
       text-transform: uppercase;
       color: var(--text);
-      margin: 0 0 0.75rem 0;
+      font-family: var(--font);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid var(--border);
+      text-align: left;
+      transition: color 0.15s ease;
+    }
+
+    .sidebar-group-toggle:hover {
+      color: var(--link-hover);
+    }
+
+    .sidebar-group-toggle .toggle-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
     }
 
     .sidebar-status {
@@ -118,14 +160,33 @@
       font-weight: 400;
       text-transform: none;
       letter-spacing: normal;
-      white-space: nowrap;
       color: var(--muted);
-      margin-left: 0.5rem;
+    }
+
+    .sidebar-chevron {
+      font-size: 0.65rem;
+      transition: transform 0.2s ease;
+      color: var(--muted);
+      display: inline-block;
+    }
+
+    .sidebar-group.open .sidebar-chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-group-items {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.25s ease;
+    }
+
+    .sidebar-group.open .sidebar-group-items {
+      max-height: 600px;
     }
 
     .sidebar-link {
       display: block;
-      padding: 0.5rem 1.25rem;
+      padding: 0.45rem 1.25rem;
       font-size: 0.8rem;
       color: var(--text);
       text-decoration: none;
@@ -144,6 +205,11 @@
       color: var(--link);
       font-weight: 500;
       background: rgba(92, 74, 30, 0.04);
+    }
+
+    /* Bottom padding inside open group */
+    .sidebar-group-items-inner {
+      padding-bottom: 0.75rem;
     }
 
     /* Main content */
@@ -334,22 +400,39 @@
     <aside class="sidebar">
       {% for nav_item in site.navigation %}
         {% if nav_item.url %}
+          <!-- Top-level single link, no children -->
           <div class="sidebar-section">
-            <a class="sidebar-link {% if page.url == nav_item.url %}active{% endif %}" href="{{ nav_item.url | relative_url }}">
+            <a class="sidebar-link-top {% if page.url == nav_item.url %}active{% endif %}" href="{{ nav_item.url | relative_url }}">
               {{ nav_item.title }}
             </a>
           </div>
         {% else %}
+          <!-- Collapsible group with child links -->
+          {% assign group_has_active = false %}
+          {% for section in nav_item.sections %}
+            {% if page.url == section.url %}
+              {% assign group_has_active = true %}
+            {% endif %}
+          {% endfor %}
           <div class="sidebar-section">
-            <div class="sidebar-section-title">
-              <span>{{ nav_item.title }}</span>
-              {% if nav_item.status %}<span class="sidebar-status">{{ nav_item.status }}</span>{% endif %}
+            <div class="sidebar-group {% if group_has_active %}open{% endif %}">
+              <button class="sidebar-group-toggle" aria-expanded="{% if group_has_active %}true{% else %}false{% endif %}">
+                <span>{{ nav_item.title }}</span>
+                <span class="toggle-right">
+                  {% if nav_item.status %}<span class="sidebar-status">{{ nav_item.status }}</span>{% endif %}
+                  <span class="sidebar-chevron">▶</span>
+                </span>
+              </button>
+              <div class="sidebar-group-items">
+                <div class="sidebar-group-items-inner">
+                  {% for section in nav_item.sections %}
+                    <a class="sidebar-link {% if page.url == section.url %}active{% endif %}" href="{{ section.url | relative_url }}">
+                      {{ section.title }}
+                    </a>
+                  {% endfor %}
+                </div>
+              </div>
             </div>
-            {% for section in nav_item.sections %}
-              <a class="sidebar-link {% if page.url == section.url %}active{% endif %}" href="{{ section.url | relative_url }}">
-                {{ section.title }}
-              </a>
-            {% endfor %}
           </div>
         {% endif %}
       {% endfor %}
@@ -381,6 +464,18 @@
       <span>{{ site.description }}</span>
     </div>
   </footer>
+
+  <script>
+    // Collapsible sidebar groups
+    document.querySelectorAll('.sidebar-group-toggle').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var group = this.closest('.sidebar-group');
+        var isOpen = group.classList.contains('open');
+        group.classList.toggle('open', !isOpen);
+        this.setAttribute('aria-expanded', String(!isOpen));
+      });
+    });
+  </script>
 
 </body>
 </html>
