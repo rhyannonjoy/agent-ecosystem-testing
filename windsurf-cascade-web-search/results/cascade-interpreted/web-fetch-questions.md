@@ -1,6 +1,6 @@
-# Combined Results
+# Web Fetch/Search Preliminary Questions
 
-## 1. Cascade Web Fetch Question
+## 1. Cascade Web Fetch
 
 ### Question
 
