@@ -60,6 +60,8 @@ produces reproducible numbers for documentation -
 > inspect a surfaced API field; `fetch_webpage` has no documented size limit, invocation
 > conditions, or output format specification_
 
+---
+
 ### Copilot-Specific Unknowns
 
 | **Question** | **Details** | **Approach** | **Value** |
