@@ -43,8 +43,6 @@ but the raw data shows truncation, that discrepancy belongs in the spec.
 | **Output Format** | Chat UI Markdown rendering | Raw file on disk, `raw_output_{test_id}.txt` |
 | **Best For** | Understanding model<br>perception gaps | Citable measurements for the spec |
 
----
-
 ## Key Observations
 
 1. **Reproducibility - Raw vs High Variance - Interpreted**

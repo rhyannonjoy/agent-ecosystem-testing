@@ -10,7 +10,14 @@ parent: Google Gemini URL Context
 
 ---
 
-**[Gemini-interpreted Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/gemini-url-context/url_context_test.py)**:
+## Topic Guide
+
+- [Gemini-interpreted Test Workflow](#gemini-interpreted-test-workflow)
+- [Results Summary](#results-summary)
+
+---
+
+## [Gemini-interpreted Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/gemini-url-context/url_context_test.py)
 
     1. Call the Gemini API with the URL context tool enabled
     2. Give Gemini a detailed prompt asking it to describe what it retrieved:

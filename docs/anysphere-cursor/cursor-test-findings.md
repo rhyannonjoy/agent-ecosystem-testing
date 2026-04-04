@@ -10,7 +10,17 @@ parent: Anysphere Cursor
 
 ---
 
-**[Cursor-interpreted Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/cursor-web-fetch/web_fetch_testing_framework.py)**:
+## Topic Guide
+
+- [Cursor-interpreted Test Workflow](#cursor-interpreted-test-workflow)
+- [Platform Limit Summary](#platform-limit-summary)
+- [Results Details](#results-details)
+- [Size-Dependent Behavior](#size-dependent-behavior)
+- [Perception Gap](#perception-gap)
+
+---
+
+## [Cursor-interpreted Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/cursor-web-fetch/web_fetch_testing_framework.py):
 
     1. Run `python web_fetch_testing_framework.py --test {test ID} --track interpreted`
     2. Review the terminal output

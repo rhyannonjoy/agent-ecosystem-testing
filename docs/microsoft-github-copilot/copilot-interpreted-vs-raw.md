@@ -7,6 +7,19 @@ parent: Microsoft GitHub Copilot
 
 ## Copilot-interpreted vs Raw
 
+---
+
+## Topic Guide
+
+- [Two Mechanisms, Two Failure Modes](#two-mechanisms-two-failure-modes)
+- [Track Design](#track-design)
+- [Key Observations](#key-observations)
+- [Implications for Agent Developers](#implications-for-agent-developers)
+
+---
+
+## Two Mechanisms, Two Failure Modes
+
 The central finding from both tracks is that `fetch_webpage`'s relevance-ranked
 excerpting is architectural and not suppressible by prompt, and that `curl`
 substitution, when it occurs, produces complete files the verification script confirms as

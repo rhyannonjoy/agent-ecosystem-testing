@@ -10,7 +10,19 @@ parent: Anysphere Cursor
 
 ---
 
-**[Raw Track Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/cursor-web-fetch/web_fetch_testing_framework.py)**:
+## Topic Guide
+
+- [Raw Track Test Workflow](#raw-track-test-workflow)
+- [Platform Limit Summary](#platform-limit-summary)
+- [Results Details](#results-details)
+- [Truncation Analysis](#truncation-analysis)
+- [Method-Specific Behavior](#method-specific-behavior)
+- [Content Filtering Heuristics](#content-filtering-heuristics)
+- [Perception Gap](#perception-gap)
+
+---
+
+## [Raw Track Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/cursor-web-fetch/web_fetch_testing_framework.py)
 
     1. Run `python web_fetch_testing_framework.py --test {test ID} --track raw`
     2. Review the terminal output
@@ -93,7 +105,7 @@ setups may return `Content-Type: text/markdown`; Cursor can use without HTML cle
   "Accept": "text/markdown,text/html;q=0.9,application/xhtml+xml;q=0.8,application/xml;q=0.7"
 ```
 
-**Observed behavior**:
+**Observed Behavior**:
 
 | **Test** | **Server Response** | **Cursor Behavior** | **Output** |
 | ---------- | --------------------- | --------------------- | ------------ |

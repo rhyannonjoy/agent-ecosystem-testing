@@ -10,7 +10,15 @@ parent: OpenAI Web Search
 
 ---
 
-**Raw Test Workflow**:
+## Topic Guide
+
+- [Raw Test Workflow](#raw-test-workflow)
+- [Platform Limit Summary](#platform-limit-summary)
+- [Results Details](#results-details)
+
+---
+
+## [Raw Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-web-search/web_search_test.py)
 
     1. Call the Responses API with `gpt-4o` + `web_search_preview` tool enabled
     2. Give the model a minimal prompt; just enough to trigger retrieval
