@@ -6,7 +6,20 @@ permalink: /docs/anysphere-cursor/cursor-interpreted-vs-raw
 parent: Anysphere Cursor
 ---
 
-## Cursor-interpreted vs Raw
+## Cursor-Interpreted vs Raw
+
+---
+
+## Topic Guide
+
+- [Track Design](#track-design)
+- [Key Observations](#key-observations)
+- [Implications for Agent Developers](#implications-for-agent-developers)
+- [Platform Architecture Comparisons](#platform-architecture-comparisons)
+
+---
+
+## Track Design
 
 Two test tracks measure the same Cursor web fetch behaviors:
 
@@ -17,7 +30,7 @@ whether the fetch was complete, how it characterizes truncation. This is the mod
 MD5 checksums, and token counts. These are filesystem measurements
 and cryptographic hashes, and not model estimates.
 
-The gap between these two tracks is itself a finding. If Cursor reports "complete content" in prose
+The gap between these two tracks is a finding. If Cursor reports "complete content" in prose
 but the raw data shows truncation, that discrepancy belongs in the spec.
 
 | | Interpreted Track | Raw Track |
@@ -29,6 +42,8 @@ but the raw data shows truncation, that discrepancy belongs in the spec.
 | **Reproducibility** | High variance on small docs, 1.9KB→5.6KB same URL | Perfect reproducibility,<br>same URL = same MD5 |
 | **Output Format** | Chat UI Markdown rendering | Raw file on disk, `raw_output_{test_id}.txt` |
 | **Best For** | Understanding model<br>perception gaps | Citable measurements for the spec |
+
+---
 
 ## Key Observations
 
