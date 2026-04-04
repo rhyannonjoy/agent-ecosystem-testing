@@ -42,7 +42,7 @@ parent: Microsoft GitHub Copilot
 
     ---
 
-4. _**Measuring with two complementary tracks**_
+3. _**Measuring with two complementary tracks**_
 
     | | **Copilot-interpreted Track** | **Raw Track** |
     | - | -------------------- | ------------- |
@@ -61,7 +61,7 @@ parent: Microsoft GitHub Copilot
     
     ---
 
-5. _**Copilot-Specific Unknowns**_
+4. _**Copilot-Specific Unknowns**_
 
     | **Question** | **Details** | **Approach** | **Value** |
     | ---------- | --------- | ------------------ | ---------------- |
