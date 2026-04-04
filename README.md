@@ -25,8 +25,8 @@ negotiation - for platforms that don't document these details.
 | Anysphere Cursor IDE | [`@Web` context attachment](https://cursor.com/docs/agent/prompting) | `cursor-web-fetch/` |
 | Cognition Windsurf Cascade IDE | [`@web` directive](https://docs.windsurf.com/windsurf/cascade/web-search) | `windsurf-cascade-web-search/` |
 | Google Gemini API | [URL context](https://ai.google.dev/gemini-api/docs/url-context) | `gemini-url-context/` |
-| Microsoft GitHub Copilot via VS Code | `fetch_webpage` and/or `curl` | `copilot-web-content-retrieval/` |
-| OpenAI: Chat Completions API, Responses API | [web search](https://developers.openai.com/api/docs/guides/tools-web-search) | `open-ai-web-search/` |
+| Microsoft GitHub Copilot Extension | `fetch_webpage` and/or `curl` | `copilot-web-content-retrieval/` |
+| OpenAI: Chat Completions, Responses APIs | [web search](https://developers.openai.com/api/docs/guides/tools-web-search) | `open-ai-web-search/` |
 
 Each platform has two tracks:
 
@@ -39,9 +39,9 @@ Each platform has two tracks:
 > [Cursor Friction Note](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/anysphere-cursor/friction-note)
 > and
 > [Copilot Friction Note](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/microsoft-github-copilot/friction-note)
-> for methodology challenges unique to IDE-based testing.
+> for methodology challenges unique to IDE-based testing_.
 >
-> Cascade adds a third track: **Explicit** - identical to interpreted, but prefixed with `@web`; isolates whether the directive changes retrieval ceiling, tool chain, or chunking behavior_
+> _Cascade adds a third track: **Explicit** - identical to interpreted, but prefixed with `@web`; isolates whether the directive changes retrieval ceiling, tool chain, or chunking behavior_
 
 ---
 
@@ -132,8 +132,8 @@ directly to isolate the `@web` effect.
 
 | Test Category | Question | What it tests |
 | --- | --- | --- |
-| Baseline | _What does Cascade retrieve by default? Does `@web` change the ceiling or output size on the same URL?_ | MongoDB docs pages at 20KB–256KB; HTML and Markdown URL variants |
-| Structured Content | _How does Cascade handle tables, code blocks, nested headings, and JavaScript-rendered pages?_ | Wikipedia, Anthropic API docs, Markdown Guide, Google Gemini docs |
+| Baseline | _What does Cascade retrieve by default? Does `@web` change the ceiling or output size on the same URL?_ | MongoDB docs ~20KB–256KB; HTML and Markdown URL variants |
+| Structured Content | _How does Cascade handle tables, code blocks, nested headings, and JavaScript-rendered pages?_ | Wikipedia, Anthropic API docs, Markdown Guide, Gemini docs |
 | Offset/Pagination | _Does `view_content_chunk` auto-paginate after truncation, or only when prompted?_ | 256KB MongoDB tutorial; fragment navigation via URL `#` identifier |
 | Edge Cases | _How does Cascade handle redirect chains, SPAs, raw Markdown files, and JSON endpoints?_ | 5-level redirect chain, Gemini landing page, GitHub raw `.md`, `httpbin.org` |
 
