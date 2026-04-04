@@ -38,8 +38,6 @@ navigation:
         url: "/docs/anthropic-claude-api-web-fetch-tool/web-fetch-test-raw-findings"
       - title: "Friction Note"
         url: "/docs/anthropic-claude-api-web-fetch-tool/friction-note"
-      - title: "Results Note"
-        url: "/docs/anthropic-claude-api-web-fetch-tool/results-note"
     
   - title: "Anysphere Cursor"
     sections:

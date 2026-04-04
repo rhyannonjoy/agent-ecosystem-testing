@@ -8,6 +8,17 @@ parent: OpenAI Web Search
 
 ## ChatGPT-interpreted vs Raw
 
+---
+
+## Topic Guide
+
+- [Track Design](#track-design)
+- [Agent Docs Spec - Known Platform Limits](#agent-docs-spec---known-platform-limits)
+
+---
+
+## Track Design
+
 Two Python scripts test the same web search behaviors:
 
 **ChatGPT-interpreted** captures what `gpt-4o-mini-search-preview` _believes_ it retrieved:

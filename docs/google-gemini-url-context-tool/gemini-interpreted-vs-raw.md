@@ -8,6 +8,18 @@ parent: Google Gemini URL Context
 
 ## Gemini-interpreted vs Raw
 
+---
+
+## Topic Guide
+
+- [Track Design](#track-design)
+- [Gemini URL Context vs Claude Web Fetch](#gemini-url-context-vs-claude-web-fetch)
+- [Agent Docs Spec - Known Platform Limits](#agent-docs-spec---known-platform-limits)
+
+---
+
+## Track Design
+
 Two Python scripts test the same URL context behaviors:
 
 **Gemini-interpreted** captures what Gemini _believes_ it retrieved: how much content it saw, whether a fetch

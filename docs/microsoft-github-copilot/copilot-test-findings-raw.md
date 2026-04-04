@@ -9,7 +9,17 @@ parent: Microsoft GitHub Copilot
 
 ---
 
-**[Raw Track Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/copilot-web-content-retrieval/web_content_retrieval_testing_framework.py)**:
+## Topic Guide
+
+- [Raw Track Test Workflow](#raw-track-test-workflow)
+- [Platform Limit Summary](#platform-limit-summary)
+- [Results Details](#results-details)
+- [Retrieval Mechanism Distribution](#retrieval-mechanism-distribution)
+- [Verifier Delta Summary](#verifier-delta-summary)
+
+---
+
+## [Raw Track Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/copilot-web-content-retrieval/web_content_retrieval_testing_framework.py)
 
     1. Run `python web_content_retrieval_testing_framework.py --test {test ID} --track raw`
     2. Review the terminal output

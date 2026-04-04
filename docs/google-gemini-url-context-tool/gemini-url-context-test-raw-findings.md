@@ -10,7 +10,14 @@ parent: Google Gemini URL Context
 
 ---
 
-**[Raw Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/gemini-url-context/url_context_test_raw.py)**:
+## Topic Guide
+
+- [Raw Test Workflow](#raw-test-workflow)
+- [Results Summary](#results-summary)
+
+---
+
+## [Raw Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/gemini-url-context/url_context_test_raw.py)
 
 1. Call the Gemini API with the URL context tool enabled
 2. Give Gemini a minimal prompt - just enough to trigger URL retrieval
@@ -29,7 +36,7 @@ parent: Google Gemini URL Context
 
 ---
 
-## Results summary
+## Results Summary
 
 5 raw track runs: `gemini-2.5-flash`, runs 1–3 on free tier, _daily cap exhausted after r3 test 2_,
 runs 4–5 on paid tier; canonical results are r4 and r5 -

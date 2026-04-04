@@ -9,7 +9,18 @@ parent: Microsoft GitHub Copilot
 
 ---
 
-**[Copilot-interpreted Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/copilot-web-content-retrieval/web_content_retrieval_testing_framework.py)**:
+## Topic Guide
+
+- [Copilot-interpreted Test Workflow](#copilot-interpreted-test-workflow)
+- [Platform Limit Summary](#platform-limit-summary)
+- [Results Details](#results-details)
+- [Cross-run Output Variance](#cross-run-output-variance)
+- [Model Routing Distribution](#model-routing-distribution)
+- [Perception Gap](#perception-gap)
+
+---
+
+## [Copilot-interpreted Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/copilot-web-content-retrieval/web_content_retrieval_testing_framework.py)
 
     1. Run `python web_content_retrieval_testing_framework.py --test {test ID} --track interpreted`
     2. Review the terminal output

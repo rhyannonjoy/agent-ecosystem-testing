@@ -10,7 +10,15 @@ parent: OpenAI Web Search
 
 ---
 
-**ChatGPT-interpreted Test Workflow**:
+## Topic Guide
+
+- [ChatGPT-interpreted Test Workflow](#chatgpt-interpreted-test-workflow)
+- [Platform Limit Summary](#platform-limit-summary)
+- [Results Details](#results-details)
+
+---
+
+## [ChatGPT-interpreted Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-web-search/web_search_test.py)
 
     1. Call the Chat Completions API with `gpt-4o-mini-search-preview`
     2. Give the model a detailed prompt asking it to describe what it retrieved -
