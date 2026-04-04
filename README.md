@@ -23,8 +23,9 @@ negotiation - for platforms that don't document these details.
 | -------- | ---- | ------- |
 | Anthropic Claude API | [web fetch](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool) | `claude-api/` |
 | Anysphere Cursor IDE | [`@Web` context attachment](https://cursor.com/docs/agent/prompting) | `cursor-web-fetch/` |
+| Cognition Windsurf Cascade IDE | [`@web` directive](https://docs.windsurf.com/windsurf/cascade/web-search) | `windsurf-cascade-web-search/` |
 | Google Gemini API | [URL context](https://ai.google.dev/gemini-api/docs/url-context) | `gemini-url-context/` |
-| Microsoft GitHub Copilot | `fetch_webpage` and/or `curl` | `copilot-web-content-retrieval/` |
+| Microsoft GitHub Copilot via VS Code | `fetch_webpage` and/or `curl` | `copilot-web-content-retrieval/` |
 | OpenAI: Chat Completions API, Responses API | [web search](https://developers.openai.com/api/docs/guides/tools-web-search) | `open-ai-web-search/` |
 
 Each platform has two tracks:
@@ -32,13 +33,15 @@ Each platform has two tracks:
 - **Interpreted** - ask the model to reflect on what it retrieved; captures self-perception and estimation variance
 - **Raw** - Python extracts measurements directly from the response object; produces citable, reproducible numbers
 
-> _Cursor and Copilot testing use a hybrid approach: raw track saves verbatim output to disk
+> _Cursor, Copilot and Cascade testing use a hybrid approach: raw track saves verbatim output to disk
 > for programmatic analysis; interpreted track asks the agent to self-report metrics from
 > fetched content. Visit the
 > [Cursor Friction Note](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/anysphere-cursor/friction-note)
 > and
 > [Copilot Friction Note](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/microsoft-github-copilot/friction-note)
-> for methodology challenges unique to IDE-based testing._
+> for methodology challenges unique to IDE-based testing.
+>
+> Cascade adds a third track: **Explicit** - identical to interpreted, but prefixed with `@web`; isolates whether the directive changes retrieval ceiling, tool chain, or chunking behavior_
 
 ---
 
@@ -48,8 +51,9 @@ Each platform has two tracks:
 
 - Python 3.8+
 - API keys for the applicable platforms
-- Copilot chat if applicable
+- Copilot extension-chat if applicable
 - Cursor IDE if applicable
+- Windsurf IDE if applicable
 
 ### Install
 
@@ -75,15 +79,22 @@ export OPEN_AI_API_KEY="key-here"
 ### Run Tests
 
 ```bash
-# Claude-interpreted
-python claude-api/web_fetch_test.py
+# Cascade-interpreted, no `@web`
+python windsurf-cascade-web-search/cascade_web_search_testing_framework.py --test {test ID} --track interpreted
+# Explicit, `@web` prefixed
+python windsurf-cascade-web-search/cascade_web_search_testing_framework.py --test {test ID} --track explicit
 # Raw
-python claude-api/web_fetch_test_raw.py
+python windsurf-cascade-web-search/cascade_web_search_testing_framework.py --test {test ID} --track raw
 
 # ChatGPT-interpreted
 python open-ai-web-search/web_search_test.py
 # Raw
 python open-ai-web-search/web_search_test_raw.py
+
+# Claude-interpreted
+python claude-api/web_fetch_test.py
+# Raw
+python claude-api/web_fetch_test_raw.py
 
 # Copilot-interpreted
 python copilot-web-content-retrieval/web_content_retrieval_testing_framework.py --test {test ID} --track interpreted
@@ -103,10 +114,33 @@ python gemini-url-context/url_context_test_raw.py
 
 > _**Free Tier Limits**: Claude API not available on the free-tier, the API is pay-as-you-go;
 5 RPM and 20 RPD limits for `gemini-2.5-flash` - running both tracks in the same day exhaust
-the daily quota; plan runs across days or use a paid tier; Copilot and Cursor tests available on Pro Plan;
-OpenAI requires a minimum credit top-up (~$5) before any API call succeeds regardless of model -
-`insufficient_quota` is an account-level block, not a rate limit; set `RATE_LIMIT_SLEEP_SECONDS = 0`
-in the scripts if you're on a paid tier_
+the daily quota; plan runs across days or use a paid tier; Cascade, Copilot, and Cursor tests
+available on Pro Plan; OpenAI requires a minimum credit top-up (~$5) before any API call succeeds
+regardless of model - `insufficient_quota` is an account-level block, not a rate limit; set
+`RATE_LIMIT_SLEEP_SECONDS = 0` in the scripts if you're on a paid tier_
+
+---
+
+## Cascade Test Details
+
+Like Copilot and Cursor, Cascade testing uses manual chat sessions in the Windsurf IDE.
+The framework generates prompts, but execution requires copy-paste into the Cascade chat
+panel. Cascade is the first platform in this collection with a user-invocable web directive —
+`@web` — making it the primary variable under test alongside the standard truncation questions.
+All 11 URLs run across three tracks; interpreted and explicit track results are compared
+directly to isolate the `@web` effect.
+
+| Test Category | Question | What it tests |
+| --- | --- | --- |
+| Baseline | _What does Cascade retrieve by default? Does `@web` change the ceiling or output size on the same URL?_ | MongoDB docs pages at 20KB–256KB; HTML and Markdown URL variants |
+| Structured Content | _How does Cascade handle tables, code blocks, nested headings, and JavaScript-rendered pages?_ | Wikipedia, Anthropic API docs, Markdown Guide, Google Gemini docs |
+| Offset/Pagination | _Does `view_content_chunk` auto-paginate after truncation, or only when prompted?_ | 256KB MongoDB tutorial; fragment navigation via URL `#` identifier |
+| Edge Cases | _How does Cascade handle redirect chains, SPAs, raw Markdown files, and JSON endpoints?_ | 5-level redirect chain, Gemini landing page, GitHub raw `.md`, `httpbin.org` |
+
+> _Cascade self-reported three tools during preliminary questioning: `read_url_content` for direct
+> URL fetch, `view_content_chunk` for paginating large documents via `DocumentId`, and `search_web`
+> for query-based lookup. `read_url_content` requires explicit user approval before fetch executes —
+> a behavior with no Copilot or Cursor equivalent._
 
 ---
 
@@ -149,7 +183,7 @@ mechanism selected determines output format more than any other variable.
 
 ---
 
-## Cursor IDE Test Details
+## Cursor Test Details
 
 Unlike testing platforms with API web fetch tools, Cursor testing uses manual chat sessions with the Cursor IDE. The framework
 generates prompts, but execution is intentionally not automated and requires copy-paste into the Cursor IDE. Interpreted track asks Cursor to self-report; raw track saves outputs to disk for measurement. Both tracks test 13 distinct URLs. Tests focus on truncation behavior, backend routing variance, content conversion patterns, and reproducibility.
