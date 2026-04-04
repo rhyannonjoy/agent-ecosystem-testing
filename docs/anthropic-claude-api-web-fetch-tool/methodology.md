@@ -39,11 +39,11 @@ using one or the other.
 This two-track approach surfaces gaps between model perception and API reality -
 [Claude-interpreted vs Raw](claude-interpreted-vs-raw.md) compares findings from both -
 
-| | `web_fetch_test.py` | `web_fetch_test_raw.py` |
+| | **Interpreted**| **Raw** |
 | - | --------------------- | --------------------- |
-| What it measures | Claude's interpretation of fetched content | Raw content extracted directly from response object |
-| Character counts | Claude estimates - vary between runs - | Python `len()` on raw string - exact, reproducible |
-| Boilerplate detection | Claude's subjective assessment | CSS indicator strings counted programmatically |
-| Truncation detection | Claude reports what it perceives | Exact char position, end character, clean/unclean flag |
-| Token cost per run | Higher - Claude writes long assessments | Lower  - minimal prompt, `max_tokens=128` |
-| Best used for | Understanding what the model perceives | Citable measurements for the spec |
+| **Measures** | Claude's interpretation of fetched content | Raw content extracted directly from response object |
+| **Character Counts** | Claude estimates - vary between runs - | Python `len()` on raw string - exact, reproducible |
+| **Boilerplate Detection** | Claude's subjective assessment | CSS indicator strings counted programmatically |
+| **Truncation Detection** | Claude reports what it perceives | Exact char position, end character, clean/unclean flag |
+| **Tokens** | _Higher_ - Claude writes long assessments | _Lower_ - minimal prompt, `max_tokens=128` |
+| **Best For** | Understanding what the model perceives | Citable measurements for the spec |
