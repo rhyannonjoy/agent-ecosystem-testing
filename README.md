@@ -51,9 +51,7 @@ Each platform has two tracks:
 
 - Python 3.8+
 - API keys for the applicable platforms
-- Copilot extension-chat if applicable
-- Cursor IDE if applicable
-- Windsurf IDE if applicable
+- Copilot extension-chat, Cursor and/or Windsurf-Cascade IDEs if applicable
 
 ### Install
 
