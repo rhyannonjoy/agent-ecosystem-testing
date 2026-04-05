@@ -1,17 +1,18 @@
 ---
 layout: default
-title: Table of Contents
+title: Testing Index
 ---
 
->**<u>Objective</u>**: in support of the
-[Agent Docs Spec](https://github.com/agent-ecosystem/agent-docs-spec/blob/main/SPEC.md#known-platform-limits),
-measure what happens between "agent fetches URL" and "model sees content" -
-retrieval mechanism behavior, HTML processing, truncation limits - for platforms that don't document these details
->
->**<u>Methodology</u>**: two-track measurement approach with an **interpreted-track** - ask
-the model to describe what it received to capture DX and reveal perception gaps, and a **raw track** -
-extract raw output and measure programmatically, character and token counts, truncation boundaries
-to produce spec-ready, citable measurements
+## Testing Index
+
+Empirical measurement of what happens between "agent fetches URL" and "user sees output" —
+retrieval mechanism behavior, content transformation, architectural constraints — where the
+fetch-to-output pipeline may pass through multiple opaque layers and for platforms that don't
+document these details. Implements a two-track approach: **interpreted** captures
+model self-perception and output variance, and **raw** produces citable data
+for the [Agent Docs Spec](https://github.com/agent-ecosystem/agent-docs-spec/blob/main/SPEC.md#known-platform-limits).
+
+---
 
 ## Documentation Organization
 

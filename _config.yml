@@ -23,7 +23,7 @@ exclude:
 - .vale.ini
 
 navigation:
-  - title: "Overview"
+  - title: "Testing Index"
     url: "/"
     
   - title: "Anthropic Claude API"

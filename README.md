@@ -1,19 +1,16 @@
 # Agent Ecosystem Testing
 
-**Overview**: Empirical tests of web fetch behavior across AI agent platforms, in support of the
-[Agent-Friendly Documentation Spec](https://github.com/agent-ecosystem/agent-docs-spec)
-and specifically contributes data to the
-[Known Platform Limits](https://github.com/agent-ecosystem/agent-docs-spec/blob/main/SPEC.md#known-platform-limits).
-Full methodology and findings:
-[testing results docs](https://rhyannonjoy.github.io/agent-ecosystem-testing/).
+**Overview**: empirically tests web fetch behavior across agentic platforms to contribute to the
+[Agent-Friendly Documentation Spec](https://github.com/agent-ecosystem/agent-docs-spec) —
+specifically the [Known Platform Limits](https://github.com/agent-ecosystem/agent-docs-spec/blob/main/SPEC.md#known-platform-limits);
+full methodology and findings in [the docs](https://rhyannonjoy.github.io/agent-ecosystem-testing/)
 
-**Origin**: extension of Dachary Carey's
-[Agent Web Fetch Spelunking](https://dacharycarey.com/2026/02/19/agent-web-fetch-spelunking/),
-which documented Claude Code's web fetch pipeline in detail.
+**Origin**: programmatic extension of Dachary Carey's
+[Agent Web Fetch Spelunking](https://dacharycarey.com/2026/02/19/agent-web-fetch-spelunking/)
 
-**Goal**: measure what actually happens between "agent fetches URL" and
-"model sees content" - truncation limits, HTML processing, content
-negotiation - for platforms that don't document these details.
+**Goal**: measure what happens between "agent fetches URL" and "user sees output" —
+retrieval mechanism behavior, content transformation, architectural constraints — for platforms that don't
+document these details
 
 ---
 
