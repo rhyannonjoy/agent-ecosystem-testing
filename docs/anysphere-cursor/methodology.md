@@ -43,6 +43,8 @@ parent: Anysphere Cursor
     [Friction Note](friction-note.md#web-evolution-from-manual-context-to-automatic-agent-capability)
     for full impact analysis._
 
+    ---
+
 3. _**Measuring with two complementary tracks**_
 
     | | **Cursor-interpreted Track** | **Raw Track** |
@@ -57,6 +59,8 @@ parent: Anysphere Cursor
     > _Known limitations of this approach: interpreted-track varies between runs; can't programmatically
     >inspect a surfaced API field; variation is also expected between MCP server versions,
     >IDE version, and model selection; some test URLs may be gated_
+
+    ---
 
 4. _**Cursor-Specific Unknowns**_
 

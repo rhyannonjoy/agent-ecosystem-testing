@@ -100,14 +100,3 @@ Both tracks agree on the following and are the citable findings for the spec:
 
 - Both tracks resolved the ambiguous query `"Python release"` consistently to the programming
   language across all runs. Disambiguation behavior was the most stable finding in the suite.
-
-### Paid Account Required
-
-- OpenAI requires credits before any API call succeeds, regardless of model or endpoint.
-  `insufficient_quota` is an account-level block, not a rate limit; see
-  [the Friction Note](friction-note.md) for details
-- Like [the Claude API web fetch tool](../anthropic-claude-api-web-fetch-tool/friction-note.md),
-  requires paid subscription to run the entire test suite of both tracks reliably
-- Slightly different than [the Gemini API URL context tool](../google-gemini-url-context-tool/friction-note.md)
-  in which the free tier allows immediate access with rate limiting; but requires credit to run the entire test
-  suite of both tracks reliably

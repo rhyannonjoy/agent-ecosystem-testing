@@ -6,7 +6,7 @@
 # clear Jekyll cache - rm -rf .jekyll-cache
 
 title: Agent Ecosystem Testing
-description: Empirical testing of agentic docs consumption
+description: empirical testing of agentic docs consumption
 author: Rhyannon Rodriguez, March 2026
 
 header_pages: []
