@@ -98,6 +98,9 @@
     }
 
     header .site-title {
+      display: flex;
+      align-items: center;
+      gap: 1px; /* adjust this to taste — try 4px–8px */
       font-size: 0.85rem;
       font-weight: 400;
       letter-spacing: 0.04em;
@@ -128,6 +131,13 @@
       display: flex;
       flex: 1;
       max-width: 100%;
+    }
+
+    .site-logo {
+      height: 100px;
+      width: auto;
+      vertical-align: middle;
+      margin-right: 1px;
     }
 
     /* Sidebar */
@@ -443,7 +453,12 @@
 
   <header>
     <div class="header-content">
-      <a class="site-title" href="{{ '/' | relative_url }}"><|°_°|> {{ site.title }}</a>
+      <a class="site-title" href="{{ '/' | relative_url }}">
+      <img src="{{ '/static/assets/AET-logo.png' | relative_url }}" 
+           alt="{{ site.title }} logo" 
+           class="site-logo">
+      {{ site.title }}
+    </a>
       <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">[ light ]</button>
     </div>
   </header>
