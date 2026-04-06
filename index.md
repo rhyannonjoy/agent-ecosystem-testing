@@ -18,7 +18,7 @@ for the [Agent Docs Spec](https://github.com/agent-ecosystem/agent-docs-spec/blo
 
 | **Post** | **Focus** |
 | -------- | --------- |
-| **[Field Notes from a Yelper: Guerilla Testing Agents](/blogs/field-notes-from-a-yelper.md)** | Methodology evolution: what broke, what changed, and letting data lead |
+| **[Field Notes from a Yelper: Guerilla Testing Agents](/blogs/field-notes-from-a-yelper)** | Methodology evolution: what broke, what changed, and letting data lead |
 
 ## Testing Documentation Structure
 
