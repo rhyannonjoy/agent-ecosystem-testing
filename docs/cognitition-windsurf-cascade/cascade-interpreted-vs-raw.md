@@ -7,6 +7,6 @@ parent: Cognition Windsurf Cascade
 
 ## Cascade-interpreted vs Raw
 
-_Currently testing_
+_testing in progress_
 
 ---

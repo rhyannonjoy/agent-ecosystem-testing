@@ -7,6 +7,6 @@ parent: Cognition Windsurf Cascade
 
 ## Cascade Framework Reference
 
-_Currently testing_
+_testing in progress_
 
 ---
