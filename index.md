@@ -14,11 +14,17 @@ for the [Agent Docs Spec](https://github.com/agent-ecosystem/agent-docs-spec/blo
 
 ---
 
-## Documentation Organization
+## Blogs
+
+| **Post** | **Focus** |
+| -------- | --------- |
+| **[Field Notes from a Yelper: Guerilla Testing Agents](/blogs/field-notes-from-a-yelper)** | Methodology evolution: what broke, what changed, and letting data lead |
+
+## Testing Documentation Structure
 
 | **Section** | **Purpose** |
 | --------- | --------- |
-| **Methodology** | Testing approach details & constraints |
+| **Methodology** | Testing approach details and constraints |
 | **Interpreted vs Raw** | Two-track values and measurements |
 | **Findings: Interpreted** | What the model reports vs what it received, run variation |
 | **Findings: Raw** | Metrics extracted programmatically - reproducible, spec-ready |
@@ -30,7 +36,7 @@ for the [Agent Docs Spec](https://github.com/agent-ecosystem/agent-docs-spec/blo
 | ---------- | ------------- | ---------- |
 | **[Anthropic Claude API](/docs/anthropic-claude-api-web-fetch-tool/methodology.md)** | Character-based truncation at<br>~**100KB** of rendered content | Baseline reference; establishing two-track methodology |
 | **[Anysphere Cursor](/docs/anysphere-cursor/methodology.md)** | Agent-routed fetch with undocumented truncation - **28KB–240KB+**;<br>high cross-session variance | Reverse-engineering opaque, closed consumer tools |
-| **[Cognition Windsurf Cascade](/docs/cognitition-windsurf-cascade/methodology.md)** | Currently testing | Reverse-engineering opaque, closed consumer tools |
-| **[Google Gemini API](/docs/google-gemini-url-context-tool/methodology.md)** | Hard limit: **20 URLs** per request;<br>supports PDF & JSON | Identifying architectural constraints and format support |
+| **[Cognition Windsurf Cascade](/docs/cognitition-windsurf-cascade/methodology.md)** | _Testing in progress_ | Reverse-engineering partially documented,<br>closed consumer tools |
+| **[Google Gemini API](/docs/google-gemini-url-context-tool/methodology.md)** | Hard limit: **20 URLs** per request;<br>supports PDF and JSON | Identifying architectural constraints and format support |
 | **[Microsoft GitHub Copilot](/docs/microsoft-github-copilot/methodology.md)** | Agent-routed `fetch_webpage` - relevance-ranked excerpts, no fixed ceiling detected and/or `curl` - byte-perfect full retrieval | Separating retrieval mechanism from retrieval quality through tool-call visibility |
 | **[OpenAI Web Search](/docs/open-ai-web-search-tool/methodology.md)** | Tool invocation **conditional** and model-dependent; differs by API surface | Comparing behavior across <br>API endpoints |
