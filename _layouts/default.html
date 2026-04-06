@@ -94,7 +94,7 @@
       margin: 0 auto;
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
+      align-items: center;
     }
 
     header .site-title {
@@ -122,6 +122,7 @@
       padding: 0;
       letter-spacing: 0.03em;
       transition: color 0.15s ease;
+      flex-shrink: 0;
     }
 
     .theme-toggle:hover { color: var(--link-hover); }
@@ -442,8 +443,11 @@
       main { padding: 1.5rem 1rem; }
 
       header .header-content {
-        flex-direction: column;
-        gap: 0.75rem;
+        max-width: calc(var(--max-width) + var(--sidebar-width) + 3rem);
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
     }
 
