@@ -21,7 +21,7 @@ in support of the [Agent-Friendly Documentation Spec](https://agentdocsspec.com/
 started with a basic question: _what actually happens between "agent fetches a URL" and
 "user sees output?"_
 
-It's like Yelping for agents: use a product, document what's there. The value isn't entirely in
+It's like Yelping for agents: use a product, note what's there. The value isn't entirely in
 controlled conditions or peer-reviewed reproducibility. It's in the honest record: here's what was
 expected and here's what the data said instead.
 
@@ -35,8 +35,8 @@ difficult to extract meaningful data, and output variance is just the tip of the
 
 While reproducibility is a design goal, it's not guaranteed. Running the same test twice and getting
 meaningfully different results is expected - retrieval depth, content transformation, and self-reported
-behavior may all vary across sessions. This isn't necessarily a testing flaw, but it is a finding
-that's worth documenting.
+behavior may all vary across sessions. This isn't necessarily a testing flaw, but it's a finding
+worth documenting.
 
 [Cursor testing](../docs/anysphere-cursor/methodology.md) posed a particular challenge. The hypotheses
 were built on the assumption that attaching `@Web` to a context window had some meaningful impact on
@@ -75,7 +75,7 @@ The methodology didn't start with a roadmap, but accumulated one. While the
 established a baseline and two-track structure, Cursor introduced the problem of opaque, undocumented functionality
 and false premise correction. Copilot forced the framework to expand when tool visibility was absent. Unlike Cursor
 and Copilot, [testing Windsurf's Cascade](../docs/cognitition-windsurf-cascade/methodology.md) requires another
-framework expansion in the form of an entirely new track, in which `@web` is called directly. This brings the testing
+framework expansion in the form of a new track in which `@web` is called directly. This brings the testing
 framework track number to three:
 
   1. Cascade-interpreted: model self-reports
