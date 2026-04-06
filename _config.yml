@@ -23,7 +23,7 @@ exclude:
 - .vale.ini
 
 navigation:
-  - title: "Testing Index"
+  - title: "TESTING INDEX"
     url: "/"
 
   - title: "Blogs"
