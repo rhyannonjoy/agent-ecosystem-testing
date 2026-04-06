@@ -5,7 +5,7 @@ permalink: /blogs/field-notes-from-a-yelper
 parent: Blogs
 ---
 
-# Field Notes from a Yelper: Guerilla Testing Agents
+# Field Notes from a Yelper: Guerrilla Testing Agents
 
 > _Start anywhere, be wrong. Catching a false premise is when the real testing begins._
 
@@ -86,7 +86,7 @@ The platform testing order was also not plannned and organically grew out of eac
 revealing what users can and can't observe, what instrumentation is required to surface it, and each testing platform
 is a response to the last one.
 
-## Start Guerilla Testing Agents
+## Start Guerrilla Testing Agents
 
 > _Start anywhere and iterate honestly. The data will do the rest._
 
