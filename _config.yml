@@ -25,6 +25,11 @@ exclude:
 navigation:
   - title: "Testing Index"
     url: "/"
+
+  - title: "Blogs"
+    sections:
+      - title: "Field Notes from a Yelper"
+        url: "/blogs/field-notes-from-a-yelper"
     
   - title: "Anthropic Claude API"
     sections:
@@ -38,7 +43,7 @@ navigation:
         url: "/docs/anthropic-claude-api-web-fetch-tool/web-fetch-test-raw-findings"
       - title: "Friction Note"
         url: "/docs/anthropic-claude-api-web-fetch-tool/friction-note"
-    
+
   - title: "Anysphere Cursor"
     sections:
       - title: "Methodology"
