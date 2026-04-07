@@ -120,14 +120,13 @@ cd copilot-web-content-retrieval
    | `verified_table_rows`** | Raw track: Verifier-measured table row count | `57` |
    | `verified_headers`** | Raw track: Verifier-measured header count | `4` |
 
-   > _\*`vscode-chat` describes an intentionally manual testing process in which the
-   > user copy-pastes prompts into the Copilot chat window; Copilot has no documented
-   > backend web content retrieval mechanism; analysis in the
-   >[Friction Note](friction-note.md#fetch_webpage-undocumented)_
+   > _\*`vscode-chat` describes an intentionally manual testing process in which the user copy-pastes prompts into the
+   > Copilot chat window; Copilot has no documented backend web content retrieval mechanism; analysis in the
+   > [Friction Note](friction-note.md#fetch_webpage-undocumented)_
 
-   > _\*\*Optional field, raw track only. `copilot_reported` fields capture values
-   > measured by Copilot and may reflect execution tool output or payload estimates;
-   > `verify_raw_results` script calculates `verified` fields against saved output files._
+   > _\*\*Optional field, raw track only. `copilot_reported` fields capture Copilot-measured values, may reflect execution
+   > tool output or payload estimates; `verify_raw_results.py` script calculates values against saved
+   > `raw_output_{test_id}.txt` files._
 
    ---
 
@@ -200,31 +199,24 @@ cd copilot-web-content-retrieval
    >_Ensure to provide all required flags: `--method`, `--model`, `--copilot-version`,
    ><br>`--output-chars`, `--truncated`, `--tokens`, `--hypothesis`_<br>
    ><br>
-   >_**Raw track only**: consider renaming raw output text files to capture variance;
+   >_**Raw track only**: consider renaming output text files to capture variance;
    >upon consistent results, remove files from the project to prevent test contamination between runs_
 
 ---
 
 ## Baseline Testing Path
 
-Complete the interpreted track first to establish behavioral observations, then run
-the raw track for exact measurements. Run each test ID a minimum of 5 times to capture
-variance. `Auto` routing selects different models across runs, and output size can vary
-2–6x on identical prompts. Run both tracks for each test ID:
+1. Run **interpreted** track to identify baseline behavioral patterns
+2. Run **raw** track for ground truth measurements — `Auto` routing selects different models across runs, output varies
 
-1. `BL-1`, `BL-2` - baseline truncation threshold on small pages
-2. `SC-2` - code blocks, HTML-to-Markdown conversion behavior
-3. `OP-4` - auto-chunking hypothesis; establishes key ecosystem testing gap
-4. `BL-3` - hard ceiling; identify absolute output limit across model families
-5. `SC-1`, `SC-3`, `SC-4` - structured content; structure-aware truncation hypothesis
-6. `EC-1`, `EC-3`, `EC-6` - edge cases; failure modes and unusual inputs
-
-While the interpreted track captures Copilot's self-report and perceived completeness,
-the raw track provides ground truth measurements for validation. Cross-referencing
-reveals where Copilot's self-assessment diverges from reality. Comprehensive
-truncation pattern analysis requires both datasets.
-
----
+| **Test IDs** | **Purpose** | **Key Question** |
+| --- | --- | --- |
+| `BL-1`<br>`BL-2` | Baseline truncation<br>threshold on small pages | _What is the interpreted vs raw delta?_ |
+| `SC-2` | Code blocks,<br>HTML-to-Markdown conversion | _How does `fetch_webpage` handle<br>code structure?_ |
+| `OP-4` | Auto-chunking<br>hypothesis | _Does Copilot chunk automatically,<br>or is this a key ecosystem gap?_ |
+| `BL-3` | Hard ceiling | _What is the absolute output<br>limit across model families?_ |
+| `SC-1`<br>`SC-3`<br>`SC-4` | Structured content | _Does truncation respect<br>Markdown boundaries?_ |
+| `EC-1`<br>`EC-3`<br>`EC-6` | Edge cases | _What are the failure modes<br>and unusual inputs?_ |
 
 ## Analyzing Results
 

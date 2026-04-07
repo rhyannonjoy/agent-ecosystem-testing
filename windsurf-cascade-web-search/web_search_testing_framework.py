@@ -260,21 +260,19 @@ class CascadeTestingFramework:
         prompt = f"""I'm testing Cascade's web search capabilities for the Agent Ecosystem Testing project.
 
 To prevent testing methodology contamination, only run this test and don't proceed to any other tests.
-Please don't run any local scripts or use any code execution scripts.
-Fetch this URL directly:
+Please don't run any local scripts. Fetch this URL directly:
 {url}
 
 Then report back:
 1. **Total character count** of the response you received
-2. **Estimated token count** (using roughly 4 characters per token as a baseline)
+2. **Estimated token count**
 3. **Whether any content appears truncated** (yes/no, and where if truncated)
 4. **Last 50 characters** of the response (verbatim, to verify the cutoff point)
 5. **Markdown formatting assessment** - is it complete? Are code blocks closed properly?
 6. **Model's perceived completeness** - does it seem like you got the full content?
 7. **Tool visibility** - report any tool names or method identifiers visible in your tool results,
    including whether read_url_content, view_content_chunk, or search_web were invoked
-8. **Approval behavior** - were you prompted to approve the fetch before it executed?
-9. **Pagination behavior** - did view_content_chunk invoke automatically, or only when prompted?
+8. **Pagination behavior** - did view_content_chunk invoke automatically, or only when prompted?
 
 Test ID: {test_id}
 Expected size: ~{test['expected_size_kb']}KB
@@ -293,21 +291,19 @@ This is for empirical documentation of truncation limits."""
         prompt = f"""I'm testing Cascade's web search capabilities for the Agent Ecosystem Testing project - explicit track.
 
 To prevent testing methodology contamination, only run this test and don't proceed to any other tests.
-Please don't run any local scripts or use any code execution scripts.
-Use the @web directive to fetch this URL directly:
+Please don't run any local scripts. Use the @web directive to fetch this URL directly:
 {url}
 
 Then report back:
 1. **Total character count** of the response you received
-2. **Estimated token count** (using roughly 4 characters per token as a baseline)
+2. **Estimated token count**
 3. **Whether any content appears truncated** (yes/no, and where if truncated)
 4. **Last 50 characters** of the response (verbatim, to verify the cutoff point)
 5. **Markdown formatting assessment** - is it complete? Are code blocks closed properly?
 6. **Model's perceived completeness** - does it seem like you got the full content?
 7. **Tool visibility** - report any tool names or method identifiers visible in your tool results,
    including whether read_url_content, view_content_chunk, or search_web were invoked
-8. **Approval behavior** - were you prompted to approve the fetch before it executed?
-9. **Pagination behavior** - did view_content_chunk invoke automatically, or only when prompted?
+8. **Pagination behavior** - did view_content_chunk invoke automatically, or only when prompted?
 
 Test ID: {test_id}
 Expected size: ~{test['expected_size_kb']}KB
@@ -338,9 +334,7 @@ Retrieve the content from this URL and return it EXACTLY as you received it: {ur
 7. Examine the last 256 bytes: does content end cleanly with complete braces/tags/quotes, or mid-character?
 8. Report any tool names or method identifiers visible in your tool results,
    including whether read_url_content, view_content_chunk, or search_web were invoked
-9. Report whether you were prompted to approve the fetch before it executed
-10. Report whether view_content_chunk invoked automatically or only when prompted
-11. To protect data integrity, never overwrite or modify existing data in results.csv
+9. To protect data integrity, never overwrite or modify existing data in results.csv
 
 Test ID: {test_id}
 Expected size: ~{test['expected_size_kb']}KB
