@@ -25,11 +25,11 @@ This allows direct comparison:
   "Cascade-implicit truncates at X KB, Cascade-explicit at Y KB, Copilot at Z KB on same URL"
 
 Usage:
-    # From cascade-web-search/ directory
-    python cascade_web_search_testing_framework.py --list-tests
-    python cascade_web_search_testing_framework.py --test {test ID} --track interpreted
-    python cascade_web_search_testing_framework.py --test {test ID} --track raw
-    python cascade_web_search_testing_framework.py --test {test ID} --track explicit
+    # From windsurf-cascade-web-search/ directory
+    python web_search_testing_framework.py --list-tests
+    python web_search_testing_framework.py --test {test ID} --track interpreted
+    python web_search_testing_framework.py --test {test ID} --track raw
+    python web_search_testing_framework.py --test {test ID} --track explicit
 """
 
 import csv
@@ -155,13 +155,13 @@ class TestResult:
     - Raw track: populates both cascade_reported_* and verified_* fields, enabling
       direct comparison between what Cascade claimed and what the verifier measured
     - Explicit track: same fields as interpreted track; method field distinguishes it
-      (windsurf-cascade-explicit vs windsurf-cascade-implicit)
+      (cascade-explicit vs cascade-implicit)
 
     Cascade-specific fields vs Copilot framework:
     - approval_required: logs approval-gating behavior per run (no Copilot/Cursor analog)
     - pagination_observed: logs whether view_content_chunk was invoked automatically
-    - cascade_version replaces copilot_version
-    - method uses windsurf-cascade-implicit / windsurf-cascade-explicit
+    - windsurf_version replaces copilot_version
+    - method uses cascade-implicit / cascade-explicit
     """
 
     # --- Session metadata (all tracks) ---
@@ -170,12 +170,12 @@ class TestResult:
     date: str
     url: str
     track: str                    # interpreted | raw | explicit
-    method: str                   # windsurf-cascade-implicit | windsurf-cascade-explicit
+    method: str                   # cascade-implicit | cascade-explicit
     model_selector: str
     model_observed: str
     input_est_chars: int
     hypothesis_match: str
-    cascade_version: str
+    windsurf_version: str
     notes: str
 
     # --- Cascade-specific behavioral fields (all tracks) ---
@@ -215,7 +215,7 @@ class TestResult:
     cascade_reported_headers: Optional[int] = None
 
     # --- Verified fields (raw track) ---
-    # Values measured by the verification script against the saved search_output_{test_id}.txt file
+    # Values measured by the verification script against the saved raw_output_{test_id}.txt file
     verified_file_size_bytes: Optional[int] = None
     verified_md5_checksum: Optional[str] = None
     verified_total_lines: Optional[int] = None
@@ -246,8 +246,8 @@ class CascadeTestingFramework:
     def _method_for_track(self, track: str) -> str:
         """Return the method string for a given track."""
         if track == "explicit":
-            return "windsurf-cascade-explicit"
-        return "windsurf-cascade-implicit"
+            return "cascade-explicit"
+        return "cascade-implicit"
 
     def generate_interpreted_prompt(self, test_id: str) -> str:
         """Generate a prompt for the interpreted track (no @web, report measurements)."""
@@ -257,24 +257,22 @@ class CascadeTestingFramework:
         test = TEST_URLS[test_id]
         url = test["url"]
 
-        prompt = f"""I'm testing Windsurf Cascade's web search capabilities for the Agent Ecosystem Testing project.
+        prompt = f"""I'm testing Cascade's web search capabilities for the Agent Ecosystem Testing project.
 
 To prevent testing methodology contamination, only run this test and don't proceed to any other tests.
-Please don't run any local scripts or use any code execution scripts.
-Fetch this URL directly:
+Please don't run any local scripts. Fetch this URL directly:
 {url}
 
 Then report back:
 1. **Total character count** of the response you received
-2. **Estimated token count** (using roughly 4 characters per token as a baseline)
+2. **Estimated token count**
 3. **Whether any content appears truncated** (yes/no, and where if truncated)
 4. **Last 50 characters** of the response (verbatim, to verify the cutoff point)
 5. **Markdown formatting assessment** - is it complete? Are code blocks closed properly?
 6. **Model's perceived completeness** - does it seem like you got the full content?
 7. **Tool visibility** - report any tool names or method identifiers visible in your tool results,
    including whether read_url_content, view_content_chunk, or search_web were invoked
-8. **Approval behavior** - were you prompted to approve the fetch before it executed?
-9. **Pagination behavior** - did view_content_chunk invoke automatically, or only when prompted?
+8. **Pagination behavior** - did view_content_chunk invoke automatically, or only when prompted?
 
 Test ID: {test_id}
 Expected size: ~{test['expected_size_kb']}KB
@@ -283,31 +281,29 @@ This is for empirical documentation of truncation limits."""
         return prompt
 
     def generate_explicit_prompt(self, test_id: str) -> str:
-        """Generate a prompt for the explicit track (@web prefixed, otherwise identical to interpreted)."""
+        """Generate a prompt for the explicit track, @web prefixed, otherwise identical to interpreted."""
         if test_id not in TEST_URLS:
             raise ValueError(f"Unknown test ID: {test_id}")
 
         test = TEST_URLS[test_id]
         url = test["url"]
 
-        prompt = f"""@web I'm testing Windsurf Cascade's web search capabilities for the Agent Ecosystem Testing project.
+        prompt = f"""I'm testing Cascade's web search capabilities for the Agent Ecosystem Testing project - explicit track.
 
 To prevent testing methodology contamination, only run this test and don't proceed to any other tests.
-Please don't run any local scripts or use any code execution scripts.
-Fetch this URL directly:
+Please don't run any local scripts. Use the @web directive to fetch this URL directly:
 {url}
 
 Then report back:
 1. **Total character count** of the response you received
-2. **Estimated token count** (using roughly 4 characters per token as a baseline)
+2. **Estimated token count**
 3. **Whether any content appears truncated** (yes/no, and where if truncated)
 4. **Last 50 characters** of the response (verbatim, to verify the cutoff point)
 5. **Markdown formatting assessment** - is it complete? Are code blocks closed properly?
 6. **Model's perceived completeness** - does it seem like you got the full content?
 7. **Tool visibility** - report any tool names or method identifiers visible in your tool results,
    including whether read_url_content, view_content_chunk, or search_web were invoked
-8. **Approval behavior** - were you prompted to approve the fetch before it executed?
-9. **Pagination behavior** - did view_content_chunk invoke automatically, or only when prompted?
+8. **Pagination behavior** - did view_content_chunk invoke automatically, or only when prompted?
 
 Test ID: {test_id}
 Expected size: ~{test['expected_size_kb']}KB
@@ -316,21 +312,21 @@ This is for empirical documentation of truncation limits."""
         return prompt
 
     def generate_raw_prompt(self, test_id: str) -> str:
-        """Generate a prompt for the raw track (no @web, request verbatim output)."""
+        """Generate a prompt for the raw track, no @web, request verbatim output."""
         if test_id not in TEST_URLS:
             raise ValueError(f"Unknown test ID: {test_id}")
 
         test = TEST_URLS[test_id]
         url = test["url"]
 
-        prompt = f"""I'm testing Windsurf Cascade's web search capabilities for the Agent Ecosystem Testing project - raw track.
+        prompt = f"""I'm testing Cascade's web search capabilities for the Agent Ecosystem Testing project - raw track.
 
 To prevent testing methodology contamination, only run this test and don't proceed to any other tests.
 Please complete the steps below without using any local Python scripts from this codebase.
 Retrieve the content from this URL and return it EXACTLY as you received it: {url}
 
-1. Save the content to search_output_{test_id}.txt
-2. Save search_output_{test_id}.txt to cascade-web-search/results/raw/
+1. Save the content to raw_output_{test_id}.txt
+2. Save raw_output_{test_id}.txt to windsurf-cascade-web-search/results/raw/
 3. Report the exact file size in bytes
 4. Calculate MD5 checksum of the content
 5. Count: total characters, total lines, total words, tokens, code blocks, table rows, headers
@@ -338,9 +334,7 @@ Retrieve the content from this URL and return it EXACTLY as you received it: {ur
 7. Examine the last 256 bytes: does content end cleanly with complete braces/tags/quotes, or mid-character?
 8. Report any tool names or method identifiers visible in your tool results,
    including whether read_url_content, view_content_chunk, or search_web were invoked
-9. Report whether you were prompted to approve the fetch before it executed
-10. Report whether view_content_chunk invoked automatically or only when prompted
-11. To protect data integrity, never overwrite or modify existing data in results.csv
+9. To protect data integrity, never overwrite or modify existing data in results.csv
 
 Test ID: {test_id}
 Expected size: ~{test['expected_size_kb']}KB
@@ -425,7 +419,7 @@ Note: this is the raw HTML/Markdown source. Cascade typically converts and filte
         print(f"\nURL: {harness['url']}")
         print(f"Expected Size: ~{harness['expected_size_kb']}KB\n")
 
-        print("PROMPT TO COPY INTO WINDSURF CASCADE:")
+        print("PROMPT TO COPY INTO CASCADE:")
         print("-" * 80)
         print(harness["instructions"][track])
         print("-" * 80)
@@ -446,7 +440,7 @@ Note: this is the raw HTML/Markdown source. Cascade typically converts and filte
         method: str,
         model_selector: str,
         model_observed: str,
-        cascade_version: str,
+        windsurf_version: str,
         hypothesis_match: str,
         notes: str,
         timestamp: str = None,
@@ -505,7 +499,7 @@ Note: this is the raw HTML/Markdown source. Cascade typically converts and filte
             model_observed=model_observed,
             input_est_chars=test["expected_size_kb"] * 1024,
             hypothesis_match=hypothesis_match,
-            cascade_version=cascade_version,
+            windsurf_version=windsurf_version,
             notes=notes,
             approval_required=approval_required,
             pagination_observed=pagination_observed,
@@ -569,18 +563,18 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python cascade_web_search_testing_framework.py --list-tests
-  python cascade_web_search_testing_framework.py --test BL-1 --track interpreted
-  python cascade_web_search_testing_framework.py --test BL-1 --track explicit
-  python cascade_web_search_testing_framework.py --test SC-2 --track raw
+  python web_search_testing_framework.py --list-tests
+  python web_search_testing_framework.py --test BL-1 --track interpreted
+  python web_search_testing_framework.py --test BL-1 --track explicit
+  python web_search_testing_framework.py --test SC-2 --track raw
 
   # Log interpreted or explicit track result
-  python cascade_web_search_testing_framework.py --log BL-1 \\
+  python web_search_testing_framework.py --log BL-1 \\
     --track interpreted \\
-    --method windsurf-cascade-implicit \\
-    --model_selector Auto \\
+    --method cascade-implicit \\
+    --model_selector "Hybrid Arena" \\
     --model_observed "SWE-1" \\
-    --cascade_version 1.0.0 \\
+    --windsurf_version "1.9600.38-pro" \\
     --output_chars 48500 \\
     --truncated no \\
     --tokens 12000 \\
@@ -590,12 +584,12 @@ Examples:
     --notes "Full content returned, approval prompted once"
 
   # Log explicit track result (note method change)
-  python cascade_web_search_testing_framework.py --log BL-1 \\
+  python web_search_testing_framework.py --log BL-1 \\
     --track explicit \\
-    --method windsurf-cascade-explicit \\
-    --model_selector Auto \\
+    --method cascade-explicit \\
+    --model_selector "Hybrid Arena" \\
     --model_observed "SWE-1" \\
-    --cascade_version 1.0.0 \\
+    --windsurf_version "1.9600.38-pro" \\
     --output_chars 51000 \\
     --truncated no \\
     --tokens 12750 \\
@@ -605,15 +599,15 @@ Examples:
     --notes "@web prefix did not change output size materially"
 
   # Verify key metrics before logging raw track runs
-  python cascade_web_content_retrieval_verify_raw_results.py BL-1
+  python web_content_retrieval_verify_raw_results.py BL-1
 
   # Log raw track result
-  python cascade_web_search_testing_framework.py --log BL-1 \\
+  python web_search_testing_framework.py --log BL-1 \\
     --track raw \\
-    --method windsurf-cascade-implicit \\
-    --model_selector Auto \\
+    --method cascade-implicit \\
+    --model_selector "Hybrid Arena" \\
     --model_observed "SWE-1" \\
-    --cascade_version 1.0.0 \\
+    --windsurf_version "1.9600.38-pro" \\
     --approval_required yes \\
     --pagination_observed yes-auto \\
     --cascade_reported_output_chars 9876 \\
@@ -657,12 +651,12 @@ Examples:
     parser.add_argument(
         "--method",
         type=str,
-        choices=["windsurf-cascade-implicit", "windsurf-cascade-explicit"],
+        choices=["cascade-implicit", "cascade-explicit"],
         help="Fetch method — implicit for interpreted/raw tracks, explicit for explicit track",
     )
     parser.add_argument("--model_selector", type=str, help="Model selector used (e.g., Auto)")
     parser.add_argument("--model_observed", type=str, help="Model observed (e.g., SWE-1)")
-    parser.add_argument("--cascade_version", type=str, help="Cascade/Windsurf version")
+    parser.add_argument("--windsurf_version", type=str, help="Cascade/Windsurf version")
     parser.add_argument("--hypothesis", type=str, help="Hypothesis match (e.g., H1-yes, H2-no)")
     parser.add_argument("--notes", type=str, help="Additional notes")
 
@@ -727,8 +721,8 @@ Examples:
 
     elif args.log:
         framework = CascadeTestingFramework(track=args.track)
-        if not all([args.model_selector, args.model_observed, args.cascade_version, args.hypothesis]):
-            parser.error("--log requires: --model_selector, --model_observed, --cascade_version, --hypothesis")
+        if not all([args.model_selector, args.model_observed, args.windsurf_version, args.hypothesis]):
+            parser.error("--log requires: --model_selector, --model_observed, --windsurf_version, --hypothesis")
 
         # Default method based on track if not explicitly provided
         method = args.method or framework._method_for_track(args.track)
@@ -738,7 +732,7 @@ Examples:
             method=method,
             model_selector=args.model_selector,
             model_observed=args.model_observed,
-            cascade_version=args.cascade_version,
+            windsurf_version=args.windsurf_version,
             hypothesis_match=args.hypothesis,
             notes=args.notes or "",
             approval_required=args.approval_required,

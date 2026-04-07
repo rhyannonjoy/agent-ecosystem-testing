@@ -3,25 +3,25 @@
 Cascade Web Search Testing Results Analyzer
 - Analyzes CSV results, identifies truncation patterns, and generates summary report
 - Compares interpreted, raw, and explicit track measurements
-- Isolates @web directive effect (implicit vs explicit tracks)
+- Isolates @web directive effect, implicit vs explicit tracks
 - Matches findings to hypotheses H1-H5
 
 Usage:
-    # From cascade-web-search/ directory
+    # From windsurf-cascade-web-search/ directory
 
     # Single track
-    python cascade_web_search_results_analyzer.py --csv results/cascade-raw/results.csv --full
-    python cascade_web_search_results_analyzer.py --csv results/cascade-interpreted/results.csv --summary
-    python cascade_web_search_results_analyzer.py --csv results/cascade-explicit/results.csv --summary
+    python web_search_results_analyzer.py --csv results/raw/results.csv --full
+    python web_search_results_analyzer.py --csv results/cascade-interpreted/results.csv --summary
+    python web_search_results_analyzer.py --csv results/explicit/results.csv --summary
 
     # Cross-track comparison (two or three CSVs)
-    python cascade_web_search_results_analyzer.py \\
-        --csv results/cascade-interpreted/results.csv results/cascade-explicit/results.csv --full
+    python web_search_results_analyzer.py \\
+        --csv results/cascade-interpreted/results.csv results/explicit/results.csv --full
 
-    python cascade_web_search_results_analyzer.py \\
+    python web_search_results_analyzer.py \\
         --csv results/cascade-interpreted/results.csv \\
-               results/cascade-raw/results.csv \\
-               results/cascade-explicit/results.csv --full
+               results/raw/results.csv \\
+               results/explicit/results.csv --full
 """
 
 import csv
@@ -218,7 +218,7 @@ class CascadeResultsAnalyzer:
 
     def analyze_implicit_vs_explicit(self):
         """
-        Compare implicit (no @web) vs explicit (@web) tracks.
+        Compare implicit, no @web vs explicit, @web, tracks.
         This is the primary Cascade-specific analysis — isolates @web as a variable.
         """
         print("=" * 80)
@@ -323,7 +323,6 @@ class CascadeResultsAnalyzer:
         """
         Analyze approval-gating behavior across runs.
         Cascade-specific: read_url_content requires explicit user approval before fetch.
-        No Copilot or Cursor analog exists.
         """
         print("=" * 80)
         print("APPROVAL-GATED FETCH ANALYSIS")
@@ -411,7 +410,7 @@ class CascadeResultsAnalyzer:
     def analyze_elision_markers(self):
         """
         Analyze ellipsis elision markers in raw track output.
-        In Copilot testing, '...' markers indicated read_url_content excerpt assembly
+        In Copilot testing, '...' markers indicated fetch_webpage excerpt assembly
         rather than byte-boundary truncation — worth surfacing early for Cascade.
         """
         print("=" * 80)
@@ -564,14 +563,14 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python cascade_web_search_results_analyzer.py --csv results/cascade-interpreted/results.csv --summary
-  python cascade_web_search_results_analyzer.py --csv results/cascade-raw/results.csv --full
-  python cascade_web_search_results_analyzer.py \\
-      --csv results/cascade-interpreted/results.csv results/cascade-explicit/results.csv --full
-  python cascade_web_search_results_analyzer.py \\
+  python web_search_results_analyzer.py --csv results/cascade-interpreted/results.csv --summary
+  python web_search_results_analyzer.py --csv results/raw/results.csv --full
+  python web_search_results_analyzer.py \\
+      --csv results/cascade-interpreted/results.csv results/explicit/results.csv --full
+  python web_search_results_analyzer.py \\
       --csv results/cascade-interpreted/results.csv \\
-             results/cascade-raw/results.csv \\
-             results/cascade-explicit/results.csv --full
+             results/raw/results.csv \\
+             results/explicit/results.csv --full
         """,
     )
 

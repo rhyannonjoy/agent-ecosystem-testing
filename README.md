@@ -75,11 +75,11 @@ export OPEN_AI_API_KEY="key-here"
 
 ```bash
 # Cascade-interpreted, no `@web`
-python windsurf-cascade-web-search/cascade_web_search_testing_framework.py --test {test ID} --track interpreted
+python windsurf-cascade-web-search/web_search_testing_framework.py --test {test ID} --track interpreted
 # Explicit, `@web` prefixed
-python windsurf-cascade-web-search/cascade_web_search_testing_framework.py --test {test ID} --track explicit
+python windsurf-cascade-web-search/web_search_testing_framework.py --test {test ID} --track explicit
 # Raw
-python windsurf-cascade-web-search/cascade_web_search_testing_framework.py --test {test ID} --track raw
+python windsurf-cascade-web-search/web_search_testing_framework.py --test {test ID} --track raw
 
 # ChatGPT-interpreted
 python open-ai-web-search/web_search_test.py
@@ -134,7 +134,7 @@ directly to isolate the `@web` effect.
 
 > _Cascade self-reported three tools during preliminary questioning: `read_url_content` for direct
 > URL fetch, `view_content_chunk` for paginating large documents via `DocumentId`, and `search_web`
-> for query-based lookup. `read_url_content` requires explicit user approval before fetch executes —
+> for query-based lookup. `read_url_content` requires approval before execution —
 > a behavior with no Copilot or Cursor equivalent._
 
 ---

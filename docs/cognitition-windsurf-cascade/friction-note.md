@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Friction Note"
-permalink: /docs/cognitition-windsurf-cascade/friction-note
+permalink: /docs/cognition-windsurf-cascade/friction-note
 parent: Cognition Windsurf Cascade
 ---
 
