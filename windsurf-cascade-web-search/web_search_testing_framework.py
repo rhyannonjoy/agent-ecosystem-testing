@@ -272,7 +272,6 @@ Then report back:
 6. **Model's perceived completeness** - does it seem like you got the full content?
 7. **Tool visibility** - report any tool names or method identifiers visible in your tool results,
    including whether read_url_content, view_content_chunk, or search_web were invoked
-8. **Pagination behavior** - did view_content_chunk invoke automatically, or only when prompted?
 
 Test ID: {test_id}
 Expected size: ~{test['expected_size_kb']}KB
@@ -303,7 +302,6 @@ Then report back:
 6. **Model's perceived completeness** - does it seem like you got the full content?
 7. **Tool visibility** - report any tool names or method identifiers visible in your tool results,
    including whether read_url_content, view_content_chunk, or search_web were invoked
-8. **Pagination behavior** - did view_content_chunk invoke automatically, or only when prompted?
 
 Test ID: {test_id}
 Expected size: ~{test['expected_size_kb']}KB
