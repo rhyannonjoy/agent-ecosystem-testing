@@ -139,7 +139,6 @@ TEST_URLS = {
     },
 }
 
-
 @dataclass
 class TestResult:
     """Standard test result structure for Cascade testing.
@@ -225,7 +224,6 @@ class TestResult:
     verified_code_blocks: Optional[int] = None
     verified_table_rows: Optional[int] = None
     verified_headers: Optional[int] = None
-
 
 class CascadeTestingFramework:
     """Manage Cascade web search testing across three tracks."""
