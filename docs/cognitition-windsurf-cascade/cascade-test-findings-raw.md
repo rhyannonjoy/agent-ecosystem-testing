@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Key Findings for Cascade's Web Search Behavior, Raw"
-permalink: /docs/cognitition-windsurf-cascade/cascade-test-findings-raw
+permalink: /docs/cognition-windsurf-cascade/cascade-test-findings-raw
 parent: Cognition Windsurf Cascade
 ---
 

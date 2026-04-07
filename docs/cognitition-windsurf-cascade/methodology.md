@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Methodology"
-permalink: /docs/cognitition-windsurf-cascade/methodology
+permalink: /docs/cognition-windsurf-cascade/methodology
 parent: Cognition Windsurf Cascade
 ---
 

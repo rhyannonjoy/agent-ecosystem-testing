@@ -4,14 +4,13 @@ Cascade Raw Output Verification Script
 Verifies key metrics for raw track testing in the Agent Ecosystem Testing framework.
 
 Adapted from the Copilot verification script for Cascade's three-track design.
-Saved output files use the naming convention search_output_{test_id}.txt to align
-with Cascade's own terminology (web search, not web fetch).
+Saved output files use the naming convention raw_output_{test_id}.txt.
 
 Usage:
-    # From the cascade-web-search/ directory
-    python cascade_web_search_verify_raw_results.py {test ID}
-    python cascade_web_search_verify_raw_results.py BL-1 SC-2 EC-1  # Multiple tests
-    python cascade_web_search_verify_raw_results.py --all             # All raw output files
+    # From the windsurf-cascade-web-search/ directory
+    python web_search_verify_raw_results.py {test ID}
+    python web_search_verify_raw_results.py BL-1 SC-2 EC-1  # Multiple tests
+    python web_search_verify_raw_results.py --all           # All raw output files
 """
 
 import argparse
@@ -218,16 +217,16 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Run from cascade-web-search/ directory
-  python3 cascade_web_search_verify_raw_results.py BL-1
-  python3 cascade_web_search_verify_raw_results.py BL-1 SC-2 EC-1
-  python3 cascade_web_search_verify_raw_results.py --all
+  # Run from windsurf-cascade-web-search/ directory
+  python web_search_verify_raw_results.py BL-1
+  python web_search_verify_raw_results.py BL-1 SC-2 EC-1
+  python web_search_verify_raw_results.py --all
 
   # Custom results directory
-  python3 cascade_web_search_verify_raw_results.py BL-1 --results-dir /path/to/results/raw
+  python web_search_verify_raw_results.py BL-1 --results-dir /path/to/results/raw
 
   # Direct path to a specific file
-  python3 cascade_web_search_verify_raw_results.py --path results/raw/search_output_BL-1.txt
+  python web_search_verify_raw_results.py --path results/raw/raw_output_BL-1.txt
         """
     )
 
@@ -271,7 +270,7 @@ Examples:
 
     if args.path:
         filepath = Path(args.path)
-        test_id = filepath.stem.replace('search_output_', '')
+        test_id = filepath.stem.replace('raw_output_', '')
         results[test_id] = calculate_metrics(filepath)
 
     elif args.all:
@@ -283,18 +282,18 @@ Examples:
             print(f"  - cascade-web-search/ directory")
             sys.exit(1)
 
-        for filepath in sorted(results_dir.glob('search_output_*.txt')):
-            test_id = filepath.stem.replace('search_output_', '')
+        for filepath in sorted(results_dir.glob('raw_output_*.txt')):
+            test_id = filepath.stem.replace('raw_output_', '')
             results[test_id] = calculate_metrics(filepath)
 
         if not results:
             print(f"No search output files found in {results_dir}")
-            print(f"Expected files named: search_output_{{test_id}}.txt")
+            print(f"Expected files named: raw_output_{{test_id}}.txt")
             sys.exit(1)
 
     elif args.test_ids:
         for test_id in args.test_ids:
-            filepath = results_dir / f'search_output_{test_id}.txt'
+            filepath = results_dir / f'raw_output_{test_id}.txt'
             results[test_id] = calculate_metrics(filepath)
 
     else:
