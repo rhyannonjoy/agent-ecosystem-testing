@@ -157,6 +157,7 @@ class TestResult:
     hypothesis_match: str
     notes: str
     cursor_version: str
+    track: str
     # Raw track fields (optional, only populated for raw track)
     file_size_bytes: Optional[int] = None
     md5_checksum: Optional[str] = None
@@ -357,6 +358,7 @@ Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdow
         code_blocks: Optional[int] = None,
         table_rows: Optional[int] = None,
         headers: Optional[int] = None,
+        track: str = None,
     ):
         """Log test result to CSV"""
         
@@ -369,6 +371,10 @@ Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdow
 
         test = TEST_URLS[test_id]
 
+        # Use provided track or default to instance track
+        if track is None:
+            track = self.track
+            
         result = TestResult(
             test_id=test_id,
             timestamp=timestamp,
@@ -384,6 +390,7 @@ Expected size: ~{test['expected_size_kb']}KB (Note: this is the raw HTML/Markdow
             hypothesis_match=hypothesis_match,
             notes=notes,
             cursor_version=cursor_version,
+            track=track,
             file_size_bytes=file_size_bytes,
             md5_checksum=md5_checksum,
             total_lines=total_lines,
@@ -530,6 +537,7 @@ Examples:
             table_rows=args.table_rows,
             headers=args.headers,
             notes=args.notes or "",
+            track=args.track,
         )
 
     else:
