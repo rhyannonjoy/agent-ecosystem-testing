@@ -75,12 +75,38 @@ cd windsurf-cascade-web-search
 
    - Review the terminal output &rarr; copy the prompt
    - Open Cascade chat window &rarr; paste the prompt
-   - Review Cascade's web search behavior &rarr; examine the response
+   - Inspect Cascade's web search behavior &rarr; examine agent output
 
-4. **Log Results**
+4. **Determine Hypothesis Match**
 
-   Depending on the track, results stored in
-   `windsurf-cascade-web-search/results/{track}/results.csv` with the following fields:
+   Before logging test results, assess the run against each hypothesis based on
+   the model's self-reported metrics and tool visibility output:
+
+   | **ID** | **Description** | **Question** |
+   | --- | --- | --- |
+   | `H1` | Character-based truncation<br>at fixed limit | _Is there a ceiling at ~10–100 KB?_ |
+   | `H2` | Token-based truncation | _Is there a ceiling at ~2,000 tokens?_ |
+   | `H3` | Structure-aware truncation | _Does truncation fall on Markdown boundaries rather than arbitrary<br>byte positions?_ |
+   | `H4` | `@web` directive changes retrieval ceiling, tool chain, or<br>chunking behavior | _Is Cascade's `@web` redundant<br>as Cursor's `@Web`?_ |
+   | `H5` | `view_content_chunk` auto-paginates via `DocumentId` without explicit prompting | _Does the agent fetch with<br>auto-chunking, or only when reasoned into it?_ |
+
+5. **Log Results**
+
+   Run the interactive logger and follow the prompts. Fields are grouped by track: session fields first, then track-specific
+   output fields, then hypothesis and notes. Quotation marks not necessary; optional fields can be skipped with `Enter` -
+
+   ```bash
+   # Call the logger
+   python web_search_log_results.py
+
+   # Logger prompts and validates fields before confirmation
+   ✓ Result logged to results/{track name}/results.csv
+   ```
+
+   > _If a log command fails before completing, the CSV may be written without headers.
+   > Run `python web_search_add_csv_headers.py --track {track name}` to recover._
+
+   **Framework fields logged per track**:
 
    | **Column** | **Description** | **Example** |
    | --- | --- | --- |
@@ -89,149 +115,48 @@ cd windsurf-cascade-web-search
    | `date` | Date tested | `2026-03-16` |
    | `url` | Full URL tested | `https://www.mongodb.com/docs...` |
    | `track` | Test track | `interpreted`, `raw`, `explicit` |
-   | `method` | Retrieval method | `cascade-implicit`*, `cascade-explicit`* |
-   | `model_selector` | UI model selector setting | `Hybrid Arena` |
-   | `model_observed` | Model invoked during run | `SWE-1`, `Cascade Base` |
+   | `method` | Retrieval method | `cascade-implicit`*,<br>`cascade-explicit`* |
+   | `model_selector` | Model selector setting | `Hybrid Arena` |
+   | `model_observed` | Model invoked | `SWE-1.5`, `Claude Sonnet 4.5` |
    | `approval_required` | Whether fetch approval was prompted | `yes`/`no`/`unknown` |
    | `pagination_observed` | Whether `view_content_chunk` invoked | `yes-auto`/`yes-prompted`/`no`/`unknown` |
    | `input_est_chars` | Expected input size in characters | `87040` |
    | `hypothesis_match` | Hypothesis success/failure | `H1-no`, `H2-yes`, `H3-partial` |
-   | `windsurf_version` | Windsurf/Cascade version | `1.9600.38-pro` |
-   | `notes` | Observations, findings | `Approval gated; auto-paginated via DocumentId...` |
-   | `output_chars` | Interpreted/explicit track: Cascade-measured output length | `27890` |
-   | `truncated` | Interpreted/explicit track: truncation detected | `yes`/`no` |
-   | `truncation_char_num` | Interpreted/explicit track: character position if truncated | `5857` |
-   | `tokens_est` | Interpreted/explicit track: estimated token count | `16890` |
-   | `tools_used`** | Raw track: observed tool chain | `read_url_content -> view_content_chunk` |
-   | `tools_blocked`** | Raw track: tools requested but blocked or skipped | `search_web` |
-   | `execution_attempts`** | Raw track: total tool calls including fallbacks | `3` |
-   | `cascade_reported_output_chars`** | Raw track: Cascade-measured output character count | `9876` |
-   | `cascade_reported_truncated`** | Raw track: Cascade-measured truncation status | `yes`/`no` |
-   | `cascade_reported_truncation_point`** | Raw track: Cascade-measured truncation position | `9876` |
-   | `cascade_reported_tokens_est`** | Raw track: Cascade-estimated token count | `2469` |
-   | `cascade_reported_file_size_bytes`** | Raw track: Cascade-measured file size in bytes | `4817` |
-   | `cascade_reported_md5_checksum`** | Raw track: Cascade-measured MD5 checksum | `abc123...` |
-   | `cascade_reported_lines`** | Raw track: Cascade-measured line count | `143` |
-   | `cascade_reported_words`** | Raw track: Cascade-measured word count | `564` |
-   | `cascade_reported_code_blocks`** | Raw track: Cascade-measured code block count | `2` |
-   | `cascade_reported_table_rows`** | Raw track: Cascade-measured table row count | `57` |
-   | `cascade_reported_headers`** | Raw track: Cascade-measured header count | `4` |
-   | `verified_file_size_bytes`** | Raw track: Verifier-measured file size in bytes | `4817` |
-   | `verified_md5_checksum`** | Raw track: Verifier-measured MD5 checksum | `d6ad8451d3778bf3544574...` |
-   | `verified_total_lines`** | Raw track: Verifier-measured line count | `143` |
-   | `verified_total_words`** | Raw track: Verifier-measured word count | `564` |
-   | `verified_tokens`** | Raw track: Verifier-measured token count | `197` |
-   | `verified_chars_per_token`** | Raw track: Verifier-measured chars/token ratio | `4.43` |
-   | `verified_code_blocks`** | Raw track: Verifier-measured code block count | `2` |
-   | `verified_table_rows`** | Raw track: Verifier-measured table row count | `57` |
-   | `verified_headers`** | Raw track: Verifier-measured header count | `4` |
+   | `windsurf_version` | Windsurf/Cascade version | `1.9600.40-pro` |
+   | `notes` | Observations | `Auto-paginated...` |
+   | `output_chars` | Interpreted/explicit: Cascade-measured output length | `27890` |
+   | `truncated` | Interpreted/explicit: truncation detected | `yes`/`no` |
+   | `truncation_char_num` | Interpreted/explicit: character position if truncated | `5857` |
+   | `tokens_est` | Interpreted/explicit: estimated token count | `16890` |
+   | `tools_used`** | Raw: observed tool chain |`read_url_content, view_content_chunk` |
+   | `tools_blocked`** | Raw: tools requested but blocked/skipped | `search_web` |
+   | `execution_attempts`** | Raw: total tool calls including fallbacks | `3` |
+   | `cascade_reported_output_chars`** | Raw: Cascade-measured output character count | `9876` |
+   | `cascade_reported_truncated`** | Raw: Cascade-measured truncation status | `yes`/`no` |
+   | `cascade_reported_truncation_point`** | Raw: Cascade-measured truncation position | `9876` |
+   | `cascade_reported_tokens_est`** | Raw: Cascade-estimated token count | `2469` |
+   | `cascade_reported_file_size_bytes`** | Raw: Cascade-measured file size in bytes | `4817` |
+   | `cascade_reported_md5_checksum`** | Raw: Cascade-measured MD5 checksum | `abc123...` |
+   | `cascade_reported_lines`** | Raw: Cascade-measured line count | `143` |
+   | `cascade_reported_words`** | Raw: Cascade-measured word count | `564` |
+   | `cascade_reported_code_blocks`** | Raw: Cascade-measured code block count | `2` |
+   | `cascade_reported_table_rows`** | Raw: Cascade-measured table row count | `57` |
+   | `cascade_reported_headers`** | Raw: Cascade-measured header count | `4` |
+   | `verified_file_size_bytes`** | Raw: Verifier-measured file size in bytes | `4817` |
+   | `verified_md5_checksum`** | Raw: Verifier-measured MD5 checksum | `d6ad8451d3778bf3544574...` |
+   | `verified_total_lines`** | Raw: Verifier-measured line count | `143` |
+   | `verified_total_words`** | Raw: Verifier-measured word count | `564` |
+   | `verified_tokens`** | Raw: Verifier-measured token count | `197` |
+   | `verified_chars_per_token`** | Raw: Verifier-measured chars/token ratio | `4.43` |
+   | `verified_code_blocks`** | Raw: Verifier-measured code block count | `2` |
+   | `verified_table_rows`** | Raw: Verifier-measured table row count | `57` |
+   | `verified_headers`** | Raw: Verifier-measured header count | `4` |
 
-   > _\*`cascade-implicit` is used for interpreted and raw tracks, no `@web`;
-   > `cascade-explicit` is used for the explicit track, `@web` prefixed.
-   > `read_url_content` may require approval fetch executed_
+   > _*`cascade-implicit` is used for interpreted and raw tracks, no `@web`;
+   > `cascade-explicit` is used for the explicit track, `@web` prefixed_.
 
-   > _\*\*Optional field, raw track only. `cascade_reported` fields capture Cascade-measured values, may
-   > reflect tool output or payload estimates; `verify_raw_results.py` calculates values against
-   > `raw_output_{test_id}.txt` files._
-
-   ---
-
-   **Key Hypotheses**:
-
-   - `H1`: Character-based truncation at fixed limit, _~10-100KB?_
-   - `H2`: Token-based truncation, _~2000 tokens?_
-   - `H3`: Structure-aware truncation, respects Markdown boundaries
-   - `H4`: `@web` directive changes retrieval ceiling, tool chain, or chunking behavior*
-   - `H5`: `view_content_chunk` auto-paginates via `DocumentId` without explicit prompting**
-
-   >*_`H4` is explicit track's central question; tests whether `@web` is redundant as Cursor's `@Web`_
-
-   >**_`H5` tests whether Cascade autonomously chunks large docs or only paginates
-   >when explicitly prompted; observable via `pagination_observed` field and `OP-1`, `OP-4` tests_
-
-   ```bash
-   # Log interpreted track result
-   python web_search_testing_framework.py --log BL-1 \
-   --track interpreted \
-   --method cascade-implicit \
-   --model_selector "Hybrid Arena" \
-   --model_observed "SWE-1" \
-   --windsurf_version "1.9600.38-pro" \
-   --approval_required yes \
-   --pagination_observed no \
-   --output_chars 48500 \
-   --truncated no \
-   --tokens 12000 \
-   --hypothesis "H1-no" \
-   --notes "Full content returned via read_url_content, no truncation observed..."
-   ```
-
-   >*_Quotations are only required when the value contains spaces or special
-   >characters that the shell would otherwise split or misinterpret_
-
-   ```bash
-   # Log explicit track result
-   python web_search_testing_framework.py --log BL-1 \
-   --track explicit \
-   --method cascade-explicit \
-   --model_selector "Hybrid Arena" \
-   --model_observed "SWE-1" \
-   --windsurf_version "1.9600.38-pro" \
-   --approval_required yes \
-   --pagination_observed no \
-   --output_chars 51000 \
-   --truncated no \
-   --tokens 12750 \
-   --hypothesis "H4-no" \
-   --notes "@web prefix did not change output size materially..."
-   ```
-
-   ```bash
-   # Verify key metrics before logging raw track runs
-   python web_search_verify_raw_results.py BL-1
-
-   # Log raw track result
-   python web_search_testing_framework.py --log BL-1 \
-   --track raw \
-   --method cascade-implicit \
-   --model_selector "Hybrid Arena" \
-   --model_observed "SWE-1" \
-   --windsurf_version "1.9600.38-pro" \
-   --approval_required yes \
-   --pagination_observed yes-auto \
-   --cascade_reported_output_chars 9876 \
-   --cascade_reported_truncated yes \
-   --cascade_reported_truncation_point 9876 \
-   --cascade_reported_tokens_est 2469 \
-   --cascade_reported_file_size_bytes 4817 \
-   --cascade_reported_md5_checksum abc123 \
-   --cascade_reported_lines 143 \
-   --cascade_reported_words 564 \
-   --cascade_reported_code_blocks 2 \
-   --cascade_reported_table_rows 57 \
-   --cascade_reported_headers 4 \
-   --tools_used "read_url_content -> view_content_chunk" \
-   --tools_blocked "terminal execution x2" \
-   --execution_attempts 2 \
-   --verified_file_size_bytes 4817 \
-   --verified_md5_checksum d6ad8451d3778bf3544574431203a3a7 \
-   --verified_total_lines 143 \
-   --verified_total_words 564 \
-   --verified_tokens 197 \
-   --verified_chars_per_token 4.43 \
-   --verified_code_blocks 2 \
-   --verified_table_rows 57 \
-   --verified_headers 4 \
-   --hypothesis "H1-yes" \
-   --notes "read_url_content returned excerpted content; view_content_chunk auto-invoked..."
-   ```
-
-   >_Ensure to provide all required flags: `--method`, `--model_selector`, `--model_observed`,
-   >`--windsurf_version`, `--approval_required`, `--hypothesis`_<br>
-   ><br>
-   >_**Raw track only**: output content saved as `raw_output_{test_id}.txt`; consider renaming files
-   > to capture variance; upon consistent results, remove files from the project to prevent test
-   >contamination between runs_
+   > _**Optional field, raw track only. `cascade_reported` fields may reflect tool output or payload estimates;
+   > `web_search_verify_raw_results.py` calculates values against `raw_output_{test_id}.txt` files_.
 
 ---
 
@@ -251,9 +176,15 @@ cd windsurf-cascade-web-search
 | `SC-1`<br>`SC-3`<br>`SC-4` | Structured content | _Does truncation respect<br>Markdown boundaries?_ |
 | `EC-1`<br>`EC-3`<br>`EC-6` | Edge cases | _What are the failure modes and<br>approval-gating edge behaviors?_ |
 
+>_**Raw track only**: output content saved as `raw_output_{test_id}.txt` - consider renaming files
+> to capture variance; upon consistent results, remove files from the project to prevent test
+>contamination between runs_
+
+---
+
 ## Analyzing Results
 
-Examine truncation threshold analysis, implicit vs explicit `@web` effect, three-track
+Examine truncation analysis, implicit vs explicit `@web` use, three-track
 comparison, approval-gating behavior, auto-pagination behavior, and hypothesis matching —
 
 ```bash
