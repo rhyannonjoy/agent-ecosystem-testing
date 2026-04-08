@@ -155,12 +155,16 @@ from any artifact the agent produces. The verification script has no mechanism t
 Layer 2 truncation; it isn't visible in saved output files and the agent can't report
 what it never received.
 
-The behavioral difference across `BL-1` runs is itself a finding: `Claude Sonnet 4.6` and
-`GPT-5.3-Codex` both sampled endpoints, chunks 0 and 53 without attempting full retrieval,
-while `Claude Opus 4.6` retrieved all 54 chunks in parallel. Whether this reflects model
-capability, context window size, or prompt interpretation differences isn't resolvable from
-the `BL-1` data alone, but the divergence means `H5` results aren't uniform across models on
-the same URL and prompt.
+The behavioral difference across `BL-1` runs is itself a finding. `Claude Sonnet 4.6` and
+`GPT-5.3-Codex` both sampled endpoints, chunks 0 and 53, without attempting full
+retrieval. `Kimi K2.5` sampled six chunks: positions 0, 1, 50, 51, 52, and 53 — the first
+two and last four, a tail-weighted strategy that retrieved more tail context than
+`Sonnet` or `GPT` while stopping well short of full retrieval. `Claude Opus 4.6` retrieved all
+54 chunks in parallel. Three distinct chunk selection strategies across four runs on the
+same URL and prompt suggest chunk selection is model-dependent rather than prompt-driven.
+Whether this reflects model capability, context window size, or prompt interpretation
+differences isn't resolvable from the `BL-1` data alone, but the divergence means `H5`
+results aren't uniform across models on the same URL and prompt.
 
 **Hypothesis Impact**:
 
