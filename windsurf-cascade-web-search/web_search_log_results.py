@@ -61,14 +61,37 @@ def section(title: str):
 # --- Field collectors ---
 
 def collect_session_fields() -> dict:
+    from web_search_testing_framework import TEST_URLS
+
     section("Session Fields (all tracks)")
 
-    test_id = prompt("Test ID", choices=[
-        "BL-1", "BL-2", "BL-3",
-        "SC-1", "SC-2", "SC-3", "SC-4",
-        "OP-1", "OP-4",
-        "EC-1", "EC-3", "EC-6",
-    ])
+    categories = {
+        "baseline":          "BASELINE TESTS",
+        "structured_content": "STRUCTURED CONTENT TESTS",
+        "offset_pagination": "OFFSET/PAGINATION TESTS",
+        "edge_cases":        "EDGE CASE TESTS",
+    }
+
+    for category, label in categories.items():
+        tests = {k: v for k, v in TEST_URLS.items() if v["category"] == category}
+        print(f"\n  {label}")
+        print(f"  {'─' * 56}")
+        print(f"  {'ID':<8} {'Expected':>10}   Description")
+        print(f"  {'─' * 56}")
+        for test_id, test in tests.items():
+            size = f"~{test['expected_size_kb']}KB"
+            name = test["name"]
+            # Truncate long names to keep table width consistent
+            if len(name) > 38:
+                name = name[:35] + "..."
+            print(f"  {test_id:<8} {size:>10}   {name}")
+    print()
+
+    test_id = prompt("Test ID")
+    while test_id not in TEST_URLS:
+        print(f"    ✗ Unknown test ID. Choose from the table above.")
+        test_id = prompt("Test ID")
+    
     track = prompt("Track", choices=["interpreted", "raw", "explicit"])
     model_selector = prompt("Model selector", default="Hybrid Arena")
     model_observed = prompt("Model observed (e.g. Claude Sonnet 4.6 Thinking)")
@@ -189,7 +212,7 @@ def main():
     print("\n╔══════════════════════════════════════════════════════════╗")
     print("║   Cascade Testing Framework — Interactive Logger         ║")
     print("╚══════════════════════════════════════════════════════════╝")
-    print("\nPress Enter to skip optional fields.\n")
+    print("\nPress Enter to skip optional fields. No quotation marks necessary.\n")
 
     try:
         session = collect_session_fields()
