@@ -72,55 +72,61 @@ cd cursor-web-fetch
 
    - Review the Terminal output &rarr; copy the prompt
    - Open Cursor chat window &rarr; paste the prompt
-   - Review Cursor's fetch behavior &rarr; examine the response
+   - Inspect Cursor's fetch behavior &rarr; examine the agent output
 
-4. **Log Results**
+4. **Assess Hypotheses**
 
-   Depending on the track, results stored in
+   Before logging test results, assess the run against each hypothesis based on the model’s
+   self-reported metrics and tool visibility output:
+
+   | **ID** | **Description** | **Question** |
+   | --- | --- | --- |
+   | `H1` | Character-based truncation<br>at fixed limit | _Is there a ceiling at ~10–100 KB?_ |
+   | `H2` | Token-based truncation | _Is there a ceiling at ~2,000 tokens?_ |
+   | `H3` | Structure-aware truncation | _Does truncation fall on Markdown boundaries<br>rather than arbitrary byte positions?_ |
+   | `H4`* | `@Web` invocation | _Does `@Web` impact web fetch behavior?_ |
+   | `H5` | Agentic auto-chunking | _Does the agent fetch chunks automatically,<br>or only when reasoned into it?_ |
+
+   >*_`@Web` may route to `mcp_web_fetch` internally; mechanism is agent's choice and
+   >not user-controllable; `H4` not testable through `@Web` alone, visit the
+   >[Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool)_
+
+5. **Log Results**
+
+   Depending on the track, store results in
    `cursor-web-fetch/results/{track}/results.csv` with the following fields:
 
    | Column | Description | Example |
    | --- | --- | --- |
    | `test_id` | Test identifier | `BL-1`, `SC-2`, `EC-1` |
-   | `timestamp` | ISO 8601 timestamp | 2026-03-16T17:05:02.998376 |
-   | `date` | Date tested | 2026-03-16 |
+   | `timestamp` | `ISO 8601` timestamp | `2026-03-16T17:05:02.998376` |
+   | `date` | Date tested | `2026-03-16` |
    | `url` | Full URL tested | `https://www.mongodb.com/docs...` |
    | `method` | Fetch method | `@Web`* |
-   | `model` | Model used | `Auto` - Cursor's agent router |
-   | `input_est_chars` | Expected input size | 87040 |
-   | `output_chars` | Actual output length, chars via `wc -m` | 27890 |
-   | `truncated` | Truncation detected | yes/no |
-   | `truncation_char_num` | Character position if truncated | 5857 |
-   | `tokens` | Token count via `tiktoken` | 16890 |
-   | `hypothesis_match` | Hypothesis matched | H1-no, H2-yes, H3-yes |
-   | `notes` | Observations and findings | Pro-plan retry: successfully... |
-   | `track` | Test track | interpreted/raw |
-   | `cursor_version` | Cursor IDE version | 2.6.19, 2.6.19-pro |
-   | `file_size_bytes`** | Exact file size via `ls -l` | 28158 |
-   | `md5_checksum`** | MD5 of saved output file | d542d945f2b5dc15c5254d... |
-   | `total_lines`** | Line count | 979 |
-   | `total_words`** | Word count | 4871 |
-   | `code_blocks`** | Fenced code block count | 24 |
-   | `table_rows`** | Table row count | 87 |
-   | `headers`** | Header count | 63 |
+   | `model`*** | Model used | `Auto` - Cursor's agent router |
+   | `input_est_chars` | Expected input size | `87040` |
+   | `output_chars` | Character count via `wc -m` | `27890` |
+   | `truncated` | Truncation detected | `yes`/`no` |
+   | `truncation_char_num` | Character position if truncated | `5857` |
+   | `tokens_est` | Token estimation or<br>count via `tiktoken` | `16890` |
+   | `hypothesis_match` | Hypothesis matched | `H1-no`, `H2-yes`, `H3-yes` |
+   | `notes` | Observations and findings | `Pro-plan retry: successfully...` |
+   | `track` | Test track | `interpreted`/`raw` |
+   | `cursor_version` | Cursor IDE version | `2.6.19`, `2.6.19-pro` |
+   | `file_size_bytes`** | File size calculation `ls -l` | `28158` |
+   | `md5_checksum`** | MD5 of saved output file | `d542d945f2b5dc15c5254d...` |
+   | `total_lines`** | Line count | `979` |
+   | `total_words`** | Word count | `4871` |
+   | `code_blocks`** | Fenced code block count | `24` |
+   | `table_rows`** | Table row count | `87` |
+   | `headers`** | Header count | `63` |
 
-   >_*`@Web` is a Cursor UI composer feature, but the underlying mechanisms is `WebFetch` or `mcp_web_fetch` -
-   > more information in the [Friction Note](friction-note.md#web-evolution-from-manual-context-to-automatic-agent-capability)_;<br>
-   >**_Optional field, measurement for raw track results only_
-
-   ---
-
-   **Key Hypotheses**:
-
-   - `H1`: Character-based truncation at fixed limit, _~10-100KB?_
-   - `H2`: Token-based truncation, _~2000 tokens?_
-   - `H3`: Structure-aware truncation, respects Markdown boundaries
-   - `H4`: MCP servers override native `@Web` limits*
-   - `H5`: Agent auto-chunks after truncation, requests next chunk automatically
-
-   >*_`@Web` may route to `mcp_web_fetch` internally; mechanism is agent's choice and
-   >not user-controllable; H4 not testable through `@Web` alone, visit the
-   >[Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool)_
+   >_*`@Web` is a Cursor UI composer feature, but the underlying mechanisms are `WebFetch` and/or `mcp_web_fetch` -
+   > more info in the [Friction Note](friction-note.md#web-evolution-from-manual-context-to-automatic-agent-capability)_<br>
+   <br>
+   >_**Optional field, measurement for raw track results only_<br>
+   <br>
+   >***_Cursor's `Auto` setting doesn't disclose specific model used_
 
    ```bash
    # Log interpreted track result
@@ -162,28 +168,28 @@ cd cursor-web-fetch
    ```
 
    >_Ensure to provide all required flags: `--method`, `--model`, `--cursor-version`,
-   ><br>`--output-chars`, `--truncated`, `--tokens`, `--hypothesis`_
+   ><br>`--output-chars`, `--truncated`, `--tokens`, `--hypothesis`_<br>
+   <br>
+   >_**Raw track only**: rename raw output files to capture variance;
+   >if results are consistent, remove files to prevent test contamination between runs_
 
 ---
 
 ## Baseline Testing Path
 
-Complete the interpreted track first to establish behavioral observations, then run
-the raw track for exact measurements. Run each test ID a minimum of 3 times to capture
-variance on both tracks:
+1. Run **interpreted** track to identify baseline behavioral patterns
+2. Run **raw** track for ground truth measurements, verify **interpreted** baseline
+3. Run each test ID a minimum of 5 times/track to capture variance:
 
-1. `BL-1`, `BL-2`: baseline, quick wins establish basic truncation threshold
-2. `SC-2`: code blocks, tests HTML-to-Markdown conversion
-3. `OP-3`: `@Web` vs MCP, _do MCP servers have different limits?_*
-4. `OP-4`: auto-chunking, determines DX and key ecosystem testing gap
-5. `BL-3`: hard ceiling to identify absolute limit
-6. `SC-1, SC-3, SC-4`: structured content to test structure-aware truncation hypothesis
-7. `EC-1`, `EC-3`, `EC-6`: edge cases to identify failure modes and unusual inputs
-
-While the interpreted track captures Cursor's self-report and perceived completeness,
-the raw track provides ground truth measurements for validation. Cross-referencing
-reveals where Cursor's self-assessment diverges from reality. Comprehensive
-truncation pattern analysis requires both datasets.
+| **Test IDs** | **Purpose** | **Key Question** |
+| --- | --- | --- |
+| `BL-1`<br>`BL-2` | Baseline truncation threshold<br>on small pages | _What is the interpreted vs raw delta?_ |
+| `SC-2` | Code blocks,<br>HTML-to-Markdown conversion | _How does Cursor handle<br>code structure?_ |
+| `OP-3` | `@Web` vs MCP | _Do MCP servers have different limits?_* |
+| `OP-4` | Auto-pagination<br>hypothesis | _Does Cursor auto-chunk content?_ |
+| `BL-3` | Hard ceiling | _What is the absolute output<br> limit across runs?_ |
+| `SC-1`<br>`SC-3`<br>`SC-4` | Structured content | _Does truncation respect<br>Markdown boundaries?_ |
+| `EC-1`<br>`EC-3`<br>`EC-6` | Edge cases | _What are the failure modes and<br>approval-gating edge behaviors?_ |
 
 >*_**OP-3** not executable as designed; `@Web` may route to `mcp_web_fetch`;
 >the two "sides" of the comparison aren't separable through `@Web` alone;
@@ -193,8 +199,7 @@ truncation pattern analysis requires both datasets.
 
 ## Analyzing Results
 
-Examine truncation threshold analysis, method comparison, interpretive vs raw
-track comparisons, hypothesis matching -
+Review truncation analysis, method and track comparisons, hypothesis matching:
 
 ```bash
 # Generate full analysis report
@@ -207,5 +212,5 @@ python web_fetch_results_analyzer.py --csv results.csv --summary
 python web_fetch_results_analyzer.py --csv results.csv --method "@Web"
 ```
 
->_Provide the full relative path to the CSV file when running the analyzer,
-> including the subdirectory: `results/cursor-interpreted/results.csv` or `results/raw/results.csv`_
+>_Provide full relative path, including subdirectory:<br>
+>`results/cursor-interpreted/results.csv` or `results/raw/results.csv`_

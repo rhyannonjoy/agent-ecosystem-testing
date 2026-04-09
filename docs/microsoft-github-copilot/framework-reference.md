@@ -70,75 +70,77 @@ cd copilot-web-content-retrieval
 
 3. **Copy Prompt → Run in Copilot**
 
-   - Review the Terminal output &rarr; copy the prompt
+   - Review the terminal output &rarr; copy the prompt
    - Open Copilot chat window &rarr; paste the prompt
-   - Review Copilot's web content retrieval behavior &rarr; examine the response
+   - Inspect Copilot's web content retrieval behavior &rarr; examine the agent's output
 
-4. **Log Results**
+4. **Assess Hypotheses**
 
-   Depending on the track, results stored in
+   Before logging test results, assess the run against each hypothesis based on the model’s
+   self-reported metrics and tool visibility output:
+
+   | **ID** | **Description** | **Question** |
+   | --- | --- | --- |
+   | `H1` | Character-based truncation<br>at fixed limit | _Is there a ceiling at ~10–100 KB?_ |
+   | `H2` | Token-based truncation | _Is there a ceiling at ~2,000 tokens?_ |
+   | `H3` | Structure-aware truncation | _Does truncation fall on Markdown boundaries<br>rather than arbitrary byte positions?_ |
+   | `H4`* | MCP servers impact* | _Do MCP servers override native `vscode-chat` limits?_ |
+   | `H5` | Agentic auto-chunking | _Does the agent fetch chunks automatically,<br>or only when reasoned into it?_ |
+
+   >*_`H4` not testable through `vscode-chat` alone; analysis in the [Friction Note](friction-note.md)_
+
+5. **Log Results**
+
+   Depending on the track, store results in
    `copilot-web-content-retrieval/results/{track}/results.csv` with the following fields:
 
    | **Column** | **Description** | **Example** |
    | --- | --- | --- |
    | `test_id` | Test identifier | `BL-1`, `SC-2`, `EC-1` |
-   | `timestamp` | ISO 8601 format | `2026-03-16T17:05:02.998376` |
+   | `timestamp` | `ISO 8601` format | `2026-03-16T17:05:02.998376` |
    | `date` | Date tested | `2026-03-16` |
    | `url` | Full URL tested | `https://www.mongodb.com/docs...` |
    | `method` | Retrieval method | `vscode-chat`* |
-   | `model_selector` | UI model selector setting | `Auto` |
-   | `model_observed` | Backend model invoked by Auto | `Claude Haiku 4.5`,<br>`GPT-5.3-Codex` |
+   | `model_selector` | Model selector setting | `Auto` |
+   | `model_observed` | Model invoked by `Auto` | `Claude Haiku 4.5`,<br>`GPT-5.3-Codex` |
    | `input_est_chars` | Expected input size in characters | `87040` |
    | `hypothesis_match` | Hypothesis success/failure | `H1-no`, `H2-yes`,<br>`H3-partial` |
    | `copilot_version` | Copilot extension version | `0.40.1`, `0.41.1-pro` |
-   | `notes` | Observations, findings | `Pro-plan retry: successfully...` |
-   | `output_chars` | Interpreted track: Copilot-measured output length | `27890` |
-   | `truncated` | Interpreted track: truncation detected | `yes`/`no` |
-   | `truncation_char_num` | Interpreted track: character position if truncated | `5857` |
-   | `tokens_est` | Interpreted track: estimated token count | `16890` |
-   | `tools_used`** | Raw track: requested tool chain | `fetch_webpage -> pylanceRunCodeSnippet` |
-   | `tools_blocked`** | Raw track: tools requested but blocked or skipped | `curl (default), terminal execution` |
-   | `execution_attempts`** | Raw track: total tool calls including fallbacks | `3` |
-   | `copilot_reported_output_chars`** | Raw track: Copilot-measured output character count | `9876` |
-   | `copilot_reported_truncated`** | Raw track: Copilot-measured truncation status | `yes`/`no` |
-   | `copilot_reported_truncation_point`** | Raw track: Copilot-measured truncation position | `9876` |
-   | `copilot_reported_tokens_est`** | Raw track: Copilot-estimated token count | `2469` |
-   | `copilot_reported_file_size_bytes`** | Raw track: Copilot-measured file size in bytes | `4817` |
-   | `copilot_reported_md5_checksum`** | Raw track: Copilot-measured MD5 checksum | `abc123...` |
-   | `copilot_reported_lines`** | Raw track: Copilot-measured line count | `143` |
-   | `copilot_reported_words`** | Raw track: Copilot-measured word count | `564` |
-   | `copilot_reported_code_blocks`** | Raw track: Copilot-measured code block count | `2` |
-   | `copilot_reported_table_rows`** | Raw track: Copilot-measured table row count | `57` |
-   | `copilot_reported_headers`** | Raw track: Copilot-measured header count | `4` |
-   | `verified_file_size_bytes`** | Raw track: Verifier-measured file size in bytes | `4817` |
-   | `verified_md5_checksum`** | Raw track: Verifier-measured MD5 checksum | `d6ad8451d3778bf3544574...` |
-   | `verified_total_lines`** | Raw track: Verifier-measured line count | `143` |
-   | `verified_total_words`** | Raw track: Verifier-measured word count | `564` |
-   | `verified_tokens`** | Raw track: Verifier-measured token count | `197` |
-   | `verified_chars_per_token`** | Raw track: Verifier-measured chars/token ratio | `4.43` |
-   | `verified_code_blocks`** | Raw track: Verifier-measured code block count | `2` |
+   | `notes` | Observations | `Pro-plan retry: successfully...` |
+   | `output_chars` | Interpreted: Copilot-measured output length | `27890` |
+   | `truncated` | Interpreted: truncation detected | `yes`/`no` |
+   | `truncation_char_num` | Interpreted: character position if truncated | `5857` |
+   | `tokens_est` | Interpreted: estimated token count | `16890` |
+   | `tools_used`** | Raw: requested tool chain | `fetch_webpage -> pylanceRunCodeSnippet` |
+   | `tools_blocked`** | Raw: tools requested but blocked/skipped | `curl`, terminal execution |
+   | `execution_attempts`** | Raw: total tool calls including fallbacks | `3` |
+   | `copilot_reported_output_chars`** | Raw: Copilot-measured output character count | `9876` |
+   | `copilot_reported_truncated`** | Raw: Copilot-measured truncation status | `yes`/`no` |
+   | `copilot_reported_truncation_point`** | Raw: Copilot-measured truncation position | `9876` |
+   | `copilot_reported_tokens_est`** | Raw: Copilot-estimated token count | `2469` |
+   | `copilot_reported_file_size_bytes`** | Raw: Copilot-measured file size in bytes | `4817` |
+   | `copilot_reported_md5_checksum`** | Raw: Copilot-measured MD5 checksum | `abc123...` |
+   | `copilot_reported_lines`** | Raw: Copilot-measured line count | `143` |
+   | `copilot_reported_words`** | Raw: Copilot-measured word count | `564` |
+   | `copilot_reported_code_blocks`** | Raw: Copilot-measured code block count | `2` |
+   | `copilot_reported_table_rows`** | Raw: Copilot-measured table row count | `57` |
+   | `copilot_reported_headers`** | Raw: Copilot-measured header count | `4` |
+   | `verified_file_size_bytes`** | Raw: Verifier-measured file size in bytes | `4817` |
+   | `verified_md5_checksum`** | Raw: Verifier-measured MD5 checksum | `d6ad8451d3778bf3544574...` |
+   | `verified_total_lines`** | Raw: Verifier-measured line count | `143` |
+   | `verified_total_words`** | Raw: Verifier-measured word count | `564` |
+   | `verified_tokens`** | Raw: Verifier-measured token count | `197` |
+   | `verified_chars_per_token`** | Raw: Verifier-measured chars/token ratio | `4.43` |
+   | `verified_code_blocks`** | Raw: Verifier-measured code block count | `2` |
    | `verified_table_rows`** | Raw track: Verifier-measured table row count | `57` |
    | `verified_headers`** | Raw track: Verifier-measured header count | `4` |
 
-   > _\*`vscode-chat` describes an intentionally manual testing process in which the user copy-pastes prompts into the
+   > _\*`vscode-chat` describes an intentionally manual process: user copy-pastes prompts into the
    > Copilot chat window; Copilot has no documented backend web content retrieval mechanism; analysis in the
    > [Friction Note](friction-note.md#fetch_webpage-undocumented)_
 
-   > _\*\*Optional field, raw track only. `copilot_reported` fields capture Copilot-measured values, may reflect execution
-   > tool output or payload estimates; `verify_raw_results.py` script calculates values against saved
-   > `raw_output_{test_id}.txt` files._
-
-   ---
-
-   **Key Hypotheses**:
-
-   - `H1`: Character-based truncation at fixed limit, _~10-100KB?_
-   - `H2`: Token-based truncation, _~2000 tokens?_
-   - `H3`: Structure-aware truncation, respects Markdown boundaries
-   - `H4`: MCP servers override native `vscode-chat` limits*
-   - `H5`: Agent auto-chunks after truncation, requests next chunk automatically
-
-   >*_`H4` not testable through `vscode-chat` alone; analysis in the [Friction Note](friction-note.md)_
+   > _\*\*Optional field, raw track only. `copilot_reported` fields may reflect execution tool output or payload estimates;
+   > `web_content_retrieval_verify_raw_results.py` script calculates values against saved `raw_output_{test_id}.txt` files._
 
    ```bash
    # Log interpreted track result
@@ -147,7 +149,7 @@ cd copilot-web-content-retrieval
    --method vscode-chat \
    --model_selector Auto \
    --model_observed "Raptor mini (Preview)"* \
-   --copilot_version 0.40.1 \
+   --copilot_version "0.40.1-pro" \
    --output_chars 48500 \
    --truncated no \
    --tokens 12000 \
@@ -168,7 +170,7 @@ cd copilot-web-content-retrieval
    --method vscode-chat \
    --model_selector Auto \
    --model_observed "Raptor mini (Preview)" \
-   --copilot_version 0.41.1 \
+   --copilot_version "0.40.1-pro" \
    --copilot_reported_output_chars 9876 \
    --copilot_reported_truncated yes \
    --copilot_reported_truncation_point 9876 \
@@ -199,15 +201,16 @@ cd copilot-web-content-retrieval
    >_Ensure to provide all required flags: `--method`, `--model`, `--copilot-version`,
    ><br>`--output-chars`, `--truncated`, `--tokens`, `--hypothesis`_<br>
    ><br>
-   >_**Raw track only**: consider renaming output text files to capture variance;
-   >upon consistent results, remove files from the project to prevent test contamination between runs_
+   >_**Raw track only**: rename raw output files to capture variance;
+   >if results are consistent, remove files to prevent test contamination between runs_
 
 ---
 
 ## Baseline Testing Path
 
 1. Run **interpreted** track to identify baseline behavioral patterns
-2. Run **raw** track for ground truth measurements — `Auto` routing selects different models across runs, output varies
+2. Run **raw** track for ground truth measurements, verify **interpreted** baseline
+3. Run each test ID a minimum of 5 times/track to capture variance:
 
 | **Test IDs** | **Purpose** | **Key Question** |
 | --- | --- | --- |
@@ -220,8 +223,7 @@ cd copilot-web-content-retrieval
 
 ## Analyzing Results
 
-Examine truncation threshold analysis, method comparison, interpretive vs raw
-track comparisons, hypothesis matching -
+Examine truncation analysis, method and track comparison, hypothesis matching:
 
 ```bash
 # Generate full analysis report
@@ -238,5 +240,5 @@ python web_content_retrieval_results_analyzer.py \
         --csv results/copilot-interpreted/results.csv results/raw/results.csv --full
 ```
 
->_Provide the full relative path to the CSV file when running the analyzer,
-> including the subdirectory: `results/copilot-interpreted/results.csv` or `results/raw/results.csv`_
+>_Provide full relative path, including subdirectory:
+>`results/copilot-interpreted/results.csv` or `results/raw/results.csv`_
