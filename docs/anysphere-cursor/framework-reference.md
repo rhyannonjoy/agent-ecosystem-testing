@@ -74,12 +74,12 @@ cd cursor-web-fetch
    - Open Cursor chat window &rarr; paste the prompt
    - Inspect Cursor's fetch behavior &rarr; examine the agent output
 
-4. **Determine Hypothesis Match**
+4. **Assess Hypotheses**
 
    Before logging test results, assess the run against each hypothesis based on the model’s
    self-reported metrics and tool visibility output:
 
-      | **ID** | **Description** | **Question** |
+   | **ID** | **Description** | **Question** |
    | --- | --- | --- |
    | `H1` | Character-based truncation<br>at fixed limit | _Is there a ceiling at ~10–100 KB?_ |
    | `H2` | Token-based truncation | _Is there a ceiling at ~2,000 tokens?_ |
@@ -88,24 +88,24 @@ cd cursor-web-fetch
    | `H5` | Agentic auto-chunking | _Does the agent fetch chunks automatically,<br>or only when reasoned into it?_ |
 
    >*_`@Web` may route to `mcp_web_fetch` internally; mechanism is agent's choice and
-   >not user-controllable; H4 not testable through `@Web` alone, visit the
+   >not user-controllable; `H4` not testable through `@Web` alone, visit the
    >[Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool)_
 
 5. **Log Results**
 
-   Depending on the track, results stored in
+   Depending on the track, store results in
    `cursor-web-fetch/results/{track}/results.csv` with the following fields:
 
    | Column | Description | Example |
    | --- | --- | --- |
    | `test_id` | Test identifier | `BL-1`, `SC-2`, `EC-1` |
-   | `timestamp` | ISO 8601 timestamp | `2026-03-16T17:05:02.998376` |
+   | `timestamp` | `ISO 8601` timestamp | `2026-03-16T17:05:02.998376` |
    | `date` | Date tested | `2026-03-16` |
    | `url` | Full URL tested | `https://www.mongodb.com/docs...` |
    | `method` | Fetch method | `@Web`* |
    | `model`*** | Model used | `Auto` - Cursor's agent router |
    | `input_est_chars` | Expected input size | `87040` |
-   | `output_chars` | Actual output length, chars via `wc -m` | `27890` |
+   | `output_chars` | Character count via `wc -m` | `27890` |
    | `truncated` | Truncation detected | `yes`/`no` |
    | `truncation_char_num` | Character position if truncated | `5857` |
    | `tokens_est` | Token estimation or<br>count via `tiktoken` | `16890` |
@@ -113,7 +113,7 @@ cd cursor-web-fetch
    | `notes` | Observations and findings | `Pro-plan retry: successfully...` |
    | `track` | Test track | `interpreted`/`raw` |
    | `cursor_version` | Cursor IDE version | `2.6.19`, `2.6.19-pro` |
-   | `file_size_bytes`** | Exact file size via `ls -l` | `28158` |
+   | `file_size_bytes`** | File size calculation `ls -l` | `28158` |
    | `md5_checksum`** | MD5 of saved output file | `d542d945f2b5dc15c5254d...` |
    | `total_lines`** | Line count | `979` |
    | `total_words`** | Word count | `4871` |
@@ -168,15 +168,18 @@ cd cursor-web-fetch
    ```
 
    >_Ensure to provide all required flags: `--method`, `--model`, `--cursor-version`,
-   ><br>`--output-chars`, `--truncated`, `--tokens`, `--hypothesis`_
+   ><br>`--output-chars`, `--truncated`, `--tokens`, `--hypothesis`_<br>
+   <br>
+   >_**Raw track only**: rename raw output files to capture variance;
+   >if results are consistent, remove files to prevent test contamination between runs_
 
 ---
 
 ## Baseline Testing Path
 
 1. Run **interpreted** track to identify baseline behavioral patterns
-2. Run **raw** track for ground truth measurements and verification of **interpreted** baseline
-3. Run each test ID a minimum of 5 times to capture variance on both tracks:
+2. Run **raw** track for ground truth measurements, verify **interpreted** baseline
+3. Run each test ID a minimum of 5 times/track to capture variance:
 
 | **Test IDs** | **Purpose** | **Key Question** |
 | --- | --- | --- |
@@ -196,8 +199,7 @@ cd cursor-web-fetch
 
 ## Analyzing Results
 
-Examine truncation threshold analysis, method comparison, interpretive vs raw
-track comparisons, hypothesis matching -
+Review truncation analysis, method and track comparisons, hypothesis matching:
 
 ```bash
 # Generate full analysis report
@@ -210,5 +212,5 @@ python web_fetch_results_analyzer.py --csv results.csv --summary
 python web_fetch_results_analyzer.py --csv results.csv --method "@Web"
 ```
 
->_Provide the full relative path to the CSV file when running the analyzer,
-> including the subdirectory: `results/cursor-interpreted/results.csv` or `results/raw/results.csv`_
+>_Provide full relative path, including subdirectory:<br>
+>`results/cursor-interpreted/results.csv` or `results/raw/results.csv`_

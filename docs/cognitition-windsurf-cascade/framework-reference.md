@@ -77,7 +77,7 @@ cd windsurf-cascade-web-search
    - Open Cascade chat window &rarr; paste the prompt
    - Inspect Cascade's web search behavior &rarr; examine agent output
 
-4. **Determine Hypothesis Match**
+4. **Assess Hypotheses**
 
    Before logging test results, assess the run against each hypothesis based on
    the model's self-reported metrics and tool visibility output:
@@ -111,24 +111,24 @@ cd windsurf-cascade-web-search
    | **Column** | **Description** | **Example** |
    | --- | --- | --- |
    | `test_id` | Test identifier | `BL-1`, `SC-2`, `EC-1` |
-   | `timestamp` | ISO 8601 format | `2026-03-16T17:05:02.998376` |
+   | `timestamp` | `ISO 8601` format | `2026-03-16T17:05:02.998376` |
    | `date` | Date tested | `2026-03-16` |
    | `url` | Full URL tested | `https://www.mongodb.com/docs...` |
    | `track` | Test track | `interpreted`, `raw`, `explicit` |
    | `method` | Retrieval method | `cascade-implicit`*,<br>`cascade-explicit`* |
    | `model_selector` | Model selector setting | `Hybrid Arena` |
    | `model_observed` | Model invoked | `SWE-1.5`, `Claude Sonnet 4.5` |
-   | `approval_required` | Whether fetch approval was prompted | `yes`/`no`/`unknown` |
-   | `pagination_observed` | Whether `view_content_chunk` invoked | `yes-auto`/`yes-prompted`/`no`/`unknown` |
+   | `approval_required` | Fetch approval prompted? | `yes`/`no`/`unknown` |
+   | `pagination_observed` | `view_content_chunk` invoked? | `yes-auto`/`yes-prompted`/`no`/`unknown` |
    | `input_est_chars` | Expected input size in characters | `87040` |
    | `hypothesis_match` | Hypothesis success/failure | `H1-no`, `H2-yes`, `H3-partial` |
-   | `windsurf_version` | Windsurf/Cascade version | `1.9600.40-pro` |
+   | `windsurf_version` | Windsurf-Cascade version | `1.9600.40-pro` |
    | `notes` | Observations | `Auto-paginated...` |
    | `output_chars` | Interpreted/explicit: Cascade-measured output length | `27890` |
    | `truncated` | Interpreted/explicit: truncation detected | `yes`/`no` |
    | `truncation_char_num` | Interpreted/explicit: character position if truncated | `5857` |
    | `tokens_est` | Interpreted/explicit: estimated token count | `16890` |
-   | `tools_used`** | Raw: observed tool chain |`read_url_content, view_content_chunk` |
+   | `tools_used`** | Raw: observed<br>tool chain |`read_url_content, view_content_chunk` |
    | `tools_blocked`** | Raw: tools requested but blocked/skipped | `search_web` |
    | `execution_attempts`** | Raw: total tool calls including fallbacks | `3` |
    | `cascade_reported_output_chars`** | Raw: Cascade-measured output character count | `9876` |
@@ -164,28 +164,26 @@ cd windsurf-cascade-web-search
 
 1. Run **interpreted** track to identify baseline behavioral patterns
 2. Run **explicit** track to isolate `@web` directive effect against **interpreted** baseline
-3. Run **raw** track for ground truth measurements and verfication of previous tracks
-4. Run test a minimum of **5 times** to capture variance
+3. Run **raw** track for ground truth measurements, verify previous tracks
+4. Run test a minimum of 5 times/track to capture variance:
 
 | **Test IDs** | **Purpose** | **Key Question** |
 | --- | --- | --- |
-| `BL-1`<br>`BL-2` | Baseline truncation threshold on small pages | _What is the interpreted vs explicit delta?_ |
-| `SC-2` | Code blocks,<br>HTML-to-Markdown conversion | _How does `read_url_content` handle<br>code structure?_ |
+| `BL-1`<br>`BL-2` | Baseline truncation threshold<br>on small pages | _What is the interpreted vs explicit delta?_ |
+| `SC-2` | Code blocks,<br>HTML-to-Markdown conversion | _How does `read_url_content`<br> handle code structure?_ |
 | `OP-4` | Auto-pagination<br>hypothesis | _Does `view_content_chunk` invoke<br>automatically via `DocumentId`?_ |
 | `BL-3` | Hard ceiling | _What is the absolute output limit<br>across `read_url_content` runs?_ |
 | `SC-1`<br>`SC-3`<br>`SC-4` | Structured content | _Does truncation respect<br>Markdown boundaries?_ |
 | `EC-1`<br>`EC-3`<br>`EC-6` | Edge cases | _What are the failure modes and<br>approval-gating edge behaviors?_ |
 
->_**Raw track only**: output content saved as `raw_output_{test_id}.txt` - consider renaming files
-> to capture variance; upon consistent results, remove files from the project to prevent test
->contamination between runs_
+>_**Raw track only**: rename raw output files to capture variance;
+>if results are consistent, remove files to prevent test contamination between runs_
 
 ---
 
 ## Analyzing Results
 
-Examine truncation analysis, implicit vs explicit `@web` use, three-track
-comparison, approval-gating behavior, auto-pagination behavior, and hypothesis matching —
+Examine truncation analysis, method and track comparison, hypothesis matching:
 
 ```bash
 # Single track — full analysis or summary
@@ -209,6 +207,5 @@ python web_search_results_analyzer.py \
          results/explicit/results.csv --full
 ```
 
->_Provide the full relative path to the CSV file when running the analyzer,
->including the subdirectory: `results/cascade-interpreted/results.csv`,
+>_Provide full relative path, including subdirectory: `results/cascade-interpreted/results.csv`,
 >`results/raw/results.csv`, or `results/explicit/results.csv`_
