@@ -15,6 +15,7 @@ parent: Cognition Windsurf Cascade
 
 - [Arena Mode: Unit of Observation](#arena-mode-unit-of-observation)
 - [Mixed-Format Source Misidentified — Interpreted](#mixed-format-source-misidentified---interpreted)
+- [`read_url_content` Internal URL Rewriting — Interpreted](#read_url_content-internal-url-rewriting--interpreted)
 - [Truncation Taxonomy - Interpreted Track](#truncation-taxonomy---interpreted-track)
 - [Unverified Size as Truncation Signal - Interpreted](#unverified-size-priors-as-truncation-signal---interpreted)
 
@@ -101,6 +102,35 @@ whether the flagged anomaly is a property of the source document. For `BL-2`, di
 confirms the mixed format is intentional and the document is complete. Where source inspection is not feasible, apply
 additional skepticism to formatting attributions that appear consistently across multiple models on the same URL —
 consistency is more characteristic of a stable source property than of stochastic toolchain behavior.
+
+---
+
+## `read_url_content` Internal URL Rewriting — Interpreted
+
+`SC-2` tests truncation behavior on a valid, live endpoint, an
+[Anthropic Messages API page](https://docs.anthropic.com/en/api/messages). All runs failed to retrieve the target content. These weren't retrieval failures, network access issues, or dead URLs, but they uncovered a `read_url_content` bug, in which the tool silently rewrites the URL before executing the fetch. The rewritten URL redirects to `https://platform.claude.com/docs/llms-full.txt` and returned a `404`. The requested path `/en/api/messages` is never fetched. No model received the target content because no model was ever issued a request for it. `read_url_content` substituted a different resource before the network call was made,
+making most of the hypotheses untestable. The five models' error output meaningfully diverged -
+
+| **Session** | **Model** | **Tools Called**| **Fallback Behavior** | **Output** |
+|---|---|---|---|---|---|
+| 1 | `Codex` | `read_url_content` ×2 | Followed redirect, <br>reported error verbatim | 164 chars |
+| 2 | `Sonnet` | `read_url_content` ×2 | Acknowledged failure explicitly | 0 chars |
+| 3 | `GPT` | `read_url_content` ×2 | Surfaced `CORTEX_STEP_TYPE_READ_URL_CONTENT` | 0 chars |
+| 4 | `Opus` | `read_url_content` ×3 | Third attempt `platform.claude.com`; received `404` HTML | ~35–40 KB |
+| 5 | `SWE` | `read_url_content` ×3 <br>`search_web` ×1 | Unique `search_web` call;<br>identified URL rewriting as root cause | 0 chars |
+
+`SWE-1.6` is the only model across all five runs, and the only model across 14 interpreted track runs to invoke `search_web`. After two failed fetch attempts, the output included reasoning that led to an alternative retrieval strategy rather than stopping. While Cognition's models have consistently performed a type of most-confident, most-wrong pattern, during this test run, this case revealed possible trained familiarity to produce the clearest root cause diagnosis of any session:
+
+> _"The `read_url_content` tool appears to have an internal URL rewriting issue
+> that transforms `https://docs.anthropic.com/en/api/messages` into
+> `https://docs.anthropic.com/llms-full.txt`, which then redirects to a
+> non-existent endpoint."_
+
+`Claude Opus 4.6` made a third fetch attempt against the original URL and received a response, which wasn't the target content, but a complete `404` error page rendered as `Next.js` HTML. While not useful for hypotheses assessment, it did confirm that `read_url_content` can return substantial payloads under this error condition, and that the tool's ceiling wasn't reached at this size.
+
+`GPT-4.5` surfaced Cascade's undocumented `CORTEX_STEP_TYPE_READ_URL_CONTENT` - which suggests that tool result metadata is passed through to the model context without sanitization in at least some error conditions.
+
+`SC-2` doesn't require a source URL change. A rerun after a Windsurf update or anti-redirect prompt may yield different results. Treat the rewriting behavior as a testable property of the tool, not a permanent constraint on the URL.
 
 ---
 
