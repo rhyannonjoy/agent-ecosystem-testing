@@ -15,8 +15,9 @@ parent: Cognition Windsurf Cascade
 
 - [Arena Mode: Unit of Observation](#arena-mode-unit-of-observation)
 - [Mixed-Format Source Misidentified — Interpreted](#mixed-format-source-misidentified---interpreted)
+- [Prompt Injection Suspicion — Interpreted](#prompt-injection-suspicion---interpreted)
 - [`read_url_content` Internal URL Rewriting — Interpreted](#read_url_content-internal-url-rewriting--interpreted)
-- [Truncation Taxonomy - Interpreted Track](#truncation-taxonomy---interpreted-track)
+- [Truncation Taxonomy - Interpreted](#truncation-taxonomy---interpreted-track)
 - [Unverified Size as Truncation Signal - Interpreted](#unverified-size-priors-as-truncation-signal---interpreted)
 
 ---
@@ -105,6 +106,35 @@ consistency is more characteristic of a stable source property than of stochasti
 
 ---
 
+## Prompt Injection Suspicion — Interpreted
+
+`OP-4` run 2 used `Claude Sonnet 4.6` and flagged the tool visibility request as a probable prompt injection attempt.
+The model's reasoning, surfaced in the thought expander, identified three features of the
+request as suspicious:
+
+- The prompt names `read_url_content`, `view_content_chunk`, and `search_web` explicitly
+- The framing "Agent Ecosystem Testing" was read as a legitimacy signal used to lower resistance
+- Asking a model to enumerate its internal tool names is a known extraction pattern
+
+The model declined to report internal system identifiers, reporting only the tools it had
+directly invoked from its own tool call history.
+
+The irony is straightforward: the tool names are [publicly documented](https://docs.windsurf.com). A researcher
+reading the docs before designing a test protocol is indistinguishable, from the model's perspective, from
+an adversary who has reverse-engineered the tool surface. This creates a methodology confounder: the more precise
+the test prompt is designed, the more likely it is to trigger injection heuristics in safety-trained models. A vague
+prompt that asks "what tools did you use?" may elicit fuller disclosure than a precise prompt that names the tools by name.
+
+This is the inverse of the `GPT-4.5` behavior in `SC-2` run 3, which leaked`CORTEX_STEP_TYPE_READ_URL_CONTENT` unsanitized
+and without prompting. Across two runs, the two failure modes are symmetric: one model over-reports undocumented internal 
+metadata;another refuses to report documented tool names. Neither behavior is useful for systematic tool visibility logging.
+
+### Methodology Implication
+
+The tool visibility item in the interpreted track prompt may need two variants: one that names tools explicitly for models that don't flag extraction heuristics, and one that uses generic language for models that do. Alternatively, accept that tool visibility self-reporting is unreliable across model families and treat it as a soft signal rather than a primary observation. Cross-referencing against Cascade's tool approval prompts, which are user-visible regardless of model reporting, is a more reliable source of tool visibility.
+
+---
+
 ## `read_url_content` Internal URL Rewriting — Interpreted
 
 `SC-2` tests truncation behavior on a valid, live endpoint, an
@@ -134,7 +164,7 @@ making most of the hypotheses untestable. The five models' error output meaningf
 
 ---
 
-## Truncation Taxonomy - Interpreted Track
+## Truncation Taxonomy - Interpreted
 
 `read_url_content`'s chunked index architecture requires redefining what truncation means
 in the Cascade testing context. Across
