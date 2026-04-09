@@ -131,7 +131,11 @@ metadata;another refuses to report documented tool names. Neither behavior is us
 
 ### Methodology Implication
 
-The tool visibility item in the interpreted track prompt may need two variants: one that names tools explicitly for models that don't flag extraction heuristics, and one that uses generic language for models that do. Alternatively, accept that tool visibility self-reporting is unreliable across model families and treat it as a soft signal rather than a primary observation. Cross-referencing against Cascade's tool approval prompts, which are user-visible regardless of model reporting, is a more reliable source of tool visibility.
+The tool visibility item in the interpreted track prompt may need two variants: one that names tools explicitly for models that don't flag extraction heuristics, and one that uses generic language for models that do. Alternatively, accept that tool visibility self-reporting is unreliable across model families and treat it as a soft signal rather than a primary observation. Cross-referencing against Cascade's tool approval prompts, which are user-visible regardless of model reporting, is a more reliable source of tool visibility. The suspicion is also structurally unfalsifiable from the model's perspective: a prompt
+that accurately describes the tool's behavior is indistinguishable from one that was constructed with adversarial foreknowledge of it.
+
+`OP-4` run 3 used `GPT-4.5` and adds a counterpoint. Its internal reasoning independently arrived at the same architectural description the prompt used, that `read_url_content` returns chunk metadata rather than page body, that character counts from the index response aren't meaningful, and that exact counts are unavailable due to tool limitations, by reasoning from the tool response itself, not from prompt-supplied framing. The knowledge `Sonnet` flagged as suspicious in the prompt is recoverable from the tool output by a different model's analysis; this knowledge isn't injected, but also derivable. A model's analysis of the tool response may arrive at the same
+terms the prompt used, because those terms accurately describe what the tool does.
 
 ---
 
@@ -178,6 +182,7 @@ fifth phenomenon that don't map cleanly onto any of the three Copilot cases.
 | --- | --- | --- | --- |
 | **Chunked index,<br>partial chunk<br>retrieval** | _No_, index returned;<br>most chunks<br>never fetched | _No_, agent reports what<br> it sampled | Indirectly via output size<br>vs expected |
 | **Chunked index, full chunk retrieval with per-chunk display truncation** | _Structurally yes_, but middle of most chunks hidden | _Yes_ — agent surfaces truncation notices<br>per chunk | _No_, hidden bytes aren't in any<br>saved artifact |
+| **Empty chunk manifest,<br>blind sampling** | _No_, index complete but<br>summaries uninformative | _No_, agent reports what<br>it sampled | _No_, no metadata to<br>cross-reference against |
 | **Retrieval-layer architectural<br>excerpting** | _No_, content filtered before delivery | _No_, agent sees what<br>the tool delivered | Indirectly via truncation indicators and size vs expected |
 | **Chat rendering<br>truncation** | _Yes_, full bytes transferred<br>and saved | _No_, file complete | _No_, requires comparing chat output to verified file |
 
@@ -273,17 +278,30 @@ Whether this reflects model capability, context window size, or prompt interpret
 differences isn't resolvable from the `BL-1` data alone, but the divergence means `H5`
 results aren't uniform across models on the same URL and prompt.
 
-**Hypothesis Impact**:
+### Empty Chunk Manifest — Blind Sampling
 
-- `H1` — _no_, actual content ~220–240 KB, far exceeding any plausible fixed character
-  ceiling; the apparent size difference from expected is a rendering artifact, not a
-  measurement of the tool's limit
-- `H2` — _no_ ~55,000–65,000 tokens across all 54 chunks rules out a ~2,000 token ceiling
-- `H3` — _indeterminate_, content is not clean Markdown; chunks 49–53 show structural
-  header metadata suggesting partial structure-awareness, but the bulk of the content is
-  raw CSS and navigation HTML where boundary-awareness can't be assessed
-- `H5` — _yes_, with caveat, auto-pagination confirmed for `Claude Opus 4.6`
-  only; _not_ observed for `Claude Sonnet 4.6` or `GPT-5.3-Codex` on identical prompt and URL
+`OP-4` run 4 used `Claude Opus 4.6` and `read_url_content` returned an index of 53 chunk positions,
+but all chunk summaries were uniformly empty, `" "` or `""`. The response is structurally complete —
+all positions are present, but not navigationally helpful. A model attempting to retrieve only article
+body content has no metadata to select against.
+
+This collapses the available retrieval strategies to two: sample blind, accepting that any chunk may
+contain CSS or navigation rather than tutorial content, or retrieve all 53 chunks exhaustively.
+`Opus` output stated that an exhaustive retrieval wasn't worth it, given the signal-to-noise ratio
+observed in sampled chunks; a correct assessment, but one that leaves the article body
+largely unread. In addition, `Opus` reported that the tool scraped the full rendered DOM, rather than
+the article body, so the chunk boundaries cut across CSS class definitions and navigation markup rather
+than document sections. According to `Opus`, there's no article structure for the tools to summarize;
+this is a parsing/extraction failure at the tool layer, not a size-based truncation issue, and likely not
+model behavior that a prompt can correct. Architectural truncation impacts the hypotheses in different
+ways:
+
+| **Hypothesis** | **Verdict** | **Basis** |
+|---|---|---|
+| `H1` Character ceiling |  _No_ | ~220–240 KB actual content far exceeds any plausible fixed ceiling; apparent size variance is a rendering artifact, not a tool limit |
+| `H2` Token ceiling | _No_ | ~55,000–65,000 tokens across all 54 chunks rules out a ~2,000 token ceiling |
+| `H3` Structure-aware truncation | _Indeterminate_ | Chunks can show `MARKDOWN_NODE_TYPE_HEADER` metadata suggesting partial structure-awareness, but bulk content raw CSS/nav HTML, boundary behavior can't be assessed |
+| `H5` Auto-pagination | _Partial_ | Confirmed for `Claude Opus 4.6` only; not observed for `Claude Sonnet 4.6` or `GPT-5.3-Codex` on identical prompt/URL |
 
 >_Open Question: is full chunk retrieval model-dependent, prompt-dependent, or chunk-count-dependent?
 > Would running the same prompt with a smaller chunk count cause `Claude Sonnet 4.6` to attempt full retrieval?
