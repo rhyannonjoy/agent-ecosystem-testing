@@ -79,7 +79,6 @@ cd copilot-web-content-retrieval
    Before logging test results, assess the run against each hypothesis based on the model’s
    self-reported metrics and tool visibility output:
 
-
    | **ID** | **Description** | **Question** |
    | --- | --- | --- |
    | `H1` | Character-based truncation<br>at fixed limit | _Is there a ceiling at ~10–100 KB?_ |
