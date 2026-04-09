@@ -14,7 +14,9 @@ parent: Cognition Windsurf Cascade
 ---
 
 - [Arena Mode: Unit of Observation](#arena-mode-unit-of-observation)
+- [Mixed-Format Source Misidentified — Interpreted](#mixed-format-source-misidentified---interpreted)
 - [Truncation Taxonomy - Interpreted Track](#truncation-taxonomy---interpreted-track)
+- [Unverified Size as Truncation Signal - Interpreted](#unverified-size-priors-as-truncation-signal---interpreted)
 
 ---
 
@@ -54,6 +56,51 @@ artifact bleed before treating all four slots as fully independent replicates.
 >_Open Question: does Cascade's per-slot worktree isolation hold under sequential
 >approval in practice, or does some shared session state persist across slots? The `BL-1` interpreted track
 >output is the first opportunity to check for cross-slot behavioral similarity that would suggest shared context._
+
+---
+
+## Mixed-Format Source Misidentified — Interpreted 
+
+The `BL-2` [source document](https://www.mongodb.com/docs/manual/reference/change-events/create.md)
+is a mixed-format file: the page structure and prose are written in Markdown, but the field description
+table is written in raw HTML. This is a valid and complete document. Across all five `BL-2` runs, models
+didn't recognize it as such. The mixed format was read as evidence of parsing failure, toolchain corruption,
+or incomplete retrieval rather than as an intentional authoring choice. Throughout runs, models consistently
+misdiagnosed this as a retrieval issue rather than a source format choice:
+
+| **Artifact** | **Model Attribution** | **Actual Cause** |
+|---|---|---|
+| HTML table in `.md` source | Toolchain failed to convert page to Markdown | Table is authored in HTML in the source; no conversion occurred or was expected |
+| `nsType` enum values absent | Stripped during HTML-to-text conversion | Values are CMS-injected at render time from a separate data source; absent in the `.md` source by design |
+| `ce-create##` prefix | Toolchain metadata injection or parsing anomaly | Present verbatim in the source as a CMS publishing artifact |
+
+This is a misidentification failure, not a retrieval failure. The document is complete; the model's assessment
+of what a complete document should look like did not account for mixed-format sources.
+
+The [truncation taxonomy](#truncation-taxonomy---interpreted-track) captures cases where retrieval delivers
+less than the source contains. This phenomenon is different in kind: retrieval delivers the source faithfully,
+but the model doesn't recognize the source format as valid and treats its properties as retrieval artifacts.
+The gap is not in the retrieval — it is in the model's artifact type identification.
+
+Mixed-format source misidentification introduces a confound for any hypothesis that relies on model self-reported
+truncation assessments as ground truth. A model reporting "content appears truncated" or "table structure is broken"
+may be accurately describing a retrieval artifact, or may be misidentifying a property of a valid mixed-format source.
+The observable evidence is identical from the model's perspective.
+
+Cross-referencing model truncation reports against the raw source is necessary to distinguish these cases. For `BL-2`,
+direct inspection of the `.md` source confirms the document is complete and the mixed format is intentional.
+
+### Methodology Implication
+
+The interpreted track captures model self-reporting as-is — a model attributing the HTML table or absent enum values
+to toolchain failure is a valid interpreted track data point, not a logging error. The analysis layer is where source
+inspection is needed.
+
+Before treating a formatting-based truncation attribution as evidence for or against a retrieval hypothesis, check
+whether the flagged anomaly is a property of the source document. For `BL-2`, direct inspection of the `.md` source
+confirms the mixed format is intentional and the document is complete. Where source inspection is not feasible, apply
+additional skepticism to formatting attributions that appear consistently across multiple models on the same URL —
+consistency is more characteristic of a stable source property than of stochastic toolchain behavior.
 
 ---
 
@@ -181,3 +228,36 @@ results aren't uniform across models on the same URL and prompt.
 >_Open Question: is full chunk retrieval model-dependent, prompt-dependent, or chunk-count-dependent?
 > Would running the same prompt with a smaller chunk count cause `Claude Sonnet 4.6` to attempt full retrieval?
 > Or is truncation a fixed display constraint regardless of call parameters?_
+
+---
+
+## Unverified Size as Truncation Signal - Interpreted
+
+`SWE-1.6` reported receiving "~4.8KB, 24% of expected ~20KB" and flagged this as evidence
+that the fetch was incomplete. The ~20KB expectation wasn't derived from a measurement —
+`search_web` wasn't invoked and no external size reference was retrieved. `BL-2`'s prompt
+~20 KB figure likely originates from earlier testing of the same URL on different platforms —
+Copilot or Cursor runs where `fetch_webpage` retrieved the fully rendered page including
+navigation, sidebar, and inline CSS. That figure was a real measurement, but of a different
+artifact than what `read_url_content` delivers. Alternatively, the source `.md` file may have
+changed in size between testing sessions. It's possible that the original estimate was
+miscalculated. In either case, neither `SWE-1.6` nor `GPT-5.4 Low` verified the size
+expectation before using it as a truncation signal.
+
+The failure is metacognitive: the model doesn't recognize that the size expectation is
+an uncertain input that should be verified before being promoted to a diagnostic
+measurement — and it has a tool available to do exactly that. The irony is structural: the
+test is designed to observe retrieval fidelity, the model responds to apparent retrieval
+incompleteness by not retrieving. `search_web` was available in all four `BL-2` runs and
+unused in all four. If a model is uncertain enough about expected content to flag a 76% shortfall,
+that uncertainty is precisely the condition under which a verification fetch would be warranted.
+
+### Implication for Interpreted Track Analysis
+
+When a model reports a specific size expectation, log whether it was derived from a retrieval
+in the current run or carried in from elsewhere. An unverified size estimate used as a truncation
+signal should be flagged as a diagnostic error regardless of whether the truncation conclusion
+happens to be correct. The behavior of interest is not whether the model reached the right answer,
+but whether it recognized the difference between a verified measurement and an unverified estimate.
+
+---
