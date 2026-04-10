@@ -16,6 +16,7 @@ parent: Cognition Windsurf Cascade
 - [Arena Mode: Unit of Observation](#arena-mode-unit-of-observation)
 - [Mixed-Format Source Misidentified — Interpreted](#mixed-format-source-misidentified---interpreted)
 - [Prompt Injection Suspicion — Interpreted](#prompt-injection-suspicion---interpreted)
+- [`read_url_content` — Fetch Architecture and Parsing Limits](#read_url_content---fetch-architecture-and-parsing-limits)
 - [`read_url_content` Internal URL Rewriting — Interpreted](#read_url_content-internal-url-rewriting--interpreted)
 - [Truncation Taxonomy - Interpreted](#truncation-taxonomy---interpreted-track)
 - [Unverified Size as Truncation Signal - Interpreted](#unverified-size-priors-as-truncation-signal---interpreted)
@@ -136,6 +137,57 @@ that accurately describes the tool's behavior is indistinguishable from one that
 
 `OP-4` run 3 used `GPT-4.5` and adds a counterpoint. Its internal reasoning independently arrived at the same architectural description the prompt used, that `read_url_content` returns chunk metadata rather than page body, that character counts from the index response aren't meaningful, and that exact counts are unavailable due to tool limitations, by reasoning from the tool response itself, not from prompt-supplied framing. The knowledge `Sonnet` flagged as suspicious in the prompt is recoverable from the tool output by a different model's analysis; this knowledge isn't injected, but also derivable. A model's analysis of the tool response may arrive at the same
 terms the prompt used, because those terms accurately describe what the tool does.
+
+---
+
+## `read_url_content` — Fetch Architecture and Parsing Limits
+
+[Windsurf's documentation](https://docs.windsurf.com/windsurf/cascade/web-search#reading-pages)
+describes `read_url_content`'s retrieval behavior as intentionally selective:
+
+> _"We break pages up into multiple chunks, very similar to how a human would read a page:
+> for a long page we skim to the section we want then read the text that's relevant.
+> This is how Cascade operates as well."_
+
+Targeted skimming is a relatable pattern. Human readers often reference documentation rather
+than read it from start to finish. Informed by a precise prompt, a model navigates to the relevant
+section, reads it, and skips the rest. It'a reasonable architectural design for long pages where
+a full retrieval would be token-expensive and noise-heavy.
+
+The gap between intent and observed behavior is the chunk index quality. Targeted skimming requires
+navigational signal: a human skimming a page uses headers, section titles, and visual hierarchy to
+locate the relevant section. `read_url_content` provides a chunk index to serve this role, but across
+all five `OP-4` runs the index returned uniformly empty summaries — `" "` or `""` for all 53 positions.
+Without populated summaries, chunk selection is blind. The tool's skimming is structurally identical to
+random sampling: any chunk is as likely to contain CSS class definitions as tutorial prose, and there's
+no metadata to distinguish them before fetching. The same documentation acknowledges this directly:
+
+> _"It's worth noting that not all pages can be parsed. We are actively working on
+> improving the quality of our website reading."_
+
+The [MongoDB Atlas Search tutorial](https://www.mongodb.com/docs/atlas/atlas-search/tutorial/) is a clean
+instance of this known failure mode. The tool scraped the full rendered DOM rather than the article body,
+so chunk boundaries cut across LeafyGreen CSS definitions and navigation markup rather than document
+sections. Empty summaries are a consequence: there is no recoverable article structure to summarize. As
+a documentation gap Windsurf acknowledges, this is an expected failure mode for certain page types and
+shifts how it should be characterized as a worst case, but not a testing anomaly.
+
+The name `read_url_content` isn't misleading, it's accurate to the intent. What it actually fetches on the
+first call is chunk metadata, not content. Content requires subsequent `view_content_chunk` calls, and what
+those return depends entirely on whether the page's DOM parsed into recoverable article structure. For
+well-structured pages this may work as documented. For CSS-heavy rendered pages, the fetch succeeds, but
+the content is absent. While this complicates hypotheses assessment, as this tool limitation doesn't
+guarantee testability, which doesn't invalidate the test design. 
+
+In the case of empty summaries, the architecture gets the cost savings of selective retrieval without delivering
+the navigational benefit that would justify it: agent doesn't read the whole page and can't target what it does
+read. If populated summaries are required to satisfy the "human skim" behavior documented, then empty summaries
+return blind sampling that's invisible to the user and, based on `OP-4` runs, sometimes invisible to the models
+themselves. A model that sampled 2 of 53 chunks didn't report reading 4% of the page — it reported on what it
+found. There's no externally visible signal distinguishing "answered from retrieved content" from "answered from
+priors, fetch call in the log for grounding."  Logging which URLs produce readable content verses empty summaries
+is useful data, characterizing the tool's current parsing envelope and tracking whether its improves across
+Windsurf versions.
 
 ---
 
