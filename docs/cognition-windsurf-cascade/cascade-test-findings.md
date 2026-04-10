@@ -150,3 +150,96 @@ throughout.
 
 ---
 
+## `SC-2` Summary
+
+### Test Conditions
+
+| | **SC-2** |
+|---|---|
+| URL | Anthropic Messages API documentation |
+| Chunks returned | 0 (fetch failed) |
+| Track | Interpreted |
+| Runs | 5 |
+
+**All five runs failed.** `read_url_content` internally rewrites `docs.anthropic.com/en/api/messages`
+to `docs.anthropic.com/llms-full.txt`, which redirects to a dead endpoint. No model received the target
+content. This is a tool-layer bug, not a model behavior. All hypotheses are untestable against this URL
+until the rewriting behavior is resolved.
+
+---
+
+## `OP-4` Summary
+
+### Test Conditions
+
+| | **OP-4** |
+|---|---|
+| URL | MongoDB Atlas Search tutorial (JavaScript-rendered, CSS-heavy) |
+| Chunks returned | 53 |
+| Track | Interpreted |
+| Runs | 5 |
+
+---
+
+### `H1` — Character-based truncation at fixed ceiling
+
+**Indeterminate.** Sampled content across runs ranged from ~2,100–22,100 chars depending on chunks selected;
+extrapolated full-page estimates of ~80,000–210,000 chars. No ceiling was hit. As with `BL-1`, output chars
+reflect sampling decisions, not a tool limit.
+
+---
+
+### `H2` — Token-based truncation at ~2,000 tokens
+
+**Rejected.** Extrapolated token estimates ranged from ~20,000–70,000 across all 53 chunks. No run produced
+evidence of a 2,000 token ceiling.
+
+---
+
+### `H3` — Structure-aware truncation at Markdown boundaries
+
+**Indeterminate.** All five runs retrieved predominantly raw CSS and navigation chrome. `MARKDOWN_NODE_TYPE_HEADER`
+metadata appeared in some chunk results, suggesting partial structural awareness at the tool layer, but no clean
+prose content was returned against which boundary behavior could be assessed.
+
+---
+
+### `H4` — `@web` directive changes retrieval behavior
+
+**Untested.** `search_web` not invoked in any run.
+
+---
+
+### `H5` — `view_content_chunk` auto-paginates without explicit prompting
+
+**Partial — sampling without auto-pagination.** All five runs invoked `view_content_chunk` without explicit prompting,
+but no run attempted sequential retrieval of all 53 chunks. Sampling strategies varied by model:
+
+| Model | Positions sampled | Strategy |
+|---|---|---|
+| `GPT-5.3-Codex` | 0, 52 | Endpoint sampling |
+| `Claude Sonnet 4.6` | 0, 52 | Endpoint sampling |
+| `GPT-4.5 Low Thinking` | 0, 52 | Endpoint sampling |
+| `Claude Opus 4.6` | 0, 1, 25, 50, 51, 52 | Distributed sampling |
+| `Kimi K2.5` | 0, 10, 15, 20, 25, 30, 35, 40, 45, 50, 52 | Broadest sampling, 11 chunks |
+
+---
+
+### Emergent Findings
+
+**`read_url_content` has at least two retrieval modes.** `OP-4` triggered an outline-first path with a latency warning
+("this is taking a long time"); `BL` runs went directly to a chunk index. The threshold condition — whether page size,
+render complexity, or something else — is unconfirmed.
+
+**Chunk index summaries were uniformly empty.** All 53 positions returned blank summaries, collapsing targeted skimming
+to blind sampling. The documented "human skim" behavior requires populated summaries to function as designed.
+
+**No tutorial content was retrieved in any run.** Sampled chunks across all five models contained CSS class definitions,
+navigation chrome, and link fragments. No tutorial steps, code examples, or plain-language prose appeared in any sampled
+position. Whether article body content exists in un-sampled positions is unconfirmed.
+
+**Prompt injection suspicion interfered with tool visibility reporting in one run.** `Claude Sonnet 4.6` flagged the tool
+visibility item as a probable extraction attempt and declined to report tool names, while independently reasoning correctly
+about `read_url_content`'s architecture from the tool response itself.
+
+---

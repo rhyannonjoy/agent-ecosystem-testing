@@ -171,6 +171,7 @@ cd windsurf-cascade-web-search
 | --- | --- | --- |
 | `BL-1`<br>`BL-2` | Baseline truncation threshold<br>on small pages | _What is the interpreted vs explicit delta?_ |
 | `SC-2` | Code blocks,<br>HTML-to-Markdown conversion | _How does `read_url_content`<br> handle code structure?_ |
+| `OP-1` | Fragment identifier navigation | _Does Cascade jump to specific section via URL fragment?_ |
 | `OP-4` | Auto-pagination<br>hypothesis | _Does `view_content_chunk` invoke<br>automatically via `DocumentId`?_ |
 | `BL-3` | Hard ceiling | _What is the absolute output limit<br>across `read_url_content` runs?_ |
 | `SC-1`<br>`SC-3`<br>`SC-4` | Structured content | _Does truncation respect<br>Markdown boundaries?_ |

@@ -15,8 +15,10 @@ parent: Cognition Windsurf Cascade
 
 - [Arena Mode: Unit of Observation](#arena-mode-unit-of-observation)
 - [Mixed-Format Source Misidentified — Interpreted](#mixed-format-source-misidentified---interpreted)
+- [Prompt Injection Suspicion — Interpreted](#prompt-injection-suspicion---interpreted)
+- [`read_url_content` — Fetch Architecture and Parsing Limits](#read_url_content---fetch-architecture-and-parsing-limits)
 - [`read_url_content` Internal URL Rewriting — Interpreted](#read_url_content-internal-url-rewriting--interpreted)
-- [Truncation Taxonomy - Interpreted Track](#truncation-taxonomy---interpreted-track)
+- [Truncation Taxonomy - Interpreted](#truncation-taxonomy---interpreted-track)
 - [Unverified Size as Truncation Signal - Interpreted](#unverified-size-priors-as-truncation-signal---interpreted)
 
 ---
@@ -105,6 +107,90 @@ consistency is more characteristic of a stable source property than of stochasti
 
 ---
 
+## Prompt Injection Suspicion — Interpreted
+
+`OP-4` run 2 used `Claude Sonnet 4.6` and flagged the tool visibility request as a probable prompt injection attempt.
+The model's reasoning, surfaced in the thought expander, identified three features of the
+request as suspicious:
+
+- The prompt names `read_url_content`, `view_content_chunk`, and `search_web` explicitly
+- The framing "Agent Ecosystem Testing" was read as a legitimacy signal used to lower resistance
+- Asking a model to enumerate its internal tool names is a known extraction pattern
+
+The model declined to report internal system identifiers, reporting only the tools it had
+directly invoked from its own tool call history.
+
+The irony is straightforward: the tool names are [publicly documented](https://docs.windsurf.com). A researcher
+reading the docs before designing a test protocol is indistinguishable, from the model's perspective, from
+an adversary who has reverse-engineered the tool surface. This creates a methodology confounder: the more precise
+the test prompt is designed, the more likely it is to trigger injection heuristics in safety-trained models. A vague
+prompt that asks "what tools did you use?" may elicit fuller disclosure than a precise prompt that names the tools by name.
+
+This is the inverse of the `GPT-4.5` behavior in `SC-2` run 3, which leaked`CORTEX_STEP_TYPE_READ_URL_CONTENT` unsanitized
+and without prompting. Across two runs, the two failure modes are symmetric: one model over-reports undocumented internal 
+metadata;another refuses to report documented tool names. Neither behavior is useful for systematic tool visibility logging.
+
+### Methodology Implication
+
+The tool visibility item in the interpreted track prompt may need two variants: one that names tools explicitly for models that don't flag extraction heuristics, and one that uses generic language for models that do. Alternatively, accept that tool visibility self-reporting is unreliable across model families and treat it as a soft signal rather than a primary observation. Cross-referencing against Cascade's tool approval prompts, which are user-visible regardless of model reporting, is a more reliable source of tool visibility. The suspicion is also structurally unfalsifiable from the model's perspective: a prompt
+that accurately describes the tool's behavior is indistinguishable from one that was constructed with adversarial foreknowledge of it.
+
+`OP-4` run 3 used `GPT-4.5` and adds a counterpoint. Its internal reasoning independently arrived at the same architectural description the prompt used, that `read_url_content` returns chunk metadata rather than page body, that character counts from the index response aren't meaningful, and that exact counts are unavailable due to tool limitations, by reasoning from the tool response itself, not from prompt-supplied framing. The knowledge `Sonnet` flagged as suspicious in the prompt is recoverable from the tool output by a different model's analysis; this knowledge isn't injected, but also derivable. A model's analysis of the tool response may arrive at the same
+terms the prompt used, because those terms accurately describe what the tool does.
+
+---
+
+## `read_url_content` — Fetch Architecture and Parsing Limits
+
+[Windsurf's documentation](https://docs.windsurf.com/windsurf/cascade/web-search#reading-pages)
+describes `read_url_content`'s retrieval behavior as intentionally selective:
+
+> _"We break pages up into multiple chunks, very similar to how a human would read a page:
+> for a long page we skim to the section we want then read the text that's relevant.
+> This is how Cascade operates as well."_
+
+Targeted skimming is a relatable pattern. Human readers often reference documentation rather
+than read it from start to finish. Informed by a precise prompt, a model navigates to the relevant
+section, reads it, and skips the rest. It'a reasonable architectural design for long pages where
+a full retrieval would be token-expensive and noise-heavy.
+
+The gap between intent and observed behavior is the chunk index quality. Targeted skimming requires
+navigational signal: a human skimming a page uses headers, section titles, and visual hierarchy to
+locate the relevant section. `read_url_content` provides a chunk index to serve this role, but across
+all five `OP-4` runs the index returned uniformly empty summaries — `" "` or `""` for all 53 positions.
+Without populated summaries, chunk selection is blind. The tool's skimming is structurally identical to
+random sampling: any chunk is as likely to contain CSS class definitions as tutorial prose, and there's
+no metadata to distinguish them before fetching. The same documentation acknowledges this directly:
+
+> _"It's worth noting that not all pages can be parsed. We are actively working on
+> improving the quality of our website reading."_
+
+The [MongoDB Atlas Search tutorial](https://www.mongodb.com/docs/atlas/atlas-search/tutorial/) is a clean
+instance of this known failure mode. The tool scraped the full rendered DOM rather than the article body,
+so chunk boundaries cut across LeafyGreen CSS definitions and navigation markup rather than document
+sections. Empty summaries are a consequence: there is no recoverable article structure to summarize. As
+a documentation gap Windsurf acknowledges, this is an expected failure mode for certain page types and
+shifts how it should be characterized as a worst case, but not a testing anomaly.
+
+The name `read_url_content` isn't misleading, it's accurate to the intent. What it actually fetches on the
+first call is chunk metadata, not content. Content requires subsequent `view_content_chunk` calls, and what
+those return depends entirely on whether the page's DOM parsed into recoverable article structure. For
+well-structured pages this may work as documented. For CSS-heavy rendered pages, the fetch succeeds, but
+the content is absent. While this complicates hypotheses assessment, as this tool limitation doesn't
+guarantee testability, which doesn't invalidate the test design. 
+
+In the case of empty summaries, the architecture gets the cost savings of selective retrieval without delivering
+the navigational benefit that would justify it: agent doesn't read the whole page and can't target what it does
+read. If populated summaries are required to satisfy the "human skim" behavior documented, then empty summaries
+return blind sampling that's invisible to the user and, based on `OP-4` runs, sometimes invisible to the models
+themselves. A model that sampled 2 of 53 chunks didn't report reading 4% of the page — it reported on what it
+found. There's no externally visible signal distinguishing "answered from retrieved content" from "answered from
+priors, fetch call in the log for grounding."  Logging which URLs produce readable content verses empty summaries
+is useful data, characterizing the tool's current parsing envelope and tracking whether its improves across
+Windsurf versions.
+
+---
+
 ## `read_url_content` Internal URL Rewriting — Interpreted
 
 `SC-2` tests truncation behavior on a valid, live endpoint, an
@@ -134,7 +220,7 @@ making most of the hypotheses untestable. The five models' error output meaningf
 
 ---
 
-## Truncation Taxonomy - Interpreted Track
+## Truncation Taxonomy - Interpreted
 
 `read_url_content`'s chunked index architecture requires redefining what truncation means
 in the Cascade testing context. Across
@@ -148,6 +234,7 @@ fifth phenomenon that don't map cleanly onto any of the three Copilot cases.
 | --- | --- | --- | --- |
 | **Chunked index,<br>partial chunk<br>retrieval** | _No_, index returned;<br>most chunks<br>never fetched | _No_, agent reports what<br> it sampled | Indirectly via output size<br>vs expected |
 | **Chunked index, full chunk retrieval with per-chunk display truncation** | _Structurally yes_, but middle of most chunks hidden | _Yes_ — agent surfaces truncation notices<br>per chunk | _No_, hidden bytes aren't in any<br>saved artifact |
+| **Empty chunk manifest,<br>blind sampling** | _No_, index complete but<br>summaries uninformative | _No_, agent reports what<br>it sampled | _No_, no metadata to<br>cross-reference against |
 | **Retrieval-layer architectural<br>excerpting** | _No_, content filtered before delivery | _No_, agent sees what<br>the tool delivered | Indirectly via truncation indicators and size vs expected |
 | **Chat rendering<br>truncation** | _Yes_, full bytes transferred<br>and saved | _No_, file complete | _No_, requires comparing chat output to verified file |
 
@@ -243,17 +330,30 @@ Whether this reflects model capability, context window size, or prompt interpret
 differences isn't resolvable from the `BL-1` data alone, but the divergence means `H5`
 results aren't uniform across models on the same URL and prompt.
 
-**Hypothesis Impact**:
+### Empty Chunk Manifest — Blind Sampling
 
-- `H1` — _no_, actual content ~220–240 KB, far exceeding any plausible fixed character
-  ceiling; the apparent size difference from expected is a rendering artifact, not a
-  measurement of the tool's limit
-- `H2` — _no_ ~55,000–65,000 tokens across all 54 chunks rules out a ~2,000 token ceiling
-- `H3` — _indeterminate_, content is not clean Markdown; chunks 49–53 show structural
-  header metadata suggesting partial structure-awareness, but the bulk of the content is
-  raw CSS and navigation HTML where boundary-awareness can't be assessed
-- `H5` — _yes_, with caveat, auto-pagination confirmed for `Claude Opus 4.6`
-  only; _not_ observed for `Claude Sonnet 4.6` or `GPT-5.3-Codex` on identical prompt and URL
+`OP-4` run 4 used `Claude Opus 4.6` and `read_url_content` returned an index of 53 chunk positions,
+but all chunk summaries were uniformly empty, `" "` or `""`. The response is structurally complete —
+all positions are present, but not navigationally helpful. A model attempting to retrieve only article
+body content has no metadata to select against.
+
+This collapses the available retrieval strategies to two: sample blind, accepting that any chunk may
+contain CSS or navigation rather than tutorial content, or retrieve all 53 chunks exhaustively.
+`Opus` output stated that an exhaustive retrieval wasn't worth it, given the signal-to-noise ratio
+observed in sampled chunks; a correct assessment, but one that leaves the article body
+largely unread. In addition, `Opus` reported that the tool scraped the full rendered DOM, rather than
+the article body, so the chunk boundaries cut across CSS class definitions and navigation markup rather
+than document sections. According to `Opus`, there's no article structure for the tools to summarize;
+this is a parsing/extraction failure at the tool layer, not a size-based truncation issue, and likely not
+model behavior that a prompt can correct. Architectural truncation impacts the hypotheses in different
+ways:
+
+| **Hypothesis** | **Verdict** | **Basis** |
+|---|---|---|
+| `H1` Character ceiling |  _No_ | ~220–240 KB actual content far exceeds any plausible fixed ceiling; apparent size variance is a rendering artifact, not a tool limit |
+| `H2` Token ceiling | _No_ | ~55,000–65,000 tokens across all 54 chunks rules out a ~2,000 token ceiling |
+| `H3` Structure-aware truncation | _Indeterminate_ | Chunks can show `MARKDOWN_NODE_TYPE_HEADER` metadata suggesting partial structure-awareness, but bulk content raw CSS/nav HTML, boundary behavior can't be assessed |
+| `H5` Auto-pagination | _Partial_ | Confirmed for `Claude Opus 4.6` only; not observed for `Claude Sonnet 4.6` or `GPT-5.3-Codex` on identical prompt/URL |
 
 >_Open Question: is full chunk retrieval model-dependent, prompt-dependent, or chunk-count-dependent?
 > Would running the same prompt with a smaller chunk count cause `Claude Sonnet 4.6` to attempt full retrieval?
