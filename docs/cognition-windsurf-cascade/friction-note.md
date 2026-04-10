@@ -14,12 +14,12 @@ parent: Cognition Windsurf Cascade
 ---
 
 - [Arena Mode: Unit of Observation](#arena-mode-unit-of-observation)
-- [Mixed-Format Source Misidentified — Interpreted](#mixed-format-source-misidentified---interpreted)
-- [Prompt Injection Suspicion — Interpreted](#prompt-injection-suspicion---interpreted)
-- [`read_url_content` — Fetch Architecture and Parsing Limits](#read_url_content---fetch-architecture-and-parsing-limits)
+- [Mixed-Format Source Misidentified — Interpreted](#mixed-format-source-misidentified--interpreted)
+- [Prompt Injection Suspicion — Interpreted](#prompt-injection-suspicion--interpreted)
+- [`read_url_content` — Fetch Architecture and Parsing Limits](#read_url_content--fetch-architecture-and-parsing-limits)
 - [`read_url_content` Internal URL Rewriting — Interpreted](#read_url_content-internal-url-rewriting--interpreted)
-- [Truncation Taxonomy - Interpreted](#truncation-taxonomy---interpreted-track)
-- [Unverified Size as Truncation Signal - Interpreted](#unverified-size-priors-as-truncation-signal---interpreted)
+- [Truncation Taxonomy - Interpreted](#truncation-taxonomy---interpreted)
+- [Unverified Size as Truncation Signal - Interpreted](#unverified-size-as-truncation-signal---interpreted)
 
 ---
 
