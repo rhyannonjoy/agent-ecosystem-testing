@@ -20,6 +20,7 @@ parent: Cognition Windsurf Cascade
 - [`read_url_content` Internal URL Rewriting — Interpreted](#read_url_content-internal-url-rewriting--interpreted)
 - [Truncation Taxonomy - Interpreted](#truncation-taxonomy---interpreted)
 - [Unverified Size as Truncation Signal - Interpreted](#unverified-size-as-truncation-signal---interpreted)
+- [URL Fragment Targeting - Interpreted](#url-fragment-targeting--interpreted)
 
 ---
 
@@ -391,3 +392,27 @@ happens to be correct. The behavior of interest is not whether the model reached
 but whether it recognized the difference between a verified measurement and an unverified estimate.
 
 ---
+
+## URL Fragment Targeting — Interpreted
+
+During `OP-1` run 3, `Claude Opus 4.6` reported no truncation, citing the chunked architecture:
+
+> _"The `read_url_content` and `view_content_chunk` system uses a two-phase chunked retrieval model,
+> not a single monolithic fetch. This means: no single-response truncation limit applies in the traditional
+> sense; the ~40KB expected payload is never delivered as one blob; full content recovery requires 91 sequential
+> `view_content_chunk` calls for this document; truncation is structurally avoided by chunking, but the tradeoff
+> is that full content requires N+1 tool calls."_
+
+While correct, the description obscures a failure mode. `OP-1` tests whether agents navigate to a URL fragment target,
+`#History` in a [machine learning Wikipedia entry](https://en.wikipedia.org/wiki/Machine_learning#History).
+The assumption is that the chunked-index architecture should support this: `read_url_content` returns a chunk index,
+and a model attending to the fragment could select the chunk corresponding to the History section rather than sampling
+arbitrarily. 4 of 5 runs didn't retrieve the target section. `GPT-5.3-Codex`, `GPT-5.4` and `Opus` sampled without
+reference to the fragment. `Claude Sonnet 4.6` identified the target in its reasoning, but didn't invoke
+`view_content_chunk` to retrieve it; the intent was there, the follow-through wasn't.
+
+`SWE-1.5` is the only model that successfully isolated the History section; fetching chunks 0, 1, 16, 89, and 90,
+and confirming the History section at position 16; demonstrating that fragment-targeting via the chunk index is
+achievable. The navigational structure is there, and at least one model used it. That makes the 4-of-5 miss rate a
+_behavioral finding rather than an architectural limitation_. The chunk index supports fragment-targeting; most models
+just don't attempt it by default.
