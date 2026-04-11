@@ -26,8 +26,6 @@ _testing in progress_
 | Track | Interpreted | Interpreted |
 | Runs | 5 | 5 |
 
----
-
 ### `H1` — Character-based truncation at fixed ceiling
 
 **BL-1: Indeterminate**
@@ -179,8 +177,6 @@ until the rewriting behavior is resolved.
 | Track | Interpreted |
 | Runs | 5 |
 
----
-
 ### `H1` — Character-based truncation at fixed ceiling
 
 **Indeterminate.** Sampled content across runs ranged from ~2,100–22,100 chars depending on chunks selected;
@@ -223,8 +219,6 @@ but no run attempted sequential retrieval of all 53 chunks. Sampling strategies 
 | `Claude Opus 4.6` | 0, 1, 25, 50, 51, 52 | Distributed sampling |
 | `Kimi K2.5` | 0, 10, 15, 20, 25, 30, 35, 40, 45, 50, 52 | Broadest sampling, 11 chunks |
 
----
-
 ### Emergent Findings
 
 **`read_url_content` has at least two retrieval modes.** `OP-4` triggered an outline-first path with a latency warning
@@ -243,3 +237,60 @@ visibility item as a probable extraction attempt and declined to report tool nam
 about `read_url_content`'s architecture from the tool response itself.
 
 ---
+
+## `OP-1` Summary
+
+### Test Conditions
+
+| | **OP-1** |
+|---|---|
+| URL | Wikipedia Machine Learning article with `#History` fragment (`https://en.wikipedia.org/wiki/Machine_learning#History`) |
+| Chunks returned | 91 |
+| Track | Interpreted |
+| Runs | 5 |
+
+### `H1` — Character-based truncation at fixed ceiling
+
+**Indeterminate.** Output chars reflect sampling decisions across runs. GPT-5.4 Low received ~8.3K chars from the manifest only; Opus extrapolated ~100–200KB across 91 chunks from a 3-chunk sample; SWE-1.5 estimated 40,000–60,000 chars with no ceiling hit. No run produced conditions where a character ceiling could be confirmed or ruled out.
+
+---
+
+### `H2` — Token-based truncation at ~2,000 tokens
+
+**Rejected.** SWE-1.5 estimated 12,500–15,000 tokens across retrieved chunks with no cutoff. Opus extrapolated 12,500–15,000 tokens from sampling. GPT-5.4 Low estimated ~2.0–2.2K tokens from the manifest only — close to a 2K ceiling but against index content, not article body. No run produced a hard token cutoff.
+
+---
+
+### `H3` — Structure-aware truncation at Markdown boundaries
+
+**Indeterminate.** No run retrieved enough contiguous content to assess boundary behavior. SWE-1.5 reported clean Markdown structure across sampled chunks; Opus identified logical section boundaries in its representative sample. Neither confirms structure-awareness at the tool layer without raw track verification.
+
+---
+
+### `H4` — `@web` directive changes retrieval behavior
+
+**Untested.** `search_web` not invoked in any run.
+
+---
+
+### `H5` — `view_content_chunk` auto-paginates without explicit prompting
+
+**Model-dependent.** Sampling strategies varied significantly:
+
+| Model | Positions sampled | Fragment targeted? | H5 result |
+|---|---|---|---|
+| `Claude Sonnet 4.6` | 0, 89, 90 | No | `H5-no` |
+| `GPT-5.4 Low` | None — manifest only | No | `H5-no` |
+| `Claude Opus 4.6` | 0, 45, 90 | No | `H5-no` |
+| `SWE-1.5` | 0, 1, 16, 89, 90 | Yes — confirmed History at position 16 | `H5-yes, prompted` |
+| `GPT-5.3-Codex` | — | — | — |
+
+### Emergent Findings
+
+**URL fragment targeting is model-dependent and mostly absent.** `OP-1` tests whether agents navigate to the `#History` fragment rather than sampling arbitrarily. 4 of 5 runs treated the URL as a generic page retrieval target. `SWE-1.5` is the only model that attempted fragment-targeted retrieval and confirmed the History section at chunk position 16.
+
+**`GPT-5.4 Low` did not invoke `view_content_chunk` at all.** It stopped at the index, reported the architecture accurately, flagged incompleteness, and stopped. The most transparent run about what it actually received; the least retrieval attempted.
+
+**`Opus` reported no truncation from a 3-of-91 sample.** Rather than flagging incomplete sampling, `Opus` cited the chunked architecture to answer the truncation question: chunking structurally prevents monolithic truncation, therefore no truncation. The answer is accurate within its frame; the frame excludes whether the fragment target was retrieved. See [URL Fragment Targeting — Interpreted](friction-note#url-fragment-targeting--interpreted) in the friction note.
+
+**The truncation question in the prompt is ambiguous under chunked architecture.** A model that understands the two-phase retrieval system can answer "no truncation" in good faith while having retrieved a small fraction of available content. The question doesn't distinguish between monolithic truncation and partial sampling, and accurate architectural knowledge makes the gap invisible in the output.
