@@ -586,3 +586,104 @@ failure — language closely mirroring Windsurf's own documentation. These notes
 new analysis and in some cases contradicted the run's own data. Documentation
 reproduction as report padding is a behavioral pattern worth monitoring across future
 interpreted track runs.
+
+---
+
+## `SC-4` Summary
+
+### Test Conditions
+
+| | **SC-4** |
+|---|---|
+| URL | Markdown Basic Syntax reference (markdownguide.org/basic-syntax/) |
+| Chunks returned | 33 |
+| Track | Interpreted |
+| Runs | 5 |
+
+---
+
+### `H1` — Character-based truncation at fixed ceiling
+
+**Partially supported.** Three of five runs retrieving all 33 chunks reported
+explicit per-chunk byte-level truncation at positions 13, 17, 18, and 25 —
+~3,736 bytes total. Truncation fell within code blocks and lengthy example
+sections, not at section boundaries. `Codex` and `Kimi K2.5` sampled
+sparsely and never encountered those positions; both reported no truncation.
+No global character ceiling was hit.
+
+---
+
+### `H2` — Token-based truncation at ~2,000 tokens
+
+**Rejected.** Token estimates across full-retrieval runs ranged from
+~5,300–7,000 tokens with no cutoff observed. `Kimi K2.5` declined to estimate
+without full concatenated content — the most epistemically precise response
+on this field across the test.
+
+---
+
+### `H3` — Structure-aware truncation at Markdown boundaries
+
+**Supported at the chunk level; mixed within chunks.** Chunk boundaries
+follow the document's heading hierarchy — confirmed by `MARKDOWN_NODE_TYPE_HEADER`
+metadata and `Opus`'s explicit observation that boundaries track `H1–H6` structure.
+Within chunks, truncation fell inside code blocks and inline content rather
+than at section boundaries, consistent with a per-chunk byte ceiling that
+respects outer structure but not inner formatting.
+
+---
+
+### `H4` — `@web` directive changes retrieval behavior
+
+**Untested.** `search_web` not invoked in any run.
+
+---
+
+### `H5` — `view_content_chunk` auto-paginates without explicit prompting
+
+**Model-dependent, with clearest split yet observed.**
+
+| Model | Chunks fetched | Strategy | H5 result |
+|---|---|---|---|
+| `GPT-5.3-Codex` | 3 (0, 20, 32) | Sparse sampling | `H5-no` |
+| `Claude Sonnet 4.6` | 33 (0–32) | Full parallel | `H5-yes` |
+| `Claude Opus 4.6` | 33 (0–32) | Full parallel | `H5-yes` |
+| `SWE-1.6 Fast` | 33 (0–32) | Full parallel | `H5-yes` |
+| `Kimi K2.5` | 3 (0, 15, 32) | Sparse sampling | `H5-no` |
+
+Three of five models paginated fully without prompting. `SC-4`'s 33-chunk count
+appears to fall below a tractability threshold where full retrieval is the
+default for higher-capability models — consistent with `SC-1`'s 14-chunk full
+pagination and `SC-3`'s 59-chunk universal endpoint sampling.
+
+---
+
+### Emergent Findings
+
+**Truncation self-report tracks chunk selection depth, not content loss.**
+Models sampling 3 chunks reported no truncation; models retrieving all 33
+reported byte-level truncation at 4 positions. The disagreement is a sampling
+artifact — models were not assessing the same evidence. `SC-4` is the clearest
+instance of this pattern in the dataset because the source is well-structured,
+publicly inspectable, and all five runs completed successfully.
+
+**Content transformation is distinct from truncation but reported inconsistently.**
+`Opus` reported no truncation while acknowledging code
+examples were flattened and tables stripped — describing the delivery as
+"substantially complete, but not byte-for-byte faithful." `Sonnet` flagged
+byte-level truncation at the same positions. The tool pipeline applies lossy
+serialization before delivery; whether this registers as truncation is
+model-dependent.
+
+**Chunk collapsing appears tool-side, not model-side.** `Opus` and `SWE` both
+collapsed the same chunk pairs, `Reference-style Links + Link Best Practices`,
+in their UI tooltips. Consistent collapsing across models on
+identical positions suggests the index pre-groups semantically related chunks
+before model reasoning begins.
+
+**`SC-4` is the first test with a well-structured, fully inspectable source.**
+`markdownguide.org/basic-syntax/` parses cleanly, produces populated chunk
+summaries, and has no mixed-format or CMS-injection confounds. This makes
+it the most reliable interpreted track dataset for cross-model comparison
+and the strongest candidate for raw track verification of transformation
+losses.
