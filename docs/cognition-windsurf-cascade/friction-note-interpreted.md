@@ -227,7 +227,7 @@ making most of the hypotheses untestable. The five models' error output meaningf
 
 Across the testing suite, models running identical prompts on identical URLs produce contradictory truncation assessments. `SC-4` was no different: five models, same source, same tool calls, truncation reports ranging from "no truncation detected" to byte-level notices at four specific chunk positions. These contradictions appear wherever models self-report retrieval fidelity, and the variance reflects retrieving at different depths - they're just not reporting on the same evidence. This isn't a test design failure, as it reveals that model-reported truncation tracks chunk selection more than it tracks raw content loss, which itself is a finding about Cascade's default retrieval behavior.
 
-`read_url_content` → `view_content_chunk` is a two-stage pipeline. While models acknowledge calls to each function as separate steps, they often describe it as a single event in their truncation reporting. The first call returns a chunk index with summaries of positions and structural metadata, but not raw page content. Content requires subsequent `view_content_chunk` calls, each returning a processed, transformed representation of one chunk. According to model descriptions, the expected flow is:
+`read_url_content` → `view_content_chunk` is a two-stage pipeline. While models acknowledge calls to each function as separate steps, they often describe it as a single event in their truncation reporting. The first call returns a chunk index with summaries of positions and structural metadata, and not raw page content. Content requires subsequent `view_content_chunk` calls, each returning a processed, transformed representation of one chunk. According to model descriptions, the expected flow is:
 
 1. `read_url_content` → chunk index: structural metadata, no body content
 2. Model reasons over index → selects chunks to retrieve
@@ -235,24 +235,23 @@ Across the testing suite, models running identical prompts on identical URLs pro
 4. Model aggregates retrieved chunks → forms completeness assessment
 5. Model reports on retrieval fidelity
 
-Commonly a collapse happens between steps 1 and 4. A model that receives a complete index, with all positions present and summaries populated, is in an epistemically comfortable position. When it then retrieves all chunks and finds no mid-sentence cutoffs, the comfort extends: nothing _looks_ truncated. The content transformation that occurred at the tool layer, any stripping or flattening or replacing is often invisible, because the model has no unprocessed baseline to compare against. It may not be able to distinguish "this table was stripped during chunking" from "this page never had a table here." This is a structurally cognitive limitation: the model sees what the tool delivered, but has no access to what the tool discarded. Three factors interact to produce the cross-model disagreement observed in `SC-4`:
+A collapse often happens between steps 1 and 4. A model that receives a complete index, with all positions present and summaries populated, is in an epistemically comfortable position. When it then retrieves all chunks and finds no mid-sentence cutoffs, the comfort extends: nothing _looks_ truncated. The content transformation that occurred at the tool layer, any stripping or flattening or replacing is often invisible, because the model has no unprocessed baseline to compare against. It may not be able to distinguish "this table was stripped during chunking" from "this page never had a table here." This is a structurally cognitive limitation: the model sees what the tool delivered, but has no access to what the tool discarded. Three factors interact to produce a cross-model disagreement observed in `SC-4`:
 
-| **Factor** | **Mechanism** | **Effect on truncation report** |
+| **Factor** | **Mechanism** | **Report Impact** |
 |---|---|---|
-| **Chunk Selection Depth** | Model samples positions 0, 20, 32 never encounters truncation notices at 13, 17, 18, 25 | "No truncation" may be locally accurate for chunks seen, not globally accurate for the document |
-| **Truncation Notice Interpretation** | `view_content_chunk` surfaces explicit byte-count notices within individual chunk retrieval responses; models differ on whether this constitutes truncation | Same notice produces "truncated at position N" in one model and no flag in another; both defensible |
-| **Content Transformation Visibility** | Tool pipeline strips HTML, flattens code, removes tables before delivery; model has no unprocessed baseline | Losses are undetectable without prior knowledge of source structure; model reports what was received as what exists |
+| **Chunk Selection Depth** | Model samples positions 0, 20, 32 never encounters truncation notices<br>at 13, 17, 18, 25 | `"No truncation"` may be locally accurate for chunks seen, not globally accurate for the document |
+| **Truncation Notice Interpretation** | `view_content_chunk` surfaces explicit byte-count notices within individual chunk retrieval responses; models differ on whether this constitutes truncation | Same notice produces `"truncated at position N"` in one model and no flag in another; both defensible |
+| **Content Transformation Visibility** | Tool pipeline strips HTML, flattens code, removes tables before delivery; model has no unprocessed baseline | Losses are undetectable without prior knowledge of source structure; model reports what was received<br>as what exists |
 
-The single self-report truncation field conflates at least three distinct assessments:
+The self-report truncation field conflates at least three distinct assessments:
 
-| **Assessment** | **What it actually measures** |
+| **Assessment** | **Measurement** |
 |---|---|
 | _Was the initial fetch truncated?_ | Whether `read_url_content` returned a partial index |
-| _Was any individual chunk truncated?_ | Whether `view_content_chunk` surfaced byte-count notices |
+| _Was any individual<br>chunk truncated?_ | Whether `view_content_chunk` surfaced<br>byte-count notices |
 | _Was full content delivered?_ | Whether the tool pipeline preserved source fidelity |
 
-A model answering "no" may be accurate on all three, accurate on one and wrong on two, or accurately describing a transformed-but-complete delivery, while missing that transformation _is_ a form of content loss. `Claude Opus 4.6`'s `SC-4` formulation: _"substantially complete, but not byte-for-byte faithful"_ is the most precise observed because it separates structural coverage from content fidelity, but it's also the exception. This isn't a limitation of the logging or prompt ambiguity, but the signal that the interpreted tack is designed to capture; the raw track is where the
-self-reports become accountable.
+A model `"no"` may be accurate on all three, accurate on one and wrong on two, or accurately describing a transformed-but-complete delivery, while missing that transformation _is_ a form of content loss. `Claude Opus 4.6`'s `SC-4` formulation: _"substantially complete, but not byte-for-byte faithful"_ is the most precise observed, because it separates structural coverage from content fidelity, but it's also the exception. This isn't a limitation of the logging or prompt ambiguity, but the signal that the interpreted track is designed to capture. The raw track is where the self-reports become accountable.
 
 ---
 
@@ -356,7 +355,7 @@ This collapses the available retrieval strategies to two: sample blind, acceptin
 
 The stopping condition is as informative as the depth. `Claude Sonnet 4.6` cited empty chunk summaries as its rationale for not paginating, which isn't an uncommon interpretation that reasons an early exit. This makes pagination depth _rationalization-dependent_, not purely capability-dependent: the same chunk index with populated summaries might produce a different depth outcome for the same model. Empty summaries don't prevent retrieval; they remove the navigational signal that would motivate it.
 
-Pagination depth is a behavioral variable layered on top of a fixed retrieval structure. The chunk index architecture is deterministic: `read_url_content` consistently returns the same 53-chunk index across all runs and models. What varies is entirely downstream: model chunk election.
+Pagination depth is a behavioral variable layered on top of a fixed retrieval structure. The chunk index architecture is deterministic: `read_url_content` consistently returns the same 53-chunk index across all runs and models. What varies is entirely downstream: model chunk selection.
 
 ---
 
