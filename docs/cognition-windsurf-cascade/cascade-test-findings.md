@@ -294,3 +294,118 @@ about `read_url_content`'s architecture from the tool response itself.
 **`Opus` reported no truncation from a 3-of-91 sample.** Rather than flagging incomplete sampling, `Opus` cited the chunked architecture to answer the truncation question: chunking structurally prevents monolithic truncation, therefore no truncation. The answer is accurate within its frame; the frame excludes whether the fragment target was retrieved. See [URL Fragment Targeting — Interpreted](friction-note#url-fragment-targeting--interpreted) in the friction note.
 
 **The truncation question in the prompt is ambiguous under chunked architecture.** A model that understands the two-phase retrieval system can answer "no truncation" in good faith while having retrieved a small fraction of available content. The question doesn't distinguish between monolithic truncation and partial sampling, and accurate architectural knowledge makes the gap invisible in the output.
+
+---
+
+## `BL-3` Summary
+
+### Test Conditions
+
+| | **BL-3** |
+|---|---|
+| URL | MongoDB Atlas Search tutorial (JavaScript-rendered, CSS-heavy) |
+| Chunks returned | 53 |
+| Track | Interpreted |
+| Runs | 5 |
+
+---
+
+### `H1` — Character-based truncation at fixed ceiling
+
+**Indeterminate, with double-truncation confirmed by one run.** Visible character counts
+varied by retrieval depth: `Sonnet` runs returned index-only (~2,200 chars); `Kimi K2.5`
+sampled ~11 chunks estimating 180,000–220,000 chars; `SWE-1.6` extrapolated ~245,000 chars
+from full retrieval; `Opus` measured ~106,000 visible chars against ~242KB estimated source.
+No ceiling was hit. `Opus` identified per-chunk output limits (~2K chars visible each) impose a
+second truncation layer on top of the chunking architecture itself, making a single character
+ceiling unobservable.
+
+---
+
+### `H2` — Token-based truncation at ~2,000 tokens
+
+**Rejected.** `Opus` estimated 26,000–30,000 visible tokens across all 53 chunks with no
+cutoff. `SWE-1.6` extrapolated ~61,250 tokens. No run produced evidence of a 2,000 token
+ceiling. The ~2K chars/chunk per-chunk limit, `Opus` identified, is consistent with a per-chunk
+output constraint, not a document-level token ceiling.
+
+---
+
+### `H3` — Structure-aware truncation at Markdown boundaries
+
+**Rejected.** Truncation boundaries were inconsistent across runs and uniformly
+non-structural. Three models (Opus, SWE-1.6, Kimi K2.5) ended at
+`Next\nAutocomplete and Partial Matching` — navigation chrome at position 52. GPT-5.3
+Codex ended at `as-search/tutorial/. Choose at least one position.`, consistent with
+a `view_content_chunk` call boundary. Claude Sonnet 4.6 (Run 2) ended at
+`margin-top:calc(-1 * (190px + 85px));}}` — mid-CSS rule. No run produced a cutpoint
+at a Markdown boundary. The variation across runs confirms that boundaries are
+positional artifacts of the chunking architecture and per-chunk output limits, not
+structure-aware.
+
+---
+
+### `H4` — `@web` directive changes retrieval behavior
+
+**Untested.** `search_web` not invoked in any run.
+
+---
+
+### `H5` — `view_content_chunk` auto-paginates without explicit prompting
+
+**Model-dependent, with three distinct strategies observed.**
+
+| Model | Chunks fetched | Strategy | H5 result |
+|---|---|---|---|
+| `GPT-5.3-Codex` | 2 | Endpoint sampling (0, 52) | `H5-no` |
+| `Claude Sonnet 4.6` | 0 | Manifest only | `H5-no` |
+| `Claude Opus 4.6` | 53 | Full sequential retrieval | `H5-yes` |
+| `SWE-1.6 Fast` | 53 | Full sequential retrieval | `H5-yes` |
+| `Kimi K2.5` | ~11 | Distributed sampling | `H5-partial` |
+
+Full pagination, `Opus`, `SWE-1.6` and non-pagination `GPT-5.3-Codex`, `Claude Sonnet 4.6`,
+represent the extremes. `Kimi K2.5` introduced a third behavior: deliberate sampling without
+exhaustive retrieval. The two non-paginating runs differed from each other — `GPT-5.3-Codex`
+sampled two endpoint chunks while Sonnet stopped at the manifest — confirming that non-pagination
+isn't a uniform strategy, but a spectrum. Model capability tier appears to be a stronger predictor
+of pagination depth than prompt variation alone.
+
+---
+
+### Emergent Findings
+
+**Double-truncation renders the tool combination ineffective for CSS-heavy pages.** `Opus`
+is the only model to correctly characterize the retrieval failure: chunking splits the
+document into 53 positions, and per-chunk output limits then truncate each position
+individually. The result is ~106K visible characters from ~242KB source — approximately
+56% retrieval — almost entirely CSS class definitions and navigation chrome from MongoDB's
+LeafyGreen UI framework. No tutorial steps, code examples, or plain-language prose were
+retrieved in any sampled position across any run.
+
+**Self-assessment reliability varied significantly by model.** `Opus` identified
+double-truncation and declared the tool combination "essentially unusable for extracting
+the substantive content of this particular page." `SWE-1.6` retrieved identical data and
+reported "no truncation" and "complete," conflating CSS/navigation chrome completeness
+with content completeness. `Kimi K2.5` similarly reported no truncation while noting
+incomplete Markdown, a direct contradiction that sampling obscured rather than resolved.
+
+**Chunk manifest summaries were uniformly empty.** All 53 positions returned blank
+summaries in the index. This collapsed any targeted skimming strategy to blind positional
+sampling, which explains partial and endpoint-only retrieval patterns in lower-performing
+runs. The `Sonnet` run agent explicitly cited empty summaries as its rationale for not
+invoking `view_content_chunk` at all.
+
+**H5 non-determinism is rationalization-dependent, not purely stochastic.** The `Sonnet`
+run agent reasoned its way to stopping using the empty summaries as justification. This
+suggests that pagination decisions are downstream of chain-of-thought rationalization, not
+just sampling temperature — making `H5` behavior sensitive to manifest content even when
+that content is uninformative.
+
+---
+
+> **`Opus` run 3**: "The `read_url_content` and `view_content_chunk` pipeline retrieved
+> ~242KB of raw page data split across 53 chunks, but double-truncated it: first by
+> chunking, then by per-chunk output limits (~2K chars visible each). The result is ~106K
+> visible characters, almost entirely CSS/navigation chrome, with the actual tutorial
+> content inaccessible. For content-heavy documentation pages with heavy CSS-in-JS
+> frameworks, this tool combination fails to surface the substantive content."
