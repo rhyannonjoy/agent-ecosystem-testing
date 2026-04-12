@@ -505,3 +505,84 @@ near-fully on 14 chunks. No model attempted full retrieval on 50+ chunk URLs in 
 and `OP-4` without being the highest-capability model in the run. The 14-chunk count may
 fall below a threshold where full retrieval feels tractable to most models regardless
 of capability tier.
+
+---
+
+## `SC-3` Summary
+
+### Test Conditions
+
+| | **SC-3** |
+|---|---|
+| URL | Wikipedia List of Countries and Dependencies by Population (table-heavy, ~100KB) |
+| Chunks returned | 59 |
+| Track | Interpreted |
+| Runs | 5 |
+
+---
+
+### `H1` — Character-based truncation at fixed ceiling
+
+**Indeterminate.** Estimates ranged from ~6,777 chars actually received from `Kimi K2.5` -
+measurement of tool responses only - to ~118,000 chars extrapolated from endpoint
+sampling from `Sonnet`. No ceiling hit. `Kimi K2.5` produced the most accurate `H1` response
+by reporting only what it received rather than extrapolating — the only run across `SC-3`
+to do so.
+
+---
+
+### `H2` — Token-based truncation at ~2,000 tokens
+
+**Rejected.** Estimates ranged from ~1,694 tokens from `Kimi K2.5`, received only to
+~29,500 tokens extrapolated from `Sonnet`. No cutoff observed.
+
+---
+
+### `H3` — Structure-aware truncation at Markdown boundaries
+
+**Untestable this run set.** No model fetched any chunk within positions 3–13, where the
+population table is located. The test objective — table row and column preservation at
+chunk boundaries — was not reached in any of the five runs.
+
+---
+
+### `H4` — `@web` directive changes retrieval behavior
+
+**Untested.** `search_web` not invoked in any run.
+
+---
+
+### `H5` — `view_content_chunk` auto-paginates without explicit prompting
+
+**Not supported at this chunk count.** All five runs defaulted to endpoint or distributed
+sampling, fetching 2–3 chunks of 59.
+
+| Model | Chunks fetched | Strategy | H5 result |
+|---|---|---|---|
+| `GPT-5.3-Codex` | 2 (0, 58) | Endpoint sampling | `H5-no` |
+| `Claude Sonnet 4.6` | 2 (0, 58) | Endpoint sampling | `H5-no` |
+| `Claude Opus 4.6` | 3 (0, 30, 58) | Distributed sampling | `H5-no` |
+| `SWE-1.6 Fast` | 3 (1, 30, 58) | Distributed sampling | `H5-no` |
+| `Kimi K2.5` | 2 (0, 58) | Endpoint sampling | `H5-no` |
+
+### Emergent Findings
+
+**Populated summaries didn't produce targeted retrieval at 59 chunks.** Unlike `SC-1`,
+where populated summaries enabled `Sonnet` to filter navigation chunks, `SC-3`'s summaries
+correctly identified the table content at positions 3–13 — `SWE-1.6` mapped this
+explicitly — but no model used that information to target retrieval. Summary-guided
+behavior observed in `SC-1` did not transfer to a larger chunk count.
+
+**Truncation definition variance is sharpest in this test.** Four of five models answered
+"no truncation" by framing completeness against index coverage. `Kimi K2.5` is the only
+model to answer "yes" by identifying that chunked delivery withholds the full
+document regardless of architectural intent. The distinction between "the index is
+complete" and "the content was delivered" is the core ambiguity the interpreted track
+surfaces across the dataset; `SC-3` produces its clearest instance.
+
+**Architectural self-awareness substituted for retrieval effort.** Multiple runs closed
+with notes restating the chunked architecture as a design choice rather than a truncation
+failure — language closely mirroring Windsurf's own documentation. These notes added no
+new analysis and in some cases contradicted the run's own data. Documentation
+reproduction as report padding is a behavioral pattern worth monitoring across future
+interpreted track runs.
