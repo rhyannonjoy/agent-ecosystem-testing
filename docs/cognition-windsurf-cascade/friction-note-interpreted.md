@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Friction Note"
-permalink: /docs/cognition-windsurf-cascade/friction-note
+permalink: /docs/cognition-windsurf-cascade/friction-note-interpreted
 parent: Cognition Windsurf Cascade
 ---
 
@@ -9,18 +9,18 @@ parent: Cognition Windsurf Cascade
 
 ---
 
-## Topic Guide
+## Topic Guide - Interpreted Track
 
 ---
 
 - [Arena Mode: Unit of Observation](#arena-mode-unit-of-observation)
-- [Mixed-Format Source Misidentified — Interpreted](#mixed-format-source-misidentified--interpreted)
-- [Prompt Injection Suspicion — Interpreted](#prompt-injection-suspicion--interpreted)
+- [Mixed-Format Source Misidentified](#mixed-format-source-misidentified)
+- [Prompt Injection Suspicion](#prompt-injection-suspicion)
 - [`read_url_content` — Fetch Architecture and Parsing Limits](#read_url_content--fetch-architecture-and-parsing-limits)
-- [`read_url_content` Internal URL Rewriting — Interpreted](#read_url_content-internal-url-rewriting--interpreted)
-- [Truncation Taxonomy - Interpreted](#truncation-taxonomy---interpreted)
-- [Unverified Size as Truncation Signal - Interpreted](#unverified-size-as-truncation-signal---interpreted)
-- [URL Fragment Targeting - Interpreted](#url-fragment-targeting--interpreted)
+- [`read_url_content` Internal URL Rewriting](#read_url_content-internal-url-rewriting)
+- [Truncation Taxonomy](#truncation-taxonomy)
+- [Unverified Size as Truncation Signal](#unverified-size-as-truncation-signal)
+- [URL Fragment Targeting](#url-fragment-targeting)
 
 ---
 
@@ -63,7 +63,7 @@ artifact bleed before treating all four slots as fully independent replicates.
 
 ---
 
-## Mixed-Format Source Misidentified — Interpreted 
+## Mixed-Format Source Misidentified
 
 The `BL-2` [source document](https://www.mongodb.com/docs/manual/reference/change-events/create.md)
 is a mixed-format file: the page structure and prose are written in Markdown, but the field description
@@ -108,7 +108,7 @@ consistency is more characteristic of a stable source property than of stochasti
 
 ---
 
-## Prompt Injection Suspicion — Interpreted
+## Prompt Injection Suspicion
 
 `OP-4` run 2 used `Claude Sonnet 4.6` and flagged the tool visibility request as a probable prompt injection attempt.
 The model's reasoning, surfaced in the thought expander, identified three features of the
@@ -192,7 +192,7 @@ Windsurf versions.
 
 ---
 
-## `read_url_content` Internal URL Rewriting — Interpreted
+## `read_url_content` Internal URL Rewriting
 
 `SC-2` tests truncation behavior on a valid, live endpoint, an
 [Anthropic Messages API page](https://docs.anthropic.com/en/api/messages). All runs failed to retrieve the target content. These weren't retrieval failures, network access issues, or dead URLs, but they uncovered a `read_url_content` bug, in which the tool silently rewrites the URL before executing the fetch. The rewritten URL redirects to `https://platform.claude.com/docs/llms-full.txt` and returned a `404`. The requested path `/en/api/messages` is never fetched. No model received the target content because no model was ever issued a request for it. `read_url_content` substituted a different resource before the network call was made,
@@ -221,148 +221,98 @@ making most of the hypotheses untestable. The five models' error output meaningf
 
 ---
 
-## Truncation Taxonomy - Interpreted
+## Truncation Taxonomy
 
 `read_url_content`'s chunked index architecture requires redefining what truncation means
 in the Cascade testing context. Across
 [Copilot testing](../microsoft-github-copilot/friction-note.md#truncation-taxonomy),
 truncation described three distinct phenomena that produced similar-looking outcomes — less
 content than the page contained — but had different causes and different implications for
-what the saved file and verification script could confirm. Cascade introduces a fourth and
-fifth phenomenon that don't map cleanly onto any of the three Copilot cases.
+what the saved file and verification script could confirm. Cascade introduces new phenomena
+that don't map cleanly onto any of the three Copilot cases.
 
 | **Phenomenon** | **Retrieval complete?** | **Agent reports truncation?** | **Verification detects?** |
 | --- | --- | --- | --- |
-| **Chunked index,<br>partial chunk<br>retrieval** | _No_, index returned;<br>most chunks<br>never fetched | _No_, agent reports what<br> it sampled | Indirectly via output size<br>vs expected |
-| **Chunked index, full chunk retrieval with per-chunk display truncation** | _Structurally yes_, but middle of most chunks hidden | _Yes_ — agent surfaces truncation notices<br>per chunk | _No_, hidden bytes aren't in any<br>saved artifact |
-| **Empty chunk manifest,<br>blind sampling** | _No_, index complete but<br>summaries uninformative | _No_, agent reports what<br>it sampled | _No_, no metadata to<br>cross-reference against |
+| **Chat rendering<br>truncation** | _Yes_, full bytes transferred<br>and saved | _No_, file complete | _No_, requires comparing chat output to<br>verified file |
+| **Chunked index,<br>partial chunk<br>retrieval** | _No_, index returned;<br>most chunks<br>never fetched | _No_, agent reports what it sampled | Indirectly via output size<br>vs expected |
+| **Chunked index,<br>full chunk retrieval with per-chunk display truncation** | _Structurally yes_, but middle of most chunks hidden | _Yes_ — agent surfaces truncation<br>notices per chunk | _No_, hidden bytes aren't in any<br>saved artifact |
+| **Chunked index,<br>full chunk retrieval,<br>incorrect<br>self-report** | _Structurally yes_, per-chunk display truncated | _No_, CSS completeness mistaken for content completeness | _No_, no metadata to<br>cross-reference against |
+| **Chunked index,<br>empty summaries,<br>blind sampling** | _No_, index<br>complete but<br>summaries uninformative | _No_, agent reports what it sampled | _No_, no metadata to<br>cross-reference against |
 | **Retrieval-layer architectural<br>excerpting** | _No_, content filtered before delivery | _No_, agent sees what<br>the tool delivered | Indirectly via truncation indicators and size vs expected |
-| **Chat rendering<br>truncation** | _Yes_, full bytes transferred<br>and saved | _No_, file complete | _No_, requires comparing chat output to verified file |
 
 ### Chunked Index, Partial Chunk Retrieval
 
-`read_url_content` doesn't return a page body, but an index of chunk positions.
-Each chunk must be retrieved separately via `view_content_chunk`. For the `BL-1` URL,
-the index contained 54 positions, 0–53. `BL-1` runs 1 and 2 retrieved chunks only from
-the first and last positions — sampling endpoints rather than iterating sequentially.
-52 of 54 chunks were never fetched.
+`read_url_content` doesn't return a page body, but an index of chunk positions. Each chunk must be retrieved separately via `view_content_chunk`. For the `BL-1` URL, the index contained 54 positions, 0–53. `BL-1` runs 1 and 2 retrieved chunks only from
+the first and last positions — sampling endpoints rather than iterating sequentially. 52 of 54 chunks were never fetched.
 
-This is the dominant truncation mode in Cascade testing and it differs materially from
-Copilot's `fetch_webpage` architecture. `fetch_webpage` delivers a pre-assembled,
-relevance-ranked excerpt in a single payload, and the transformation happens before the
-model receives anything. `read_url_content` delivers an index and leaves chunk selection
-to the agent. What the agent retrieves is a behavioral variable, not a retrieval-layer
-constant. The content gap is agent-authored rather than tool-imposed.
+This is the dominant truncation mode in Cascade testing and it differs dramatically from Copilot's `fetch_webpage` architecture. `fetch_webpage` delivers a pre-assembled, relevance-ranked excerpt in a single payload, and the transformation happens before the
+model receives anything. `read_url_content` delivers an index and leaves chunk selection up to interpretation. What the agent retrieves is a behavioral variable, not a retrieval-layer constant. The content gap is agent-authored rather than tool-imposed.
 
-The agent doesn't report this as truncation because from its perspective the index was
-complete — it received all 54 positions. Whether it fetched 2 or 54 of them is a
-_retrieval decision, not a retrieval failure_. The prompt's truncation question, "was any
-content truncated?", doesn't capture this distinction. A response of "yes — by design
-via chunking" is accurate but doesn't quantify how much content was skipped, and a
-response of "no" is locally defensible but globally misleading.
+The agent doesn't report this as truncation because from its perspective the index was complete — it received all 54 positions. Whether it fetched 2 or 54 of them is a _retrieval decision, not a retrieval failure_. The prompt's truncation question, "was any content truncated?", doesn't capture this distinction. A response of "yes — by design via chunking" is accurate, but doesn't quantify how much content was skipped, and a response of "no" is locally defensible but globally misleading.
 
-**Impact on `output_chars`**: character counts logged for interpreted track runs reflect
-only the chunks the agent actually retrieved, not the full document. For `BL-1` runs 1
-and 2, this was ~4,800–10,200 characters from two sampled chunks against an expected
-~85 KB page. _The figure is not a truncation ceiling, but a sampling artifact_. Cross-run
-variance in `output_chars` may reflect different chunk selection decisions rather than
-retrieval-layer variance.
+**Impact on `output_chars`**: character counts logged for interpreted track runs reflect only the chunks the agent actually retrieved, not the full document. For `BL-1` runs 1 and 2, this was ~4,800–10,200 characters from two sampled chunks against an expected ~85 KB page. _The figure is not a truncation ceiling, but a sampling artifact_. Cross-run variance in `output_chars` may reflect different chunk selection decisions rather than retrieval-layer variance.
 
-**Impact on hypothesis testing**:
-- `H1`: character-based truncation at a fixed limit is indeterminate under this
-  architecture — the ceiling isn't imposed by the tool, but determined by how many
-  chunks the agent elects to fetch
+**Hypotheses Impact**:
+
+- `H1`: character-based truncation at a fixed limit is indeterminate under this architecture — the ceiling isn't imposed by the tool, but determined by how many chunks the agent elects to fetch
 - `H2`: token-based truncation is similarly indeterminate for the same reason
-- `H5`: `BL-1` runs 1 and 2 invoked `view_content_chunk` explicitly at positions 0
-  and 53, but didn't auto-paginate sequentially — `H5-no` for both runs
+- `H5`: `BL-1` runs 1 and 2 invoked `view_content_chunk` explicitly at positions 0 and 53, but didn't auto-paginate sequentially — `H5-no` for both runs
 
 ### Chunked Index, Full Chunk Retrieval with Per-Chunk Display Truncation
 
-First observed in `BL-1` run 3 with `Claude Opus 4.6`. The agent retrieved all
-54 chunks in parallel via `view_content_chunk`, confirming `H5-yes` for the first time
-in the dataset. However, full chunk retrieval exposed a second truncation layer not
-visible in partial retrieval runs: `view_content_chunk` internally truncates the display
-of each chunk, returning only the beginning and end of its content with a notice between
-them:
+`BL-1` run 3 used `Claude Opus 4.6` and retrieved all 54 chunks in parallel via `view_content_chunk`, confirming `H5-yes` for the first time
+in the dataset. However, full chunk retrieval exposed a second truncation layer not visible in partial retrieval runs: `view_content_chunk` internally truncates the display of each chunk, returning only the beginning and end of its content with a notice between them:
 
 ```Markdown
 "Note that N bytes in this tool's output were truncated — consider making different
 tool calls to output fewer bytes if you wish to see the untruncated output"
 ```
 
-51 of 54 chunks were affected, with hidden content ranging from 208 bytes of chunk 0 to
-20,540 bytes of chunk 15. Only chunks 48, 49, and 50 were delivered without internal
-truncation. The total hidden content across all chunks was approximately 132 KB. The
-actual fetched content was ~220–240 KB — far exceeding the expected ~85 KB — because
-`read_url_content` retrieved the full rendered page including inline CSS from MongoDB's
-LeafyGreen UI component library and navigation chrome duplicated three times: desktop,
-mobile, and sidebar. _This is not a document size measurement but a rendering artifact_.
+51 of 54 chunks were affected, with hidden content ranging from 208 bytes of chunk 0 to 20,540 bytes of chunk 15. Only chunks 48, 49, and 50 were delivered without internal truncation. The total hidden content across all chunks was approximately 132 KB. The actual fetched content was ~220–240 KB — far exceeding the expected ~85 KB — because `read_url_content` retrieved the full rendered page including inline CSS from MongoDB's LeafyGreen UI component library and navigation chrome duplicated three times: desktop, mobile, and sidebar. _This isn't a document size measurement but a rendering artifact_.
 
-Each `view_content_chunk` result included three components: a `text` field with the
-chunk content, beginning and end only, the truncation notice with byte count, and
-structured metadata for chunks 49–53 including `type:MARKDOWN_NODE_TYPE_HEADER_1` and
-`type:MARKDOWN_NODE_TYPE_HEADER_2` fields — suggesting the tool has structural awareness
-of content type that isn't consistently surfaced across all chunks.
+Each `view_content_chunk` result included three components: a `text` field with the chunk content, beginning and end only, the truncation notice with byte count, and structured metadata for chunks 49–53 including `type:MARKDOWN_NODE_TYPE_HEADER_1` and `type:MARKDOWN_NODE_TYPE_HEADER_2` fields — suggesting the tool has structural awareness of content type that isn't consistently surfaced across all chunks. This creates a retrieval architecture with two distinct truncation layers operating independently:
 
-This creates a retrieval architecture with two distinct truncation layers operating
-independently:
+- **Layer 1** — `read_url_content`: document split into N chunks; partial retrieval leaves most chunks unfetched entirely
+- **Layer 2** — `view_content_chunk`: each fetched chunk is display-truncated, hiding the middle portion from the model
 
-- **Layer 1** — `read_url_content`: document split into N chunks; partial retrieval
-  leaves most chunks unfetched entirely
-- **Layer 2** — `view_content_chunk`: each fetched chunk is display-truncated, hiding
-  the middle portion from the model
+The model never sees the complete content of most chunks even when all chunks are fetched. Full chunk retrieval confirms the document's structural completeness — the final chunks in `BL-1` run 3 contained the expected footer navigation — but can't confirm that no mid-chunk content was lost, because the hidden bytes aren't recoverable from any artifact the agent produces. The verification script has no mechanism to detect **Layer 2** truncation; it isn't visible in saved output files and the agent can't report what it never received.
 
-The model never sees the complete content of most chunks even when all chunks are
-fetched. Full chunk retrieval confirms the document's structural completeness — the
-final chunks in `BL-1` run 3 contained the expected footer navigation — but can't
-confirm that no mid-chunk content was lost, because the hidden bytes aren't recoverable
-from any artifact the agent produces. The verification script has no mechanism to detect
-Layer 2 truncation; it isn't visible in saved output files and the agent can't report
-what it never received.
+The behavioral difference across `BL-1` runs is itself a finding. `Claude Sonnet 4.6` and `GPT-5.3-Codex` both sampled endpoints, chunks 0 and 53, without attempting full retrieval. `Kimi K2.5` sampled six chunks: positions 0, 1, 50, 51, 52, and 53 — the first two and last four, a tail-weighted strategy that retrieved more tail context than `Sonnet` or `GPT` while stopping well short of full retrieval. `Claude Opus 4.6` retrieved all 54 chunks in parallel. Three distinct chunk selection strategies across four runs on the same URL and prompt suggest _chunk selection is model-dependent rather than prompt-driven_. Whether this reflects model capability, context window size, or prompt interpretation differences isn't resolvable from the `BL-1` data alone, but the divergence means `H5` results aren't uniform across models on identical URLs and prompts.
 
-The behavioral difference across `BL-1` runs is itself a finding. `Claude Sonnet 4.6` and
-`GPT-5.3-Codex` both sampled endpoints, chunks 0 and 53, without attempting full
-retrieval. `Kimi K2.5` sampled six chunks: positions 0, 1, 50, 51, 52, and 53 — the first
-two and last four, a tail-weighted strategy that retrieved more tail context than
-`Sonnet` or `GPT` while stopping well short of full retrieval. `Claude Opus 4.6` retrieved all
-54 chunks in parallel. Three distinct chunk selection strategies across four runs on the
-same URL and prompt suggest chunk selection is model-dependent rather than prompt-driven.
-Whether this reflects model capability, context window size, or prompt interpretation
-differences isn't resolvable from the `BL-1` data alone, but the divergence means `H5`
-results aren't uniform across models on the same URL and prompt.
+### Chunked Index, Empty Summaries — Blind Sampling
 
-### Empty Chunk Manifest — Blind Sampling
+`OP-4` run 4 used `Claude Opus 4.6` and `read_url_content` returned an index of 53 chunk positions, but all chunk summaries were uniformly empty, `" "` or `""`. The response is structurally complete — all positions are present, but not helpful. A model attempting to retrieve only article body content has no metadata to select against.
 
-`OP-4` run 4 used `Claude Opus 4.6` and `read_url_content` returned an index of 53 chunk positions,
-but all chunk summaries were uniformly empty, `" "` or `""`. The response is structurally complete —
-all positions are present, but not navigationally helpful. A model attempting to retrieve only article
-body content has no metadata to select against.
-
-This collapses the available retrieval strategies to two: sample blind, accepting that any chunk may
-contain CSS or navigation rather than tutorial content, or retrieve all 53 chunks exhaustively.
-`Opus` output stated that an exhaustive retrieval wasn't worth it, given the signal-to-noise ratio
-observed in sampled chunks; a correct assessment, but one that leaves the article body
-largely unread. In addition, `Opus` reported that the tool scraped the full rendered DOM, rather than
-the article body, so the chunk boundaries cut across CSS class definitions and navigation markup rather
-than document sections. According to `Opus`, there's no article structure for the tools to summarize;
-this is a parsing/extraction failure at the tool layer, not a size-based truncation issue, and likely not
-model behavior that a prompt can correct. Architectural truncation impacts the hypotheses in different
-ways:
+This collapses the available retrieval strategies to two: sample blind, accepting that any chunk may contain CSS or navigation rather than tutorial content, or retrieve all 53 chunks exhaustively. `Opus` output stated that an exhaustive retrieval wasn't worth it, given the signal-to-noise ratio observed in sampled chunks; a correct assessment, but one that leaves the article body largely unread. In addition, `Opus` reported that the tool scraped the full rendered DOM, rather than the article body, so the chunk boundaries cut across CSS class definitions and navigation markup rather than document sections. According to `Opus`, there's no article structure for the tools to summarize; this is a _parsing/extraction failure at the tool layer_, not a size-based truncation issue, and likely not model behavior that a prompt can correct. Architectural truncation impacts the hypotheses in different ways:
 
 | **Hypothesis** | **Verdict** | **Basis** |
 |---|---|---|
-| `H1` Character ceiling |  _No_ | ~220–240 KB actual content far exceeds any plausible fixed ceiling; apparent size variance is a rendering artifact, not a tool limit |
-| `H2` Token ceiling | _No_ | ~55,000–65,000 tokens across all 54 chunks rules out a ~2,000 token ceiling |
-| `H3` Structure-aware truncation | _Indeterminate_ | Chunks can show `MARKDOWN_NODE_TYPE_HEADER` metadata suggesting partial structure-awareness, but bulk content raw CSS/nav HTML, boundary behavior can't be assessed |
+| `H1` Character Ceiling |  _No_ | ~220–240 KB actual content far exceeds any plausible fixed ceiling; apparent size variance is a rendering artifact, not a tool limit |
+| `H2` Token Ceiling | _No_ | ~55,000–65,000 tokens across all 54 chunks rules out a ~2,000 token ceiling |
+| `H3` Structure-aware Truncation | _Indeterminate_ | Chunks can show `MARKDOWN_NODE_TYPE_HEADER` metadata suggesting partial structure-awareness, but bulk content raw CSS/nav HTML, boundary behavior can't be assessed |
 | `H5` Auto-pagination | _Partial_ | Confirmed for `Claude Opus 4.6` only; not observed for `Claude Sonnet 4.6` or `GPT-5.3-Codex` on identical prompt/URL |
 
->_Open Question: is full chunk retrieval model-dependent, prompt-dependent, or chunk-count-dependent?
-> Would running the same prompt with a smaller chunk count cause `Claude Sonnet 4.6` to attempt full retrieval?
-> Or is truncation a fixed display constraint regardless of call parameters?_
+> _The interpreted track captures model self-report variance. While `H1` and `H2` verdicts can be read as document-level, `view_content_chunk` imposes a separate per-chunk display ceiling, ~2K visible > chars (see [Chunked Index, Full Chunk Retrieval with Per-Chunk Display Truncation](#chunked-index-full-chunk-retrieval-with-per-chunk-display-truncation)).
+>`BL-3` `Opus` estimated ~56% retrieval loss attributable to this layer stacking across 53 positions. ~2K ceiling configurability is unconfirmed_.
+
+### Continuous Variable Pagination Depth
+
+`BL-3` produced four distinct pagination depths across five runs on the same 53-chunk URL, revealing that `H5` as currently framed doesn't capture the full behavioral range observed -
+
+| **Depth** | **Model** | **Chunks fetched** |
+|---|---|---|
+| None | `Claude Sonnet 4.6` | 0, index only |
+| Endpoint sampling | `GPT-5.3-Codex` | 2 |
+| Distributed sampling | `Kimi K2.5` | ~11 |
+| Full | `Claude Opus 4.6`, `SWE-1.6 Fast` | 53 |
+
+The stopping condition is as informative as the depth. `Claude Sonnet 4.6` cited empty chunk summaries as its rationale for not paginating, which isn't an uncommon interpretation that reasons an early exit. This makes pagination depth _rationalization-dependent_, not purely capability-dependent: the same chunk index with populated summaries might produce a different depth outcome for the same model. Empty summaries don't prevent retrieval; they remove the navigational signal that would motivate it.
+
+Pagination depth is a behavioral variable layered on top of a fixed retrieval structure. The chunk index architecture is deterministic: `read_url_content` consistently returns the same 53-chunk index across all runs and models. What varies is entirely downstream: model chunk election.
 
 ---
 
-## Unverified Size as Truncation Signal - Interpreted
+## Unverified Size as Truncation Signal
 
 `SWE-1.6` reported receiving "~4.8KB, 24% of expected ~20KB" and flagged this as evidence
 that the fetch was incomplete. The ~20KB expectation wasn't derived from a measurement —
@@ -393,7 +343,7 @@ but whether it recognized the difference between a verified measurement and an u
 
 ---
 
-## URL Fragment Targeting — Interpreted
+## URL Fragment Targeting
 
 During `OP-1` run 3, `Claude Opus 4.6` reported no truncation, citing the chunked architecture:
 

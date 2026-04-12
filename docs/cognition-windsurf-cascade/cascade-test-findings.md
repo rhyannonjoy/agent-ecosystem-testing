@@ -401,8 +401,6 @@ suggests that pagination decisions are downstream of chain-of-thought rationaliz
 just sampling temperature — making `H5` behavior sensitive to manifest content even when
 that content is uninformative.
 
----
-
 > **`Opus` run 3**: "The `read_url_content` and `view_content_chunk` pipeline retrieved
 > ~242KB of raw page data split across 53 chunks, but double-truncated it: first by
 > chunking, then by per-chunk output limits (~2K chars visible each). The result is ~106K

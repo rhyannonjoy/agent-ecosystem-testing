@@ -75,8 +75,8 @@ navigation:
         url: "/docs/cognition-windsurf-cascade/cascade-test-findings-raw"
       - title: "Framework Reference"
         url: "/docs/cognition-windsurf-cascade/framework-reference"
-      - title: "Friction Note"
-        url: "/docs/cognition-windsurf-cascade/friction-note"
+      - title: "Friction: Interpreted"
+        url: "/docs/cognition-windsurf-cascade/friction-note-interpreted"
     
   - title: "Google Gemini API"
     sections:
