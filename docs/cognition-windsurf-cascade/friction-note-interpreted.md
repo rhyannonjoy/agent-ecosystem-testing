@@ -18,6 +18,7 @@ parent: Cognition Windsurf Cascade
 - [Prompt Injection Suspicion](#prompt-injection-suspicion)
 - [`read_url_content` — Fetch Architecture and Parsing Limits](#read_url_content--fetch-architecture-and-parsing-limits)
 - [`read_url_content` Internal URL Rewriting](#read_url_content-internal-url-rewriting)
+- [Test Objective Unreachability](#test-objective-unreachability)
 - [Truncation Taxonomy](#truncation-taxonomy)
 - [Unverified Size as Truncation Signal](#unverified-size-as-truncation-signal)
 - [URL Fragment Targeting](#url-fragment-targeting)
@@ -218,6 +219,19 @@ making most of the hypotheses untestable. The five models' error output meaningf
 `GPT-4.5` surfaced Cascade's undocumented `CORTEX_STEP_TYPE_READ_URL_CONTENT` - which suggests that tool result metadata is passed through to the model context without sanitization in at least some error conditions.
 
 `SC-2` doesn't require a source URL change. A rerun after a Windsurf update or anti-redirect prompt may yield different results. Treat the rewriting behavior as a testable property of the tool, not a permanent constraint on the URL.
+
+---
+
+## Test Objective Unreachability
+
+`SC-3` tests table row and column preservation at truncation boundaries using a Wikipedia page with a large population table spanning chunk positions 3–13. Across all five runs, no model fetched any chunk within that range. All five runs defaulted to endpoint sampling - positions 0 and 58, or 0, 30, and 58 - leaving the test objective untested in every run.
+
+The chunk index summaries were populated and correctly identified the table content's position range. `SWE-1.6` mapped positions 3–13 as `"main article content (Method, Sovereign states table)"` from the index alone. Navigational signal was present; no model acted on it for targeting purposes.
+
+This distinguishes `SC-3` from `OP-4` and `BL-3`, where empty summaries made targeted retrieval impossible by design. On `SC-3`, targeted retrieval was architecturally viable, but behaviorally absent. The hypothesis isn't untestable in principle, it's untestable under current default sampling behavior on pages with 50+ chunks. A prompt explicitly
+directing models to retrieve the table-containing chunks may resolve this, but would also change what's being measured.
+
+The interpreted track documents default agent behavior under realistic conditions: what models do unprompted when given a URL and a reporting task. `SC-3`'s essentially-null result isn't a test design failure, but confirms that on pages exceeding ~50 chunks, default sampling behavior doesn't reach interior content even when the chunk index provides sufficient navigational signal to do so. That is itself a finding about the architecture's practical ceiling for content targeting: the tool supports it, the models don't use it at this scale.
 
 ---
 
