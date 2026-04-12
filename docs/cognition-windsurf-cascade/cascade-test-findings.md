@@ -407,3 +407,101 @@ that content is uninformative.
 > visible characters, almost entirely CSS/navigation chrome, with the actual tutorial
 > content inaccessible. For content-heavy documentation pages with heavy CSS-in-JS
 > frameworks, this tool combination fails to surface the substantive content."
+
+---
+
+## `SC-1` Summary
+
+### Test Conditions
+
+| | **SC-1** |
+|---|---|
+| URL | Gemini API URL context documentation (well-structured, code-heavy) |
+| Chunks returned | 14 |
+| Track | Interpreted |
+| Runs | 5 |
+
+---
+
+### `H1` — Character-based truncation at fixed ceiling
+
+**Indeterminate.** Character counts varied by model and counting method: ~22,000–47,600
+chars across 10–14 chunks depending on run. `Opus` provided the most granular breakdown,
+distinguishing navigation chrome (chunks 0–4, ~16,800 chars) from article content (chunks
+5–13, ~13,600 chars). No ceiling was hit. The page is small enough that full retrieval
+doesn't stress a limit.
+
+---
+
+### `H2` — Token-based truncation at ~2,000 tokens
+
+**Rejected.** Token estimates ranged from ~4,427–11,900 across runs with no cutoff
+observed.
+
+---
+
+### `H3` — Structure-aware truncation at Markdown boundaries
+
+**Indeterminate, with intra-run disagreement.** `Kimi K2.5` and `SWE-1.6` reported
+complete, clean Markdown with all code blocks properly closed. `Opus` and `Sonnet`
+both reported "partially degraded" — code blocks embedded as single-line strings,
+headers represented as structured metadata outside the text body rather than `#` syntax,
+and content duplication per chunk. The disagreement across runs on identical content
+suggests Markdown quality assessment is model-dependent, and earlier runs may have
+over-reported quality. Raw track verification is needed to establish ground truth.
+
+---
+
+### `H4` — `@web` directive changes retrieval behavior
+
+**Untested.** `search_web` not invoked in any run.
+
+---
+
+### `H5` — `view_content_chunk` auto-paginates without explicit prompting
+
+**Supported across all runs, with one novel behavior.**
+
+| Model | Chunks fetched | Strategy | H5 result |
+|---|---|---|---|
+| `GPT-5.3-Codex` | 14 (0–13) | Full sequential | `H5-yes` |
+| `Kimi K2.5` | 14 (0–13) | Full sequential | `H5-yes` |
+| `SWE-1.6 Fast` | 14 (0–13) | Full sequential | `H5-yes` |
+| `Claude Opus 4.6` | 14 (0–13) | Full parallel | `H5-yes` |
+| `Claude Sonnet 4.6` | 10 (0, 5–13) | Summary-guided selective exclusion | `H5-yes` |
+
+All five runs paginated without explicit prompting — the first test where `H5-yes` is
+confirmed across all models. `Opus` is the first run to retrieve chunks in parallel rather
+than sequentially. `Sonnet` introduced a new behavior: using empty `/` summaries for
+chunks 1–4 to actively exclude them as navigation boilerplate, retrieving only the 10
+substantive content chunks.
+
+---
+
+### Emergent Findings
+
+**Populated chunk summaries enable targeted retrieval.** `SC-1` is the first test where
+chunk index summaries were populated with meaningful content — section headings, content
+types - Python, Javascript, REST, and page title. This directly contrasts with the uniformly
+empty summaries in `OP-4` and `BL-3`, confirming summary population is URL-dependent
+rather than a universal tool behavior. The documented "human skim" behavior functioned
+as designed on this URL.
+
+**Summary-guided exclusion is a new pagination behavior.** `Sonnet` is the first model
+to use populated chunk summaries as a *filtering* signal rather than a targeting signal —
+skipping chunks whose summaries indicated navigation chrome rather than sampling or
+retrieving exhaustively. This is only possible when summaries are populated; the behavior
+collapses to blind sampling on URLs where summaries are empty.
+
+**The UI Tooltip Gap is behavioral, not architectural.** Across runs 1–3, chunk summaries
+visible in the Cascade UI tooltip were not referenced in model output, raising the question
+of whether models receive summaries in their tool response. `Opus` on run 4 explicitly
+confirmed that `read_url_content` returned "positions and summaries," and `Sonnet` of run 5
+demonstrably acted on summary content. The gap in earlier runs reflects models receiving
+but not reporting or acting on summaries, a behavioral variance, not a tool delivery gap.
+
+**Chunk count affects full-pagination likelihood.** All five models paginated fully or
+near-fully on 14 chunks. No model attempted full retrieval on 50+ chunk URLs in `BL-3`
+and `OP-4` without being the highest-capability model in the run. The 14-chunk count may
+fall below a threshold where full retrieval feels tractable to most models regardless
+of capability tier.
