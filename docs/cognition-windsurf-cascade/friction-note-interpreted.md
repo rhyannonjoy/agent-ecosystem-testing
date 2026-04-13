@@ -19,6 +19,7 @@ parent: Cognition Windsurf Cascade
 - [`read_url_content` — Fetch Architecture and Parsing Limits](#read_url_content--fetch-architecture-and-parsing-limits)
 - [`read_url_content` Internal URL Rewriting](#read_url_content-internal-url-rewriting)
 - [Retrieval Collapse, Indexing Masking Absence, Truncation Cacophany](#retrieval-collapse-indexing-masking-absence-truncation-cacophany)
+- [SPA Extraction: Duplication, Code Block Fidelity](#spa-extraction-duplication-code-block-fidelity)
 - [Test Objective Unreachability](#test-objective-unreachability)
 - [Truncation Taxonomy](#truncation-taxonomy)
 - [Unverified Size as Truncation Signal](#unverified-size-as-truncation-signal)
@@ -292,6 +293,26 @@ delivery, while missing that transformation _is_ a form of content loss. `Claude
 _"substantially complete, but not byte-for-byte faithful"_ is the most precise observed, because it separates structural coverage
 from content fidelity, but it's also the exception. This isn't a limitation of the logging or prompt ambiguity, but the signal that
 the interpreted track is designed to capture. The raw track is where the self-reports become accountable.
+
+---
+
+## SPA Extraction: Duplication, Code Block Fidelity
+
+`EC-1` used a single page application and surfaced two content fidelity issues not observed on static pages.
+
+| **Issue** | **Mechanism** | **Agent-recoverable?** |
+|---|---|---|
+| **Code Block Stripping** | Triple-backtick fences preserved but<br>language identifiers dropped — ` ```python ` becomes ` ``` `. Output is syntactically valid Markdown with no<br>truncation notice surfaced | _No_ — nothing distinguishes stripped identifier from absent one |
+| **Responsive DOM Duplication** | Nav elements rendered per breakpoint - desktop, mobile, sidebar - extracted as text; not de-duplicated before delivery; repeated nav blocks and code blocks appearing in both pre-render and post-render form | _No_ — no de-duplication signal in chunk output |
+| **Selective Semantic Processing** | Tool applies semantic transformation to prose: stripping HTML to Markdown, summarizing chunk content in index, but passes page structure through verbatim. The processing boundary appears to fall at the article body: content is transformed, shell appears extracted raw | _No_ — agents can't comment on processing boundary |
+
+All issues are invisible to agents without a raw source baseline to compare against, and produced the sharpest Markdown quality
+assessment disagreement in the dataset: agents running `GPT-5.3-Codex`, `Claude Sonnet 4.6` and `SWE-1.6` reported clean, complete Markdown;
+agents running `Claude Opus 4.6` and `Kimi K2.5` flagged duplication on identical chunk content.
+
+For SPAs, Markdown formatting assessment seems unreliable as a retrieval fidelity signal. Disagreement across agents on the same content
+may reflect whether an agent cross-referenced chunks rather than assessed each in isolation. This is the type of gap that the raw track is
+designed to close.
 
 ---
 
