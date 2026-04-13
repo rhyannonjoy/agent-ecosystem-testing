@@ -765,9 +765,7 @@ The gap is consistent and architectural, not stochastic.
 **Selective semantic processing applies to content, not shell.** The tool transforms prose
 content — stripping HTML tags, converting to Markdown, summarizing chunk index entries —
 but passes page structure through verbatim. Nav chrome, responsive breakpoint duplicates,
-and pre/post-render DOM states are extracted raw without de-duplication. See [SPA
-Extraction: Duplication and Code Block Fidelity](friction-note#spa-extraction-duplication-and-code-block-fidelity)
-in the friction note.
+and pre/post-render DOM states are extracted raw without de-duplication.
 
 **Markdown formatting assessment is unreliable on SPA sources.** Agents running `Sonnet`
 and `SWE-1.6` reported clean, complete Markdown; agents running `Opus` and `Kimi K2.5`
