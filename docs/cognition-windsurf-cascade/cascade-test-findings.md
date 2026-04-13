@@ -765,9 +765,7 @@ The gap is consistent and architectural, not stochastic.
 **Selective semantic processing applies to content, not shell.** The tool transforms prose
 content — stripping HTML tags, converting to Markdown, summarizing chunk index entries —
 but passes page structure through verbatim. Nav chrome, responsive breakpoint duplicates,
-and pre/post-render DOM states are extracted raw without de-duplication. See [SPA
-Extraction: Duplication and Code Block Fidelity](friction-note#spa-extraction-duplication-and-code-block-fidelity)
-in the friction note.
+and pre/post-render DOM states are extracted raw without de-duplication.
 
 **Markdown formatting assessment is unreliable on SPA sources.** Agents running `Sonnet`
 and `SWE-1.6` reported clean, complete Markdown; agents running `Opus` and `Kimi K2.5`
@@ -780,3 +778,85 @@ on `H1` because chunk selection depth made a ceiling unobservable. `EC-1` is ind
 for a different reason: the tool's extraction pipeline means a raw byte ceiling is never
 reachable regardless of chunk depth. These are distinct failure modes for hypothesis
 assessment and should be logged separately.
+
+---
+
+## `EC-3` Summary
+
+### Test Conditions
+
+| | **EC-3** |
+|---|---|
+| URL | httpbin redirect chain (`https://httpbin.org/redirect/5`) |
+| Chunks returned | 0 (inline delivery — chunked pipeline not triggered) |
+| Track | Interpreted |
+| Runs | 5 |
+
+---
+
+### `H1` — Character-based truncation at fixed ceiling
+
+**Untestable.** Response payload ranged from ~306–424 chars across runs, with variance
+attributable to per-request metadata (headers, origin IP) rather than retrieval depth.
+Far too small to probe any plausible ceiling.
+
+---
+
+### `H2` — Token-based truncation at ~2,000 tokens
+
+**Untestable.** ~82–160 tokens across runs. No ceiling approached.
+
+---
+
+### `H3` — Structure-aware truncation at Markdown boundaries
+
+**Not applicable.** Response is plain JSON, not Markdown.
+
+---
+
+### `H4` — `@web` directive changes retrieval behavior
+
+**Untested.** `search_web` not invoked in any run.
+
+---
+
+### `H5` — `view_content_chunk` auto-paginates without explicit prompting
+
+**Not applicable — chunked pipeline not triggered.** `view_content_chunk` was not
+invoked in any run. `read_url_content` returned the final redirect response as a
+single inline payload, bypassing the two-stage chunked architecture entirely.
+
+| Agent | Chunks fetched | `view_content_chunk` invoked | H5 result |
+|---|---|---|---|
+| `GPT-5.3-Codex` | — | No | N/A |
+| `Kimi K2.5` | — | No | N/A |
+| `SWE-1.6 Fast` | — | No | N/A |
+| `Claude Opus 4.6` | — | No | N/A |
+| `Claude Sonnet 4.6` | — | No | N/A |
+
+---
+
+### Emergent Findings
+
+**`read_url_content` has a size-conditional routing behavior.** Small payloads are
+returned inline as a single response; the chunked index pipeline is only triggered
+above a size threshold. This is confirmed across all five runs and all five agents —
+the first tool behavior confirmed unanimously without any agent variance. The
+threshold condition is unconfirmed but consistent with the ~300–400 char payload
+falling well below any plausible chunking trigger.
+
+**All 5 redirects were followed transparently.** The tool resolved the full
+`/redirect/5` → `/redirect/4` → ... → `/get` chain and returned only the terminal
+response. No intermediate redirect bodies were surfaced. Redirect handling is
+tool-layer behavior, not agent-dependent.
+
+**`read_url_content` uses the Go Colly scraping framework.** The httpbin `/get`
+response exposes the tool's HTTP client fingerprint. Agents running `Opus` and
+`Sonnet` independently identified the Colly user-agent, confirming `read_url_content`
+is a static scraper rather than a headless browser — directly relevant to `EC-1`'s SPA
+extraction failures and the pre/post-render duplication observed there.
+
+**EC-3 establishes a third `H1` untestable condition.** `BL-1` made `H1`
+indeterminate via agent-authored chunk selection; `EC-1` made it untestable via
+extraction ratio; `EC-3` makes it untestable via payload size. All three represent
+distinct architectural paths that prevent a character ceiling from being observable.
