@@ -62,7 +62,7 @@ post-retrieval processing differences from a shared fetch result.
 approved sequentially by user choice. Worktree isolation means slot position isn't
 expected to be an ordering variable.
 
-> _Windsurf v1.9600.38 introduced the [`Adaptive` model router](https://windsurf.com/changelog) that dynamically
+> _Windsurf `v1.9600.38` introduced the [`Adaptive` model router](https://windsurf.com/changelog) that dynamically
 >selects the underlying model per task like that of Copilot and Cursor's `Auto` settings. All interpreted track tests
 >used explicitly named models in hybrid arena mode, never triggering the `Adaptive` model router._
 
