@@ -687,3 +687,96 @@ summaries, and has no mixed-format or CMS-injection confounds. This makes
 it the most reliable interpreted track dataset for cross-model comparison
 and the strongest candidate for raw track verification of transformation
 losses.
+
+---
+
+## `EC-1` Summary
+
+### Test Conditions
+
+| | **EC-1** |
+|---|---|
+| URL | Gemini API overview — SPA (`ai.google.dev/gemini-api/docs`) |
+| Chunks returned | 10 |
+| Track | Interpreted |
+| Runs | 5 |
+
+---
+
+### `H1` — Character-based truncation at fixed ceiling
+
+**Reframed — untestable on SPA sources.** Character counts across runs ranged from
+~22,500–53,000, with the variance attributable to estimation method rather than retrieval
+depth. All five runs retrieved all 10 chunks. The ~100KB expected size corresponds to raw
+HTML; the tool delivers extracted text at roughly 25–30% of that. No ceiling was hit
+because the gap between expected and received is an extraction ratio, not a truncation
+event. `H1` is structurally untestable on SPA sources: the tool never delivers a raw
+payload against which a character ceiling could be measured.
+
+---
+
+### `H2` — Token-based truncation at ~2,000 tokens
+
+**Rejected.** Token estimates ranged from ~5,600–13,000 across runs with no cutoff
+observed.
+
+---
+
+### `H3` — Structure-aware truncation at Markdown boundaries
+
+**Indeterminate.** No mid-sentence cutoffs were observed within chunks. However,
+Markdown quality assessment disagreed sharply across agents on identical content —
+ranging from "clean and complete" to "hybrid format with heavy duplication" — making
+boundary behavior unassessable without raw track verification.
+
+---
+
+### `H4` — `@web` directive changes retrieval behavior
+
+**Untested.** `search_web` not invoked in any run.
+
+---
+
+### `H5` — `view_content_chunk` auto-paginates without explicit prompting
+
+**Supported across all runs.** All five agents retrieved all 10 chunks without explicit
+prompting — the second test after `SC-1` with universal full pagination. Consistent with
+the tractability threshold pattern: 10 chunks falls well below the range where agents
+default to sampling.
+
+| Agent | Chunks fetched | Strategy | H5 result |
+|---|---|---|---|
+| `GPT-5.3-Codex` | 10 (0–9) | Full sequential | `H5-yes` |
+| `Claude Opus 4.6` | 10 (0–9) | Full parallel | `H5-yes` |
+| `Claude Sonnet 4.6` | 10 (0–9) | Full parallel | `H5-yes` |
+| `Kimi K2.5` | 10 (0–9) | Full sequential | `H5-yes` |
+| `SWE-1.6 Fast` | 10 (0–9) | Full sequential | `H5-yes` |
+
+---
+
+### Emergent Findings
+
+**SPA extraction ratio is not a truncation ceiling.** The tool processes raw HTML into
+extracted text before delivery, discarding scripts, styles, and metadata. For this SPA,
+the extracted payload is ~25–30% of the raw HTML size. Agents running `Opus` and `SWE-1.6`
+identified this explicitly; others reported the size gap without diagnosing its cause.
+The gap is consistent and architectural, not stochastic.
+
+**Selective semantic processing applies to content, not shell.** The tool transforms prose
+content — stripping HTML tags, converting to Markdown, summarizing chunk index entries —
+but passes page structure through verbatim. Nav chrome, responsive breakpoint duplicates,
+and pre/post-render DOM states are extracted raw without de-duplication. See [SPA
+Extraction: Duplication and Code Block Fidelity](friction-note#spa-extraction-duplication-and-code-block-fidelity)
+in the friction note.
+
+**Markdown formatting assessment is unreliable on SPA sources.** Agents running `Sonnet`
+and `SWE-1.6` reported clean, complete Markdown; agents running `Opus` and `Kimi K2.5`
+flagged duplication and code block degradation on identical chunk content. Disagreement
+reflects whether an agent cross-referenced chunks rather than assessed each in isolation —
+not a difference in what was retrieved.
+
+**`EC-1` establishes a new untestable condition for `H1`.** Prior tests were indeterminate
+on `H1` because chunk selection depth made a ceiling unobservable. `EC-1` is indeterminate
+for a different reason: the tool's extraction pipeline means a raw byte ceiling is never
+reachable regardless of chunk depth. These are distinct failure modes for hypothesis
+assessment and should be logged separately.
