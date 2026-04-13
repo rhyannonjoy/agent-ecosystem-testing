@@ -42,10 +42,13 @@ and completed one at a time by user choice, not by Cascade automation.
 slot runs in its own worktree, later slots can't read artifacts written by earlier slots
 regardless of approval order. The session ordering confounder documented in
 [Copilot's unsolicited cross-run analysis](../microsoft-github-copilot/friction-note.md#agentic-over-delivery-unsolicited-cross-run-analysis---raw-track) —
-where later runs incorporated prior run artifacts autonomously — doesn't apply here by design. Each
-slot is a structurally independent replicate of the same condition. Whether Cascade's worktree isolation
-holds in practice under sequential approval is worth confirming from the `BL-1` output, but the documented
-architecture supports treating slots as independent.
+where later runs incorporated prior run artifacts autonomously — doesn't apply here by design.
+Testing results suggest that Cascade's per-slot worktree isolation does hold under sequential approval
+approval in practice, as later slots didn't appear to incorporate artifacts from earlier slots. It's
+more likely that Cascade reads from the workspace across all slots for common context, without
+constituting a type of cross-slot state contamination. For example, in `EC-6`, `Claude Sonnet 4.6`
+flagged the prompt as suspicious and refused to proceed while the other agents completed the test tasks
+with no issues. 
 
 **`read_url_content` requires explicit user approval before each fetch executes.** When
 asked directly, Cascade confirmed: it invokes `read_url_content` when a URL is provided,
@@ -54,15 +57,14 @@ own fetch independently, confirmed by a distinct permission prompt per slot. Out
 across slots reflects the full pipeline — retrieval through post-processing — not
 post-retrieval processing differences from a shared fetch result.
 
-**Methodology Decision**: log all four slots as distinct rows under the same test ID.
+**Methodology Decision**: log all five slots as distinct rows under the same test ID.
 `Auto Execution` is disabled throughout testing to maximize observable detail; slots are
 approved sequentially by user choice. Worktree isolation means slot position isn't
-expected to be an ordering variable, but continue to check if output shows any cross-slot
-artifact bleed before treating all four slots as fully independent replicates.
+expected to be an ordering variable.
 
->_Open Question: does Cascade's per-slot worktree isolation hold under sequential
->approval in practice, or does some shared session state persist across slots? The `BL-1` interpreted track
->output is the first opportunity to check for cross-slot behavioral similarity that would suggest shared context._
+> _Windsurf v1.9600.38 introduced the [`Adaptive` model router](https://windsurf.com/changelog) that dynamically
+>selects the underlying model per task like that of Copilot and Cursor's `Auto` settings. All interpreted track tests
+>used explicitly named models in hybrid arena mode, never triggering the `Adaptive` model router._
 
 ---
 
@@ -134,11 +136,23 @@ This is the inverse of the `GPT-4.5` behavior in `SC-2` run 3, which leaked`CORT
 and without prompting. Across two runs, the two failure modes are symmetric: one agent over-reports undocumented internal 
 metadata;another refuses to report documented tool names. Neither behavior is useful for systematic tool visibility logging.
 
+`EC-6` run 2 produced a full refusal, again from an agent running `Claude Sonnet 4.6`. Unlike `OP-4`, where the agent
+completed the retrieval task but declined to report tool names, this run refused the fetch entirely. The reasoning surfaced
+four suspicion signals: named tool identifiers in the prompt,
+[the source URL](https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md) flagged by repository name as
+a potential prompt injection payload, isolation framing - `"don't proceed to other tests"` read as a social engineering pattern,
+and test metadata — ID, expected file size, empirical framing — dismissed as false legitimacy signals.
+
+The URL flag is new. `OP-4` triggered on prompt content alone; `EC-6` triggered on the fetch target itself. A URL that accurately
+describes the testing project is indistinguishable, from the agent's perspective, from one constructed to manipulate behavior
+after ingestion. The refusal didn't hold across execution contexts. A single-agent retry of the same prompt with the same URL
+completed normally — full parallel retrieval of all chunks, no refusal.
+
 ### Methodology Implication
 
 The tool visibility item in the interpreted track prompt may need two variants: one that names tools explicitly for agents
 that don't flag extraction heuristics, and one that uses generic language for agents that do. Alternatively, accept that tool
-visibility self-reporting is unreliable across agent families and treat it as a soft signal rather than a primary observation.
+visibility self-reporting is unreliable across model families and treat it as a soft signal rather than a primary observation.
 Cross-referencing against Cascade's tool approval prompts, which are user-visible regardless of agent reporting, is a more
 reliable source of tool visibility. The suspicion is also structurally unfalsifiable from the agent's perspective: a prompt
 that accurately describes the tool's behavior is indistinguishable from one that was constructed with adversarial foreknowledge
