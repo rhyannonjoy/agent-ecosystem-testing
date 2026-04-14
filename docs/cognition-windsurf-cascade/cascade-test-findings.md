@@ -66,33 +66,56 @@ Agents consistently use `read_url_content` to fetch URLs, but depending on the s
 calls to `view_content_chunk` is worth it. While it determines output size and truncation self-report, chunks fetched is the primary
 behavioral variable in this dataset.
 
-<div style="margin: 1.5rem 0; font-family: inherit;">
+{% raw %}
+<div id="cas-hm-root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 
 <style>
 .cas-hm-wrap { overflow-x: auto; }
-table.cas-hm { border-collapse: collapse; width: 100%; min-width: 600px; }
-table.cas-hm th { font-size: 11px; font-weight: 500; padding: 4px 6px; text-align: center; white-space: nowrap; color: inherit; }
-table.cas-hm th.cas-row-head { text-align: left; min-width: 140px; }
+table.cas-hm { border-collapse: collapse; width: 100%; }
+table.cas-hm th { font-size: 11px; font-weight: 500; padding: 4px 5px; text-align: center; white-space: nowrap; color: inherit; }
+table.cas-hm th.cas-row-head { text-align: left; }
 table.cas-hm th .cas-chunk-count { font-weight: 400; font-size: 11px; opacity: 0.6; }
-table.cas-hm td { padding: 3px 4px; text-align: center; }
-table.cas-hm td.cas-row-label { font-size: 12px; text-align: left; padding-left: 0; white-space: nowrap; font-weight: 400; padding-right: 8px; color: inherit; }
-.cas-cell { border-radius: 4px; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; width: 54px; height: 32px; margin: 1px auto; }
-.cas-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; font-size: 11px; align-items: center; color: inherit; opacity: 0.75; }
+table.cas-hm td { padding: 2px 3px; text-align: center; }
+table.cas-hm td.cas-row-label { font-size: 12px; text-align: left; padding-left: 0; white-space: nowrap; font-weight: 400; padding-right: 6px; color: inherit; }
+.cas-hint { font-size: 11px; opacity: 0.5; margin-top: 6px; cursor: pointer; color: inherit; }
+.cas-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.cas-overlay-inner {
+  border-radius: 10px;
+  padding: 24px 28px;
+  max-width: 98vw;
+  max-height: 92vh;
+  overflow: auto;
+  position: relative;
+}
+.cas-close {
+  position: absolute; top: 12px; right: 14px;
+  background: none; border: none; font-size: 20px;
+  cursor: pointer; opacity: 0.5; line-height: 1;
+}
+.cas-close:hover { opacity: 1; }
+.cas-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; font-size: 11px; align-items: center; opacity: 0.8; }
 .cas-legend-swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; flex-shrink: 0; border: 0.5px solid rgba(128,128,128,0.3); }
-.cas-note { font-size: 12px; margin-top: 10px; line-height: 1.6; color: inherit; opacity: 0.75; }
+.cas-note { font-size: 12px; margin-top: 10px; line-height: 1.6; opacity: 0.7; }
 </style>
-
-<div class="cas-hm-wrap">
-<table class="cas-hm" id="cas-hm-table"></table>
-</div>
-<div class="cas-legend" id="cas-hm-legend"></div>
-<p class="cas-note"><i>Columns ordered by total chunks, ascending. Excluded: <code>EC-3</code> untriggered chunk pipeline; <code>SC-2</code> URL rewriting failure, no content retrieval. 0: agent observed, but no <code>view_content_chunk</code> call.<br><code>Sonnet 4.6*</code>: single retry after prompt refusal. Hover over cells for fetched/total counts.</i></p>
-
-</div>
 
 <script>
 (function() {
-  var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var e = React.createElement;
+
+  function detectDark() {
+    var theme = document.documentElement.getAttribute('data-theme');
+    if (theme === 'dark') return true;
+    if (theme === 'light') return false;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
 
   var testOrder = [
     {id:'BL-2', total:3,  l1:'BL-2', l2:'3'  },
@@ -167,65 +190,202 @@ table.cas-hm td.cas-row-label { font-size: 12px; text-align: left; padding-left:
     Opus:'Opus 4.6', SWE:'SWE-1.5/1.6', Kimi:'Kimi K2.5', GPT54:'GPT-5.4'
   };
 
-  var notObsBg = isDark ? '#3a3a38' : '#d6d4cc';
-
-  function cellStyle(fetched, total, declined, refused) {
-    if (refused)  return {bg:'#D4537E', fg:'#fff',    label:'R'  };
-    if (declined) return {bg:isDark?'#3C3489':'#EEEDFE', fg:isDark?'#CECBF6':'#3C3489', label:'0' };
+  function getCellColors(isDark, fetched, total, declined, refused) {
+    if (refused)  return {bg:isDark?'#D4537E':'#FF8A65', fg:'#fff', label:'R'};
+    if (declined) return {bg:isDark?'#3C3489':'#BA68C8', fg:'#fff', label: '0'};
     var p = Math.round((fetched / total) * 100);
-    if (p === 100) return {bg:isDark?'#085041':'#1D9E75', fg:'#fff', label:'100%'};
-    if (p >= 50)   return {bg:isDark?'#0C447C':'#85B7EB', fg:isDark?'#B5D4F4':'#042C53', label:p+'%'};
-    if (p >= 10)   return {bg:isDark?'#BA7517':'#FAC775', fg:isDark?'#FAEEDA':'#633806', label:p+'%'};
-    return {bg:isDark?'#A32D2D':'#F09595', fg:isDark?'#F7C1C1':'#501313', label:p+'%'};
+    if (p === 100) return {bg:isDark?'#0F6E56':'#1D9E75', fg:'#fff', label:'100%'};
+    if (p >= 50)   return {bg:isDark?'#185FA5':'#378ADD', fg:'#fff', label:p+'%'};
+    if (p >= 10)   return {bg:isDark?'#cba452':'#FFB74D', fg:isDark?'#412402':'#412402', label:p+'%'};
+    return               {bg:isDark?'#A32D2D':'#F06292', fg:'#fff', label:p+'%'};
   }
 
-  function makeCell(run) {
-    if (!run) {
-      return '<div class="cas-cell" style="background:' + notObsBg + ';"></div>';
-    }
-    var c = cellStyle(run.fetched, run.total, run.declined, run.refused);
-    var tip = run.fetched + '/' + run.total + (run.note ? ' (' + run.note + ')' : '');
-    return '<div class="cas-cell" style="background:' + c.bg + ';color:' + c.fg + ';" title="' + tip + '">' + c.label + '</div>';
+  function getLegendItems(isDark, notObsBg) {
+    return [
+      {bg:isDark?'#0F6E56':'#1D9E75', label:'100% chunk summaries viewed'},
+      {bg:isDark?'#185FA5':'#378ADD', label:'50-99% - most chunk summaries viewed'},
+      {bg:isDark?'#cba452':'#FFB74D', label:'10-49% - sparse chunk summary sampling'},
+      {bg:isDark?'#A32D2D':'#F06292', label:'<10% - endpoint chunk summary sampling'},
+      {bg:isDark?'#3C3489':'#BA68C8', label:'0: declined pagination'},
+      {bg:isDark?'#D4537E':'#FF8A65', label:'R \u2014 prompt refused'},
+      {bg:notObsBg,                       label:'untested'},
+    ];
   }
 
-  var html = '<thead><tr><th class="cas-row-head">Agent</th>';
-  testOrder.forEach(function(t) {
-    html += '<th>' + t.l1 + '<br><span class="cas-chunk-count">' + t.l2 + '</span></th>';
-  });
-  html += '</tr></thead><tbody>';
+  function Code(props) {
+    return e('code', {style:{
+      background: props.isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.07)',
+      color: props.textColor || 'inherit',
+      borderRadius: 3,
+      padding: '1px 4px',
+      fontSize: '11px',
+      fontFamily: 'monospace'
+    }}, props.children);
+  }
 
-  agentOrder.forEach(function(agent) {
-    var ar = runs.filter(function(r) { return r.agent === agent; });
-    if (!ar.length) return;
-    html += '<tr><td class="cas-row-label">' + agentLabels[agent] + '</td>';
-    testOrder.forEach(function(t) {
-      var run = ar.find(function(r) { return r.test === t.id; });
-      html += '<td>' + makeCell(run) + '</td>';
-    });
-    html += '</tr>';
-  });
-  html += '</tbody>';
-  document.getElementById('cas-hm-table').innerHTML = html;
+  function HeatmapTable(props) {
+    var dark = props.isDark;
+    var cellW = props.large ? 64 : 46;
+    var cellH = props.large ? 38 : 30;
+    var agentColW = props.large ? 140 : 100;
+    var fs = props.large ? 12 : 11;
+    var tc = props.textColor || 'inherit';
+    var notObsBg = dark ? '#363634' : '#d0cec7';
 
-    var legendItems = [
-    {bg:isDark?'#085041':'#1D9E75', label:'100% chunk summaries viewed'},
-    {bg:isDark?'#0C447C':'#85B7EB', label:'50-99% - most chunk summaries viewed'},
-    {bg:isDark?'#BA7517':'#FAC775', label:'10-49% - sparse chunk summary sampling'},
-    {bg:isDark?'#A32D2D':'#F09595', label:'<10% - endpoint chunk summary sampling'},
-    {bg:isDark?'#3C3489':'#EEEDFE', label:'0: declined pagination'},
-    {bg:'#D4537E', label:'R: refused prompt'},
-    {bg:notObsBg, label:'untested'},
-  ];
+    return e('div', {className:'cas-hm-wrap'},
+      e('table', {className:'cas-hm'},
+        e('thead', null,
+          e('tr', null,
+            e('th', {className:'cas-row-head', style:{minWidth:agentColW, color:tc}}, 'Agent'),
+            testOrder.map(function(t) {
+              return e('th', {key:t.id, style:{color:tc}},
+                t.l1, e('br'), e('span', {className:'cas-chunk-count'}, t.l2)
+              );
+            })
+          )
+        ),
+        e('tbody', null,
+          agentOrder.map(function(agent) {
+            var ar = runs.filter(function(r) { return r.agent === agent; });
+            if (!ar.length) return null;
+            return e('tr', {key:agent},
+              e('td', {className:'cas-row-label', style:{color:tc}}, agentLabels[agent]),
+              testOrder.map(function(t) {
+                var run = ar.find(function(r) { return r.test === t.id; });
+                if (!run) {
+                  return e('td', {key:t.id},
+                    e('div', {style:{
+                      borderRadius:4, fontSize:fs, fontWeight:500,
+                      display:'flex', alignItems:'center', justifyContent:'center',
+                      width:cellW, height:cellH, margin:'1px auto',
+                      background:notObsBg
+                    }})
+                  );
+                }
+                var c = getCellColors(dark, run.fetched, run.total, run.declined, run.refused);
+                var tip = run.fetched+'/'+run.total+(run.note?' ('+run.note+')':'');
+                return e('td', {key:t.id},
+                  e('div', {title:tip, style:{
+                    borderRadius:4, fontSize:fs, fontWeight:500,
+                    display:'flex', alignItems:'center', justifyContent:'center',
+                    width:cellW, height:cellH, margin:'1px auto',
+                    background:c.bg, color:c.fg
+                  }}, c.label)
+                );
+              })
+            );
+          })
+        )
+      )
+    );
+  }
 
-document.getElementById('cas-hm-legend').innerHTML = legendItems.map(function(item) {
-    return '<span style="display:flex;align-items:center;gap:5px;">'
-      + '<span class="cas-legend-swatch" style="background:' + item.bg + ';"></span>'
-      + '<span>' + item.label + '</span>'
-      + '</span>';
-  }).join('');
+  function Legend(props) {
+  var dark = props.isDark;
+  var notObsBg = dark ? '#363634' : '#d0cec7';
+  var tc = props.textColor || 'inherit';
+  var items = getLegendItems(dark, notObsBg);
+  return e('table', {style:{borderCollapse:'collapse', marginTop:0, fontSize:11, width:'auto'}},
+    e('tbody', null,
+      items.map(function(item, i) {
+        return e('tr', {key:i},
+          e('td', {style:{paddingRight:8, paddingBottom:4, verticalAlign:'middle'}},
+            e('span', {style:{
+              width:12, height:12, borderRadius:2, display:'inline-block',
+              background:item.bg, border:'0.5px solid rgba(128,128,128,0.3)'
+            }})
+          ),
+          e('td', {style:{paddingBottom:4, color:tc, opacity:0.8, whiteSpace:'nowrap'}}, item.label)
+        );
+      })
+    )
+  );
+}
 
+  function Note(props) {
+  var tc = props.textColor || 'inherit';
+  var dark = props.isDark;
+  var C = function(p) { return e(Code, {textColor:tc, isDark:dark}, p.children); };
+  return e('p', {className:'cas-note', style:{color:tc, marginTop:0, paddingTop:0}},
+    e('i', null,
+      'Columns: total chunks, ascending. Excluded: ',
+      e(C, null, 'EC-3'), ' untriggered chunk pipeline; ',
+      e(C, null, 'SC-2'), ' URL rewriting failure, no content retrieval. ',
+      '0: agent observed, but no ', e(C, null, 'view_content_chunk'), ' call. ',
+      e(C, null, 'Sonnet 4.6*'), ': single retry after prompt refusal. Hover over cells for fetched/total counts.'
+    )
+  );
+}
+
+  function App() {
+    var state = React.useState(false);
+    var isOpen = state[0];
+    var setOpen = state[1];
+
+    var isDark = detectDark();
+    var lbBg   = isDark ? '#1e1e1c' : '#ffffff';
+    var lbText = isDark ? '#e8e6df' : '#1a1a18';
+
+    React.useEffect(function() {
+      function onKey(ev) { if (ev.key === 'Escape') setOpen(false); }
+      if (isOpen) {
+        document.addEventListener('keydown', onKey);
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
+      return function() {
+        document.removeEventListener('keydown', onKey);
+        document.body.style.overflow = '';
+      };
+    }, [isOpen]);
+
+    return e('div', {style:{marginTop:'1.5rem', fontFamily:'inherit'}},
+      e('div', {onClick:function(){ setOpen(true); }, style:{cursor:'pointer'}},
+        e(HeatmapTable, {large:false, isDark:isDark}),
+        e('p', {className:'cas-hint'}, '\u2197 click to expand')
+      ),
+      e('div', {style:{display:'flex', gap:32, alignItems:'center', flexWrap:'wrap', marginTop:8, width:'100%', justifyContent:'center'}},
+        e('div', {style:{flexShrink:0}},
+          e(Legend, {isDark:isDark})
+        ),
+        e('div', {style:{flex:1, maxWidth:380}},
+          e(Note, {isDark:isDark})
+        )
+      ),
+      isOpen && e('div', {
+        className:'cas-overlay',
+        onClick:function(ev){ if (ev.target === ev.currentTarget) setOpen(false); }
+      },
+        e('div', {
+          className:'cas-overlay-inner',
+          style:{background:lbBg, color:lbText, width: '98vw'}
+        },
+          e('button', {
+            className:'cas-close',
+            style:{color:lbText},
+            onClick:function(){ setOpen(false); },
+            'aria-label':'Close'
+          }, '\u00d7'),
+          e(HeatmapTable, {large:true, isDark:isDark, textColor:lbText}),
+          e('div', {style:{display:'flex', gap:32, alignItems:'center', flexWrap:'nowrap', marginTop:8, width:'100%', justifyContent:'center'}},
+            e('div', {style:{flexShrink:0}},
+              e(Legend, {isDark:isDark, textColor:lbText})
+            ),
+            e('div', {style:{flex:1, maxWidth:380}},
+              e(Note, {isDark:isDark, textColor:lbText})
+            )
+          ),
+        )
+      )
+    );
+  }
+
+  var root = ReactDOM.createRoot(document.getElementById('cas-hm-root'));
+  root.render(e(App));
 })();
 </script>
+{% endraw %}
 
 The tractability threshold is visible left-to-right: agents tend toward full retrieval on chunk counts ≤14 and toward sparse sampling on
 larger ones ≥50, with 33–38 chunks as the transition zone where model families diverge. `Opus 4.6` and `SWE-1.6` show the most consistent
