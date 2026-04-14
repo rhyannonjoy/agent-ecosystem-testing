@@ -27,8 +27,8 @@ parent: Microsoft GitHub Copilot
        exactly as received, report file size, MD5 checksum, character/line/word/token
        counts, code blocks, table rows, headers, hexdump of last 256 bytes, and any
        visible tool/server identifiers
-    4. Open a new Copilot chat session in VSCode and paste the prompt into the chat window
-    5. Allow terminal tool calls; skip any tool call prompts for Python scripts
+    4. Open a new Copilot session in VS Code and paste the prompt into the chat window
+    5. Allow terminal tool calls; skip any requests for local script runs
     6. Run the verifier: `python web_content_retrieval_verify_raw_results.py {test ID}`
     7. Log both Copilot-reported and verifier-measured values as separate fields;
        the delta between them is the finding

@@ -27,11 +27,11 @@ parent: Microsoft GitHub Copilot
     3. Copy the provided prompt asking the model to report on fetch results:
        character count, token estimate, truncation status, content completeness,
        Markdown formatting integrity, and tool visibility
-    4. Open a new Copilot chat session in VS Code and paste the prompt into the chat window
+    4. Open a new Copilot session in VS Code and paste the prompt into the chat window
     5. Skip any tool call prompts for local scripts or code execution
     6. Capture model's full text response and observations as the interpreted finding;
        gap between the model's self-report and actual fetch behavior is a finding
-    7. Log structured metadata as described in the `framework-reference.md`
+    7. Log structured metadata as described in `framework-reference.md`
     8. Ensure log results are saved to `/results/copilot-interpreted/results.csv`*
 
 >*_Results logged as "Methods tested: `vscode-chat`" reflect a manually
