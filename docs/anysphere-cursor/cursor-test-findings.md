@@ -27,11 +27,11 @@ parent: Anysphere Cursor
     3. Copy the provided prompt asking the model to report on `@Web`* fetch results:
        character count, token estimate, truncation status, content completeness,
        Markdown formatting integrity
-    4. Open a new Cursor chat session and paste the prompt into the chat window
-    5. Capture model's full text response and observations as the interpreted-finding;
-       gap between the model's self report and actual fetch behavior is a finding
-    6. Log structured metadata as described in the `framework-reference.md`
-    7. Ensure log results are saved to `cursor-web-fetch/results/cursor-interpreted/results.csv`
+    4. Open a new Cursor session and paste the prompt into the chat window
+    5. Capture agent's full text response and observations as the interpreted-finding;
+       gap between the agent's self report and actual fetch behavior is a finding
+    6. Log structured metadata as described in `framework-reference.md`
+    7. Ensure log results are saved to `/results/cursor-interpreted/results.csv`
 
 >_*All results logged as "Methods tested: `@Web`" reflect user-facing syntax
 used in prompts. However, post-analysis revealed `@Web` was misused as a

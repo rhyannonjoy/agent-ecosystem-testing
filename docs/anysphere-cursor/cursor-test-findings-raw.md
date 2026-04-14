@@ -27,11 +27,11 @@ parent: Anysphere Cursor
     1. Run `python web_fetch_testing_framework.py --test {test ID} --track raw`
     2. Review the terminal output
     3. Copy the provided prompt asking `@Web`* to fetch the URL and save verbatim output
-    4. Open a new Cursor chat session and paste the prompt into the chat window
+    4. Open a new Cursor session in VS Code and paste the prompt into the chat window
     5. Examine the saved `raw_output{test ID}.txt` file
     6. Compute exact metrics - run `python3 web_fetch_verify_raw_results.py {test ID}`
     7. Log structured metadata with precise measurements - file size, MD5, token count via tiktoken
-    8. Ensure log results are saved to `cursor-web-fetch/results/raw/results.csv`
+    8. Ensure log results are saved to `/results/raw/results.csv`
 
 >_*All results logged as "Methods tested: `@Web`" reflect user-facing syntax
 used in prompts. However, post-analysis revealed `@Web` was misused as a
