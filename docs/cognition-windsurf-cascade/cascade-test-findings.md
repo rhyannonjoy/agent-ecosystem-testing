@@ -249,7 +249,7 @@ table.cas-hm td.cas-row-label { font-size: 12px; text-align: left; padding-left:
             var ar = runs.filter(function(r) { return r.agent === agent; });
             if (!ar.length) return null;
             return e('tr', {key:agent},
-              e('td', {className:'cas-row-label', style:{color:tc}}, agentLabels[agent]),
+              e('td', {className:'cas-row-label', style:{color:tc, verticalAlign:'middle'}}, agentLabels[agent]),
               testOrder.map(function(t) {
                 var run = ar.find(function(r) { return r.test === t.id; });
                 if (!run) {
