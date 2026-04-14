@@ -58,7 +58,7 @@ parent: Cognition Windsurf Cascade
 | **Average Token Count** | 13,745 tokens |
 | **Approval-gated Fetch** | 49 / 61 runs prompted for approval |
 | **Auto-pagination** | 33 runs auto-paginated;<br>2 runs paginated when prompted |
-| **Complete Retrieval Failure** | `SC-2`URL rewriting bug |
+| **Complete Retrieval Failure** | `SC-2` URL rewriting bug |
 
 ## Agentic Pagination Depth
 
