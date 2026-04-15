@@ -87,36 +87,15 @@ I don't have a tool called @web... Was there a different tool you intended for
 me to use, or is "@web" a directive that maps to one of these tools?
 ```
 
-But generally, the agents aren't wrong. Given a specific URL and a fetch task, `read_url_content` is the correct tool. The prompt created a conflict that agents resolved by prioritizing task appropriateness over instruction-following. This is behaviorally reasonable, but methodologically, it means the explicit track as currently designed doesn't test what it was designed to test: no run triggered `search_web`. No comparison between `search_web` and `read_url_content` retrieval behavior is possible from this data.
-
-### Prompt Revision
-
-Step 7 of the explicit track prompt was revised to append the interpretation question directly to
-the tool visibility item, rather than as a separate step:
-
-> **7. Tool visibility** - report any tool names or method identifiers visible in your tool results,
-> including whether `read_url_content`, `view_content_chunk`, or `search_web` were invoked, and
-> what your understanding is of what `@web` maps to in Windsurf.
-
-This captures the interpretation data in the same response as the behavioral data without steering
+Generally, the agents aren't wrong. Given a specific URL and a fetch task, `read_url_content` is the
+correct tool. The prompt created a conflict that agents resolved by prioritizing task appropriateness over
+instruction-following. This is behaviorally reasonable, but methodologically, it means the explicit track
+as currently designed doesn't test what it was designed to test: no run triggered `search_web`. The explicit
+track prompt requires working-in _"what's your understanding of `@web`?"_ to test the intended hypothesis;
+the goal is to capture the interpretation data in the same response as the behavioral data without steering
 agents toward a forced-choice answer before they report what they actually did.
 
-### Methodology Implication
-
-The explicit track hypothesis requires reformulation before further testing. Two options:
-
-**Option A — Reframe the explicit track as a `search_web` track.** Replace the specific URL with a
-keyword query, use `@web` as intended, and measure whether `search_web`-initiated retrieval differs
-from `read_url_content`-initiated retrieval on equivalent content. This tests a real behavioral
-difference but requires different test URLs and breaks cross-platform comparability with the
-interpreted track.
-
-**Option B — Treat the explicit track as a directive-conflict resolution test.** Keep the prompt
-as-is, log how each agent resolves the directive-task conflict, and accept that the retrieval
-measurements are equivalent to the interpreted track by design. The finding is the conflict
-resolution behavior itself, not a retrieval ceiling comparison.
-
-The directive-task conflict is not an anomaly to suppress. The five-agent divergence in how agents
-explained their tool choice — some treating `@web` as a `read_url_content` alias, others correctly
-identifying it as `search_web` but justifying the override — is itself a finding about how agents
-reason about Windsurf's tool surface when instructions and task semantics conflict.
+The directive-task conflict is not an anomaly to suppress. Methodology refinement could include replacing the
+test URL with a keyword query, but that would break cross-platform comparability with the interpreted track.
+Keeping the prompt mostly as-is can add a type of conflict-resolution dimension to the findings without losing
+the core behavioral comparison.
