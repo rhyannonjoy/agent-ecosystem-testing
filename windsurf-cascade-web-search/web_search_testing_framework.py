@@ -52,7 +52,7 @@ TEST_URLS = {
         "note": "Same as Claude API test 1; CSS problem test from Dachary Carey research",
     },
     "BL-2": {
-        "name": "Short Markdown version (same page, different encoding)",
+        "name": "Short Markdown version (same page, mixed format, incomplete field values)",
         "url": "https://www.mongodb.com/docs/manual/reference/change-events/create.md",
         "expected_size_kb": 20,
         "category": "baseline",
