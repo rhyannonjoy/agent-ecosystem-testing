@@ -249,6 +249,8 @@ to the agent context without sanitization in at least some error conditions.
 `SC-2` doesn't require a source URL change. A rerun after a Windsurf update or anti-redirect prompt may yield different
 results. Treat the rewriting behavior as a testable tool property, not a permanent URL constraint.
 
+> _This failure mode is recharacterized in the [Friction: Explicit content](friction-note-explicit.md#sc-2-url-redirect-behavior)._
+
 ---
 
 ## Retrieval Collapse, Indexing Masking Absence, Truncation Cacophany
