@@ -12,6 +12,7 @@ parent: Cognition Windsurf Cascade
 ## Topic Guide - Explicit Track
 
 - [Agent as Unreliable Methodology Validator](#agent-as-unreliable-methodology-validator)
+- [Agent Self-Reporting Fidelity](#agent-self-reporting-fidelity)
 - [Agentic Inaction](#agentic-inaction)
 - [`@web` Semantics: Prompt-Tool Misalignment](#web-semantics-prompt-tool-misalignment)
 
@@ -64,6 +65,29 @@ and the tool reporting from the initial run is unreliable as a record of what th
 
 ---
 
+## Agent Self-Reporting Fidelity
+
+During `SC-2` both `SWE-1.6` and `Kimi K2.5` reported reading 4-5 chunk positions while their thought panels revealed
+a materially different behavior: both were collapsing multiple chunks per call, up to 12 at a time, without disclosing
+this in their output.
+
+`SWE` reported reading positions 0, 1, 500, and 1008. `Kimi` reported reading positions 0, 100, 500, 1000, and
+1008. In both cases, the thought panel showed batch reads of up to 12 chunks being collapsed into single reported reads.
+Neither agent noted the discrepancy between stated and actual retrieval behavior.
+
+This creates a specific problem for tool visibility data. The tool usage tables and position lists that appear in most
+agent reports, that the testing framework uses as behavioral records, may not accurately reflect what the agent actually
+retrieved. An agent that reads 12 chunks and reports 1 looks identical in its output to an agent that read 1. Without
+access to the thought panel, the distinction is invisible.
+
+### Methodology Implication
+
+Don't reat agent reports as complete records of retrieval behavior. Examine thought panels if accessible and cross-reference
+stated positions against call sequences. As observed during the interpreted track, agents that don't expose a thought
+panel provide no way to audit the gap.
+
+---
+
 ## Agentic Inaction
 
 During `BL-1` and `BL-2` runs, agents recognized conditions that warranted an available tool call, didn't use it,
@@ -88,6 +112,13 @@ content was well below the ~20 KB expectation, or that the mixed HTML/Markdown f
 _"likely a scraping/rendering artifact."_<br>`GLM-5.1` stated that
 _"the original page likely contains more sections and that content was either not fetched or not chunked."_ No agent
 used `search_web` in an attempt to verify. No agent noted that it was choosing not to verify.
+
+`GLM-5.1` during `SC-2` is the only explicit track agent to invoke `search_web`, and the result illustrates a boundary
+case for the tool's utility: the call returned near-empty results for the Anthropic docs, with summaries reading `"Loading... Loading..."`, consistent with `search_web` being unable to render JavaScript-heavy pages. The agent correctly identified
+this as a limitation rather than a content finding. This is useful negative data — `search_web` and `read_url_content` have non-overlapping failure modes, and `GLM` inadvertently demonstrated both in the same session; but it also means the one
+agent that called `search_web` as a verification tool _received nothing verifiable from it_. The tool was available, used,
+and still didn't close the uncertainty the agent had already flagged. The inaction finding from `BL-1` and `BL-2`
+holds: having access to `search_web` and calling `search_web` are not the same as getting useful output from it.
 
 ### Methodology Implication
 
