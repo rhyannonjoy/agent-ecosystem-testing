@@ -12,7 +12,9 @@ parent: Cognition Windsurf Cascade
 ## Topic Guide - Explicit Track
 
 - [Agent as Unreliable Methodology Validator](#agent-as-unreliable-methodology-validator)
+- [Agent Self-Reporting Fidelity](#agent-self-reporting-fidelity)
 - [Agentic Inaction](#agentic-inaction)
+- [`SC-2` URL Redirect Behavior](#sc-2-url-redirect-behavior)
 - [`@web` Semantics: Prompt-Tool Misalignment](#web-semantics-prompt-tool-misalignment)
 
 ---
@@ -64,6 +66,29 @@ and the tool reporting from the initial run is unreliable as a record of what th
 
 ---
 
+## Agent Self-Reporting Fidelity
+
+During `SC-2` both `SWE-1.6` and `Kimi K2.5` reported reading 4-5 chunk positions while their thought panels revealed
+a materially different behavior: both were collapsing multiple chunks per call, up to 12 at a time, without disclosing
+this in their output.
+
+`SWE` reported reading positions 0, 1, 500, and 1008. `Kimi` reported reading positions 0, 100, 500, 1000, and 1008.
+In both cases, the thought panel showed batch reads of up to 12 chunks being collapsed into single reported reads.
+Neither agent noted the discrepancy between stated and actual retrieval behavior.
+
+This creates a specific problem for tool visibility data. The tool usage tables and position lists that appear in most
+agent reports, that the testing framework uses as behavioral records, may not accurately reflect what the agent actually
+retrieved. An agent that reads 12 chunks and reports 1 looks identical in its output to an agent that read 1. Without
+access to the thought panel, the distinction is invisible.
+
+### Methodology Implication
+
+Don't treat agent reports as complete records of retrieval behavior. Examine thought panels if accessible and cross-reference
+stated positions against call sequences. As observed during the interpreted track, agents that don't expose a thought
+panel provide no way to audit the gap.
+
+---
+
 ## Agentic Inaction
 
 During `BL-1` and `BL-2` runs, agents recognized conditions that warranted an available tool call, didn't use it,
@@ -89,6 +114,13 @@ _"likely a scraping/rendering artifact."_<br>`GLM-5.1` stated that
 _"the original page likely contains more sections and that content was either not fetched or not chunked."_ No agent
 used `search_web` in an attempt to verify. No agent noted that it was choosing not to verify.
 
+`GLM-5.1` during `SC-2` is the only explicit track agent to invoke `search_web`, and the result illustrates a boundary
+case for the tool's utility: the call returned near-empty results for the Anthropic docs, with summaries reading `"Loading... Loading..."`, consistent with `search_web` being unable to render JavaScript-heavy pages. The agent correctly identified
+this as a limitation rather than a content finding. This is useful negative data — `search_web` and `read_url_content` have non-overlapping failure modes, and `GLM` inadvertently demonstrated both in the same session; but it also means the one
+agent that called `search_web` as a verification tool _received nothing verifiable from it_. The tool was available, used,
+and still didn't close the uncertainty the agent had already flagged. The inaction finding from `BL-1` and `BL-2`
+holds: having access to `search_web` and calling `search_web` are not the same as getting useful output from it.
+
 ### Methodology Implication
 
 Don't read agent output with completeness-language as a source content finding. _"Likely a scraping artifact"_ isn't a
@@ -96,6 +128,42 @@ confirmed diagnosis, but an unverified hypothesis. The agent had tools available
 Cross-referencing against the raw source, as with
 [`BL-2`'s mixed-format misidentification](friction-note-interpreted.md#mixed-format-source-misidentified),
 remains the only reliable method for distinguishing tool pipeline artifacts from source document properties.
+
+---
+
+## `SC-2` URL Redirect Behavior
+
+[The interpreted track documented](friction-note-interpreted.md#read_url_content-internal-url-rewriting)
+agentic-framing of `read_url_content` behavior in which the tool appeared to rewrite
+`https://docs.anthropic.com/en/api/messages` to `https://platform.claude.com/docs/llms-full.txt` before executing the fetch.
+Agents interpreted this as a tool-level bug, a type of requested path substitution pre-network call. `SWE-1.6`'s
+output included constructed reasoning, but no hard error codes or instrumentation output:
+
+```markdown
+`read_url_content` appears to have an internal URL rewriting issue that transforms `https://docs.anthropic.com/en/api/messages` into
+`https://docs.anthropic.com/llms-full.txt`, which then redirects to a non-existent endpoint"
+```
+
+The explicit track's runs reproduced the same behavior. No agent received the target content, all were redirected to `llms-full.txt`,
+but there's reason to question the "rewriting" characterization. `llms-full.txt` is a format deliberately for LLM consumption. A
+server-side `301/302` redirect from `docs.anthropic.com/en/api/messages` to the LLM-optimized docs set is likely intentional design,
+not a bug. The agents received a redirect instruction from the error response and followed it; whether the redirect originated inside
+`read_url_content` or from Anthropic's server isn't clear from agent output alone. Two competing explanations remain open:
+
+| | **Tool-layer Rewriting** | **Server-side Redirect** |
+|---|---|---|
+| **Origin** | `read_url_content` intercepts<br>before network call | Anthropic's server returns `301/302` |
+| **_Requested path fetched?_** | _No_ — substituted before<br>request is made | _No_ — redirect followed<br>as specified |
+| **Implication** | Cascade bug | Intentional routing for<br>LLM-consumption |
+| **Affects** | Cascade only | Any automated fetch against `docs.anthropic.com` |
+| **Agent Diagnostic Source** | _No_ - error codes absent<br>or redirect metadata not visible in thought panel | Inferred from redirect<br>response text |
+| **_Resolvable by raw track?_** | Assumed | Assumed |
+
+### Methodology Implication
+
+Treat the interpreted track's "URL rewriting" as an agent-generated hypothesis, not a confirmed finding. The raw track may resolve
+this if the prompts reveal any additional HTTP `GET` details. Until those tests are run, "redirect behavior" is the neutral
+characterization in which the layer responsible remains a mystery.
 
 ---
 
