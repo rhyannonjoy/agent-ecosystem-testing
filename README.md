@@ -20,7 +20,7 @@ document these details
 | -------- | ---- | ------- |
 | Anthropic Claude API | [web fetch](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool) | `claude-api/` |
 | Anysphere Cursor IDE | [`@Web` context attachment](https://cursor.com/docs/agent/prompting) | `cursor-web-fetch/` |
-| Cognition Windsurf Cascade IDE | [`@web` directive](https://docs.windsurf.com/windsurf/cascade/web-search) | `windsurf-cascade-web-search/` |
+| Cognition Windsurf Cascade IDE | `read_url_content`, [`@web` directive](https://docs.windsurf.com/windsurf/cascade/web-search) | `windsurf-cascade-web-search/` |
 | Google Gemini API | [URL context](https://ai.google.dev/gemini-api/docs/url-context) | `gemini-url-context/` |
 | Microsoft GitHub Copilot Extension | `fetch_webpage` and/or `curl` | `copilot-web-content-retrieval/` |
 | OpenAI Chat Completions API,<br> Responses API | [web search](https://developers.openai.com/api/docs/guides/tools-web-search) | `open-ai-web-search/` |
