@@ -12,6 +12,7 @@ parent: Cognition Windsurf Cascade
 ## Topic Guide - Explicit Track
 
 - [Agent as Unreliable Methodology Validator](#agent-as-unreliable-methodology-validator)
+- [Agentic Inaction](#agentic-inaction)
 - [`@web` Semantics: Prompt-Tool Misalignment](#web-semantics-prompt-tool-misalignment)
 
 ---
@@ -19,11 +20,14 @@ parent: Cognition Windsurf Cascade
 ## Agent as Unreliable Methodology Validator
 
 The explicit track's conflict: instructing agents to "use `@web`" while providing a specific URL for fetching —
-mirrors a failure mode documented during [Cursor testing](../anysphere-cursor/friction-note.md#agent-as-unreliable-methodology-validator), but with an important behavioral difference.
+mirrors a failure mode documented during
+[Cursor testing](../anysphere-cursor/friction-note.md#agent-as-unreliable-methodology-validator), but with an
+important behavioral difference.
 
 During Cursor testing, `@Web` was invoked under the false premise that it triggered web fetching and content
 retrieval. Cursor never flagged the misuse. It executed tests, generated reports, and logged `@Web` in tool
-usage output, actively reinforcing the misconception rather than correcting it. The methodology was built on a misunderstanding of the mechanism being tested, and the agent's behavior made that misunderstanding invisible
+usage output, actively reinforcing the misconception rather than correcting it. The methodology was built on
+a misunderstanding of the mechanism being tested, and the agent's behavior made that misunderstanding invisible
 until external review.
 
 Cascade's behavior diverges. All `BL-1` explicit track agents used `read_url_content` and, when followed up with
@@ -41,14 +45,57 @@ discrepancy with the prompt instruction. This is better than Cursor's behavior, 
 still required human follow-up to identify the correction. A user who didn't ask would have received seemingly
 compliant output.
 
-The structural problem is the same across both platforms: agents don't reliably flag when prompts conflict with tool semantics. Cascade's agents corrected when asked; Cursor's agents reinforced when not asked. Neither volunteered the correction proactively during the run where the misuse was present. The irony in the Cascade case is the sharpest
+The structural problem is the same across both platforms: agents don't reliably flag when prompts conflict with tool
+semantics. Cascade's agents corrected when asked; Cursor's agents reinforced when not asked. Neither volunteered the
+correction proactively during the run where the misuse was present. The irony in the Cascade case is the sharpest
 with `SWE`, Cognition's own model, whose architectural knowledge is present, but whose product knowledge appears absent.
 
 ### Methodology Implication
 
-The follow-up probe — _"why aren't you using `@web` like the prompt requests?"_ — should be treated as a required methodology step for the explicit track, not an optional clarification. It surfaces correction behavior that the initial run conceals, and the variance in how agents explain the conflict is itself a data point about tool visibility across models.
+The follow-up probe — _"why aren't you using `@web` like the prompt requests?"_ — should be treated as a required
+methodology step for the explicit track, not an optional clarification. It surfaces correction behavior that the
+initial run conceals, and the variance in how agents explain the conflict is itself a data point about tool visibility
+across models.
 
-The broader implication from the Cursor parallel holds here: testing frameworks built with agents require external validation. An agent that silently resolves a directive-task conflict by choosing the correct tool looks identical, in its output, to an agent that followed the prompt correctly. Without the follow-up, the distinction is invisible — and the tool reporting from the initial run is unreliable as a record of what the prompt intended to measure.
+The broader implication from the Cursor parallel holds here: testing frameworks built with agents require external
+validation. An agent that silently resolves a directive-task conflict by choosing the correct tool looks identical,
+in its output, to an agent that followed the prompt correctly. Without the follow-up, the distinction is invisible —
+and the tool reporting from the initial run is unreliable as a record of what the prompt intended to measure.
+
+---
+
+## Agentic Inaction
+
+During `BL-1` and `BL-2` runs, agents recognized conditions that warranted an available tool call, didn't use it,
+and didn't explain why. In spite of a report that reads as complete, it contained unresolved questions the agent
+identified, but didn't pursue.
+
+All `BL-1` runs used a prompt with `@web` and a URL. No agent invoked `search_web`. Each agent completed the test
+and reported results as if the instruction had been satisfied. Only with a follow-up question did the agent explain
+the inaction, but a user who didn't ask wouldn't have any indication that the directive was ignored.
+
+`search_web` was only called once across 61 runs on the interpreted track. `SWE-1.6` testing `SC-2` used it as a
+fallback after two failed fetch attempts; this suggests that the tool is available, but not used proactively, even
+when agents express uncertainty. Throughout baseline testing on the explicit track, agents explained that when used
+with a URL, `@web` maps to the chunking-pipeline of `read_url_content` - so if using `@web` with a URL is
+technically unncessary, shouldn't the same agent that can explain the directive's details also explain its misuse?
+During multiple platform testing tracks, agents have over-delivered confident-looking output: tool tables, measurement
+breakdowns, and architectural explanations, while silently skipping the one thing that might actually help a user:
+_"you're using this wrong."_
+
+Across all `BL-2` runs, agents flagged uncertainty about the source completeness, noting the ~3.5–6.5 KB retrieved
+content was well below the ~20 KB expectation, or that the mixed HTML/Markdown format was
+_"likely a scraping/rendering artifact."_<br>`GLM-5.1` stated that
+_"the original page likely contains more sections and that content was either not fetched or not chunked."_ No agent
+used `search_web` in an attempt to verify. No agent noted that it was choosing not to verify.
+
+### Methodology Implication
+
+Don't read agent output with completeness-language as a source content finding. _"Likely a scraping artifact"_ isn't a
+confirmed diagnosis, but an unverified hypothesis. The agent had tools available to test it and didn't use them.
+Cross-referencing against the raw source, as with
+[`BL-2`'s mixed-format misidentification](friction-note-interpreted.md#mixed-format-source-misidentified),
+remains the only reliable method for distinguishing tool pipeline artifacts from source document properties.
 
 ---
 

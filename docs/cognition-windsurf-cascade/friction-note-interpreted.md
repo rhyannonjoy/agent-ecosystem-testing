@@ -73,31 +73,26 @@ position isn't expected to be an ordering variable.
 
 The `BL-2` [source document](https://www.mongodb.com/docs/manual/reference/change-events/create.md)
 is a mixed-format file: the page structure and prose are written in Markdown, but the field description
-table is written in raw HTML. This is a valid and complete document. Across all five `BL-2` runs, agents
-didn't recognize it as such. The mixed format was read as evidence of parsing failure, toolchain corruption,
-or incomplete retrieval rather than as an intentional authoring choice. Throughout runs, agents consistently
-misdiagnosed this as a retrieval issue rather than a source format choice:
+table is written in raw HTML. Across all five `BL-2` runs, agents read the mixed format as evidence of
+parsing failure, toolchain corruption, or incomplete retrieval rather than as a stable source. Throughout
+runs, agents consistently diagnosed this as a retrieval issue:
 
-| **Artifact** | **Agent Attribution** | **Actual Cause** |
+| **Artifact** | **Agent Attribution** | **Possible Cause** |
 |---|---|---|
-| HTML table in `.md` source | Toolchain failed to convert page to Markdown | Table is authored in HTML in the source;<br>no conversion occurred or was expected |
-| `nsType` enum values absent | Stripped during<br>HTML-to-text conversion | Values are CMS-injected at render time from a separate data source; absent in the `.md`<br>source by design |
+| HTML table in `.md` source | Toolchain failed to convert page to Markdown | Table is authored in HTML in the source; no conversion occurred or was expected |
+| `nsType` enum values absent | Stripped during<br>HTML-to-text conversion | Values absent in the `.md` source; CMS-injected at rendering |
 | `ce-create##` prefix | Toolchain metadata injection or parsing anomaly | Present verbatim in the source as a CMS publishing artifact |
 
-This is a misidentification failure, not a retrieval failure. The document is complete; the agent's assessment
-of what a complete document should look like did not account for mixed-format sources.
-
-The [truncation taxonomy](#truncation-taxonomy---interpreted-track) captures cases where retrieval delivers
+The [truncation taxonomy](#truncation-taxonomy) captures cases where retrieval delivers
 less than the source contains. This phenomenon is different in kind: retrieval delivers the source faithfully,
 but the agent doesn't recognize the source format as valid and treats its properties as retrieval artifacts.
 The gap isn't in the retrieval, but in the agent's artifact type identification.
 
 Mixed-format source misidentification introduces a confound for any hypothesis that relies on agent self-reported
-truncation assessments. An agent reporting "content appears truncated" or "table structure is broken" may be
+truncation assessments. An agent reporting _"content appears truncated"_ or _"table structure is broken"_ may be
 accurately describing a retrieval artifact or misidentifying a property of a valid mixed-format source.
 The observable evidence is identical from the agent's perspective. Cross-referencing agent truncation reports
-against the raw source is necessary to distinguish these cases. For `BL-2`, direct inspection of the `.md` source
-confirms the document is complete and the mixed format is intentional.
+against the raw source is necessary to distinguish these cases.
 
 ### Methodology Implication
 
@@ -107,9 +102,10 @@ where source inspection is needed.
 
 Before treating a formatting-based truncation attribution as evidence for or against a retrieval hypothesis, check
 whether the flagged anomaly is a property of the source document. For `BL-2`, direct inspection of the `.md` source
-confirms the mixed format is intentional and the document is complete. Where source inspection isn't feasible, apply
-additional skepticism to formatting attributions that appear consistently across multiple agents on the same URL.
-Consistency is more characteristic of a stable source property than of stochastic toolchain behavior.
+confirms the mixed format is present, but whether the document is complete by design or incomplete by artifact remains
+unverified. Where source inspection isn't feasible, apply additional skepticism to formatting attributions that appear
+consistently across multiple agents on the same URL. Consistency is more characteristic of a stable source property
+than of toolchain conjecture.
 
 ---
 
