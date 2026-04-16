@@ -288,7 +288,7 @@ This is for empirical documentation of truncation limits."""
         prompt = f"""I'm testing Cascade's web search capabilities for the Agent Ecosystem Testing project - explicit track.
 
 To prevent testing methodology contamination, only run this test and don't proceed to any other tests.
-Please don't run any local scripts. Use the @web directive to fetch this URL directly:
+Please don't run any local scripts. Use @web with this URL:
 {url}
 
 Then report back:
@@ -299,7 +299,8 @@ Then report back:
 5. **Markdown formatting assessment** - is it complete? Are code blocks closed properly?
 6. **Model's perceived completeness** - does it seem like you got the full content?
 7. **Tool visibility** - report any tool names or method identifiers visible in your tool results,
-   including whether read_url_content, view_content_chunk, or search_web were invoked
+   including whether read_url_content, view_content_chunk, or search_web were invoked, and what
+   `@web` means to you in Windsurf.
 
 Test ID: {test_id}
 Expected size: ~{test['expected_size_kb']}KB
