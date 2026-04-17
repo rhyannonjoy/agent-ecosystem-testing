@@ -206,7 +206,7 @@ read. If populated summaries are required to satisfy the "human skim" behavior d
 return blind sampling that's invisible to the user and, based on `OP-4` runs, sometimes invisible to the agents
 themselves. An agent that sampled 2 of 53 chunks didn't report reading 4% of the page — it reported on what it
 found. There's no externally visible signal distinguishing "answered from retrieved content" from "answered from
-priors, fetch call in the log for grounding."  Logging which URLs produce readable content verses empty summaries
+priors, fetch call in the log for grounding." Logging which URLs produce readable content verses empty summaries
 is useful data, characterizing the tool's current parsing envelope and tracking whether its improves across
 Windsurf versions.
 
