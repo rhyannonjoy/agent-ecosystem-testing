@@ -68,24 +68,36 @@ and the tool reporting from the initial run is unreliable as a record of what th
 
 ## Agent Self-Reporting Fidelity
 
-During `SC-2` both `SWE-1.6` and `Kimi K2.5` reported reading 4-5 chunk positions while their thought panels revealed
-a materially different behavior: both were collapsing multiple chunks per call, up to 12 at a time, without disclosing
+During `SC-2` both `SWE-1.6` and `Kimi K2.5` reported reading 5 chunk positions while their thought panels revealed
+different behavior: both were collapsing multiple chunks per call, up to 12 at a time, without disclosing
 this in their output.
 
 `SWE` reported reading positions 0, 1, 500, and 1008. `Kimi` reported reading positions 0, 100, 500, 1000, and 1008.
 In both cases, the thought panel showed batch reads of up to 12 chunks being collapsed into single reported reads.
 Neither agent noted the discrepancy between stated and actual retrieval behavior.
 
-This creates a specific problem for tool visibility data. The tool usage tables and position lists that appear in most
-agent reports, that the testing framework uses as behavioral records, may not accurately reflect what the agent actually
-retrieved. An agent that reads 12 chunks and reports 1 looks identical in its output to an agent that read 1. Without
-access to the thought panel, the distinction is invisible.
+The inverse pattern appeared in `OP-4`. `GLM-5.1` retrieved 14 chunks nonlinearly across the index, all visible in the
+thought panel, but didn't describe why. `Kimi` also sampled nonlinearly across roughly 10 positions and didn't report a
+chunk count or position list at all. In both cases the sampling pattern was only recoverable from the thought panel, not
+the output. These represent two distinct fidelity failures operating in opposite directions:
+
+| | **`SC-2`** | **`OP-4`** |
+|---|---|---|
+| **Direction** | Under-reporting | Partial reporting |
+| **What's Hidden** | Batch reads collapsed into<br>single stated positions | Nonlinear position sequence,<br>sometimes chunk count |
+| **Report Appearance** | Looks like minimal,<br>precise sampling | Looks like complete<br>tool visibility |
+
+A third pattern emerged from `SWE-1.6`'s `OP-4` run, which called `view_content_chunk` 53 times. This was the only run across both
+tracks to disclose full retrieval depth accurately. This variation creates a specific problem for tool visibility data. The tool
+usage tables and position lists that appear in most agent reports, that the testing framework uses as behavioral records, may not
+accurately reflect what the agent actually retrieved. An agent that reads 12 chunks and reports 1 looks identical in its output to
+an agent that read 1. Without access to the thought panel, the distinction is invisible.
 
 ### Methodology Implication
 
 Don't treat agent reports as complete records of retrieval behavior. Examine thought panels if accessible and cross-reference
-stated positions against call sequences. As observed during the interpreted track, agents that don't expose a thought
-panel provide no way to audit the gap.
+stated positions against call sequences. The gap takes different forms - collapsed batch reads, omitted position sequences, missing
+chunk counts, but the effect is the same: self-reported tool visibility is an unreliable record of retrieval. 
 
 ---
 
