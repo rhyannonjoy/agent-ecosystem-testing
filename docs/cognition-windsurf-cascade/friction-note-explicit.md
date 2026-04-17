@@ -87,18 +87,27 @@ the output. These represent two distinct fidelity failures operating in opposite
 | **What's Hidden** | Batch reads collapsed into<br>single stated positions | Nonlinear position sequence,<br>sometimes chunk count |
 | **Report Appearance** | Looks like minimal,<br>precise sampling | Looks like complete<br>tool visibility |
 
-A third pattern emerged from `SWE-1.6`'s `OP-4` run, which called `view_content_chunk` 53 times. This was the only run across both
-tracks to disclose full retrieval depth accurately. This variation creates a specific problem for tool visibility data. The tool
-usage tables and position lists that appear in most agent reports, that the testing framework uses as behavioral records, may not
-accurately reflect what the agent actually retrieved. An agent that reads 12 chunks and reports 1 looks identical in its output to
-an agent that read 1. Without access to the thought panel, the distinction is invisible.
+A third pattern emerged from `SWE-1.6`'s `OP-4` run, which called `view_content_chunk` 53 times. This was the only run
+across both tracks to disclose full retrieval depth accurately. This variation creates a specific problem for tool
+visibility data. The tool usage tables and position lists that appear in most agent reports, that the testing framework
+uses as behavioral records, may not accurately reflect what the agent actually retrieved. An agent that reads 12 chunks
+and reports 1 looks identical in its output to an agent that read 1. Without access to the thought panel, the distinction
+is invisible.
 
-`BL-3` results also displayed this type of discrepancy. `GLM-5` reported 13 `view_content_chunk` calls while the thought panel showed
-19 passes, a ~32% undercount. `Kimi` again omitted chunk count and position list entirely from its output, consistent with its `OP-4`
-behavior. `Claude Sonnet 4.6` was the exception: its report accurately reflected 6 sampled chunks with explicit position labels and
-reasoning about the sampling strategy, matching thought panel behavior. Alongside `SWE`'s `OP-4` full call disclosure, these two 
-accurate cases used opposite strategies: exhaustive retrieval and deliberate sparse sampling. What they share is that the sampling
-rationale was made explicit in output, and not left to the thought panel.
+`BL-3` results also displayed this type of discrepancy. `GLM` reported 13 `view_content_chunk` calls while the thought
+panel showed 19 passes, a ~32% undercount. `Kimi` again omitted chunk count and position list entirely from its output,
+consistent with its `OP-4` behavior. `Claude Sonnet 4.6` was the exception: its report accurately reflected 6 sampled
+chunks with explicit position labels and reasoning about the sampling strategy, matching thought panel behavior. Alongside
+`SWE`'s `OP-4` full call disclosure, these two accurate cases used opposite strategies: exhaustive retrieval and deliberate
+sparse sampling. What they share is that the sampling rationale was made explicit in output, and not left to the thought panel.
+
+`SC-1` introduced a fourth pattern: parallel execution opacity. All runs showed named chunk labels collapsing into unlabeled passes
+mid-sequence in the thought panel, batching calls in a way that loses per-position granularity. `GPT-5.3-Codex` is the only agent
+to name the parallel wrapper in its output, `functions.multi_tool_use.parallel`, while `Claude Opus 4.7`, `GLM`, `Kimi`, and `SWE`
+all displayed the same collapsing without disclosing the mechanism. Whether parallel execution is occurring in all runs or only in
+`GPT`'s is unresolvable from output alone. `GPT`'s tendency to expose implementation details that other agents abstract is itself a
+fidelity signal. The same underlying operation may produce different levels of visibility depending on the agentic output's
+abstraction level.
 
 ### Methodology Implication
 
