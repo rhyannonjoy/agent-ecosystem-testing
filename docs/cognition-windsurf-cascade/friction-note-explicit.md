@@ -93,6 +93,13 @@ usage tables and position lists that appear in most agent reports, that the test
 accurately reflect what the agent actually retrieved. An agent that reads 12 chunks and reports 1 looks identical in its output to
 an agent that read 1. Without access to the thought panel, the distinction is invisible.
 
+`BL-3` results also displayed this type of discrepancy. `GLM-5` reported 13 `view_content_chunk` calls while the thought panel showed
+19 passes, a ~32% undercount. `Kimi` again omitted chunk count and position list entirely from its output, consistent with its `OP-4`
+behavior. `Claude Sonnet 4.6` was the exception: its report accurately reflected 6 sampled chunks with explicit position labels and
+reasoning about the sampling strategy, matching thought panel behavior. Alongside `SWE`'s `OP-4` full call disclosure, these two 
+accurate cases used opposite strategies: exhaustive retrieval and deliberate sparse sampling. What they share is that the sampling
+rationale was made explicit in output, and not left to the thought panel.
+
 ### Methodology Implication
 
 Don't treat agent reports as complete records of retrieval behavior. Examine thought panels if accessible and cross-reference
