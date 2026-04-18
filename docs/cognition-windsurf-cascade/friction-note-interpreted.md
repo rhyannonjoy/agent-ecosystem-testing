@@ -359,7 +359,10 @@ phenomena that don't map cleanly onto any of the three Copilot cases.
 | **Chunked index,<br>full chunk retrieval with per-chunk display truncation** | _Structurally yes_, but middle of most chunks hidden | _Yes_ — agent surfaces truncation<br>notices per chunk | _No_, hidden bytes aren't in any<br>saved artifact |
 | **Chunked index,<br>full chunk retrieval,<br>incorrect<br>self-report** | _Structurally yes_, per-chunk display truncated | _No_, CSS completeness mistaken for content completeness | _No_, no metadata to<br>cross-reference against |
 | **Chunked index,<br>empty summaries,<br>blind sampling** | _No_, index<br>complete but<br>summaries uninformative | _No_, agent reports what it sampled | _No_, no metadata to<br>cross-reference against |
-| **Retrieval-layer architectural<br>excerpting** | _No_, content filtered before delivery | _No_, agent sees what<br>the tool delivered | _Indirectly_ via truncation indicators,<br>size vs expected |
+| **Retrieval-layer architectural<br>excerpting*** | _No_, content filtered before delivery | _No_, agent sees what<br>the tool delivered | _Indirectly_ via truncation indicators,<br>size vs expected |
+
+> *_Explicit track's `EC-1` results reinforced this pattern: ~100 KB page returned ~20,000-35,000 chars with no agent-reported
+> truncation. Agents evaluating truncation within tool response, not against the source, have no signal that ~65-80 KB was never delivered_.
 
 ### Chunked Index, Partial Chunk Retrieval
 
