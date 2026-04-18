@@ -339,6 +339,8 @@ task. `SC-3`'s essentially-null result isn't a test design failure, but confirms
 doesn't reach interior content even when the chunk index provides sufficient signal to do so. That's itself a finding about the
 architecture's practical ceiling for content targeting: the tool supports it, the agents don't tend to use it at this scale.
 
+>_The explicit track replicated this finding. Like `SWE`, `GLM-5.1` identified the table position from the index without retrieving it_.
+
 ---
 
 ## Truncation Taxonomy
