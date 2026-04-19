@@ -200,10 +200,9 @@ characterization in which the layer responsible remains a mystery.
 
 ## `@web` Semantics: Prompt-Tool Misalignment
 
-The explicit track exists to answer a specific question: does prefixing `@web` change retrieval behavior —
-ceiling, tool chain, chunking — relative to the interpreted track's autonomous agent behavior? The first `BL-1`
-runs surfaced a prior question that must be resolved before that comparison is meaningful: what does `@web`
-actually map to?
+The explicit track exists to answer a specific question: does prefixing `@web` change retrieval behavior? Does this
+additional syntax have any impact on ceiling, tool chain, chunking? The first `BL-1` runs identified a question that
+must be resolved before that comparison is meaningful: what does `@web` actually map to?
 
 According to [Windsurf's documentation](https://docs.windsurf.com/windsurf/cascade/web-search), `@web` is a
 directive to "force a docs search." The docs distinguish this explicitly from "reading pages," which describe
@@ -213,10 +212,9 @@ the "Enable Web Search" admin setting. These are architecturally distinct operat
 - `@web` / `search_web` — takes a query, returns a ranked list of URLs with snippets
 - `read_url_content` — takes a specific URL, fetches and chunks its content
 
-The original prompt instructs agents to "use the `@web` directive to fetch this URL directly." This is a
-contradictory instruction: `@web` is a search directive; the task is a URL fetch. Agents can't satisfy both
-simultaneously. Across `BL-1` runs, no agent invoked `search_web`. All five used `read_url_content`, then
-offered varying explanations for the discrepancy:
+The original prompt instructs agents to "use the `@web` directive to fetch this URL directly." This is a contradictory
+instruction: `@web` is a search hint; the task is a URL fetch. Agents can't satisfy both simultaneously. Across `BL-1`
+runs, no agent invoked `search_web`. All five used `read_url_content`, then offered varying explanations for the discrepancy:
 
 | **Agent** | **Reasoning** |
 |---|---|
@@ -226,22 +224,23 @@ offered varying explanations for the discrepancy:
 | `Kimi K2.5` | `@web` - UI shorthand, but used `read_url_content`<br>as appropriate fetch mechanism |
 | `SWE-1.6` | No tool called `@web` - `read_url_content` for HTTP `GET` requests -<br>returns chunk index, `search_web` queries search engine,<br>returns snippets |
 
-While Cognition's `SWE` eventually offered the most technically precise account of the directive-task distinction, the agent appeared unaware that `@web` is a Cascade UI feature. While sharing detailed knowledge about the pipeline architecture, that knowledge isn't product-aware:
+While Cognition's `SWE` eventually offered the most technically precise account of the directive-task distinction, the agent
+appeared unaware that `@web` is a Cascade UI feature. While sharing detailed knowledge about the pipeline architecture, that
+knowledge isn't product-aware:
 
 ```Markdown
 I don't have a tool called @web... Was there a different tool you intended for
 me to use, or is "@web" a directive that maps to one of these tools?
 ```
 
-Generally, the agents aren't wrong. Given a specific URL and a fetch task, `read_url_content` is the
-correct tool. The prompt created a conflict that agents resolved by prioritizing task appropriateness over
-instruction-following. This is behaviorally reasonable, but methodologically, it means the explicit track
-as currently designed doesn't test what it was designed to test: no run triggered `search_web`. The explicit
-track prompt requires working-in _"what's your understanding of `@web`?"_ to test the intended hypothesis;
-the goal is to capture the interpretation data in the same response as the behavioral data without steering
-agents toward a forced-choice answer before they report what they actually did.
+Generally, the agents aren't wrong. Given a specific URL and a fetch task, `read_url_content` is the correct tool. The prompt
+created a conflict that agents resolved by prioritizing task appropriateness over instruction-following. This is behaviorally
+reasonable, but methodologically, it means the explicit track as currently designed doesn't test what it was designed to test.
+Like the interpreted track, among 60+ tests, `search_web` was only called once as a type of fallback or additional verification
+tool. The explicit track prompt requires working-in _"what's your understanding of `@web`?"_ to test the intended hypothesis.
+The goal is to capture the interpretation data in the same response as the behavioral data without steering agents toward a
+forced-choice answer before they report what they actually did.
 
-The directive-task conflict is not an anomaly to suppress. Methodology refinement could include replacing the
-test URL with a keyword query, but that would break cross-platform comparability with the interpreted track.
-Keeping the prompt mostly as-is can add a type of conflict-resolution dimension to the findings without losing
-the core behavioral comparison.
+The directive-task conflict is not an anomaly to suppress. Methodology refinement could include replacing the test URL with a
+keyword query, but that would break cross-platform comparability with the interpreted track. Keeping the prompt mostly as-is can
+add a type of conflict-resolution dimension to the findings without losing the core behavioral comparison.
