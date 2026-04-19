@@ -23,9 +23,8 @@ parent: Cognition Windsurf Cascade
 7. Log structured metadata as described in `framework-reference.md`
 8. Ensure log results are saved to `/results/cascade-explicit/results.csv`
 
-> _This track adds `@web` directive to test if it meaningfully changes retrieval behavior. Across all runs `@web` mapped to `read_url_content` → `view_content_chunk`;
-> `search_web` called once. [Friction: @web Semantics](friction-note-explicit.md#web-semantics-prompt-tool-misalignment)
-> for analysis._
+> _This track adds `@web` directive to test if it meaningfully changes retrieval behavior. Across all runs `@web` mapped to `read_url_content`;
+> `search_web` called only once for verification; read [Friction: @web Semantics](friction-note-explicit.md#web-semantics-prompt-tool-misalignment) for analysis._
 
 ---
 
@@ -34,16 +33,16 @@ parent: Cognition Windsurf Cascade
 | **Limit** | **Observed** |
 |---|---|
 | **Hard Character Limit** | _None detected_: `read_url_content` returns a chunked index, not raw content with a byte ceiling; output chars reflect agent chunk selection depth from a pipeline that has no full-page retrieval path |
-| **Hard Token Limit** | _None detected_: estimates ranged from ~82 to ~65,000 tokens; no run hit a fixed ceiling |
-| **Output Consistency** | _Agent-dependent_: same URL and prompt produces 0–161,000 chars depending on agent and chunk selection |
+| **Hard Token Limit** | _None detected_: estimates ranged from ~91-85,000 tokens; no run hit a fixed ceiling |
+| **Output Consistency** | _Agent-dependent, self-reported_: same URL and prompt produces ~365–350,000 chars depending on agent and chunk selection; figures without verification script cross-reference; some values are retrieved content, others are full-doc extrapolations |
 | **Content Selection Behavior** | _Two-stage chunked retrieval_: `read_url_content` returns a positional index with summaries; content requires sequential `view_content_chunk` calls per position |
 | **Truncation Pattern** | _Two independent truncation layers_: agent chunk selection, most large page content never fetched; per-chunk display ceiling variable by chunk, remainder hidden with byte-count notice |
 | **Redirect Chains** | _Consistent_: tested 5-level redirect chain; returned inline without triggering chunked pipeline |
 | **Self-reported Completeness** | _Inconsistent_: agents with identical content report contradictory truncation assessments; disagreement tracks chunk selection depth, not actual content loss |
 | **Chunk Summary Population** | _URL-dependent_: well-structured pages return populated summaries providing navigational signal; CSS-heavy or SPAs may return empty summaries collapsing skimming into blind sampling |
-| **SPA extraction** | _Lossy by design_: Go Colly static scraper delivers ~25–30% of raw HTML as extracted text; scripts, styles, and metadata discarded before delivery |
-| **`@web` directive** | _Redundant for URL fetch tasks_: `@web` maps to `read_url_content` across all agents and all runs; `search_web` invoked once (`GLM-5.1` during `SC-2`) as a secondary verification attempt; returned no usable content |
-| **Agent Self-Reporting Fidelity** | _Unreliable_: thought panels reveal batch reads, collapsed passes, and re-reads not disclosed in output; fidelity failures documented across SC-2, OP-4, BL-3, SC-1, and SC-4 |
+| **SPA extraction** | _Lossy by design_: Go Colly static scraper delivers ~20–35% of expected rendered page size as extracted text; `EC-1` runs ~20,000–35,500 chars from ~100 KB source; HTML stripped, JavaScript not executed before delivery; gap invisible to agents evaluating completeness within the tool's output frame |
+| **`@web` directive** | _Redundant for URL fetch tasks_: `@web` maps to `read_url_content` across all agents and all runs; `search_web` invoked once - `SC-2`'s `GLM-5.1` run as secondary verification attempt; returned no usable content |
+| **Agent Self-Reporting Fidelity** | _Unreliable_: thought panels reveal batch reads, collapsed passes, re-reads not disclosed in output; fidelity failures documented across `BL-3`, `OP-4`, `SC-1`, `SC-2`, `SC-4` |
 
 ---
 
@@ -52,7 +51,7 @@ parent: Cognition Windsurf Cascade
 | | |
 |---|---|
 | **Agent Selector** | Hybrid Arena — 5 slots per run |
-| **Agents Observed** | `Claude Sonnet 4.6 Thinking`, `Claude Opus 4.7`, `GPT-5.3-Codex`, `GPT-5.4`, `GPT-5.4 High Thinking`, `Kimi K2.5`, `SWE-1.6`, `GLM-5.1`, `Gemini 3.1 Pro High Thinking`, `o3` |
+| **Agents Observed** | `Claude Opus 4.7`, `Claude Sonnet 4.6`, `Gemini 3.1`, `GLM-5.1`, `GPT-5.3-Codex`, `GPT-5.4`, `Kimi K2.5`, `o3`, `SWE-1.6` |
 | **Total Runs** | 66 |
 | **Distinct URLs** | 11 |
 | **Input Size Range** | ~2 KB – 256 KB |
@@ -61,7 +60,9 @@ parent: Cognition Windsurf Cascade
 | **Average Token Count** | 13,320 tokens |
 | **Approval-gated Fetch** | 58 / 66 runs prompted for approval |
 | **Auto-pagination** | 35 runs auto-paginated; 1 run paginated when prompted |
-| **Complete Retrieval Failure** | `SC-2` URL rewriting bug |
+| **Complete Retrieval Failure** | `Claude Sonnet 4.6`, `EC-1` run 5: infrastructure error, no tool call completed, no output; rerun succeeded |
+| **Content Targeting Failure** | `SC-2` all followed redirect to `llms-full.txt`, delivering all Anthropic docs instead of Messages API page; read [SC-2 URL Redirect Behavior](friction-note-explicit.md#sc-2-url-redirect-behavior) |
+| **URL Fragment Handling** | `OP-1` `#History` fragment not architecturally honored; 3 of 5 agents reached targeted section |
 
 ---
 
@@ -69,7 +70,7 @@ parent: Cognition Windsurf Cascade
 
 Agents consistently use `read_url_content` to fetch URLs, but depending on the state of the chunk
 index, they reason whether individual calls to `view_content_chunk` is worth it. While it determines
-output size and truncation self-report, chunks fetched is the primary behavioral variable in this
+output size and truncation self-report, chunks fetched remains the primary behavioral variable in this
 dataset. The tractability threshold is visible across tests: agents tend toward full retrieval on
 chunk counts ≤14 and toward sparse sampling on larger ones ≥50, with 33–38 chunks as the transition
 zone where model families diverge. `SWE-1.6` shows the most consistent full-retrieval behavior;
@@ -78,15 +79,342 @@ zone where model families diverge. `SWE-1.6` shows the most consistent full-retr
 | Test | Chunks | Agent | Fetched | Strategy |
 |---|---|---|---|---|
 | `BL-2` | 3 | All agents | 3 | Floor effect — 3 chunks indistinguishable from full retrieval |
-| `EC-1` | 10 | All agents | 10 | Full retrieval unanimous; below suppression threshold |
+| `EC-1` | 10 | Most agents | 10 | Full retrieval in 4 runs; `Gemini` sampled minimally (~2–3 named sections, 6 chunks collapsed in thought panel); below suppression threshold for most models |
 | `SC-1` | 14 | All agents | 9–14 | Full retrieval in 3 of 5; chrome exclusion in 2 |
-| `SC-4` | 33 | `SWE-1.6`, `o3` | 33 | Full; `Gemini`, `GPT-5.4` stopped at index |
-| `EC-6` | 38 | `SWE-1.6` | 38 | Full; `GLM` partial; `Opus`, `GPT-5.4` index only |
-| `BL-3` | 53 | `Kimi`, `GLM`, `Sonnet` | 1–19 | Sparse; `GPT`, `SWE` stopped early |
-| `OP-4` | 53 | `SWE-1.6` | 53 | Full; all others sparse or index only |
-| `BL-1` | 54 | `Opus` | 54 | Full; all others 2–9 chunks |
-| `SC-3` | 60 | All agents | 1–6 | Suppressed across all runs |
-| `OP-1` | 91 | All agents | 1–5 | Suppressed across all runs |
+| `SC-4` | 33 | `SWE`, `o3` | 33 | Full; `Gemini` last chunk only; `GLM` ~8; `GPT-5.4` index only |
+| `EC-6` | 38 | `SWE` | 38 | Full; `Gemini` ~4–5; `GLM` 14; `GPT-5.4`, `Opus 4.7` index only |
+| `BL-3` | 53 | `Kimi`, `GLM`, `Sonnet` | ~unknown–19 | `GLM` 13~19; `Kimi` unknown, nonlinear blind sampling; `GPT` index only; `Sonnet` 6; `SWE` 1 chunk only |
+| `OP-4` | 53 | `SWE` | 53 | Full; `GLM` ~14 non-linear blind sampling; `GPT` last chunk only; `Kimi` ~9–10 non-linear; `Opus` index only |
+| `BL-1` | 54 | `Opus 4.6`, `SWE-1.6` | 8–54 | `Kimi` first-second-last-last; `GPT`, `Sonnet` first-last only; `Opus` 8; `SWE` 23; |
+| `SC-3` | 60 | `GLM`, `Kimi`, `SWE` | 1–6 | `GLM` 5 chunks front-weighted then last; `GPT` first-only; `Kimi`, `SWE` ~5–6 sparse spread; `Sonnet` first-last only |
+| `OP-1` | 91 | None | 1–4 | `GLM`, `Kimi` 3, fragment-targeted; `GPT` last-only; `SWE` section-target-only; `Opus` 4, section-targeted, then last |
+
+| `SC-2` | 1,009 | None | 1–5 | `GLM`, `Opus` last only; `GPT` first-only; `Kimi` 5, distributed sampling; `SWE` 4, structured sampling |
+
+<div id="exp-hm-root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+
+<style>
+.exp-hm-wrap { overflow-x: auto; }
+table.exp-hm { border-collapse: collapse; width: 100%; }
+table.exp-hm th { font-size: 11px; font-weight: 500; padding: 4px 5px; text-align: center; white-space: nowrap; color: inherit; }
+table.exp-hm th.exp-row-head { text-align: left; }
+table.exp-hm th .exp-chunk-count { font-weight: 400; font-size: 11px; opacity: 0.6; }
+table.exp-hm td { padding: 2px 3px; text-align: center; }
+table.exp-hm td.exp-row-label { font-size: 12px; text-align: left; padding-left: 0; white-space: nowrap; font-weight: 400; padding-right: 6px; color: inherit; }
+.exp-hint { font-size: 11px; opacity: 0.5; margin-top: 6px; cursor: pointer; color: inherit; }
+.exp-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.exp-overlay-inner {
+  border-radius: 10px;
+  padding: 24px 28px;
+  max-width: 98vw;
+  max-height: 92vh;
+  overflow: auto;
+  position: relative;
+}
+.exp-close {
+  position: absolute; top: 12px; right: 14px;
+  background: none; border: none; font-size: 20px;
+  cursor: pointer; opacity: 0.5; line-height: 1;
+}
+.exp-close:hover { opacity: 1; }
+.exp-note { font-size: 12px; margin-top: 10px; line-height: 1.6; opacity: 0.7; }
+</style>
+
+<script>
+(function() {
+  var e = React.createElement;
+
+  function detectDark() {
+    var theme = document.documentElement.getAttribute('data-theme');
+    if (theme === 'dark') return true;
+    if (theme === 'light') return false;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  var testOrder = [
+    {id:'BL-2', total:3,    l1:'BL-2',  l2:'3'    },
+    {id:'EC-1', total:10,   l1:'EC-1',  l2:'10'   },
+    {id:'SC-1', total:14,   l1:'SC-1',  l2:'14'   },
+    {id:'SC-4', total:33,   l1:'SC-4',  l2:'33'   },
+    {id:'EC-6', total:38,   l1:'EC-6',  l2:'38'   },
+    {id:'BL-3', total:53,   l1:'BL-3',  l2:'53'   },
+    {id:'OP-4', total:53,   l1:'OP-4',  l2:'53'   },
+    {id:'BL-1', total:54,   l1:'BL-1',  l2:'54'   },
+    {id:'SC-3', total:60,   l1:'SC-3',  l2:'60'   },
+    {id:'OP-1', total:91,   l1:'OP-1',  l2:'91'   },
+    {id:'SC-2', total:1009, l1:'SC-2',  l2:'1,009'},
+  ];
+
+  var runs = [
+    {test:'BL-2', agent:'Codex',   fetched:3,    total:3   },
+    {test:'BL-2', agent:'Opus',    fetched:3,    total:3   },
+    {test:'BL-2', agent:'SWE',     fetched:3,    total:3   },
+    {test:'BL-2', agent:'Kimi',    fetched:3,    total:3   },
+    {test:'BL-2', agent:'GLM',     fetched:3,    total:3   },
+    {test:'EC-1', agent:'GLM',     fetched:10,   total:10  },
+    {test:'EC-1', agent:'Gemini',  fetched:3,    total:10  },
+    {test:'EC-1', agent:'GPT54',   fetched:10,   total:10  },
+    {test:'EC-1', agent:'SWE',     fetched:10,   total:10  },
+    {test:'EC-1', agent:'Sonnet',  fetched:10,   total:10  },
+    {test:'SC-1', agent:'Codex',   fetched:14,   total:14  },
+    {test:'SC-1', agent:'SWE',     fetched:14,   total:14  },
+    {test:'SC-1', agent:'GLM',     fetched:14,   total:14  },
+    {test:'SC-1', agent:'Opus',    fetched:9,    total:14  },
+    {test:'SC-1', agent:'Kimi',    fetched:10,   total:14  },
+    {test:'SC-4', agent:'SWE',     fetched:33,   total:33  },
+    {test:'SC-4', agent:'o3',      fetched:33,   total:33  },
+    {test:'SC-4', agent:'GLM',     fetched:8,    total:33  },
+    {test:'SC-4', agent:'Gemini',  fetched:1,    total:33  },
+    {test:'SC-4', agent:'GPT54',   fetched:0,    total:33  },
+    {test:'EC-6', agent:'SWE',     fetched:38,   total:38  },
+    {test:'EC-6', agent:'GLM',     fetched:14,   total:38  },
+    {test:'EC-6', agent:'Gemini',  fetched:5,    total:38  },
+    {test:'EC-6', agent:'Opus',    fetched:0,    total:38  },
+    {test:'EC-6', agent:'GPT54',   fetched:0,    total:38  },
+    {test:'BL-3', agent:'Kimi',    fetched:11,   total:53  },
+    {test:'BL-3', agent:'GLM',     fetched:13,   total:53  },
+    {test:'BL-3', agent:'Sonnet',  fetched:6,    total:53  },
+    {test:'BL-3', agent:'Codex',   fetched:0,    total:53  },
+    {test:'BL-3', agent:'SWE',     fetched:1,    total:53  },
+    {test:'OP-4', agent:'SWE',     fetched:53,   total:53  },
+    {test:'OP-4', agent:'GLM',     fetched:14,   total:53  },
+    {test:'OP-4', agent:'Kimi',    fetched:10,   total:53  },
+    {test:'OP-4', agent:'Codex',   fetched:1,    total:53  },
+    {test:'OP-4', agent:'Opus',    fetched:0,    total:53  },
+    {test:'BL-1', agent:'SWE',     fetched:23,   total:54  },
+    {test:'BL-1', agent:'Opus',    fetched:8,    total:54  },
+    {test:'BL-1', agent:'Kimi',    fetched:3,    total:54  },
+    {test:'BL-1', agent:'Codex',   fetched:2,    total:54  },
+    {test:'BL-1', agent:'Sonnet',  fetched:2,    total:54  },
+    {test:'SC-3', agent:'GLM',     fetched:5,    total:60  },
+    {test:'SC-3', agent:'Kimi',    fetched:6,    total:60  },
+    {test:'SC-3', agent:'SWE',     fetched:6,    total:60  },
+    {test:'SC-3', agent:'Sonnet',  fetched:2,    total:60  },
+    {test:'SC-3', agent:'Codex',   fetched:1,    total:60  },
+    {test:'OP-1', agent:'Opus',    fetched:4,    total:91  },
+    {test:'OP-1', agent:'GLM',     fetched:3,    total:91  },
+    {test:'OP-1', agent:'Kimi',    fetched:3,    total:91  },
+    {test:'OP-1', agent:'Codex',   fetched:1,    total:91  },
+    {test:'OP-1', agent:'SWE',     fetched:1,    total:91  },
+    {test:'SC-2', agent:'Kimi',    fetched:5,    total:1009},
+    {test:'SC-2', agent:'SWE',     fetched:4,    total:1009},
+    {test:'SC-2', agent:'Opus',    fetched:2,    total:1009},
+    {test:'SC-2', agent:'GLM',     fetched:2,    total:1009},
+    {test:'SC-2', agent:'Codex',   fetched:1,    total:1009},
+  ];
+
+  var agentOrder = ['Sonnet','Opus','Gemini','GLM','Codex','GPT54','Kimi','o3','SWE'];
+  var agentLabels = {
+    Sonnet: 'Claude Sonnet 4.6',
+    Opus:   'Claude Opus 4.6-7',
+    Gemini: 'Gemini 3.1',
+    GLM:    'GLM-5.1',
+    Codex:  'GPT-5.3-Codex',
+    GPT54:  'GPT-5.4',
+    Kimi:   'Kimi K2.5',
+    o3:     'o3',
+    SWE:    'SWE-1.6',
+};
+
+  function getCellColors(isDark, fetched, total) {
+    if (fetched === 0) return {bg:isDark?'#3C3489':'#BA68C8', fg:'#fff', label:'0'};
+    var p = Math.round((fetched / total) * 100);
+    if (p === 100) return {bg:isDark?'#0F6E56':'#1D9E75', fg:'#fff', label:'100%'};
+    if (p >= 50)   return {bg:isDark?'#185FA5':'#378ADD', fg:'#fff', label:p+'%'};
+    if (p >= 10)   return {bg:isDark?'#cba452':'#FFB74D', fg:isDark?'#412402':'#412402', label:p+'%'};
+    return               {bg:isDark?'#A32D2D':'#F06292', fg:'#fff', label:'<1%'};
+}
+
+  function getLegendItems(isDark, notObsBg) {
+    return [
+      {bg:isDark?'#0F6E56':'#1D9E75', label:'100% chunk summaries viewed'},
+      {bg:isDark?'#185FA5':'#378ADD', label:'50–99% - most chunk summaries viewed'},
+      {bg:isDark?'#cba452':'#FFB74D', label:'10–49% - sparse chunk summary sampling'},
+      {bg:isDark?'#A32D2D':'#F06292', label:'<10% - endpoint chunk summary sampling'},
+      {bg:isDark?'#3C3489':'#BA68C8', label:'0: declined pagination'},
+      {bg:notObsBg,                   label:'untested'},
+    ];
+  }
+
+  function Code(props) {
+    return e('code', {style:{
+      background: props.isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.07)',
+      color: props.textColor || 'inherit',
+      borderRadius: 3, padding: '1px 4px', fontSize: '11px', fontFamily: 'monospace'
+    }}, props.children);
+  }
+
+  function HeatmapTable(props) {
+    var dark = props.isDark;
+    var cellW = props.large ? 58 : 44;
+    var cellH = props.large ? 36 : 28;
+    var agentColW = props.large ? 160 : 110;
+    var fs = props.large ? 12 : 11;
+    var tc = props.textColor || 'inherit';
+    var notObsBg = dark ? '#363634' : '#d0cec7';
+
+    return e('div', {className:'exp-hm-wrap'},
+      e('table', {className:'exp-hm'},
+        e('thead', null,
+          e('tr', null,
+            e('th', {className:'exp-row-head', style:{minWidth:agentColW, color:tc}}, 'Agent'),
+            testOrder.map(function(t) {
+              return e('th', {key:t.id, style:{color:tc}},
+                t.l1, e('br'), e('span', {className:'exp-chunk-count'}, t.l2)
+              );
+            })
+          )
+        ),
+        e('tbody', null,
+          agentOrder.map(function(agent) {
+            var ar = runs.filter(function(r) { return r.agent === agent; });
+            return e('tr', {key:agent},
+              e('td', {className:'exp-row-label', style:{color:tc, verticalAlign:'middle'}}, agentLabels[agent]),
+              testOrder.map(function(t) {
+                var run = ar.find(function(r) { return r.test === t.id; });
+                if (!run) {
+                  return e('td', {key:t.id},
+                    e('div', {style:{
+                      borderRadius:4, fontSize:fs, fontWeight:500,
+                      display:'flex', alignItems:'center', justifyContent:'center',
+                      width:cellW, height:cellH, margin:'1px auto',
+                      background:notObsBg
+                    }})
+                  );
+                }
+                var c = getCellColors(dark, run.fetched, run.total);
+                return e('td', {key:t.id},
+                  e('div', {
+                    title: run.fetched+'/'+run.total,
+                    style:{
+                      borderRadius:4, fontSize:fs, fontWeight:500,
+                      display:'flex', alignItems:'center', justifyContent:'center',
+                      width:cellW, height:cellH, margin:'1px auto',
+                      background:c.bg, color:c.fg
+                    }
+                  }, c.label)
+                );
+              })
+            );
+          })
+        )
+      )
+    );
+  }
+
+  function Legend(props) {
+    var dark = props.isDark;
+    var notObsBg = dark ? '#363634' : '#d0cec7';
+    var tc = props.textColor || 'inherit';
+    var items = getLegendItems(dark, notObsBg);
+    return e('table', {style:{borderCollapse:'collapse', marginTop:0, fontSize:11, width:'auto'}},
+      e('tbody', null,
+        items.map(function(item, i) {
+          return e('tr', {key:i},
+            e('td', {style:{paddingRight:8, paddingBottom:4, verticalAlign:'middle'}},
+              e('span', {style:{
+                width:12, height:12, borderRadius:2, display:'inline-block',
+                background:item.bg, border:'0.5px solid rgba(128,128,128,0.3)'
+              }})
+            ),
+            e('td', {style:{paddingBottom:4, color:tc, opacity:0.8, whiteSpace:'nowrap'}}, item.label)
+          );
+        })
+      )
+    );
+  }
+
+  function Note(props) {
+    var tc = props.textColor || 'inherit';
+    var dark = props.isDark;
+    var C = function(p) { return e(Code, {textColor:tc, isDark:dark}, p.children); };
+    return e('p', {className:'exp-note', style:{color:tc, marginTop:0, paddingTop:0}},
+      e('i', null,
+        'Columns: total chunks, ascending. Excluded: ',
+        e(C, null, 'EC-3'), ' — untriggered chunked pipeline. ',
+        '0: agent observed, but no ', e(C, null, 'view_content_chunk'), ' call made. ',
+        e(C, null, 'SC-2'), ' included; URL redirect delivered entire docs set, not targeted page. ',
+        'Hover over cells for fetched/total counts.'
+      )
+    );
+  }
+
+  function App() {
+    var state = React.useState(false);
+    var isOpen = state[0];
+    var setOpen = state[1];
+
+    var isDark = detectDark();
+    var lbBg   = isDark ? '#1e1e1c' : '#ffffff';
+    var lbText = isDark ? '#e8e6df' : '#1a1a18';
+
+    React.useEffect(function() {
+      function onKey(ev) { if (ev.key === 'Escape') setOpen(false); }
+      if (isOpen) {
+        document.addEventListener('keydown', onKey);
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
+      return function() {
+        document.removeEventListener('keydown', onKey);
+        document.body.style.overflow = '';
+      };
+    }, [isOpen]);
+
+    return e('div', {style:{marginTop:'1.5rem', fontFamily:'inherit'}},
+      e('div', {onClick:function(){ setOpen(true); }, style:{cursor:'pointer'}},
+        e(HeatmapTable, {large:false, isDark:isDark}),
+        e('p', {className:'exp-hint'}, '\u2197 click to expand')
+      ),
+      e('div', {style:{display:'flex', gap:32, alignItems:'center', flexWrap:'wrap', marginTop:8, width:'100%', justifyContent:'center'}},
+        e('div', {style:{flexShrink:0}},
+          e(Legend, {isDark:isDark})
+        ),
+        e('div', {style:{flex:1, maxWidth:420}},
+          e(Note, {isDark:isDark})
+        )
+      ),
+      isOpen && e('div', {
+        className:'exp-overlay',
+        onClick:function(ev){ if (ev.target === ev.currentTarget) setOpen(false); }
+      },
+        e('div', {
+          className:'exp-overlay-inner',
+          style:{background:lbBg, color:lbText, width:'98vw'}
+        },
+          e('button', {
+            className:'exp-close',
+            style:{color:lbText},
+            onClick:function(){ setOpen(false); },
+            'aria-label':'Close'
+          }, '\u00d7'),
+          e(HeatmapTable, {large:true, isDark:isDark, textColor:lbText}),
+          e('div', {style:{display:'flex', gap:32, alignItems:'center', flexWrap:'nowrap', marginTop:8, width:'100%', justifyContent:'center'}},
+            e('div', {style:{flexShrink:0}},
+              e(Legend, {isDark:isDark, textColor:lbText})
+            ),
+            e('div', {style:{flex:1, maxWidth:420}},
+              e(Note, {isDark:isDark, textColor:lbText})
+            )
+          )
+        )
+      )
+    );
+  }
+
+  var root = ReactDOM.createRoot(document.getElementById('exp-hm-root'));
+  root.render(e(App));
+})();
+</script>
 
 ---
 

@@ -185,10 +185,10 @@ table.cas-hm td.cas-row-label { font-size: 12px; text-align: left; padding-left:
     {test:'EC-6',agent:'Sonnet2',fetched:38, total:38, note:'single retry'},
   ];
 
-  var agentOrder = ['Codex','Sonnet','Sonnet2','Opus','SWE','Kimi','GPT54'];
+  var agentOrder = ['Opus','Sonnet','Sonnet2','Codex','GPT54','Kimi','SWE'];
   var agentLabels = {
-    Codex:'GPT-5.3-Codex', Sonnet:'Sonnet 4.6', Sonnet2:'Sonnet 4.6*',
-    Opus:'Opus 4.6', SWE:'SWE-1.5/1.6', Kimi:'Kimi K2.5', GPT54:'GPT-5.4'
+    Opus:'Claude Opus 4.6', Sonnet:'Claude Sonnet 4.6', Sonnet2:'Claude Sonnet 4.6*',
+    Codex:'GPT-5.3-Codex', GPT54:'GPT-5.4', Kimi:'Kimi K2.5', SWE:'SWE-1.5-6',
   };
 
   function getCellColors(isDark, fetched, total, declined, refused) {
