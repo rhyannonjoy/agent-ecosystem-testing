@@ -59,6 +59,7 @@ parent: Cognition Windsurf Cascade
 | **Approval-gated Fetch** | 49 / 61 runs prompted for approval |
 | **Auto-pagination** | 33 runs auto-paginated;<br>2 runs paginated when prompted |
 | **Complete Retrieval Failure** | `SC-2` URL rewriting bug |
+| **URL Fragment Handling** | `OP-1` `#History` fragment model-dependent, mostly absent; 1 of 5 agents reached targeted section |
 
 ## Agentic Pagination Depth
 
