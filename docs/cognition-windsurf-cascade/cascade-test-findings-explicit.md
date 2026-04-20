@@ -7,6 +7,17 @@ parent: Cognition Windsurf Cascade
 
 ## Key Findings for Cascade's Web Search Behavior, Explicit `@web`
 
+The explicit track confirms that `@web` doesn't meaningfully change the retrieval behavior the interpreted track
+identified. Core findings hold: chunked architecture, no fixed ceiling, index-size suppression threshold,
+CSS extraction failure, and self-reporting fidelity gaps. Extensions:
+
+- `@web` is redundant with a URL
+- Wider agent pool: `Gemini 3.1`, `GLM-5.1`, `GPT-5.4`, `o3`
+- `SC-2` chunk sampling data
+- More precise fidelity failure characterization
+- [Colly](https://github.com/gocolly/colly) in toolchain
+- Tool wrapper preamble inflates character counts
+
 ---
 
 ## [Cascade-explicit Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/windsurf-cascade-web-search/web_search_testing_framework.py)
@@ -23,8 +34,7 @@ parent: Cognition Windsurf Cascade
 7. Log structured metadata as described in `framework-reference.md`
 8. Ensure log results are saved to `/results/cascade-explicit/results.csv`
 
-> _Track adds `@web`, testing if it changes retrieval behavior. Across all runs it mapped to `read_url_content`;
-> `search_web` called once; analysis in [Friction Note](friction-note-explicit.md#web-semantics-prompt-tool-misalignment)._
+> _`@web` mapped to `read_url_content` in all runs; `search_web` called once; analysis in [Friction: Explicit](friction-note-explicit.md#web-semantics-prompt-tool-misalignment)._
 
 ---
 
@@ -59,7 +69,7 @@ parent: Cognition Windsurf Cascade
 | **Approval-gated Fetch** | 58 / 66 runs prompted for approval |
 | **Auto-pagination** | 35 runs auto-paginated;<br> 1 run paginated when prompted |
 | **Complete Retrieval Failure** | `EC-1` run 5 `Claude Sonnet 4.6`: infrastructure error;<br>no tool call completed, no output; rerun succeeded |
-| **Content Targeting<br>Failure** | `SC-2` all followed redirect to `llms-full.txt`,<br>delivering all Anthropic docs instead of Messages API page, analysis in [Friction Note](friction-note-explicit.md#sc-2-url-redirect-behavior) |
+| **Content Targeting<br>Failure** | `SC-2` all followed redirect to `llms-full.txt`,<br>delivering all Anthropic docs instead of Messages API page, analysis in [Friction: Explicit](friction-note-explicit.md#sc-2-url-redirect-behavior) |
 | **URL Fragment<br>Handling** | `OP-1` `#History` fragment not consistently honored;<br>3 of 5 agents reached targeted section |
 
 ## Agentic Pagination Depth
@@ -414,7 +424,7 @@ content - as much as individual agent capability.
 Across all runs, no agent said the obvious thing: `@web` is redundant with a URL. Agents exhibited a wide range
 of architectural understanding from non-recognition to mechanical familiarity of the underlying parsing service,
 without mentioning that in this context, calling it would produce no behavioral difference. This absence is the
-`H4` finding. Analysis in the [Friction Note](friction-note-explicit.md#web-semantics-prompt-tool-misalignment).
+`H4` finding; analysis in [Friction: Explicit](friction-note-explicit.md#web-semantics-prompt-tool-misalignment).
 
 <style>
 .web-grid {
@@ -536,7 +546,7 @@ without mentioning that in this context, calling it would produce no behavioral 
 | 7 | **Routing bypasses chunked pipeline for small payloads** | `EC-3` | `read_url_content` returned<br>5 redirect-chain terminal JSON response inline ~353–367 chars body; `view_content_chunk`<br>not called in any run | **Chunked architecture has at least two modes; small payloads return inline without triggering the two-fetch process** |
 | 8 | **`@web` redundant with URLs** | All tests | Most agents used toolchain identical to interpreted track: `read_url_content` → `view_content_chunk` | **`@web` produced no behavior change; `H4` confirmed redundant** |
 | 9 | **`@web` conditional routing described consistently** | `SC-1`<br>`SC-2`<br>`SC-4`<br>`EC-6`| `@web` + URL → `read_url_content`; `@web` + query → `search_web`; `GLM-5.1` invoked `search_web` once during<br>`SC-2` as an independent verification, but returned<br>near-empty results | **`@web` is a routing hint; `search_web` verification call distinct from `@web`-driven routing, didn't produce usable output** |
-| 10 | **Agent self-reporting fidelity is a systematic confound** | `SC-2`<br>`OP-4`<br>`BL-3`<br>`SC-1`<br>`SC-4` | Under-reporting; partial reporting; parallel execution opacity | **Don't treat agent self-report as complete record, add thought panel cross-reference; analysis in [Friction Note](friction-note-explicit.md#agent-self-reporting-fidelity)** |
+| 10 | **Agent self-reporting fidelity is a systematic confound** | `SC-2`<br>`OP-4`<br>`BL-3`<br>`SC-1`<br>`SC-4` | Under-reporting; partial reporting; parallel execution opacity | **Don't treat agent self-report as complete record, add thought panel cross-reference; analysis in [Friction: Explicit](friction-note-explicit.md#agent-self-reporting-fidelity)** |
 | 11 | **Index size suppresses auto-pagination above ~50 chunks** | `SC-3`<br>`OP-1`<br>`BL-3`<br>`OP-4` | Maximum chunks retrieved:<br>`SC-3`: 6/60, `OP-1`: 5/91,<br>`BL-3`: 19/53,<br>`OP-4`, `SWE` only: 53/53 | **Tractability threshold is agent-dependent, index-size-sensitive; 33–38 chunks is transition zone where agents diverge** |
 | 12 | **CSS-heavy sources produce content extraction failure, not truncation** | `BL-1`<br>`BL-3`<br>`OP-4` | MongoDB LeafyGreen CSS dominated chunk content across all runs on three distinct MongoDB URLs; tutorial body content absent across all 53 chunks in all `BL-3` runs; _"Structurally complete, semantically incomplete"_  | **Page navigation and chrome recovered; article content inaccessible regardless of retrieval depth** |
 | 13 | **Tool wrapper preamble inflates character counts** | `EC-3` | `Claude Opus 4.7` identified and quoted the preamble string `"Here is the content of the article at [URL]"` prepended by `read_url_content`; explains cross-run variance on identical content | **Variance between runs on identical content reflects tool wrapper inclusion rules, not retrieval differences** |
