@@ -223,10 +223,10 @@ Examples:
   python web_search_verify_raw_results.py --all
 
   # Custom results directory
-  python web_search_verify_raw_results.py BL-1 --results-dir /path/to/results/raw
+  python web_search_verify_raw_results.py BL-1 --results-dir /path/to/results/cascade-raw
 
   # Direct path to a specific file
-  python web_search_verify_raw_results.py --path results/raw/raw_output_BL-1.txt
+  python web_search_verify_raw_results.py --path results/cascade-raw/raw_output_BL-1.txt
         """
     )
 
@@ -238,7 +238,7 @@ Examples:
     parser.add_argument(
         '--all',
         action='store_true',
-        help='Verify all raw output files in results/raw/'
+        help='Verify all raw output files in results/cascade-raw/'
     )
     parser.add_argument(
         '--path',
@@ -248,8 +248,8 @@ Examples:
     parser.add_argument(
         '--results-dir',
         type=str,
-        default='results/raw',
-        help='Directory containing raw output files (default: results/raw)'
+        default='results/cascade-raw',
+        help='Directory containing raw output files (default: results/cascade-raw)'
     )
 
     args = parser.parse_args()
@@ -257,10 +257,10 @@ Examples:
     results_dir = Path(args.results_dir)
 
     # Smart path detection: try alternatives if default doesn't exist
-    if not results_dir.exists() and args.results_dir == 'results/raw':
+    if not results_dir.exists() and args.results_dir == 'results/cascade-raw':
         for alt in [
-            Path('cascade-web-search/results/raw'),
-            Path('../cascade-web-search/results/raw'),
+            Path('cascade-web-search/results/cascade-raw'),
+            Path('../cascade-web-search/results/cascade-raw'),
         ]:
             if alt.exists():
                 results_dir = alt
