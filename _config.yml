@@ -63,8 +63,6 @@ navigation:
     sections:
       - title: "Methodology"
         url: "/docs/cognition-windsurf-cascade/methodology"
-      - title: "Interpreted vs Explicit"
-        url: "/docs/cognition-windsurf-cascade/cascade-interpreted-vs-explicit"
       - title: "Interpreted vs Raw"
         url: "/docs/cognition-windsurf-cascade/cascade-interpreted-explicit-vs-raw"
       - title: "Findings: Interpreted"
