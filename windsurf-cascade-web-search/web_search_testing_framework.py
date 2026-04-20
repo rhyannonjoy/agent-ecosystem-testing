@@ -13,13 +13,12 @@ Key design decisions:
 4. Offset/pagination tests, OP - test chunking, fragment navigation, and auto-pagination
 5. Edge case tests, EC - target specific truncation/rendering challenges
 6. Three-track measurement:
-   - interpreted: what Cascade reports back without steering (no `@web`)
-   - raw: what `read_url_content` actually returns verbatim (no `@web`)
+   - interpreted: what Cascade reports back without steering, no `@web`
    - explicit: identical to interpreted, but prefixed with `@web`
+   - raw: what `read_url_content` actually returns verbatim, no `@web`
 
 The explicit track exists specifically to answer whether `@web` changes retrieval
-behavior — ceiling, tool chain, chunking — or repeats the Cursor finding that the
-directive is redundant with autonomous agent behavior.
+behavior or repeats the Cursor finding that the directive is redundant with autonomous agent behavior.
 
 This allows direct comparison:
   "Cascade-implicit truncates at X KB, Cascade-explicit at Y KB, Copilot at Z KB on same URL"

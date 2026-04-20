@@ -205,6 +205,10 @@ class CascadeResultsAnalyzer:
             print(f"  Min:     {min(truncation_points):,.0f}")
             print(f"  Max:     {max(truncation_points):,.0f}\n")
 
+        output_sizes = [r['output_chars'] for r in self.results if r.get('output_chars')]
+        if output_sizes:
+            print(f"Output size range (all runs): {min(output_sizes):,} – {max(output_sizes):,} chars")
+
         print("Input sizes where truncation occurred:")
         for r in sorted(truncated, key=lambda x: x['input_est_chars']):
             print(f"  {r['test_id']} [{r.get('track','?')}]: "
@@ -524,10 +528,12 @@ class CascadeResultsAnalyzer:
         output_chars = [r['output_chars'] for r in self.results if r.get('output_chars')]
         if output_chars:
             print(f"Average output size: {mean(output_chars):,.0f} chars")
+            print(f"Output size range:   {min(output_chars):,} – {max(output_chars):,} chars")
 
         tokens = [r['tokens_est'] for r in self.results if r.get('tokens_est')]
         if tokens:
             print(f"Average token count: {mean(tokens):,.0f} tokens")
+            print(f"Token count range:   {min(tokens):,} – {max(tokens):,} tokens")
 
         # Approval behavior summary
         approval_yes = sum(1 for r in self.results if r.get('approval_required') == 'yes')
@@ -539,23 +545,11 @@ class CascadeResultsAnalyzer:
         print(f"Auto-pagination:      {auto_pag} run(s) auto, {prompted_pag} run(s) prompted")
 
         # OP-4 auto-chunking
-        op4 = self.filter_by_test_id('OP-4')
-        if op4:
-            print(f"\nOP-4 (auto-chunking test):")
-            for r in op4:
-                notes_preview = r.get('notes', '')[:60]
-                if len(r.get('notes', '')) > 60:
-                    notes_preview += '...'
-                print(f"  [{r.get('track','?')}] {notes_preview}")
-
-        print("\nNext steps:")
-        print("  1. Complete baseline tests (BL-1, BL-2, BL-3) on all three tracks")
-        print("  2. Run SC-1 through SC-4 for structure-aware truncation analysis")
-        print("  3. Run OP-1 and OP-4 to probe auto-pagination behavior")
-        print("  4. Compare implicit vs explicit on BL-3 and OP-4 to evaluate @web effect on ceiling")
-        print("  5. Review edge cases (EC-1, EC-3, EC-6)")
-        print()
-
+        if auto_pag:
+            print(f"\nOP-4 (auto-chunking test): Auto-pagination confirmed on {auto_pag} run(s) "
+                  f"— structural capability not confirmed in Copilot or Cursor")
+        else:
+            print(f"\nOP-4 (auto-chunking test): No auto-pagination observed yet")
 
 def main():
     parser = argparse.ArgumentParser(

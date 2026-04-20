@@ -37,7 +37,7 @@ parent: Cognition Windsurf Cascade
 | **Hard Token Limit** | _None detected_: estimates ranged from ~82 to ~65,000 tokens;<br>no run hit a fixed ceiling |
 | **Output Consistency** | _Agent-dependent_: same URL and prompt produces 0–106,000 chars<br>depending on agent and chunk selection |
 | **Content Selection Behavior** | _Two-stage chunked retrieval_: `read_url_content` returns a positional<br>index with summaries; content requires sequential `view_content_chunk`<br>calls per position |
-| **Truncation Pattern** | _Two independent truncation layers_: agent chunk selection, most large page content never fetched; per-chunk display ceiling ~2K chars visible per chunk, remainder hidden with byte-count notice |
+| **Truncation Pattern** | _Two independent truncation layers_: agent chunk selection, most large page content never fetched; per-chunk display ceiling ~2K chars visible per chunk, remainder hidden with a byte-count notice |
 | **Redirect Chains** | _Consistent_: tested 5-level redirect chain; returned inline without triggering chunked pipeline |
 | **Self-reported Completeness** | _Inconsistent_: agents with identical content report contradictory truncation assessments; disagreement tracks chunk selection depth,<br>not actual content loss |
 | **Chunk Summary Population** | _URL-dependent_: well-structured pages return populated summaries providing navigational signal; CSS-heavy or SPAs may return empty summaries collapsing skimming into blind sampling |
@@ -59,6 +59,7 @@ parent: Cognition Windsurf Cascade
 | **Approval-gated Fetch** | 49 / 61 runs prompted for approval |
 | **Auto-pagination** | 33 runs auto-paginated;<br>2 runs paginated when prompted |
 | **Complete Retrieval Failure** | `SC-2` URL rewriting bug |
+| **URL Fragment Handling** | `OP-1` `#History` fragment model-dependent, mostly absent; 1 of 5 agents reached targeted section |
 
 ## Agentic Pagination Depth
 
@@ -184,10 +185,10 @@ table.cas-hm td.cas-row-label { font-size: 12px; text-align: left; padding-left:
     {test:'EC-6',agent:'Sonnet2',fetched:38, total:38, note:'single retry'},
   ];
 
-  var agentOrder = ['Codex','Sonnet','Sonnet2','Opus','SWE','Kimi','GPT54'];
+  var agentOrder = ['Opus','Sonnet','Sonnet2','Codex','GPT54','Kimi','SWE'];
   var agentLabels = {
-    Codex:'GPT-5.3-Codex', Sonnet:'Sonnet 4.6', Sonnet2:'Sonnet 4.6*',
-    Opus:'Opus 4.6', SWE:'SWE-1.5/1.6', Kimi:'Kimi K2.5', GPT54:'GPT-5.4'
+    Opus:'Claude Opus 4.6', Sonnet:'Claude Sonnet 4.6', Sonnet2:'Claude Sonnet 4.6*',
+    Codex:'GPT-5.3-Codex', GPT54:'GPT-5.4', Kimi:'Kimi K2.5', SWE:'SWE-1.5-6',
   };
 
   function getCellColors(isDark, fetched, total, declined, refused) {
@@ -412,10 +413,10 @@ full-retrieval behavior while `GPT-5.3-Codex` and `Kimi K2.5` default to sparse 
 
 ## Perception Gap
 
-| **Test** | **Expected** | **Received** | **Retrieval rate** | **Agent characterization** |
+| **Test** | **Expected** | **Received** | **Delivery Ratio** | **Agent Characterization** |
 |---|---|---|---|---|
 | **`EC-6`<br>Raw<br>Markdown** | ~61 KB | 58,947 chars<br>`SWE` full<br>retrieval | ~97% | _"No truncation, structurally complete — tool transforms content before delivery, exact char count unverifiable"_ |
-| **`SC-4` Markdown Guide** | ~31 KB | ~24,100–29,000 chars; full retrieval runs | ~78–94% | _"Substantially complete but not byte-for-byte faithful — code examples flattened, tables stripped"_ |
+| **`SC-4` Markdown Guide** | ~30 KB | ~24,100–29,000 chars; full retrieval runs | ~78–94% | _"Substantially complete but not byte-for-byte faithful — code examples flattened, tables stripped"_ |
 | **`EC-1`<br>SPA** | ~100 KB | ~22,500–53,000 chars extracted | ~22–53% | _"Extraction ratio, not truncation — tool delivers ~25–30% of raw HTML by design"_ |
 | **`SC-3` Wikipedia** | ~102 KB | `Kimi` ~6,777 chars received to `Sonnet` ~150,000 chars extrapolated | varies<br>by<br>method | _"No truncation, index complete, vs yes truncation, content withheld"_ |
 | **`BL-3` Tutorial** | ~256 KB | `Opus` ~106,000 chars visible<br>53 chunks | ~41% visible; ~56% layer 2 loss | _"Double-truncated — chunked then per-chunk display-capped; tutorial content inaccessible"_ |
