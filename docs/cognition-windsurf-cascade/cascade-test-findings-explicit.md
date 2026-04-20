@@ -23,8 +23,8 @@ parent: Cognition Windsurf Cascade
 7. Log structured metadata as described in `framework-reference.md`
 8. Ensure log results are saved to `/results/cascade-explicit/results.csv`
 
-> _This track adds `@web` directive to test if it meaningfully changes retrieval behavior. Across all runs `@web` mapped to `read_url_content`;
-> `search_web` called only once for verification; read [Friction: @web Semantics](friction-note-explicit.md#web-semantics-prompt-tool-misalignment) for analysis._
+> _Track adds `@web`, testing if it changes retrieval behavior. Across all runs it mapped to `read_url_content`;
+> `search_web` called once; analysis in [Friction Note](friction-note-explicit.md#web-semantics-prompt-tool-misalignment)._
 
 ---
 
@@ -33,25 +33,23 @@ parent: Cognition Windsurf Cascade
 | **Limit** | **Observed** |
 |---|---|
 | **Hard Character Limit** | _None detected_: `read_url_content` returns a chunked index, not raw content with a byte ceiling; output chars reflect agent chunk selection depth from a pipeline that has no full-page retrieval path |
-| **Hard Token Limit** | _None detected_: estimates ranged from ~91-85,000 tokens; no run hit a fixed ceiling |
+| **Hard Token Limit** | _None detected_: estimates ranged from ~91-85,000 tokens;<br>no run hit a fixed ceiling |
 | **Output Consistency** | _Agent-dependent, self-reported_: same URL and prompt produces ~365–350,000 chars depending on agent and chunk selection; figures without verification script cross-reference; some values are retrieved content, others are full-doc extrapolations |
-| **Content Selection Behavior** | _Two-stage chunked retrieval_: `read_url_content` returns a positional index with summaries; content requires sequential `view_content_chunk` calls per position |
-| **Truncation Pattern** | _Two independent truncation layers_: agent chunk selection, most large page content never fetched; per-chunk display ceiling variable by chunk, remainder hidden with byte-count notice |
-| **Redirect Chains** | _Consistent_: tested 5-level redirect chain; returned inline without triggering chunked pipeline |
-| **Self-reported Completeness** | _Inconsistent_: agents with identical content report contradictory truncation assessments; disagreement tracks chunk selection depth, not actual content loss |
+| **Content Selection Behavior** | _Two-stage chunked retrieval_: `read_url_content` returns a positional index with summaries; content requires sequential `view_content_chunk`<br>calls per position |
+| **Truncation Pattern** | _Two independent truncation layers_: agent chunk selection, most large page content never fetched; per-chunk display ceiling variable by chunk, remainder hidden with a byte-count notice |
+| **Redirect Chains** | _Consistent_: tested 5-level redirect chain; returned inline<br>without triggering chunked pipeline |
+| **Self-reported Completeness** | _Inconsistent_: agents with identical content report contradictory truncation assessments; disagreement tracks chunk selection depth,<br>not actual content loss |
 | **Chunk Summary Population** | _URL-dependent_: well-structured pages return populated summaries providing navigational signal; CSS-heavy or SPAs may return empty summaries collapsing skimming into blind sampling |
-| **SPA extraction** | _Lossy by design_: Go Colly static scraper delivers ~20–35% of expected rendered page size as extracted text; `EC-1` runs ~20,000–35,500 chars from ~100 KB source; HTML stripped, JavaScript not executed before delivery; gap invisible to agents evaluating completeness within the tool's output frame |
-| **`@web` directive** | _Redundant for URL fetch tasks_: `@web` maps to `read_url_content` across all agents and all runs; `search_web` invoked once - `SC-2`'s `GLM-5.1` run as secondary verification attempt; returned no usable content |
-| **Agent Self-Reporting Fidelity** | _Unreliable_: thought panels reveal batch reads, collapsed passes, re-reads not disclosed in output; fidelity failures documented across `BL-3`, `OP-4`, `SC-1`, `SC-2`, `SC-4` |
-
----
+| **SPA extraction** | _Lossy by design_: Go Colly static scraper delivers ~20–35% of expected rendered page size as extracted text; `EC-1` runs ~20,000–35,500 chars from ~100 KB source; HTML stripped, JavaScript not executed before delivery; gap invisible to agents evaluating completeness<br>within the tool's output frame |
+| **`@web` directive** | _Redundant for URL fetch_: `@web` maps to `read_url_content` across all agents, all runs; `search_web` called once for `SC-2`'s `GLM-5.1` run as verification attempt; didn't return usable content |
+| **Agent Self-Reporting Fidelity** | _Unreliable_: thought panels display collapsed passes and/or batch reads, re-reads not disclosed in output; fidelity failures documented across<br>`BL-3`, `OP-4`, `SC-1`, `SC-2`, `SC-4` |
 
 ## Results Details
 
 | | |
 |---|---|
-| **Agent Selector** | Hybrid Arena — 5 slots per run |
-| **Agents Observed** | `Claude Opus 4.7`, `Claude Sonnet 4.6`, `Gemini 3.1`, `GLM-5.1`, `GPT-5.3-Codex`, `GPT-5.4`, `Kimi K2.5`, `o3`, `SWE-1.6` |
+| **Agent Selector** | Hybrid Arena — 5 slots per run;<br>10 `BL-1` runs for prompt variant testing;<br>1 single-agent retry - `EC-1` run 6 |
+| **Agents Observed** | `Claude Opus 4.7`, `Claude Sonnet 4.6`,<br>`Gemini 3.1`, `GLM-5.1`, `GPT-5.3-Codex`,<br>`GPT-5.4`, `Kimi K2.5`, `o3`, `SWE-1.6` |
 | **Total Runs** | 66 |
 | **Distinct URLs** | 11 |
 | **Input Size Range** | ~2 KB – 256 KB |
@@ -59,37 +57,17 @@ parent: Cognition Windsurf Cascade
 | **Average Output Size** | 43,441 chars |
 | **Average Token Count** | 13,320 tokens |
 | **Approval-gated Fetch** | 58 / 66 runs prompted for approval |
-| **Auto-pagination** | 35 runs auto-paginated; 1 run paginated when prompted |
-| **Complete Retrieval Failure** | `Claude Sonnet 4.6`, `EC-1` run 5: infrastructure error, no tool call completed, no output; rerun succeeded |
-| **Content Targeting Failure** | `SC-2` all followed redirect to `llms-full.txt`, delivering all Anthropic docs instead of Messages API page; read [SC-2 URL Redirect Behavior](friction-note-explicit.md#sc-2-url-redirect-behavior) |
-| **URL Fragment Handling** | `OP-1` `#History` fragment not architecturally honored; 3 of 5 agents reached targeted section |
-
----
+| **Auto-pagination** | 35 runs auto-paginated;<br> 1 run paginated when prompted |
+| **Complete Retrieval Failure** | `EC-1` run 5 `Claude Sonnet 4.6`: infrastructure error;<br>no tool call completed, no output; rerun succeeded |
+| **Content Targeting<br>Failure** | `SC-2` all followed redirect to `llms-full.txt`,<br>delivering all Anthropic docs instead of Messages API page, analysis in [Friction Note](friction-note-explicit.md#sc-2-url-redirect-behavior) |
+| **URL Fragment<br>Handling** | `OP-1` `#History` fragment not consistently honored;<br>3 of 5 agents reached targeted section |
 
 ## Agentic Pagination Depth
 
-Agents consistently use `read_url_content` to fetch URLs, but depending on the state of the chunk
-index, they reason whether individual calls to `view_content_chunk` is worth it. While it determines
-output size and truncation self-report, chunks fetched remains the primary behavioral variable in this
-dataset. The tractability threshold is visible across tests: agents tend toward full retrieval on
-chunk counts ≤14 and toward sparse sampling on larger ones ≥50, with 33–38 chunks as the transition
-zone where model families diverge. `SWE-1.6` shows the most consistent full-retrieval behavior;
-`GPT-5.3-Codex` and `Kimi K2.5` default to sparse sampling regardless of chunk count.
-
-| Test | Chunks | Agent | Fetched | Strategy |
-|---|---|---|---|---|
-| `BL-2` | 3 | All agents | 3 | Floor effect — 3 chunks indistinguishable from full retrieval |
-| `EC-1` | 10 | Most agents | 10 | Full retrieval in 4 runs; `Gemini` sampled minimally (~2–3 named sections, 6 chunks collapsed in thought panel); below suppression threshold for most models |
-| `SC-1` | 14 | All agents | 9–14 | Full retrieval in 3 of 5; chrome exclusion in 2 |
-| `SC-4` | 33 | `SWE`, `o3` | 33 | Full; `Gemini` last chunk only; `GLM` ~8; `GPT-5.4` index only |
-| `EC-6` | 38 | `SWE` | 38 | Full; `Gemini` ~4–5; `GLM` 14; `GPT-5.4`, `Opus 4.7` index only |
-| `BL-3` | 53 | `Kimi`, `GLM`, `Sonnet` | ~unknown–19 | `GLM` 13~19; `Kimi` unknown, nonlinear blind sampling; `GPT` index only; `Sonnet` 6; `SWE` 1 chunk only |
-| `OP-4` | 53 | `SWE` | 53 | Full; `GLM` ~14 non-linear blind sampling; `GPT` last chunk only; `Kimi` ~9–10 non-linear; `Opus` index only |
-| `BL-1` | 54 | `Opus 4.6`, `SWE-1.6` | 8–54 | `Kimi` first-second-last-last; `GPT`, `Sonnet` first-last only; `Opus` 8; `SWE` 23; |
-| `SC-3` | 60 | `GLM`, `Kimi`, `SWE` | 1–6 | `GLM` 5 chunks front-weighted then last; `GPT` first-only; `Kimi`, `SWE` ~5–6 sparse spread; `Sonnet` first-last only |
-| `OP-1` | 91 | None | 1–4 | `GLM`, `Kimi` 3, fragment-targeted; `GPT` last-only; `SWE` section-target-only; `Opus` 4, section-targeted, then last |
-
-| `SC-2` | 1,009 | None | 1–5 | `GLM`, `Opus` last only; `GPT` first-only; `Kimi` 5, distributed sampling; `SWE` 4, structured sampling |
+As observed in the interpreted track, agents consistently use `read_url_content` to fetch URLs, but depending on
+the state of the chunk index, they reason whether individual calls to `view_content_chunk` is worth it. While it
+determines output size and truncation self-report, chunks fetched remains the primary behavioral variable in this
+dataset.
 
 <div id="exp-hm-root"></div>
 
@@ -416,44 +394,170 @@ table.exp-hm td.exp-row-label { font-size: 12px; text-align: left; padding-left:
 })();
 </script>
 
+The tractability threshold is visible across tests: agents tend toward full retrieval on
+chunk counts ≤14 and toward sparse sampling on larger ones ≥50, with 33–38 chunks as the transition
+zone where model families diverge. `SWE` shows the most consistent full-retrieval behavior while
+`GLM`, `GPT` and `Kimi` use sparse sampling more than any other technique.
+
+`BL-3` and `OP-4` use the same source URL across different test sessions, making them the only direct
+same-source comparison in the dataset. Retrieval depth isn't consistent across sessions: `SWE` retrieved
+all chunks in `OP-4` but only 1 chunk in `BL-3`; `GPT-5.3-Codex` retrieved 1 chunk in `OP-4` and stopped
+at the index in `BL-3`. `GLM` and `Kimi` were more stable across sessions, but no agent produced identical
+retrieval depth in both runs. Retrieval depth may reflect a mix of verified and unverified session conditions
+such as context window state, tool response latency, arena slot position, Windsurf version, and chunk summary
+content - as much as individual agent capability.
+
 ---
+
+## `@web`: Routing Hint, not Retrieval Modifier 
+
+Across all runs, no agent said the obvious thing: `@web` is redundant with a URL. Agents exhibited a wide range
+of architectural understanding from non-recognition to mechanical familiarity of the underlying parsing service,
+without mentioning that in this context, calling it would produce no behavioral difference. This absence is the
+`H4` finding. Analysis in the [Friction Note](friction-note-explicit.md#web-semantics-prompt-tool-misalignment).
+
+<style>
+.web-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 1.5rem 0;
+}
+@media (max-width: 600px) {
+  .web-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.web-card {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 12px 14px;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+   text-align: center;
+}
+.web-card p {
+  margin: 0 0 8px;
+}
+.web-card-agent {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted);
+  margin: 0 0 6px;
+  letter-spacing: 0.03em;
+}
+.web-card-quote {
+  font-size: 0.8rem;
+  color: var(--text);
+  line-height: 1.6;
+  margin: 0 0 10px;
+  font-style: italic;
+}
+.web-card-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  padding: 2px 7px;
+  border-radius: 2px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+.web-grid-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+  border-left: 2px solid var(--border);
+  padding-left: 1rem;
+  margin: 1rem 0 0;
+  line-height: 1.7;
+}
+</style>
+
+<div class="web-grid">
+  <div class="web-card">
+    <p class="web-card-agent">SWE-1.6</p>
+    <span class="web-card-tag">No Product Knowledge</span>
+    <p class="web-card-quote">"I don't have a tool called <code>@web</code>. Was there a different tool you intended for me to use?"</p>
+  </div>
+  <div class="web-card">
+    <p class="web-card-agent">GPT-5.3-Codex</p>
+    <span class="web-card-tag">Tool Mapping Only</span>
+    <p class="web-card-quote">"<code>@web</code> maps conceptually to web retrieval tooling — <code>read_url_content</code> under the hood."</p>
+  </div>
+  <div class="web-card">
+    <p class="web-card-agent">Kimi K2.5</p>
+    <span class="web-card-tag">Tool Mapping Only</span>
+    <p class="web-card-quote">"<code>@web</code> is a user-facing alias that routes to <code>read_url_content</code> as the fetch mechanism."</p>
+  </div>
+  <div class="web-card">
+    <p class="web-card-agent">Claude Sonnet 4.6</p>
+    <span class="web-card-tag">UI Awareness</span>
+    <p class="web-card-quote">"Not a distinct tool or named symbol — a user-facing shorthand in the Windsurf chat UI."</p>
+  </div>
+  <div class="web-card">
+    <p class="web-card-agent">Claude Opus 4.6-7</p>
+    <span class="web-card-tag">Conditional Routing</span>
+    <p class="web-card-quote">"<code>@web</code> resolves to <code>read_url_content</code> for a direct URL fetch; would resolve to <code>search_web</code> for a query-based task."</p>
+  </div>
+   <div class="web-card">
+    <p class="web-card-agent">GPT-5.4</p>
+    <span class="web-card-tag">Conditional Routing</span>
+    <p class="web-card-quote">"Direct URL → <code>read_url_content</code>; search query → <code>search_web</code>. No literal tool named <code>@web</code>."</p>
+  </div>
+  <div class="web-card">
+    <p class="web-card-agent">GLM-5.1</p>
+    <span class="web-card-tag">Pipeline Depth</span>
+    <p class="web-card-quote">"A directive that triggers the chunking pipeline, not a separate tool, a user-facing shorthand."</p>
+  </div>
+  <div class="web-card">
+    <p class="web-card-agent">o3</p>
+    <span class="web-card-tag">Pipeline Depth</span>
+    <p class="web-card-quote">"<code>@web</code> maps to <code>read_url_content</code> followed by <code>view_content_chunk</code> to stream the page content."</p>
+  </div>
+  <div class="web-card">
+    <p class="web-card-agent">Gemini 3.1</p>
+    <span class="web-card-tag">Implementation Detail</span>
+    <p class="web-card-quote">"A macro proxying to <code>read_url_content</code> — runs the page through a parsing service that breaks the document into an AST-like structure chunked by headings."</p>
+  </div>
+</div>
 
 ## Truncation Analysis
 
 | **#** | **Finding** | **Tests** | **Observed** | **Conclusion** |
 |---|---|---|---|---|
-| 1 | **`read_url_content` returns chunk index** | All tests | Requires `view_content_chunk` × N; no single-call full-page retrieval path | **Output chars reflect chunks fetched, not retrieval ceiling; variance is behavioral, not architectural** |
-| 2 | **No fixed character or token ceiling detected** | `BL-1`<br>`EC-6`<br>`SC-4` | `BL-1` `Opus` estimated ~170,000–200,000 chars across 54 chunks; `EC-6` `SWE` measured 61,921 chars with no cutoff; `SC-4` `o3` summed 34,200 chars across 33 chunks | **If ceiling exists, no test hit it; constraint is chunks fetched, not a tool-imposed byte limit** |
-| 3 | **Per-chunk display truncation is a second independent layer** | `BL-1`<br>`SC-4`<br>`OP-4` | `view_content_chunk` hides middle portion of large chunks with explicit byte-count notice; `SC-4` `SWE` found 3,766 bytes hidden across 4 positions; `OP-4` `SWE` found truncation warnings on all 53 chunks ranging 367–24,204 bytes | **Full chunk retrieval doesn't guarantee full content delivery; internal truncation invisible to partial-retrieval agents** |
-| 4 | **Truncation self-report tracks chunks fetched, not content loss** | `SC-4`<br>`BL-3`<br>`SC-3` | Agents sampling 3 chunks reported no truncation; agents retrieving all 33 found byte-level notices at 4 positions; `SWE`/`o3` full-retrieval contradiction on identical source | **Self-reported truncation accurate for chunks seen, globally misleading for document; agents conflate retrieval completeness with content fidelity** |
-| 5 | **Chunk summary population determines retrieval strategy quality** | `SC-1`<br>`SC-3`<br>`BL-3`<br>`OP-4` | `SC-1` populated summaries enabled chrome exclusion before fetching; `BL-3` and `OP-4` empty summaries (`"/"`) collapsed skimming to blind sampling; `SC-3` populated summaries present but unused above ~50 chunks | **Index-guided targeting requires populated summaries; populated summaries provide signal but don't guarantee targeted retrieval above the suppression threshold** |
-| 6 | **SPA sources produce an extraction ratio gap, not a truncation event** | `EC-1` | Go Colly static scraper delivers ~20–35% of raw HTML as extracted text; ~70KB gap on a ~100KB page consistent across all 5 runs | **Gap is architectural and consistent, not stochastic; agents evaluate completeness within tool output frame and characterize gap as pipeline transformation, not content loss** |
-| 7 | **Routing bypasses chunked pipeline for small payloads** | `EC-3` | `read_url_content` returned 5-redirect-chain terminal JSON response inline ~353–367 chars body; `view_content_chunk` not called in any run | **Chunked architecture has at least two modes; small payloads return inline without triggering the two-fetch process** |
-| 8 | **`@web` is redundant for URL fetch tasks** | All explicit<br>track tests | `search_web` not invoked in any of 66 explicit track runs; all agents used `read_url_content` → `view_content_chunk` — identical to interpreted track | **`@web` produced no change in retrieval ceiling, toolchain, or chunking behavior when a specific URL was provided; H4 confirmed redundant across all tests** |
-| 9 | **`@web` conditional routing is consistently described** | `SC-1`<br>`SC-4`<br>`EC-6` | Across 66 runs, agents converged on the same conditional: `@web` + URL → `read_url_content`; `@web` + query → `search_web`; no agent invoked both in the same run | **`@web` is a routing hint, not a distinct tool; conditional routing description is stable across model families** |
-| 10 | **Agent self-reporting fidelity is a systematic confound** | `SC-2`<br>`OP-4`<br>`BL-3`<br>`SC-1`<br>`SC-4` | Five distinct fidelity failure patterns identified: batch reads collapsed into stated positions; partial position reporting; quantified undercounting (~32% in `GLM`); parallel execution opacity; thought panel over-reporting | **Tool visibility tables from agent self-report cannot be treated as complete behavioral records without thought panel cross-reference; see [Agent Self-Reporting Fidelity](friction-note-explicit.md#agent-self-reporting-fidelity)** |
-| 11 | **Index size suppresses auto-pagination above ~50 chunks** | `SC-3`<br>`OP-1`<br>`BL-3`<br>`OP-4` | Maximum chunks retrieved: 6 of 60 (`SC-3`), 5 of 91 (`OP-1`), 19 of 53 (`BL-3`), 53 of 53 (`OP-4` `SWE` only) | **Tractability threshold is agent-dependent and index-size-sensitive; 33–38 chunks is the transition zone where model families diverge** |
-| 12 | **CSS-heavy sources produce content extraction failure, not truncation** | `BL-1`<br>`BL-3`<br>`OP-4` | MongoDB LeafyGreen CSS dominated chunk content across all runs on three distinct MongoDB URLs; tutorial body content absent across all 53 chunks in all BL-3 runs | **"Structurally complete, semantically incomplete" — page navigation and chrome recovered; article content inaccessible regardless of retrieval depth** |
-| 13 | **Tool wrapper preamble inflates character counts** | `EC-3` | `Claude Opus 4.7` identified and quoted the preamble string `"Here is the content of the article at [URL]:\n\n"` prepended by `read_url_content`; explains ~70-char cross-run variance on identical content | **Character count variance between runs on identical content reflects tool wrapper inclusion rules, not retrieval differences; body-only counts are the reliable cross-run metric** |
-| 14 | **Colly identified as fetch backend** | `EC-3` | `GLM-5.1` and `Claude Opus 4.7` independently identified `User-Agent: colly — https://github.com/gocolly/colly` from httpbin's echoed request headers | **Windsurf's `read_url_content` tool uses the Colly Go scraping library; static scraper explains SPA extraction gap and CSS extraction failures** |
-
----
+| 1 | **`read_url_content` returns chunk index** | All tests | Requires `view_content_chunk` × N;<br>no single-call full-page<br>retrieval path | **Output chars reflect chunks fetched, not retrieval ceiling; variance behavioral, not architectural** |
+| 2 | **No fixed character or token ceiling detected** | `BL-1`<br>`EC-6`<br>`SC-4` | `BL-1` `Opus` estimated ~120,000–200,000 chars across 54 chunks;<br>`EC-6` `SWE` measured 61,921 chars with no cutoff; `SC-4` `o3` summed 34,200 chars across 33 chunks | **If ceiling exists, no test hit it; constraint is chunks fetched, not a tool-imposed byte limit** |
+| 3 | **Per-chunk display truncation<br>is a second independent layer** | `BL-1`<br>`SC-4`<br>`OP-4` | `view_content_chunk` hides middle portion of large chunks with explicit byte-count notice;<br>`SC-4` `SWE` found 3,766 bytes hidden across 4 positions; `OP-4` `SWE` found truncation warnings on all 53 chunks ranging 367–24,204 bytes | **Full chunk retrieval doesn't guarantee full content delivery; internal truncation invisible** |
+| 4 | **Truncation self-report tracks chunks fetched, not content loss** | `SC-4`<br>`BL-3`<br>`SC-3` | Agents sampling 3 chunks reported no truncation; agents retrieving all 33 found byte-level notices at 4 positions; `SWE` and `o3` full-retrieval contradiction on identical source | **Self-reported truncation accurate for chunks seen, not accurate for doc; agents conflate retrieval completeness with content fidelity** |
+| 5 | **Chunk summary population determines retrieval strategy quality** | `SC-1`<br>`SC-3`<br>`BL-3`<br>`OP-4` | `SC-1` populated summaries enabled chrome exclusion before fetching; `BL-3` and `OP-4` empty summaries (`"/"`) collapsed skimming to blind sampling; `SC-3` populated summaries present, but unused above ~50 chunks | **Index-guided targeting requires populated summaries; populated summaries provide signal but don't guarantee targeted retrieval** |
+| 6 | **SPA sources produce an extraction ratio gap, not a truncation event** | `EC-1` | Go Colly static scraper delivers ~20–35% of raw HTML as extracted text; ~70 KB gap on a ~100 KB page, suggesting gap is architectural | **Agents evaluate completeness within tool output frame, characterize gap as pipeline transformation, not content loss** |
+| 7 | **Routing bypasses chunked pipeline for small payloads** | `EC-3` | `read_url_content` returned<br>5 redirect-chain terminal JSON response inline ~353–367 chars body; `view_content_chunk`<br>not called in any run | **Chunked architecture has at least two modes; small payloads return inline without triggering the two-fetch process** |
+| 8 | **`@web` redundant with URLs** | All tests | Most agents used toolchain identical to interpreted track: `read_url_content` → `view_content_chunk` | **`@web` produced no behavior change; `H4` confirmed redundant** |
+| 9 | **`@web` conditional routing described consistently** | `SC-1`<br>`SC-2`<br>`SC-4`<br>`EC-6`| `@web` + URL → `read_url_content`; `@web` + query → `search_web`; `GLM-5.1` invoked `search_web` once during<br>`SC-2` as an independent verification, but returned<br>near-empty results | **`@web` is a routing hint; `search_web` verification call distinct from `@web`-driven routing, didn't produce usable output** |
+| 10 | **Agent self-reporting fidelity is a systematic confound** | `SC-2`<br>`OP-4`<br>`BL-3`<br>`SC-1`<br>`SC-4` | Under-reporting; partial reporting; parallel execution opacity | **Don't treat agent self-report as complete record, add thought panel cross-reference; analysis in [Friction Note](friction-note-explicit.md#agent-self-reporting-fidelity)** |
+| 11 | **Index size suppresses auto-pagination above ~50 chunks** | `SC-3`<br>`OP-1`<br>`BL-3`<br>`OP-4` | Maximum chunks retrieved:<br>`SC-3`: 6/60, `OP-1`: 5/91,<br>`BL-3`: 19/53,<br>`OP-4`, `SWE` only: 53/53 | **Tractability threshold is agent-dependent, index-size-sensitive; 33–38 chunks is transition zone where agents diverge** |
+| 12 | **CSS-heavy sources produce content extraction failure, not truncation** | `BL-1`<br>`BL-3`<br>`OP-4` | MongoDB LeafyGreen CSS dominated chunk content across all runs on three distinct MongoDB URLs; tutorial body content absent across all 53 chunks in all `BL-3` runs; _"Structurally complete, semantically incomplete"_  | **Page navigation and chrome recovered; article content inaccessible regardless of retrieval depth** |
+| 13 | **Tool wrapper preamble inflates character counts** | `EC-3` | `Claude Opus 4.7` identified and quoted the preamble string `"Here is the content of the article at [URL]"` prepended by `read_url_content`; explains cross-run variance on identical content | **Variance between runs on identical content reflects tool wrapper inclusion rules, not retrieval differences** |
+| 14 | **Colly identified as fetch backend** | `EC-3` | `GLM-5.1` and `Claude Opus 4.7` independently identified<br>`User-Agent: colly — https://github.com/gocolly/colly` from `httpbin`'s echoed request headers | **Windsurf uses scraping library; possibly explains CSS and/or SPA extraction gap** |
+| 15 | **Per-chunk byte ceiling may reflect server-side rate limiting, not a tool gate** | `SC-2` | `SWE`, `GLM` hit 17,993-byte truncation at chunk 1008, mid-identifier inside `BetaManagedAgentsModelRateLimitedError`; likely HTTP response complete, but agent abstracted | **Unresolvable from agent self-report, raw track required** |
 
 ## Perception Gap
 
-| **Test** | **Expected** | **Received** | **Retrieval rate** | **Agent characterization** |
+| **Test** | **Expected** | **Received** | **Delivery Ratio** | **Agent Characterization** |
 |---|---|---|---|---|
-| **`EC-6`<br>Raw Markdown** | ~61 KB | 61,921 chars<br>`SWE` full retrieval | ~97% | _"No truncation, structurally complete — tool transforms content before delivery"_ |
-| **`SC-4`<br>Markdown Guide** | ~30 KB | ~15,500–34,200 chars; full retrieval runs | ~52–114%* | _"Complete but contradicted — `SWE` found truncation at 4 positions; `o3` found none on identical content"_ |
+| **`EC-6`<br>Raw Markdown** | ~61 KB | 61,921 chars<br>`SWE` full retrieval | ~97% | _"No truncation, structurally complete; tool transforms content before delivery"_ |
+| **`SC-4`<br>Markdown Guide** | ~30 KB | ~15,500–34,200 chars; full retrieval runs | ~52–114%* | _"Complete but contradicted; `SWE` found truncation at 4 positions; `o3` found none<br>on identical content"_ |
 | **`EC-1`<br>SPA** | ~100 KB | ~20,100–35,500 chars extracted | ~20–36% | _"Extraction ratio, not truncation — HTML stripped and JavaScript not executed before delivery"_ |
-| **`SC-3`<br>Wikipedia** | ~100 KB | ~4,900 chars index to ~150,000 chars extrapolated | varies by method | _"No truncation, index complete — vs — yes, 57/60 chunks never fetched"_ |
-| **`BL-3`<br>CSS Tutorial** | ~256 KB | ~2,598–350,000 chars across runs | indeterminate | _"Structurally complete, semantically incomplete — tutorial body absent across all chunks"_ |
-| **`EC-3`<br>Redirect JSON** | ~2 KB | ~353–367 chars body | ~15–18% of expected | _"Complete — JSON payload is the full response; size gap reflects redirect chain delivering terminal response only"_ |
+| **`SC-3`<br>Wikipedia** | ~100 KB | ~4,900 chars index to ~150,000 chars extrapolated | varies by method | _"No truncation, index complete vs yes, 57/60 chunks never fetched"_ |
+| **`BL-3`<br>CSS Tutorial** | ~256 KB | ~2,598–350,000 chars across runs | indeterminate | _"Structurally complete, semantically incomplete; tutorial body absent across all chunks"_ |
+| **`EC-3`<br>Redirect JSON** | ~2 KB | ~353–367<br>chars body | ~15–18% of expected | _"Complete; JSON payload is the full response; size gap reflects redirect chain delivering terminal response only"_ |
 
-> _* `SC-4` variance above 100% reflects counting method differences between full-retrieval runs,
-> not over-retrieval. `SWE-1.6` and `o3` retrieved identical content and produced estimates
-> differing by ~18,700 chars — the largest same-source, same-depth variance in the dataset._
-
+> _* `SC-4` figures above 100% reflect counting method differences, not over-retrieval.
+> `SWE` and `o3` both retrieved all 33 chunks and reported estimates differing by
+> ~18,700 chars; the largest same-source, same-depth variance in the dataset._
+>
 > _Implication: output chars aren't an appropriate truncation ceiling metric for Cascade; they
 > reflect chunk count, content transformation, and tool wrapper inclusion rules. None is
 > observable from agent self-report alone._
