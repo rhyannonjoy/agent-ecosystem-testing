@@ -76,7 +76,9 @@ navigation:
       - title: "Friction: Interpreted"
         url: "/docs/cognition-windsurf-cascade/friction-note-interpreted"
       - title: "Friction: Explicit"
-        url: "/docs/cognition-windsurf-cascade/friction-note-explicit"  
+        url: "/docs/cognition-windsurf-cascade/friction-note-explicit"
+      - title: "Friction: Raw"
+        url: "/docs/cognition-windsurf-cascade/friction-note-raw"  
     
   - title: "Google Gemini API"
     sections:
