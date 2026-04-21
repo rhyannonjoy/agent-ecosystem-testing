@@ -1,0 +1,296 @@
+Title: create Event - Database Manual - MongoDB Docs
+Source URL: https://www.mongodb.com/docs/manual/reference/change-events/create/
+Document ID: https://www.mongodb.com/docs/manual/reference/change-events/create/
+Total Chunks: 54 (positions 0-53)
+Tools Invoked: read_url_content, view_content_chunk
+
+=== CHUNK 0 ===
+[.leafygreen-ui-1gc0qu9{background-image:url();-webkit-background-position:center;background-position:center;-webkit-background-size:cover;background-size:cover;background-color:#023430;height:100%;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;gap:20px;padding:0 11px;font-size:13px;line-height:20px;}@media only screen and (max-width: 767px){.leafygreen-ui-1gc0qu9{background-image:url();-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;}}@media only screen and (max-width: 480px){.leafygreen-ui-1gc0qu9{background-image:url();font-size:11px;}}.leafygreen-ui-1u834jw{-webkit-align-self:center;-ms-flex-item-align:center;align-self:center;max-height:40px;}Join us at MongoDB.local London on 7 May to unlock new possibilities for your data. Use WEB50 to save 50%..leafygreen-ui-l8rg2y{display:grid;justify-items:center;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;}.leafygreen-ui-1aceqcy{grid-row:1;grid-column:1;height:40px;}.leafygreen-ui-1mk9kyl{grid-row:1;grid-column:1;color:#023430;font-weight:600;line-height:16px;font-size:12px;background-color:#00ED64;border:1px solid #00684A;border-radius:6px;height:22px;padding:3px 8px;z-index:1;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;}Register now >](https://www.mongodb.com/events/mongodb-local/london)
+[.css-1qo9kov{width:384px;min-width:100px;font-size:14px;line-height:37px;height:32px;width:126px;max-width:none;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;}](https://www.mongodb.com)
+
+=== CHUNK 1 ===
+- .css-8w0qf3{font-family:Euclid Circular A,Noto Sans KR,Noto Sans SC,Noto Sans JP;position:relative;height:95px;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-text-decoration:none;text-decoration:none;letter-spacing:unset;min-width:calc(64px + 4px);-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;cursor:pointer;white-space:nowrap;}.css-8w0qf3 .nav-chevron{margin-left:2px;fill:#5d6c74;-webkit-transition:-webkit-transform 250ms,fill 200ms;transition:transform 250ms,fill 200ms;}.css-8w0qf3:hover{-webkit-text-decoration:none;text-decoration:none;}.css-8w0qf3:focus-visible{outline:-webkit-focus-ring-color auto 1px;}.css-y8jn5v{font-family:Euclid Circular A,Noto Sans KR,Noto Sans SC,Noto Sans JP;font-weight:300;cursor:pointer;background:none;border:none;padding:0px;font-size:16px;line-height:32px;color:#21313c;font-family:Euclid Circular A,Noto Sans KR,Noto Sans SC,Noto Sans JP;position:relative;height:95px;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-text-decoration:none;text-decoration:none;letter-spacing:unset;min-width:calc(64px + 4px);-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;cursor:pointer;white-space:nowrap;}.css-y8jn5v .nav-chevron{margin-left:2px;fill:#5d6c74;-webkit-transition:-webkit-transform 250ms,fill 200ms;transition:transform 250ms,fill 200ms;}.css-y8jn5v:hover{-webkit-text-decoration:none;text-decoration:none;}.css-y8jn5v:focus-visible{outline:-webkit-focus-ring-color auto 1px;}.css-1edz58y{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;text-align:left;}.css-1edz58y .textlink-default-text-class{color:#001E2B;border-bottom:0;-webkit-transition:color 200ms,text-shadow 200ms;transition:color 200ms,text-shadow 200ms;}.css-1edz58y .textlink-default-text-class:hover{border-bottom:2px solid #061621;}@media screen and (max-width: 1416px){.css-1edz58y .textlink-default-text-class{font-size:15px;line-height:15px;}}.css-1edz58y .textlink-default-text-class:hover{border-bottom:0;color:#00684A;text-shadow:0 0 1px rgba(0, 104, 74, 0.5);}.css-1edz58y .textlink-default-text-class:hover .nav-chevron{fill:#00684A;}.css-1edz58y .textlink-arrow-class{color:#00AA57;}.css-1edz58y .textlink-link-icon-class{color:#21313c;}.css-1edz58y:hover .textlink-text-class{color:#00AA57;-webkit-animation:linear 1 alternate;-webkit-animation-name:color;-webkit-animation-duration:300ms;}@-webkit-keyframes color{0%{color:#061621;}100%{left:green50;}}.css-1edz58y:hover .textlink-arrow-class{left:0;-webkit-animation:linear 1 alternate;-webkit-animation-name:runLink;-webkit-animation-duration:300ms;}@-webkit-keyframes runTitle{0%{left:0;}33%{left:25px;}66%{left:-25px;}100%{left:0;}}@-webkit-keyframes runLink{0%{left:-100px;}100%{left:0;}}.css-aq3x7l{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;font-size:16px;line-height:32px;color:#21313c;}Products.css-osbl4z{border-radius:16px;box-shadow:0px 3px 20px 0px rgba(0, 0, 0, 0.15);position:absolute;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;max-height:calc(100vh - 88px);max-width:calc(100% - 34px);top:100%;left:34px;margin-top:-8px;background:#ffffff;-webkit-animation:animation-1w559i1 0.2s ease-in-out forwards;animation:animation-1w559i1 0.2s ease-in-out forwards;visibility:hidden;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;pointer-events:none;}@-webkit-keyframes animation-1w559i1{from{opacity:1;}to{opacity:0;}}@keyframes animation-1w559i1{from{opacity:1;}to{opacity:0;}}.css-9ph9zl{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:row;-ms-flex-direction:row;flex-direction:row;}.css-1t6t43{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;}.css-x20kx8{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;padding-left:32px;padding-right:16px;padding-top:32px;}.css-xddzfi{width:344px;max-width:344px;margin-right:40px;}.css-1sdjll7{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;-webkit-flex:1;-ms-flex:1;flex:1;padding-bottom:10px;}.css-18955fu{font-size:12px;line-height:12px;min-height:12px;font-weight:600;color:#3d4f58;margin-bottom:14px;text-transform:uppercase;}Platform.css-5tnj2v{padding-left:8px;padding-right:8px;padding-top:10px;padding-bottom:10px;margin-left:-8px;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;border-radius:8px;line-height:16px;-webkit-transition:background 0.3s ease-out;transition:background 0.3s ease-out;margin-bottom:4px;}@media screen and (min-width: 1024px){.css-5tnj2v{margin-bottom:12px;}}.css-5tnj2v .menu-title{font-size:14px;line-height:14px;}@media screen and (min-width: 1024px){.css-5tnj2v .menu-title{font-size:16px;line-height:16px;}}.css-5tnj2v:hover{background:#fafbfc;}.css-14evboh{font-family:Euclid Circular A,Noto Sans KR,Noto Sans SC,Noto Sans JP;font-weight:500;cursor:pointer;-webkit-text-decoration:none;text-decoration:none;display:inline-block;font-size:16px;line-height:32px;color:#006CFA;padding-left:8px;padding-right:8px;padding-top:10px;padding-bottom:10px;margin-left:-8px;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;border-radius:8px;line-height:16px;-webkit-transition:background 0.3s ease-out;transition:background 0.3s ease-out;margin-bottom:4px;}.css-14evboh:hover{-webkit-text-decoration:none;text-decoration:none;}@media screen and (min-width: 1024px){.css-14evboh{margin-bottom:12px;}}.css-14evboh .menu-title{font-size:14px;line-height:14px;}@media screen and (min-width: 1024px){.css-14evboh .menu-title{font-size:16px;line-height:16px;}}.css-14evboh:hover{background:#fafbfc;}.css-1gdkn91{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;text-align:left;}.css-1gdkn91 .textlink-default-text-class{color:#001E2B;line-height:16px;border-bottom:0;font-weight:500;-webkit-align-items:flex-start;-webkit-box-align:flex-start;-ms-flex-align:flex-start;align-items:flex-start;-webkit-text-decoration:none;text-decoration:none;}.css-1gdkn91 .textlink-default-text-class:hover{border-bottom:0;-webkit-text-decoration:none;text-decoration:none;}.css-1gdkn91 .textlink-arrow-class{color:#001E2B;line-height:32px;}.css-1gdkn91 .textlink-link-icon-class{color:#001E2B;line-height:32px;}.css-pbhol6{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;font-size:16px;line-height:32px;color:#006CFA;}.css-pbhol6:hover{-webkit-text-decoration:none;text-decoration:none;}.css-6orj5s{width:32px;height:32px;margin-right:12px;}.css-x4n4mc{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;}Atlas.css-mmbp4l{display:inline-block;font-size:12px;line-height:15px;font-weight:400;color:#5d6c74;margin-top:4px;}@media screen and (min-width: 1024px){.css-mmbp4l{font-size:14px;line-height:18px;}}Build and scale with an AI-ready platformPlatform ServicesDatabaseDeploy a multi-cloud databaseSearchDeliver engaging search experiencesVector SearchDesign intelligent apps with gen AIStream ProcessingIntegrate MongoDB and Kafka.css-fpou7b{width:344px;max-width:344px;}Self ManagedEnterprise AdvancedRun and manage MongoDB yourselfCommunity EditionDevelop locally with MongoDBToolsCompassWork with MongoDB data in a GUIIntegrationsIntegrations with third-party servicesRelational MigratorMigrate to MongoDB with confidence.css-1aq7tsw{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;}.css-1aq7tsw>div+div{border-left:1px solid #e7eeec;}.css-9vd5ud{width:100%;}.css-86227v{padding-left:32px;padding-right:16px;padding-top:16px;padding-bottom:16px;border-top:1px solid #e7eeec;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;width:100%;box-sizing:border-box;line-height:14px;-webkit-transition:background 0.3s ease-out;transition:background 0.3s ease-out;}.css-86227v>span{width:100%;}.css-86227v:hover{background:#fafbfc;}.css-86227v:hover svg{opacity:1;}.css-86227v .menu-title{display:inline-block;}.css-86227v .menu-description{display:inline-block;font-size:12px;font-weight:400;color:#5d6c74;line-height:15px;margin-top:4px;}.css-86227v svg{stroke:#006CFA;opacity:0;-webkit-transition:opacity 0.3s ease-out;transition:opacity 0.3s ease-out;}.css-1wgcu6y{font-family:Euclid Circular A,Noto Sans KR,Noto Sans SC,Noto Sans JP;font-weight:500;cursor:pointer;-webkit-text-decoration:none;text-decoration:none;display:inline-block;font-size:16px;line-height:32px;color:#006CFA;width:100%;padding-left:32px;padding-right:16px;padding-top:16px;padding-bottom:16px;border-top:1px solid #e7eeec;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;width:100%;box-sizing:border-box;line-height:14px;-webkit-transition:background 0.3s ease-out;transition:background 0.3s ease-out;}.css-1wgcu6y:hover{-webkit-text-decoration:none;text-decoration:none;}.css-1wgcu6y>span{width:100%;}.css-1wgcu6y:hover{background:#fafbfc;}.css-1wgcu6y:hover svg{opacity:1;}.css-1wgcu6y .menu-title{display:inline-block;}.css-1wgcu6y .menu-description{display:inline-block;font-size:12px;font-weight:400;color:#5d6c74;line-height:15px;margin-top:4px;}.css-1wgcu6y svg{stroke:#006CFA;opacity:0;-webkit-transition:opacity 0.3s ease-out;transition:opacity 0.3s ease-out;}.css-1f7scwv{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;text-align:left;}.css-1f7scwv .textlink-default-text-class{color:#21313c;line-height:14px;border-bottom:0;-webkit-text-decoration:none;text-decoration:none;font-weight:500;font-size:14px;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;width:100%;}.css-1f7scwv .textlink-default-text-class:hover{border-bottom:0;-webkit-text-decoration:none;text-decoration:none;}.css-1f7scwv .textlink-arrow-class{color:#001E2B;line-height:32px;}.css-1f7scwv .textlink-link-icon-class{color:#001E2B;line-height:32px;}.css-10mejol{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;}View All ProductsExplore our full developer suite.css-vvcvyi{width:16px;height:16px;stroke:#3d4f58;fill:none;stroke-width:1px;}arrow-rightMongoDB 8.0Our fastest version everarrow-right.css-1p2ltr0{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;border-left:6px solid #f5f7fA;}.css-15n20pz{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;min-width:208px;max-width:208px;}.css-15n20pz>.helper-section-item{border-bottom:6px solid #f5f7fA;border-top:0px;}.css-15n20pz>.helper-section-item:last-of-type{border-bottom:0;padding-bottom:24px;}.css-lkbdt0{width:100%;box-sizing:border-box;-webkit-flex:1;-ms-flex:1;flex:1;padding:24px;padding-bottom:18px;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;}.css-1lxjpys{font-size:12px;font-weight:500;line-height:12px;color:#21313c;}Build with MongoDB Atlas.css-1qkz7n9{font-weight:400;font-size:12px;margin-top:8px;color:#5d6c74;line-height:18px;}Get started for free in minutes.css-7ysqtr{margin-top:16px;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;}.css-1u3h8p4{font-size:12px;line-height:12px;width:100%;border:1px solid #b8c4c2;padding-top:7px;padding-bottom:7px;border-radius:999px;-webkit-transition:background 0.2s ease-in,border 0.2s ease-in;transition:background 0.2s ease-in,border 0.2s ease-in;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;color:#006CFA;}.css-1u3h8p4:hover{border-color:#006CFA;color:#ffffff;background:#006CFA;}.css-1jjowz0{font-family:Euclid Circular A,Noto Sans KR,Noto Sans SC,Noto Sans JP;font-weight:500;cursor:pointer;-webkit-text-decoration:none;text-decoration:none;display:inline-block;font-size:16px;line-height:32px;color:#006CFA;font-size:12px;line-height:12px;width:100%;border:1px solid #b8c4c2;padding-top:7px;padding-bottom:7px;border-radius:999px;-webkit-transition:background 0.2s ease-in,border 0.2s ease-in;transition:background 0.2s ease-in,border 0.2s ease-in;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;color:#006CFA;}.css-1jjowz0:hover{-webkit-text-decoration:none;text-decoration:none;}.css-1jjowz0:hover{border-color:#006CFA;color:#ffffff;background:#006CFA;}.css-g5pq55{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;text-align:left;}.css-g5pq55 .textlink-default-text-class{color:inherit;line-height:16px;border-bottom:0;font-size:12px;font-weight:500;-webkit-transition:color 0.2s ease-in;transition:color 0.2s ease-in;}.css-g5pq55 .textlink-default-text-class:hover{border-bottom:0;}.css-g5pq55 .textlink-arrow-class{color:#001E2B;line-height:32px;}.css-g5pq55 .textlink-link-icon-class{color:#001E2B;line-height:32px;}Sign UpTest Enterprise AdvancedDevelop with MongoDB on-premises[Download](https://www.mongodb.com/try/download/community)Try Community EditionExplore the latest version of MongoDBDownload
+
+=== CHUNK 2 ===
+- Resources.css-cc0pau{width:216px;max-width:216px;margin-right:32px;}Documentation.css-38hmqx{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;text-align:left;}.css-38hmqx .textlink-default-text-class{color:#001E2B;line-height:16px;border-bottom:0;font-weight:500;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-text-decoration:none;text-decoration:none;}.css-38hmqx .textlink-default-text-class:hover{border-bottom:0;-webkit-text-decoration:none;text-decoration:none;}.css-38hmqx .textlink-arrow-class{color:#001E2B;line-height:32px;}.css-38hmqx .textlink-link-icon-class{color:#001E2B;line-height:32px;}Atlas DocumentationGet started using AtlasServer DocumentationLearn to use MongoDB.css-eho906{width:216px;max-width:216px;margin-right:10px;} Tools and ConnectorsLearn how to connect to MongoDBMongoDB DriversUse drivers and libraries for MongoDBResources HubGet help building the next big thing with MongoDBarrow-right.css-1a9krmi{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;min-width:208px;max-width:100%;padding-top:0px;padding-left:0px;padding-right:0px;box-sizing:border-box;}@media screen and (min-width: 1024px){.css-1a9krmi{max-width:320px;padding-top:32px;padding-left:24px;padding-right:24px;}}.css-1a9krmi>.helper-section-item{border-bottom:6px solid #f5f7fA;border-top:0px;}.css-1a9krmi>.helper-section-item:last-of-type{border-bottom:0;padding-bottom:24px;}Connect.css-1l423vo{padding-left:8px;padding-right:8px;padding-top:10px;padding-bottom:10px;margin-left:-8px;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;border-radius:8px;line-height:16px;-webkit-transition:background 0.3s ease-out;transition:background 0.3s ease-out;margin-bottom:4px;margin-right:-8px;}@media screen and (min-width: 1024px){.css-1l423vo{margin-bottom:12px;}}.css-1l423vo .menu-title{font-size:14px;line-height:14px;}@media screen and (min-width: 1024px){.css-1l423vo .menu-title{font-size:16px;line-height:16px;}}.css-1l423vo:hover{background:#fafbfc;}.css-67bxsc{font-family:Euclid Circular A,Noto Sans KR,Noto Sans SC,Noto Sans JP;font-weight:500;cursor:pointer;-webkit-text-decoration:none;text-decoration:none;display:inline-block;font-size:16px;line-height:32px;color:#006CFA;padding-left:8px;padding-right:8px;padding-top:10px;padding-bottom:10px;margin-left:-8px;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;border-radius:8px;line-height:16px;-webkit-transition:background 0.3s ease-out;transition:background 0.3s ease-out;margin-bottom:4px;margin-right:-8px;}.css-67bxsc:hover{-webkit-text-decoration:none;text-decoration:none;}@media screen and (min-width: 1024px){.css-67bxsc{margin-bottom:12px;}}.css-67bxsc .menu-title{font-size:14px;line-height:14px;}@media screen and (min-width: 1024px){.css-67bxsc .menu-title{font-size:16px;line-height:16px;}}.css-67bxsc:hover{background:#fafbfc;}CommunityJoin a global community of developersCourses and CertificationLearn for free from MongoDB[Events and WebinarsFind an event or webinar near you](https://www.mongodb.com/events)
+
+=== CHUNK 3 ===
+- Solutions.css-10ejslm{width:192px;max-width:192px;margin-right:32px;}Use casesArtificial IntelligenceModernizationPaymentsServerless DevelopmentGamingIntelligent SearchEdge and Mobile.css-12h7cp9{width:192px;max-width:192px;margin-right:10px;}IndustriesFinancial ServicesTelecommunicationsHealthcareRetailPublic SectorManufacturingSolutions LibraryOrganized and tailored solutions to kick-start projectsarrow-rightAI Applications Program.css-jnux5f{font-weight:400;font-size:12px;margin-top:8px;color:#5d6c74;line-height:15px;}Expedite your AI journey with expert guidance.css-1kx7zhg{font-size:12px;line-height:12px;color:#006CFA;width:100%;}.css-1kx7zhg svg{-webkit-transition:-webkit-transform 0.2s;transition:transform 0.2s;}.css-1kx7zhg:hover svg{-webkit-transform:translateX(8px);-moz-transform:translateX(8px);-ms-transform:translateX(8px);transform:translateX(8px);}.css-140d8hn{font-family:Euclid Circular A,Noto Sans KR,Noto Sans SC,Noto Sans JP;font-weight:500;cursor:pointer;-webkit-text-decoration:none;text-decoration:none;display:inline-block;font-size:16px;line-height:32px;color:#006CFA;font-size:12px;line-height:12px;color:#006CFA;width:100%;}.css-140d8hn:hover{-webkit-text-decoration:none;text-decoration:none;}.css-140d8hn svg{-webkit-transition:-webkit-transform 0.2s;transition:transform 0.2s;}.css-140d8hn:hover svg{-webkit-transform:translateX(8px);-moz-transform:translateX(8px);-ms-transform:translateX(8px);transform:translateX(8px);}.css-x0qvfd{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;text-align:left;}.css-x0qvfd .textlink-default-text-class{color:#006CFA;line-height:12px;border-bottom:0;font-size:12px;font-weight:500;width:auto;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;}.css-x0qvfd .textlink-default-text-class:hover{border-bottom:0;}@media screen and (min-width: 1024px){.css-x0qvfd .textlink-default-text-class{width:100%;}}.css-x0qvfd .textlink-default-text-class svg{stroke:#006CFA;margin-left:8px;}.css-x0qvfd .textlink-arrow-class{color:#001E2B;line-height:32px;}.css-x0qvfd .textlink-link-icon-class{color:#001E2B;line-height:32px;}Learn morearrow-rightStartups and AI InnovatorsFor world-changing ideas and AI pioneersLearn morearrow-rightCustomer Case StudiesHear directly from our users[See Storiesarrow-right](https://www.mongodb.com/solutions/customer-case-studies)
+- Company.css-1ydjkoa{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;-webkit-flex:1;-ms-flex:1;flex:1;padding-bottom:10px;margin-top:-10px;}CareersStart your next adventureBlogRead articles and announcementsNewsroomRead press releases and news storiesPartnersLearn about our partner ecosystemLeadershipMeet our executive teamCompanyLearn more about who we areContact UsReach out to MongoDBConnect with an expertarrow-rightInvestorsVisit our investor portal[Learn morearrow-right](https://investors.mongodb.com/)
+
+=== CHUNKS 4-48 ===
+[Navigation/CSS boilerplate repeated - see chunks 4-48 for full sidebar navigation, mobile menu, and footer content. These chunks contain duplicated CSS class definitions and navigation links identical to chunks 0-3 and 12-47.]
+
+=== CHUNK 49 (H1 Header) ===
+headers:{type:MARKDOWN_NODE_TYPE_HEADER_1  text:"create Event.leafygreen-ui-11mfcte{position:absolute;-webkit-align-self:center;-ms-flex-item-align:center;align-self:center;padding:0 10px;visibility:hidden;}.leafygreen-ui-s0ybz1{color:#889397;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;vertical-align:middle;margin-top:-2px;}.css-zena35{display:inline;left:0;top:0;margin-top:-85px;position:absolute;padding-bottom:2px;}@media only screen and (max-width: 767px){.css-zena35{margin-top:-85px;}}"}  text:".leafygreen-ui-s0ybz1{color:#889397;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;vertical-align:middle;margin-top:-2px;}.css-zena35{display:inline;left:0;top:0;margin-top:-85px;position:absolute;padding-bottom:2px;}@media only screen and (max-width: 767px){.css-zena35{margin-top:-85px;}}"
+
+=== CHUNK 50 (Summary) ===
+headers:{type:MARKDOWN_NODE_TYPE_HEADER_1  text:"create Event..."}  headers:{type:MARKDOWN_NODE_TYPE_HEADER_2  text:"Summary"}  text:"```
+create
+```
+
+New in version 6.0.
+A create event occurs when a collection is created on a watched database and the change stream has the .leafygreen-ui-11szg22{-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;cursor:pointer;position:relative;-webkit-text-decoration:none;text-decoration:none;text-decoration-color:transparent;line-height:13px;color:var(--link-color-primary);font-weight:var(--link-font-weight);}.leafygreen-ui-11szg22 >span>code,.leafygreen-ui-11szg22 >code{color:var(--link-color-primary);font-weight:var(--link-font-weight);}.leafygreen-ui-11szg22:focus,.leafygreen-ui-11szg22:hover{text-decoration-line:underline;-webkit-transition:text-decoration 150ms ease-in-out;transition:text-decoration 150ms ease-in-out;text-underline-offset:4px;text-decoration-thickness:2px;}.leafygreen-ui-11szg22:focus{text-decoration-color:#016BF8;outline:none;}.leafygreen-ui-11szg22:hover{text-decoration-color:#E8EDEB;}[showExpandedEvents](https://www.mongodb.com/docs/manual/reference/change-events/) option set to true.
+
+```
+create
+```
+
+
+```
+true
+```
+
+=== CHUNK 51 (Description) ===
+headers:{type:MARKDOWN_NODE_TYPE_HEADER_1  text:"create Event..."}  headers:{type:MARKDOWN_NODE_TYPE_HEADER_2  text:"Description"}  text:"_id
+
+```
+_id
+```
+
+Document
+A BSON object, which serves as an identifier for the change stream event. This value is used as the resumeToken for the resumeAfter parameter when resuming a change stream. The fields within the _id object depend on the MongoDB versions and, in some cases, the [feature compatibility version (FCV)](https://www.mongodb.com/docs/manual/reference/command/setFeatureCompatibilityVersion/) at the time of the change stream's opening or resumption.
+
+```
+resumeToken
+```
+
+
+```
+resumeAfter
+```
+
+
+```
+_id
+```
+
+For an example of resuming a change stream by resumeToken, see [Resume a Change Stream.](https://www.mongodb.com/docs/manual/changeStreams/)
+
+```
+resumeToken
+```
+
+clusterTime
+
+```
+clusterTime
+```
+
+Timestamp
+clusterTime is the timestamp from the oplog entry associated with the event.
+
+```
+clusterTime
+```
+
+Due to oplog size limits, [multi-document transactions](https://www.mongodb.com/docs/manual/core/transactions/) may create multiple oplog entries. In a transaction, change stream events staged in a given oplog entry share the same clusterTime.
+
+```
+clusterTime
+```
+
+Events with the same clusterTime may not all relate to the same transaction. Some events don't relate to a transaction at all. Starting in MongoDB 8.0, this may be true for events on any deployment. In previous versions, this behavior was possible only for events on a sharded cluster.
+
+```
+clusterTime
+```
+
+To identify events for a single transaction, you can use the combination of lsid and txnNumber in the change stream event document.
+
+```
+lsid
+```
+
+
+```
+txnNumber
+```
+
+Changed in version 8.0.
+collectionUUID
+
+```
+collectionUUID
+```
+
+UUID
+If the change occurred on a collection, collectionUUID indicates the collection's .leafygreen-ui-vm4wms{position:relative;border-radius:2px;-webkit-text-decoration:underline dotted 2px;text-decoration:underline dotted 2px;text-underline-offset:0.125em;text-decoration-color:#001E2B;}.leafygreen-ui-vm4wms:hover a>*::after{height:0;}.leafygreen-ui-vm4wms:focus,.leafygreen-ui-vm4wms:focus-visible{outline-color:#0498EC;outline-offset:3px;outline-style:solid;outline-width:2px;}.leafygreen-ui-vm4wms:hover,.leafygreen-ui-vm4wms:focus,.leafygreen-ui-vm4wms:focus-visible{text-decoration-color:#001E2B;}UUID. If the change occurred on a view, collectionUUID doesn't exist.
+
+```
+collectionUUID
+```
+
+
+```
+collectionUUID
+```
+
+New in version 6.0.
+lsid
+
+```
+lsid
+```
+
+document
+The identifier for the session associated with the transaction.
+Only present if the operation is part of a [multi-document transaction.](https://www.mongodb.com/docs/manual/core/transactions/)
+ns
+
+```
+ns
+```
+
+document
+The namespace (database and or collection) affected by the event.
+ns.coll
+
+```
+ns.coll
+```
+
+string
+The name of the collection where the event occurred.
+ns.db
+
+```
+ns.db
+```
+
+string
+The name of the database where the event occurred.
+nsType
+
+```
+nsType
+```
+
+string
+Shows the namespace type of the collection created by this event.
+
+```
+"collection"
+```
+
+
+```
+"timeseries"
+```
+
+
+```
+"view"
+```
+
+New in version 8.1: (also available in 8.0.5).
+operationDescription
+
+```
+operationDescription
+```
+
+document
+Additional information on the change operation.
+This document and its subfields only appears when the change stream uses [expanded events.](https://www.mongodb.com/docs/manual/reference/change-events/)
+New in version 6.0.
+
+```
+operationDescription.
+```
+
+
+```
+idIndex
+```
+
+document
+The default _id index for a new collection.
+
+```
+_id
+```
+
+New in version 6.0.
+operationType
+
+```
+operationType
+```
+
+string
+The type of operation that the change notification reports.
+Returns a value of create for these change events.
+
+```
+create
+```
+
+txnNumber
+
+```
+txnNumber
+```
+
+NumberLong
+Together with the [lsid](https://www.mongodb.com/docs/manual/reference/change-events/create/), a number that helps uniquely identify a transction.
+Only present if the operation is part of a [multi-document transaction.](https://www.mongodb.com/docs/manual/core/transactions/)
+wallTime
+
+```
+wallTime
+```
+
+[ISODate](https://www.mongodb.com/docs/manual/reference/glossary/)
+The server date and time of the database operation. wallTime differs from clusterTime in that clusterTime is a timestamp taken from the oplog entry associated with the database operation event.
+
+```
+wallTime
+```
+
+
+```
+clusterTime
+```
+
+
+```
+clusterTime
+```
+
+New in version 6.0.
+
+=== CHUNK 52 (Example) ===
+headers:{type:MARKDOWN_NODE_TYPE_HEADER_1  text:"create Event..."}  headers:{type:MARKDOWN_NODE_TYPE_HEADER_2  text:"Example"}  text:"The following example shows a create event:
+
+```
+create
+```
+
+
+```
+.leafygreen-ui-9ybzas{color:inherit;font-family:'Source Code Pro',Menlo,monospace;font-size:15px;line-height:24px;}.leafygreen-ui-1tr4g10{border-spacing:0;}.leafygreen-ui-7razhx{border-spacing:0;vertical-align:top;padding:0 16px;}{ "_id": { <ResumeToken> }, "operationType": "create", "clusterTime": Timestamp({ t: 1654894547, i: 24 }), "collectionUUID": UUID("98046a1a-b649-4e5b-9c75-67594221ce19"), "wallTime": ISODate("2022-06-10T20:55:47.947Z"), "ns": { "db": "test", "coll": "names" }, "operationDescription": { "idIndex": { "v": 2, "key": { _id: 1 }, "name": "_id_" } }}
+```
+
+
+```
+.leafygreen-ui-1tr4g10{border-spacing:0;}.leafygreen-ui-7razhx{border-spacing:0;vertical-align:top;padding:0 16px;}{ "_id": { <ResumeToken> }, "operationType": "create", "clusterTime": Timestamp({ t: 1654894547, i: 24 }), "collectionUUID": UUID("98046a1a-b649-4e5b-9c75-67594221ce19"), "wallTime": ISODate("2022-06-10T20:55:47.947Z"), "ns": { "db": "test", "coll": "names" }, "operationDescription": { "idIndex": { "v": 2, "key": { _id: 1 }, "name": "_id_" } }}
+```
+
+[BackChange Events](https://www.mongodb.com/docs/manual/reference/change-events/)
+Back
+Change Events
+[NextcreateIndexes](https://www.mongodb.com/docs/manual/reference/change-events/createIndexes/)
+Next
+createIndexes
+On this page
+
+=== CHUNK 53 (On this page / TOC) ===
+headers:{type:MARKDOWN_NODE_TYPE_HEADER_1  text:"create Event..."}  headers:{type:MARKDOWN_NODE_TYPE_HEADER_2  text:"Example"}  text:"- Summary
+- Description
+- Example
+Summary
+Description
+Example
+
+=== END OF CONTENT ===

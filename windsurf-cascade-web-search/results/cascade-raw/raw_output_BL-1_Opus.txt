@@ -1,0 +1,281 @@
+Title: create Event - Database Manual - MongoDB Docs
+URL: https://www.mongodb.com/docs/manual/reference/change-events/create/
+
+[Chunk 0]
+[.leafygreen-ui-1gc0qu9{background-image:url();-webkit-background-position:center;background-position:center;-webkit-background-size:cover;background-size:cover;background-color:#023430;height:100%;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;gap:20px;padding:0 11px;font-size:13px;line-height:20px;}@media only screen and (max-width: 767px){.leafygreen-ui-1gc0qu9{background-image:url();-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;}}@media only screen and (max-width: 480px){.leafygreen-ui-1gc0qu9{background-image:url();font-size:11px;}}.leafygreen-ui-1u834jw{-webkit-align-self:center;-ms-flex-item-align:center;align-self:center;max-height:40px;}Join us at MongoDB.local London on 7 May to unlock new possibilities for your data. Use WEB50 to save 50%..leafygreen-ui-l8rg2y{display:grid;justify-items:center;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;}.leafygreen-ui-1aceqcy{grid-row:1;grid-column:1;height:40px;}.leafygreen-ui-1mk9kyl{grid-row:1;grid-column:1;color:#023430;font-weight:600;line-height:16px;font-size:12px;background-color:#00ED64;border:1px solid #00684A;border-radius:6px;height:22px;padding:3px 8px;z-index:1;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;}Register now >](https://www.mongodb.com/events/mongodb-local/london)
+[...](https://www.mongodb.com)
+
+[Chunks 1-48: Navigation chrome, header CSS, footer links - MongoDB site boilerplate including Products/Resources/Solutions/Company menus, sidenav with Database Manual sections (Overview, Documents, Databases & Collections, Client Libraries, Connect to Clusters, Database Users, CRUD Operations, Indexes, Data Modeling, Aggregation Operations, Search, Vector Search, Time Series, Change Streams, Production Recommendations, Change Events -> create (active), createIndexes, delete, drop, dropDatabase, dropIndexes, insert, invalidate, modify, refineCollectionShardKey, rename, replace, reshardCollection, shardCollection, update, Transactions, Data Federation, In-Use Encryption, Development Checklist, Replication, Sharding, Performance, Charts, Reference, Support), and repeated mobile/dark-theme variants.]
+
+[Chunk 49]
+# create Event
+
+[Chunk 50 - Summary]
+## Summary
+
+```
+create
+```
+
+New in version 6.0.
+A create event occurs when a collection is created on a watched database and the change stream has the [showExpandedEvents](https://www.mongodb.com/docs/manual/reference/change-events/) option set to true.
+
+```
+create
+```
+
+```
+true
+```
+
+[Chunk 51 - Description]
+## Description
+
+_id
+
+```
+_id
+```
+
+Document
+A BSON object, which serves as an identifier for the change stream event. This value is used as the resumeToken for the resumeAfter parameter when resuming a change stream. The fields within the _id object depend on the MongoDB versions and, in some cases, the [feature compatibility version (FCV)](https://www.mongodb.com/docs/manual/reference/command/setFeatureCompatibilityVersion/) at the time of the change stream's opening or resumption.
+
+```
+resumeToken
+```
+
+```
+resumeAfter
+```
+
+```
+_id
+```
+
+For an example of resuming a change stream by resumeToken, see [Resume a Change Stream.](https://www.mongodb.com/docs/manual/changeStreams/)
+
+```
+resumeToken
+```
+
+clusterTime
+
+```
+clusterTime
+```
+
+Timestamp
+clusterTime is the timestamp from the oplog entry associated with the event.
+
+```
+clusterTime
+```
+
+Due to oplog size limits, [multi-document transactions](https://www.mongodb.com/docs/manual/core/transactions/) may create multiple oplog entries. In a transaction, change stream events staged in a given oplog entry share the same clusterTime.
+
+```
+clusterTime
+```
+
+Events with the same clusterTime may not all relate to the same transaction. Some events don't relate to a transaction at all. Starting in MongoDB 8.0, this may be true for events on any deployment. In previous versions, this behavior was possible only for events on a sharded cluster.
+
+```
+clusterTime
+```
+
+To identify events for a single transaction, you can use the combination of lsid and txnNumber in the change stream event document.
+
+```
+lsid
+```
+
+```
+txnNumber
+```
+
+Changed in version 8.0.
+collectionUUID
+
+```
+collectionUUID
+```
+
+UUID
+If the change occurred on a collection, collectionUUID indicates the collection's UUID. If the change occurred on a view, collectionUUID doesn't exist.
+
+```
+collectionUUID
+```
+
+```
+collectionUUID
+```
+
+New in version 6.0.
+lsid
+
+```
+lsid
+```
+
+document
+The identifier for the session associated with the transaction.
+Only present if the operation is part of a [multi-document transaction.](https://www.mongodb.com/docs/manual/core/transactions/)
+ns
+
+```
+ns
+```
+
+document
+The namespace (database and or collection) affected by the event.
+ns.coll
+
+```
+ns.coll
+```
+
+string
+The name of the collection where the event occurred.
+ns.db
+
+```
+ns.db
+```
+
+string
+The name of the database where the event occurred.
+nsType
+
+```
+nsType
+```
+
+string
+Shows the namespace type of the collection created by this event.
+
+```
+"collection"
+```
+
+```
+"timeseries"
+```
+
+```
+"view"
+```
+
+New in version 8.1: (also available in 8.0.5).
+operationDescription
+
+```
+operationDescription
+```
+
+document
+Additional information on the change operation.
+This document and its subfields only appears when the change stream uses [expanded events.](https://www.mongodb.com/docs/manual/reference/change-events/)
+New in version 6.0.
+
+```
+operationDescription.
+```
+
+```
+idIndex
+```
+
+document
+The default _id index for a new collection.
+
+```
+_id
+```
+
+New in version 6.0.
+operationType
+
+```
+operationType
+```
+
+string
+The type of operation that the change notification reports.
+Returns a value of create for these change events.
+
+```
+create
+```
+
+txnNumber
+
+```
+txnNumber
+```
+
+NumberLong
+Together with the [lsid](https://www.mongodb.com/docs/manual/reference/change-events/create/), a number that helps uniquely identify a transction.
+Only present if the operation is part of a [multi-document transaction.](https://www.mongodb.com/docs/manual/core/transactions/)
+wallTime
+
+```
+wallTime
+```
+
+[ISODate](https://www.mongodb.com/docs/manual/reference/glossary/)
+The server date and time of the database operation. wallTime differs from clusterTime in that clusterTime is a timestamp taken from the oplog entry associated with the database operation event.
+
+```
+wallTime
+```
+
+```
+clusterTime
+```
+
+```
+clusterTime
+```
+
+New in version 6.0.
+
+[Chunk 52 - Example]
+## Example
+
+The following example shows a create event:
+
+```
+create
+```
+
+```
+{ "_id": { <ResumeToken> }, "operationType": "create", "clusterTime": Timestamp({ t: 1654894547, i: 24 }), "collectionUUID": UUID("98046a1a-b649-4e5b-9c75-67594221ce19"), "wallTime": ISODate("2022-06-10T20:55:47.947Z"), "ns": { "db": "test", "coll": "names" }, "operationDescription": { "idIndex": { "v": 2, "key": { _id: 1 }, "name": "_id_" } }}
+```
+
+```
+{ "_id": { <ResumeToken> }, "operationType": "create", "clusterTime": Timestamp({ t: 1654894547, i: 24 }), "collectionUUID": UUID("98046a1a-b649-4e5b-9c75-67594221ce19"), "wallTime": ISODate("2022-06-10T20:55:47.947Z"), "ns": { "db": "test", "coll": "names" }, "operationDescription": { "idIndex": { "v": 2, "key": { _id: 1 }, "name": "_id_" } }}
+```
+
+[Back Change Events](https://www.mongodb.com/docs/manual/reference/change-events/)
+Back
+Change Events
+[Next createIndexes](https://www.mongodb.com/docs/manual/reference/change-events/createIndexes/)
+Next
+createIndexes
+On this page
+
+[Chunk 53]
+- Summary
+- Description
+- Example
+Summary
+Description
+Example
+On this page
+- Summary
+- Description
+- Example
+Summary
+Description
+Example
