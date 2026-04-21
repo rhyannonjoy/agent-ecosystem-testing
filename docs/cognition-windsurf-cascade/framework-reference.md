@@ -103,7 +103,7 @@ cd windsurf-cascade-web-search
    ✓ Result logged to results/{track name}/results.csv
    ```
 
-   > _Verify key metrics before logging raw track runs: `python web_search_verify_raw_results.py {test ID}`_
+   > _Verify key metrics before logging raw track runs:<br>`python web_search_verify_raw_results.py {test ID}`_
 
    > _If a log command fails before completing, the CSV may be written without headers.
    > Run `python web_search_add_csv_headers.py --track {track name}` to recover._
