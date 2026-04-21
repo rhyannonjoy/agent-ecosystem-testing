@@ -1,0 +1,68 @@
+Gemini noticed that Cascade's chunking architecture payload would be inaccurate, so it attempted to find
+a more accurate way to capture the source's text, but kept failing. This saves what was possibily the
+chunk index, which looks like the chunk summaries are empty, which doesn't give the agent any 
+navigational signal, which might have lead to the general task drift.
+
+---
+
+cat << 'EOF' > windsurf-cascade-web-search/results/cascade-raw/raw_output_BL-1.txt
+Title: create Event - Database Manual - MongoDB Docs
+ 
+The article at https://www.mongodb.com/docs/manual/reference/change-events/create/ contains the following chunks with associated positions and summaries:
+- [Position: 0]  / 
+- [Position: 1]  / 
+- [Position: 2]  / 
+- [Position: 3]  / 
+- [Position: 4]  / 
+- [Position: 5]  / 
+- [Position: 6]  / 
+- [Position: 7]  / 
+- [Position: 8]  / 
+- [Position: 9]  / 
+- [Position: 10]  / 
+- [Position: 11]  / 
+- [Position: 12]  / 
+- [Position: 13]  / 
+- [Position: 14]  / 
+- [Position: 15]  / 
+- [Position: 16]  / 
+- [Position: 17]  / 
+- [Position: 18]  / 
+- [Position: 19]  / 
+- [Position: 20]  / 
+- [Position: 21]  / 
+- [Position: 22]  / 
+- [Position: 23]  / 
+- [Position: 24]  / 
+- [Position: 25]  / 
+- [Position: 26]  / 
+- [Position: 27]  / 
+- [Position: 28]  / 
+- [Position: 29]  / 
+- [Position: 30]  / 
+- [Position: 31]  / 
+- [Position: 32]  / 
+- [Position: 33]  / 
+- [Position: 34]  / 
+- [Position: 35]  / 
+- [Position: 36]  / 
+- [Position: 37]  / 
+- [Position: 38]  / 
+- [Position: 39]  / 
+- [Position: 40]  / 
+- [Position: 41]  / 
+- [Position: 42]  / 
+- [Position: 43]  / 
+- [Position: 44]  / 
+- [Position: 45]  / 
+- [Position: 46]  / 
+- [Position: 47]  / 
+- [Position: 48]  / 
+- [Position: 49]  / create Event.leafygreen-ui-11mfcte{position:absolute;-webkit-align-self:center;-ms-flex-item-align:center;align-self:center;padding:0 10px;visibility:hidden;}.leafygreen-ui-s0ybz1{color:#889397;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;vertical-align:middle;margin-top:-2px;}.css-zena35{display:inline;left:0;top:0;margin-top:-85px;position:absolute;padding-bottom:2px;}@media only screen and (max-width: 767px){.css-zena35{margin-top:-85px;}}
+- [Position: 50] create Event.leafygreen-ui-11mfcte{position:absolute;-webkit-align-self:center;-ms-flex-item-align:center;align-self:center;padding:0 10px;visibility:hidden;}.leafygreen-ui-s0ybz1{color:#889397;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;vertical-align:middle;margin-top:-2px;}.css-zena35{display:inline;left:0;top:0;margin-top:-85px;position:absolute;padding-bottom:2px;}@media only screen and (max-width: 767px){.css-zena35{margin-top:-85px;}} / Summary
+- [Position: 51] create Event.leafygreen-ui-11mfcte{position:absolute;-webkit-align-self:center;-ms-flex-item-align:center;align-self:center;padding:0 10px;visibility:hidden;}.leafygreen-ui-s0ybz1{color:#889397;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;vertical-align:middle;margin-top:-2px;}.css-zena35{display:inline;left:0;top:0;margin-top:-85px;position:absolute;padding-bottom:2px;}@media only screen and (max-width: 767px){.css-zena35{margin-top:-85px;}} / Description
+- [Position: 52] create Event.leafygreen-ui-11mfcte{position:absolute;-webkit-align-self:center;-ms-flex-item-align:center;align-self:center;padding:0 10px;visibility:hidden;}.leafygreen-ui-s0ybz1{color:#889397;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;vertical-align:middle;margin-top:-2px;}.css-zena35{display:inline;left:0;top:0;margin-top:-85px;position:absolute;padding-bottom:2px;}@media only screen and (max-width: 767px){.css-zena35{margin-top:-85px;}} / Example
+- [Position: 53] create Event.leafygreen-ui-11mfcte{position:absolute;-webkit-align-self:center;-ms-flex-item-align:center;align-self:center;padding:0 10px;visibility:hidden;}.leafygreen-ui-s0ybz1{color:#889397;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;vertical-align:middle;margin-top:-2px;}.css-zena35{display:inline;left:0;top:0;margin-top:-85px;position:absolute;padding-bottom:2px;}@media only screen and (max-width: 767px){.css-zena35{margin-top:-85px;}} / Example
+ 
+You should choose the relevant chunk position to read further using the view_content_chunk tool with DocumentId = https://www.mongodb.com/docs/manual/reference/change-events/create/. Choose at least one position.
+EOF
