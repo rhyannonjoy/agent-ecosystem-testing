@@ -1,0 +1,42 @@
+headers:{type:MARKDOWN_NODE_TYPE_HEADER_1  text:"create Event"}  headers:{type:MARKDOWN_NODE_TYPE_HEADER_2  text:"Description"}  headers:{type:MARKDOWN_NODE_TYPE_HEADER_2  text:"Example"}  text:"## Description
+Together with the [lsid](https://mongodbcom-cdn.staging.corp.mongodb.com/docs/reference/change-events/create/#std-label--idref--lsid), a number that helps uniquely identify a transction.
+
+Only present if the operation is part of a [multi-document transaction](https://mongodbcom-cdn.staging.corp.mongodb.com/docs/core/transactions/).
+
+</td>
+</tr>
+<tr>
+<td headers="Field">
+`wallTime`
+
+</td>
+<td headers="Type">
+[ISODate](https://mongodbcom-cdn.staging.corp.mongodb.com/docs/reference/glossary/#std-term-ISODate)
+
+</td>
+<td headers="Description">
+The server date and time of the database operation. `wallTime` differs from `clusterTime` in that `clusterTime` is a timestamp taken from the oplog entry associated with the database operation event.
+
+</td>
+</tr>
+</table>
+
+## Example
+The following example shows a `create` event:
+
+```json
+{
+   "_id": { <ResumeToken> },
+   "operationType": "create",
+   "clusterTime": Timestamp({ t: 1654894547, i: 24 }),
+   "collectionUUID": UUID("98046a1a-b649-4e5b-9c75-67594221ce19"),
+   "wallTime": ISODate("2022-06-10T20:55:47.947Z"),
+   "ns": {
+      "db": "test",
+      "coll": "names"
+   },
+   "operationDescription": {
+      "idIndex": { "v": 2, "key": { _id: 1 }, "name": "_id_" }
+   }
+}
+```
