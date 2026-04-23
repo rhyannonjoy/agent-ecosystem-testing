@@ -196,6 +196,8 @@ Treat the interpreted track's "URL rewriting" as an agent-generated hypothesis, 
 this if the prompts reveal any additional HTTP `GET` details. Until those tests are run, "redirect behavior" is the neutral
 characterization in which the layer responsible remains a mystery.
 
+> _This failure mode is recharacterized in the [Friction: Raw content](friction-note-raw.md#read_url_content-redirect-halt-behavior)._
+
 ---
 
 ## `@web` Semantics: Prompt-Tool Misalignment

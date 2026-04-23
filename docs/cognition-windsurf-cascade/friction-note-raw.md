@@ -13,6 +13,7 @@ parent: Cognition Windsurf Cascade
 
 - [Agentic Task Drift, Token Overflow](#agent-task-drift-token-overflow)
 - [File Persistence Failures](#file-persistence-failures)
+- [`read_url_content` Redirect Halt Behavior](#read_url_content-redirect-halt-behavior)
 
 ---
 
@@ -65,15 +66,26 @@ Agents struggled to create files and save them during `BL-2` runs. The prompt ex
 `results/raw/raw_output_BL-2.txt`. Only `GLM-5.1` and `xAI Grok-3` wrote standalone project files to the correct path.
 `Gemini 3.1`, `SWE-1.6`, and `Kimi K2.6` each produced output that appeared in the chat window with a file reference,
 but it wasn't persisted as a discrete project artifact. Most runs required manual intervention to product a verifiable
-file in the face of chat-window artifact substituion, cross-agent file reuse, and silent content truncation:
+file in the face of chat-window artifact substituion, cross-agent file reuse, and silent content truncation.
 
-| **Agent** | **File Created** | **Correct Path** | **Notes** |
+`SC-2` runs displayed a shift in this pattern from directory ambiguity to scale-driven abandonment: four of six agents
+bypassed the Cascade pipeline entirely via `curl`, producing files that were either not persisted as project artifacts
+or grew to sizes that degraded the development environment itself. `Kimi`'s output with the full `llms-full.txt` corpus
+at 53.65 MB caused VS Code to disable tokenization, syntax highlighting, and scroll features for the file. The file existed,
+but was effectively unworkable as a project artifact.
+
+A file being present at the correct path isn't sufficient evidence of a successful retrieval. `GLM`'s `SC-2` output was
+structured agent analysis rather than raw content; `Claude Sonnet 4.6`'s was a chunk index with a single header. Both passed
+path verification while containing no target page content.
+
+| **Agent** | **`BL-2`** | **`SC-2`** | **Results** |
 |---|---|---|---|
-| `Gemini` | _Chat only_ | _No_ | Used `curl` workaround;<br>file required manual copy |
-| `GLM` | _Yes_ | _Yes_ | Wrote to `results/raw/` correctly |
-| `Grok` | _Yes_ | _Yes_ | Wrote file, but only captured 2 of 3 chunks |
-| `Kimi` | _Chat only_ | _No_ | File path present in chat;<br>not a project artifact |
-| `SWE` | _No_ | _No_ | Referenced Gemini's file as its own output |
+| `Gemini` | _Chat only_ | _Chat only_ | `curl` output; manual copy required both runs |
+| `GLM` | _Yes_ | _Yes_ | Saved; content: agent analysis, chunk index,<br>not entirely raw retrieval |
+| `Grok` | _Yes_ | N/A | `BL-2` only; wrote file, only captured<br>2 of 3 chunks |
+| `Kimi` | _Chat only_ | _Chat only_ | 53.65 MB; VS Code feature degradation on open |
+| `Sonnet` | N/A | _Yes_ | Correct path; content: agent analysis, chunk index,<br>chunk position 0 summary |
+| `SWE` | _No_ | _Yes_ | First run failed entirely; retry used `curl`;<br>saved stipped HTML only |
 
 ### Methodology Implication
 
@@ -82,4 +94,36 @@ it tests whether agents reason about directory structure or resolve path instruc
 by creating `raw/` as a new directory. Later agents diverged; some wrote into `cascade-raw/` treating it as equivalent, others
 failed to persist a file at all. Cross-agent file reuse, `SWE` pointing to `Gemini`'s output, suggests that once a plausible
 file exists in the workspace, some agents will satisfy the persistence requirement by reference rather than by writing. The
-prompt ambiguity is retained as a test variable for subsequent runs.
+prompt ambiguity is retained as a test variable for subsequent runs for observing path compliance and content fidelity.
+
+---
+
+## `read_url_content` Redirect Halt Behavior
+
+The [interpreted track](friction-note-interpreted.md#read_url_content-internal-url-rewriting) and
+[explicit track](friction-note-explicit.md#sc-2-url-redirect-behavior) both documented that no agent received the target content 
+from `https://docs.anthropic.com/en/api/messages`, and left open whether the cause was tool-layer URL rewriting or a server-side redirect. `SC-2` runs on the raw track provide additional perspective.
+
+Across six raw track agents, the redirect destination `https://platform.claude.com/docs/llms-full.txt` appeared consistently in the 
+error payload with enough fidelity that three agents, `GLM-5.1`, `Kimi K2.6`, and `Claude Sonnet 4.6` successfully called 
+`read_url_content` a second time against the redirect target and received valid chunked responses. This pattern is inconsistent 
+with silent pre-network URL substitution: if the tool were rewriting before the request was made, the redirect destination wouldn't 
+be actionable through a follow-up call. The more consistent explanation is that `read_url_content` makes the network call, receives 
+a server-side redirect, identifies the destination in the error response, and halts rather than following automatically. Agent
+interpretation of this information diverged:
+
+| **Agent** | **Response** |
+|---|---|
+| `Gemini` | Bypassed pipeline entirely via `curl` |
+| `GLM` | Followed redirect via second `read_url_content` call;<br>spent most time trying to find original target |
+| `Kimi` | Followed redirect, then bypassed via `curl` for full corpus |
+| `Sonnet` | Followed redirect, read chunk index, first position only |
+| `SWE` | Hybrid Arena attempt; treated as terminal; attempted `search_web` fallback |
+| `SWE` | Single retry; Bypassed via `curl`, but called it tool malfunction |
+
+`SWE`'s first run remains notable for its fallback strategy and root cause diagnosis. It wasn't the only agent
+to use `search_web`. `GLM` called it on the explicit track as a verification attempt, but it also didn't return any
+usable results. `SWE` is the only agent to explicitly characterize the behavior as a tool-level bug on the raw track.
+That diagnosis was reasonable given the absence of HTTP status codes in the agent's visible context, but the raw track's
+successful follow-up calls suggest the mechanism is a redirect halt, not URL rewriting. Whether the redirect halt
+originates from Cascade or Anthropic's server remains unconfirmed without HTTP-level instrumentation.
