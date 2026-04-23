@@ -1,0 +1,1047 @@
+TEST ID: SC-2
+SOURCE URL: https://docs.anthropic.com/en/api/messages
+TOOL: read_url_content
+
+=== FETCH ATTEMPT 1 ===
+URL: https://docs.anthropic.com/en/api/messages
+RESULT: ERROR
+MESSAGE: Encountered error in step execution: CORTEX_STEP_TYPE_READ_URL_CONTENT: Failed to fetch document content at https://docs.anthropic.com/llms-full.txt: the URL you tried to fetch redirected to https://platform.claude.com/docs/llms-full.txt. Please read the contents of https://platform.claude.com/docs/llms-full.txt directly
+
+=== FETCH ATTEMPT 2 ===
+URL: https://platform.claude.com/docs/llms-full.txt (redirect target)
+TOOL: read_url_content
+RESULT: Chunk index returned (1026 positions, positions 0-1025)
+
+The article at https://platform.claude.com/docs/llms-full.txt contains the following chunks with associated positions and summaries:
+- [Position: 0]  / Anthropic Developer Documentation - Full Content
+- [Position: 1] Anthropic Developer Documentation - Full Content / Root URL + Available Languages on Website
+- [Position: 2] English Documentation - Full Content / Build / First steps
+- [Position: 3]  / Claude Managed Agents overview + Claude Managed Agents overview
+- [Position: 4] Claude Managed Agents overview / Core concepts + How it works + When to use Claude Managed Agents + Supported tools + Beta access + Rate limits + Branding guidelines
+- [Position: 5]  / Get started with Claude + Get started with Claude
+- [Position: 6] Get started with Claude / Prerequisites
+- [Position: 7] Get started with Claude / Call the API
+- [Position: 8] Get started with Claude / Call the API
+- [Position: 9] Get started with Claude / Call the API
+- [Position: 10] Get started with Claude / Call the API
+- [Position: 11] Get started with Claude / Call the API
+- [Position: 12] Get started with Claude / Call the API
+- [Position: 13]  / Send the user message first; the API buffers events until the stream attaches
+- [Position: 14]  / Open the SSE stream and process events as they arrive
+- [Position: 15]  / Open the SSE stream and process events as they arrive + Send the user message after the stream opens + Process streaming events
+- [Position: 16]  / Process streaming events
+- [Position: 17]  / Process streaming events
+- [Position: 18]  / Process streaming events
+- [Position: 19]  / Process streaming events
+- [Position: 20]  / Process streaming events + INCORRECT: Adding text immediately after tool_result + CORRECT: Send tool results directly without additional text
+- [Position: 21]  / If you still get empty responses after fixing the above: + Request with limited tokens + Check if the response was truncated mid tool use
+- [Position: 22]  / Check if response was truncated during tool use
+- [Position: 23]  / Check if response was truncated during tool use
+- [Position: 24]  / Check if response was truncated during tool use
+- [Position: 25]  / Request with maximum tokens to get as much as possible
+- [Position: 26]  / Request with maximum tokens to get as much as possible
+- [Position: 27]  / Request with maximum tokens to get as much as possible
+- [Position: 28]  / Request with maximum tokens to get as much as possible
+- [Position: 29]  / !/bin/sh
+- [Position: 30]  / !/bin/sh
+- [Position: 31]  / !/bin/sh
+- [Position: 32]  / !/bin/sh
+- [Position: 33]  / !/bin/sh
+- [Position: 34]  / !/bin/sh
+- [Position: 35]  / !/bin/sh
+- [Position: 36]  / !/bin/sh
+- [Position: 37]  / !/bin/sh
+- [Position: 38]  / !/bin/sh
+- [Position: 39]  / !/bin/sh
+- [Position: 40]  / !/bin/sh
+- [Position: 41]  / !/bin/sh
+- [Position: 42]  / !/bin/sh
+- [Position: 43]  / !/bin/sh
+- [Position: 44]  / !/bin/sh
+- [Position: 45]  / !/bin/sh + !/bin/sh
+- [Position: 46]  / !/bin/bash
+- [Position: 47]  / !/bin/bash + !/bin/sh + Automatically fetches more pages as needed + Automatically fetches more pages as needed.
+- [Position: 48]  / Automatically fetches more pages as needed + !/bin/sh
+- [Position: 49]  / Stream results file in memory-efficient chunks, processing one at a time
+- [Position: 50]  / Stream results file in memory-efficient chunks, processing one at a time
+- [Position: 51]  / !/bin/sh
+- [Position: 52]  / !/bin/bash
+- [Position: 53]  / !/bin/bash
+- [Position: 54]  / !/bin/bash
+- [Position: 55]  / !/bin/bash
+- [Position: 56]  / !/bin/bash
+- [Position: 57]  / !/bin/bash
+- [Position: 58]  / !/bin/bash
+- [Position: 59]  / !/bin/bash
+- [Position: 60]  / !/bin/bash
+- [Position: 61]  / The response contains summarized thinking blocks and text blocks
+- [Position: 62]  / The response contains summarized thinking blocks and text blocks
+- [Position: 63]  / The response contains summarized thinking blocks and text blocks
+- [Position: 64]  / The response contains summarized thinking blocks and text blocks
+- [Position: 65]  / The response contains summarized thinking blocks and text blocks
+- [Position: 66]  / The response contains summarized thinking blocks and text blocks
+- [Position: 67]  / The response contains summarized thinking blocks and text blocks
+- [Position: 68]  / The response contains summarized thinking blocks and text blocks
+- [Position: 69]  / The response contains summarized thinking blocks and text blocks
+- [Position: 70]  / The response contains summarized thinking blocks and text blocks
+- [Position: 71]  / First request - Claude responds with thinking and tool request
+- [Position: 72]  / First request - Claude responds with thinking and tool request + with signatures intact) as compact JSON. + The thinking block MUST accompany the tool_use block. + Extract thinking block and tool use block + Let's pretend this is what we get back
+- [Position: 73]  / No new thinking blocks are generated in the response
+- [Position: 74]  / No new thinking blocks are generated in the response
+- [Position: 75]  / No new thinking blocks are generated in the response
+- [Position: 76]  / No new thinking blocks are generated in the response
+- [Position: 77]  / No new thinking blocks are generated in the response
+- [Position: 78]  / No new thinking blocks are generated in the response
+- [Position: 79]  / No new thinking blocks are generated in the response + Fetch ~10 kB of Pride and Prejudice for the cached system block + follow-up user message are appended so the conversation grows. + and content as two jsonl lines so the reply can be fed forward. + Second request: same budget, system-prompt cache hit expected. + still hits; only message-block caching is invalidated. + Fetch the content of the article + Use just enough text for caching (first few chapters) + First request - establish cache
+- [Position: 80]  / Second request - same thinking parameters (cache hit expected)
+- [Position: 81]  / Third request - different thinking parameters (cache miss for messages)
+- [Position: 82]  / Third request - different thinking parameters (cache miss for messages)
+- [Position: 83]  / Third request - different thinking parameters (cache miss for messages)
+- [Position: 84]  / Third request - different thinking parameters (cache miss for messages) + Fetch book content + First request - establish cache + Second request - same thinking parameters (cache hit expected) + Third request - different thinking parameters (cache miss for messages) + Fetch the first ~10 kB of Pride and Prejudice for the cached prefix + Call 1: thinking budget 4000, writes the cache
+- [Position: 85]  / Call 2: same budget, conversation extended; expect cache HIT + Call 3: budget changed to 8000; cache MISS even though prefix is identical + Fetch the content of the article + Use just enough text for caching (first few chapters) + No system prompt - caching in messages instead + First request - establish cache + Second request - same thinking parameters (cache hit expected)
+- [Position: 86]  / Third request - different thinking budget (cache miss expected)
+- [Position: 87]  / Third request - different thinking budget (cache miss expected)
+- [Position: 88]  / Third request - different thinking budget (cache miss expected)
+- [Position: 89]  / Third request - different thinking budget (cache miss expected)
+- [Position: 90]  / Third request - different thinking budget (cache miss expected)
+- [Position: 91]  / Third request - different thinking budget (cache miss expected)
+- [Position: 92]  / Third request - different thinking budget (cache miss expected)
+- [Position: 93]  / Third request - different thinking budget (cache miss expected)
+- [Position: 94]  / Third request - different thinking budget (cache miss expected)
+- [Position: 95]  / Third request - different thinking budget (cache miss expected)
+- [Position: 96]  / Third request - different thinking budget (cache miss expected)
+- [Position: 97]  / Long document content (e.g., technical documentation)
+- [Position: 98]  / Long document content (e.g., technical documentation)
+- [Position: 99]  / Long document content (e.g., technical documentation)
+- [Position: 100]  / Long document content (e.g., technical documentation)
+- [Position: 101]  / Long document content (e.g., technical documentation)
+- [Position: 102]  / Long document content (e.g., technical documentation)
+- [Position: 103]  / Long document content (e.g., technical documentation)
+- [Position: 104]  / Long document content (e.g., technical documentation) + Alternatively, you can use vo = voyageai.Client(api_key="<your secret key>") + Embed the documents + Embed the query
+- [Position: 105]  / and cosine similarity are the same.
+- [Position: 106]  / and cosine similarity are the same.
+- [Position: 107]  / and cosine similarity are the same.
+- [Position: 108]  / and cosine similarity are the same.
+- [Position: 109]  / and cosine similarity are the same.
+- [Position: 110]  / retries exhaust. --transform-error surfaces error.type for branching.
+- [Position: 111]  / retries exhaust. --transform-error surfaces error.type for branching.
+- [Position: 112]  / retries exhaust. --transform-error surfaces error.type for branching.
+- [Position: 113]  / retries exhaust. --transform-error surfaces error.type for branching.
+- [Position: 114]  / retries exhaust. --transform-error surfaces error.type for branching. + Define a knowledge base search tool + Function to handle the tool call + Create a message with the tool
+- [Position: 115]  / When Claude calls the tool, provide the search results
+- [Position: 116]  / When Claude calls the tool, provide the search results
+- [Position: 117]  / When Claude calls the tool, provide the search results
+- [Position: 118]  / When Claude calls the tool, provide the search results
+- [Position: 119]  / When Claude calls the tool, provide the search results
+- [Position: 120]  / !/bin/sh
+- [Position: 121]  / Provide search results directly in the user message
+- [Position: 122]  / Provide search results directly in the user message
+- [Position: 123]  / Provide search results directly in the user message
+- [Position: 124]  / Provide search results directly in the user message + First message with top-level search results
+- [Position: 125]  / Then you provide tool results with more search results + In tool results + In top-level content
+- [Position: 126]  / In top-level content
+- [Position: 127]  / In top-level content
+- [Position: 128]  / In top-level content
+- [Position: 129]  / In top-level content
+- [Position: 130]  / In top-level content
+- [Position: 131]  / In top-level content
+- [Position: 132]  / In top-level content
+- [Position: 133]  / In top-level content
+- [Position: 134]  / In top-level content
+- [Position: 135]  / In top-level content
+- [Position: 136]  / In top-level content + Stream request and check for refusal
+- [Position: 137]  / Check for refusal in the stream
+- [Position: 138]  / Check for refusal in the stream
+- [Position: 139]  / Check for refusal in the stream
+- [Position: 140]  / Check for refusal in the stream
+- [Position: 141]  / Check for refusal in the stream
+- [Position: 142]  / Check for refusal in the stream
+- [Position: 143]  / Check for refusal in the stream
+- [Position: 144]  / Check for refusal in the stream + Access the parsed output directly + First convert Pydantic model to JSON schema, then transform
+- [Position: 145]  / Modify schema if needed
+- [Position: 146]  / Modify schema if needed
+- [Position: 147]  / Modify schema if needed
+- [Position: 148]  / Modify schema if needed
+- [Position: 149]  / Modify schema if needed
+- [Position: 150]  / Modify schema if needed
+- [Position: 151]  / Modify schema if needed
+- [Position: 152]  / => #<Output numbers=[#<FamousNumber value=3.14159... reason="Pi is...">...]>
+- [Position: 153]  / => #<Output numbers=[#<FamousNumber value=3.14159... reason="Pi is...">...]>
+- [Position: 154]  / => #<Output numbers=[#<FamousNumber value=3.14159... reason="Pi is...">...]>
+- [Position: 155]  / => #<Output numbers=[#<FamousNumber value=3.14159... reason="Pi is...">...]>
+- [Position: 156]  / => #<Output numbers=[#<FamousNumber value=3.14159... reason="Pi is...">...]>
+- [Position: 157]  / => #<Output numbers=[#<FamousNumber value=3.14159... reason="Pi is...">...]>
+- [Position: 158]  / JSON outputs: structured response format
+- [Position: 159]  / Strict tool use: guaranteed tool parameters
+- [Position: 160]  / Strict tool use: guaranteed tool parameters
+- [Position: 161]  / Strict tool use: guaranteed tool parameters
+- [Position: 162]  / Strict tool use: guaranteed tool parameters
+- [Position: 163]  / Strict tool use: guaranteed tool parameters
+- [Position: 164]  / Strict tool use: guaranteed tool parameters
+- [Position: 165]  / Strict tool use: guaranteed tool parameters
+- [Position: 166]  / Strict tool use: guaranteed tool parameters
+- [Position: 167]  / Strict tool use: guaranteed tool parameters
+- [Position: 168]  / Strict tool use: guaranteed tool parameters
+- [Position: 169]  / Strict tool use: guaranteed tool parameters
+- [Position: 170]  / Strict tool use: guaranteed tool parameters
+- [Position: 171]  / Strict tool use: guaranteed tool parameters
+- [Position: 172]  / Strict tool use: guaranteed tool parameters
+- [Position: 173]  / Strict tool use: guaranteed tool parameters + Append the full response content, including any advisor_tool_result blocks
+- [Position: 174]  / Continue the conversation
+- [Position: 175]  / Continue the conversation
+- [Position: 176]  / Continue the conversation
+- [Position: 177]  / Continue the conversation
+- [Position: 178]  / Continue the conversation
+- [Position: 179]  / Continue the conversation
+- [Position: 180]  / Continue the conversation + Commands run in the same session maintain state
+- [Position: 181]  / Commands run in the same session maintain state
+- [Position: 182]  / Commands run in the same session maintain state
+- [Position: 183]  / Commands run in the same session maintain state + First, upload a file
+- [Position: 184]  / Then use the file_id with code execution + Upload a file + Use the file_id with code execution + Upload a file
+- [Position: 185]  / Use the file_id with code execution
+- [Position: 186]  / Use the file_id with code execution + Upload a file + Use the file_id with code execution + Request code execution that creates files; extract file_ids from tool results + Download each created file + Initialize the client
+- [Position: 187]  / Request code execution that creates files + Extract file IDs from the response
+- [Position: 188]  / Download the created files
+- [Position: 189]  / Download the created files
+- [Position: 190]  / Download the created files
+- [Position: 191]  / Download the created files
+- [Position: 192]  / First request: Create a file with a random number + Extract container ID from the response (using jq) + Second request: Reuse the container to read the file + First request: Create a file with a random number + Second request: Reuse the container to read the file + Initialize the client + First request: Create a file with a random number + Extract the container ID from the first response
+- [Position: 193]  / Second request: Reuse the container to read the file
+- [Position: 194]  / Second request: Reuse the container to read the file
+- [Position: 195]  / Second request: Reuse the container to read the file
+- [Position: 196]  / Second request: Reuse the container to read the file
+- [Position: 197]  / Second request: Reuse the container to read the file
+- [Position: 198]  / Second request: Reuse the container to read the file
+- [Position: 199]  / Second request: Reuse the container to read the file
+- [Position: 200]  / Second request: Reuse the container to read the file
+- [Position: 201]  / Second request: Reuse the container to read the file
+- [Position: 202]  / Second request: Reuse the container to read the file
+- [Position: 203]  / Second request: Reuse the container to read the file
+- [Position: 204]  / Second request: Reuse the container to read the file + When capturing screenshot + Resize image to scaled dimensions before sending to Claude
+- [Position: 205]  / When handling Claude's coordinates, scale them back up
+- [Position: 206]  / When handling Claude's coordinates, scale them back up
+- [Position: 207]  / When handling Claude's coordinates, scale them back up
+- [Position: 208]  / When handling Claude's coordinates, scale them back up
+- [Position: 209]  / When handling Claude's coordinates, scale them back up
+- [Position: 210]  / When handling Claude's coordinates, scale them back up
+- [Position: 211]  / When handling Claude's coordinates, scale them back up
+- [Position: 212]  / When handling Claude's coordinates, scale them back up
+- [Position: 213]  / When handling Claude's coordinates, scale them back up
+- [Position: 214]  / When handling Claude's coordinates, scale them back up
+- [Position: 215]  / When handling Claude's coordinates, scale them back up
+- [Position: 216]  / When handling Claude's coordinates, scale them back up
+- [Position: 217]  / When handling Claude's coordinates, scale them back up
+- [Position: 218]  / When handling Claude's coordinates, scale them back up
+- [Position: 219]  / When handling Claude's coordinates, scale them back up
+- [Position: 220]  / When handling Claude's coordinates, scale them back up
+- [Position: 221]  / When handling Claude's coordinates, scale them back up
+- [Position: 222]  / When handling Claude's coordinates, scale them back up
+- [Position: 223]  / When handling Claude's coordinates, scale them back up
+- [Position: 224]  / When handling Claude's coordinates, scale them back up
+- [Position: 225]  / When handling Claude's coordinates, scale them back up
+- [Position: 226]  / When handling Claude's coordinates, scale them back up
+- [Position: 227]  / When handling Claude's coordinates, scale them back up
+- [Position: 228]  / When handling Claude's coordinates, scale them back up
+- [Position: 229]  / When handling Claude's coordinates, scale them back up
+- [Position: 230]  / When handling Claude's coordinates, scale them back up
+- [Position: 231]  / When handling Claude's coordinates, scale them back up
+- [Position: 232]  / When handling Claude's coordinates, scale them back up
+- [Position: 233]  / When handling Claude's coordinates, scale them back up
+- [Position: 234]  / When handling Claude's coordinates, scale them back up
+- [Position: 235]  / When handling Claude's coordinates, scale them back up
+- [Position: 236]  / When handling Claude's coordinates, scale them back up
+- [Position: 237]  / When handling Claude's coordinates, scale them back up
+- [Position: 238]  / When handling Claude's coordinates, scale them back up
+- [Position: 239]  / When handling Claude's coordinates, scale them back up
+- [Position: 240]  / When handling Claude's coordinates, scale them back up
+- [Position: 241]  / When handling Claude's coordinates, scale them back up
+- [Position: 242]  / When handling Claude's coordinates, scale them back up
+- [Position: 243]  / When handling Claude's coordinates, scale them back up
+- [Position: 244]  / When handling Claude's coordinates, scale them back up
+- [Position: 245]  / When handling Claude's coordinates, scale them back up
+- [Position: 246]  / When handling Claude's coordinates, scale them back up
+- [Position: 247]  / When handling Claude's coordinates, scale them back up
+- [Position: 248]  / When handling Claude's coordinates, scale them back up
+- [Position: 249]  / When handling Claude's coordinates, scale them back up
+- [Position: 250]  / When handling Claude's coordinates, scale them back up
+- [Position: 251]  / When handling Claude's coordinates, scale them back up
+- [Position: 252]  / When handling Claude's coordinates, scale them back up
+- [Position: 253]  / When handling Claude's coordinates, scale them back up
+- [Position: 254]  / Append the response (including any compaction block) to continue the conversation
+- [Position: 255]  / Append the response (including any compaction block) to continue the conversation
+- [Position: 256]  / Append the response (including any compaction block) to continue the conversation
+- [Position: 257]  / Append the response (including any compaction block) to continue the conversation
+- [Position: 258]  / Append the response (including any compaction block) to continue the conversation
+- [Position: 259]  / Append the response (including any compaction block) to continue the conversation + Check if compaction triggered a pause
+- [Position: 260]  / Check if compaction triggered a pause
+- [Position: 261]  / Check if compaction triggered a pause
+- [Position: 262]  / Check if compaction triggered a pause + assistant turn and continue the conversation + After receiving a response with a compaction block
+- [Position: 263]  / Continue the conversation
+- [Position: 264]  / Continue the conversation
+- [Position: 265]  / Continue the conversation
+- [Position: 266]  / Continue the conversation
+- [Position: 267]  / Continue the conversation
+- [Position: 268]  / Continue the conversation
+- [Position: 269]  / Continue the conversation
+- [Position: 270]  / Continue the conversation
+- [Position: 271]  / request shape: + Run a long conversation
+- [Position: 272]  / ... continue as long as needed
+- [Position: 273]  / ... continue as long as needed
+- [Position: 274]  / pause-and-preserve handling. Single-turn request shape: + Run a long conversation
+- [Position: 275]  / ... continue as long as needed
+- [Position: 276]  / ... continue as long as needed
+- [Position: 277]  / ... continue as long as needed
+- [Position: 278]  / ... continue as long as needed
+- [Position: 279]  / ... continue as long as needed
+- [Position: 280]  / ... continue as long as needed
+- [Position: 281]  / ... continue as long as needed
+- [Position: 282]  / ... continue as long as needed
+- [Position: 283]  / ... continue as long as needed
+- [Position: 284]  / ... continue as long as needed
+- [Position: 285]  / ... continue as long as needed
+- [Position: 286]  / ... continue as long as needed
+- [Position: 287]  / ... continue as long as needed
+- [Position: 288]  / ... continue as long as needed
+- [Position: 289]  / ... continue as long as needed
+- [Position: 290]  / ... continue as long as needed
+- [Position: 291]  / ... continue as long as needed
+- [Position: 292]  / ... continue as long as needed
+- [Position: 293]  / ... continue as long as needed
+- [Position: 294]  / ... continue as long as needed + More frequent compaction for memory-constrained scenarios
+- [Position: 295]  / Less frequent compaction when you need more context
+- [Position: 296]  / Less frequent compaction when you need more context + INFO: Compaction complete. New token usage: 2500
+- [Position: 297]  / INFO: Compaction complete. New token usage: 2500
+- [Position: 298]  / INFO: Compaction complete. New token usage: 2500
+- [Position: 299]  / INFO: Compaction complete. New token usage: 2500
+- [Position: 300]  / INFO: Compaction complete. New token usage: 2500
+- [Position: 301]  / INFO: Compaction complete. New token usage: 2500
+- [Position: 302]  / INFO: Compaction complete. New token usage: 2500
+- [Position: 303]  / INFO: Compaction complete. New token usage: 2500
+- [Position: 304]  / INFO: Compaction complete. New token usage: 2500
+- [Position: 305]  / INFO: Compaction complete. New token usage: 2500
+- [Position: 306]  / INFO: Compaction complete. New token usage: 2500 + The cache includes: user message, thinking_block_1, tool_use block 1, and tool_result_1
+- [Position: 307]  / This request is processed as if thinking blocks were never present
+- [Position: 308]  / This request is processed as if thinking blocks were never present
+- [Position: 309]  / This request is processed as if thinking blocks were never present
+- [Position: 310]  / This request is processed as if thinking blocks were never present
+- [Position: 311]  / This request is processed as if thinking blocks were never present
+- [Position: 312]  / This request is processed as if thinking blocks were never present
+- [Position: 313]  / This request is processed as if thinking blocks were never present
+- [Position: 314]  / This request is processed as if thinking blocks were never present
+- [Position: 315]  / This request is processed as if thinking blocks were never present
+- [Position: 316]  / This request is processed as if thinking blocks were never present
+- [Position: 317]  / This request is processed as if thinking blocks were never present
+- [Position: 318]  / This request is processed as if thinking blocks were never present
+- [Position: 319]  / This request is processed as if thinking blocks were never present
+- [Position: 320]  / This request is processed as if thinking blocks were never present
+- [Position: 321]  / This request is processed as if thinking blocks were never present
+- [Position: 322]  / This request is processed as if thinking blocks were never present
+- [Position: 323]  / This request is processed as if thinking blocks were never present
+- [Position: 324]  / This request is processed as if thinking blocks were never present
+- [Position: 325]  / This request is processed as if thinking blocks were never present
+- [Position: 326]  / This request is processed as if thinking blocks were never present
+- [Position: 327]  / !/bin/sh
+- [Position: 328]  / !/bin/sh
+- [Position: 329]  / !/bin/sh
+- [Position: 330]  / !/bin/sh
+- [Position: 331]  / !/bin/sh
+- [Position: 332]  / !/bin/sh
+- [Position: 333]  / !/bin/sh
+- [Position: 334]  / !/bin/sh
+- [Position: 335]  / !/bin/sh
+- [Position: 336]  / !/bin/sh + Note: For files with special characters, consider base64 encoding + The "@./path" reference inlines the file contents directly into the field. + Example: Reading a CSV file
+- [Position: 337]  / Send as plain text in the message
+- [Position: 338]  / Send as plain text in the message
+- [Position: 339]  / Example: Reading a text file
+- [Position: 340]  / Example: Reading a text file
+- [Position: 341]  / Save to file
+- [Position: 342]  / Save to file
+- [Position: 343]  / Save to file + First, upload your PDF to the Files API + Then use the returned file_id in your message + First, upload your PDF to the Files API + Then use the returned file_id in your message + Upload the PDF file
+- [Position: 344]  / Use the uploaded file in a message
+- [Position: 345]  / Use the uploaded file in a message + Create a JSON request file using the pdf_base64.txt content
+- [Position: 346]  / Then make the API call using the JSON file
+- [Position: 347]  / Create a JSON request file using the pdf_base64.txt content
+- [Position: 348]  / Then make the API call using the JSON file
+- [Position: 349]  / Then make the API call using the JSON file
+- [Position: 350]  / Then make the API call using the JSON file
+- [Position: 351]  / Then make the API call using the JSON file + For base64-encoded images + For URL-based images, you can use the URLs directly in your requests
+- [Position: 352]  / For base64-encoded images
+- [Position: 353]  / For URL-based images, you can use the URLs directly in your requests
+- [Position: 354]  / For URL-based images, you can use the URLs directly in your requests + First, upload your image to the Files API + Then use the returned file_id in your message + First, upload your image to the Files API + Then use the returned file_id in your message + Upload the image file
+- [Position: 355]  / Use the uploaded file in a message
+- [Position: 356]  / Use the uploaded file in a message + Upload the image file + Use the uploaded file in a message
+- [Position: 357]  / Use the uploaded file in a message
+- [Position: 358]  / Use the uploaded file in a message
+- [Position: 359] PDF Processing / Quick start
+- [Position: 360] PDF Processing / Quick start
+- [Position: 361] PDF Processing / Quick start
+- [Position: 362] Your Skill Name / Instructions + Examples
+- [Position: 363] Your Skill Name / Examples
+- [Position: 364] Your Skill Name / Examples
+- [Position: 365]  / List Anthropic-managed Skills
+- [Position: 366]  / Create a message with the PowerPoint Skill + Extract file_id from response (using jq) + Download the file + Extract file_id with --transform on the messages create call + Download the file
+- [Position: 367]  / Extract file ID from response
+- [Position: 368]  / Extract file ID from response
+- [Position: 369]  / Extract file ID from response
+- [Position: 370] Extract file ID from response / Extract PDF text + Extract PDF text + Code review process + Generate report
+- [Position: 371] Extract file ID from response / Database migration
+- [Position: 372] Extract file ID from response / Database migration
+- [Position: 373] PDF Processing / Quick start + Advanced features
+- [Position: 374] BigQuery Data Analysis / Available datasets + Quick search
+- [Position: 375] DOCX Processing / Creating documents + Editing documents
+- [Position: 376]  / SKILL.md + advanced.md + details.md + SKILL.md
+- [Position: 377] API Reference / Contents + Authentication and setup + Core methods + Research synthesis workflow + PDF form filling workflow + Content review process
+- [Position: 378] API Reference / Document editing process + Current method + Old patterns + Report structure + Report structure + Commit message format
+- [Position: 379] API Reference / Document modification workflow
+- [Position: 380] API Reference / Document modification workflow
+- [Position: 381] API Reference / Document modification workflow
+- [Position: 382]  / Longer timeout accounts for slow connections + Most intermittent failures resolve by the second retry
+- [Position: 383] Most intermittent failures resolve by the second retry / Utility scripts
+- [Position: 384] Most intermittent failures resolve by the second retry / Form layout analysis
+- [Position: 385] Most intermittent failures resolve by the second retry / Form layout analysis
+- [Position: 386] Most intermittent failures resolve by the second retry / Form layout analysis
+- [Position: 387] Most intermittent failures resolve by the second retry / Form layout analysis
+- [Position: 388] Most intermittent failures resolve by the second retry / Form layout analysis
+- [Position: 389]  / Step 1: Use a Skill to create a file + Step 2: Extract file_id from response (using jq) + Step 3: Get filename from metadata + Step 4: Download the file using Files API + Step 2: Extract file_id from the response via --transform (GJSON path) + Step 3: Get the filename from file metadata + Step 4: Download the file using Files API + Step 1: Use a Skill to create a file + Step 2: Extract file IDs from the response
+- [Position: 390]  / Step 3: Download the file using Files API
+- [Position: 391]  / Step 3: Download the file using Files API
+- [Position: 392]  / Step 3: Download the file using Files API + Step 1: Use a Skill to create a file
+- [Position: 393]  / Step 2: Extract file IDs from the response + Step 3: Download the file using Files API + Get file metadata + List all files + Delete a file + Get file metadata + List all files + Delete a file + Get file metadata + List all files
+- [Position: 394]  / Delete a file
+- [Position: 395]  / Get file metadata + List all files + Delete a file + First request creates container + Continue conversation with same container + First request creates container
+- [Position: 396]  / Continue conversation with same container
+- [Position: 397]  / Continue conversation with same container
+- [Position: 398]  / Continue conversation with same container + Initial request + Check stop_reason and handle pause_turn in a loop + Initial request: capture the full JSON response to a temp file
+- [Position: 399]  / Handle pause_turn for long operations (up to 10 iterations)
+- [Position: 400]  / Handle pause_turn for long operations
+- [Position: 401]  / Handle pause_turn for long operations
+- [Position: 402]  / Handle pause_turn for long operations
+- [Position: 403]  / Handle pause_turn for long operations
+- [Position: 404]  / Handle pause_turn for long operations
+- [Position: 405]  / Handle pause_turn for long operations + Option 1: Upload individual files (one --file flag per file) + Option 2: Upload a zip archive + Option 1: Using files_from_dir helper (Python only, recommended) + Option 2: Using a zip file
+- [Position: 406]  / Option 3: Using file tuples (filename, file_content, mime_type)
+- [Position: 407]  / Option 3: Using file tuples (filename, file_content, mime_type) + Option 1: Using a zip file + Option 2: Using individual files + List all Skills + List only custom Skills + List all Skills + List only custom Skills + List all Skills
+- [Position: 408]  / List only custom Skills + List all Skills
+- [Position: 409]  / List only custom Skills + Delete all versions first, then delete the Skill
+- [Position: 410]  / Step 1: Delete all versions + Step 2: Delete the Skill + Step 1: Delete all versions
+- [Position: 411]  / Step 2: Delete the Skill
+- [Position: 412]  / Step 2: Delete the Skill + Step 1: Delete all versions + Step 2: Delete the Skill + Create a new version + Use specific version + Use latest version + Create a new version + Use specific version + Use latest version + Create a new version
+- [Position: 413]  / Use specific version
+- [Position: 414]  / Use latest version
+- [Position: 415]  / Use latest version
+- [Position: 416]  / Use latest version + Create a new version + Use specific version
+- [Position: 417]  / Use latest version + Create custom DCF analysis Skill + Use with Excel to create financial model + Create custom DCF analysis Skill + Use with Excel to create financial model
+- [Position: 418]  / Create custom DCF analysis Skill
+- [Position: 419]  / Use with Excel to create financial model
+- [Position: 420]  / Use with Excel to create financial model + Create custom DCF analysis Skill
+- [Position: 421]  / Use with Excel to create financial model + Pin to specific versions for stability + Use latest for active development + First request creates cache + Adding/removing Skills breaks cache + First request creates cache
+- [Position: 422]  / Adding/removing Skills breaks cache + First request creates cache
+- [Position: 423]  / Adding/removing Skills breaks cache
+- [Position: 424]  / Adding/removing Skills breaks cache
+- [Position: 425]  / Adding/removing Skills breaks cache + First request creates cache
+- [Position: 426]  / Adding/removing Skills breaks cache
+- [Position: 427]  / Adding/removing Skills breaks cache
+- [Position: 428]  / Adding/removing Skills breaks cache
+- [Position: 429]  / Adding/removing Skills breaks cache
+- [Position: 430]  / Adding/removing Skills breaks cache
+- [Position: 431]  / Adding/removing Skills breaks cache
+- [Position: 432]  / Adding/removing Skills breaks cache
+- [Position: 433]  / Adding/removing Skills breaks cache
+- [Position: 434]  / Adding/removing Skills breaks cache
+- [Position: 435]  / Adding/removing Skills breaks cache
+- [Position: 436]  / Adding/removing Skills breaks cache
+- [Position: 437]  / Adding/removing Skills breaks cache
+- [Position: 438]  / Adding/removing Skills breaks cache
+- [Position: 439]  / Adding/removing Skills breaks cache
+- [Position: 440]  / E9ECEC, #C9D2D4, #8C9A9E, #44545B, #11171B.
+- [Position: 441]  / E9ECEC, #C9D2D4, #8C9A9E, #44545B, #11171B.
+- [Position: 442]  / E9ECEC, #C9D2D4, #8C9A9E, #44545B, #11171B.
+- [Position: 443]  / E9ECEC, #C9D2D4, #8C9A9E, #44545B, #11171B.
+- [Position: 444]  / E9ECEC, #C9D2D4, #8C9A9E, #44545B, #11171B.
+- [Position: 445]  / E9ECEC, #C9D2D4, #8C9A9E, #44545B, #11171B.
+- [Position: 446]  / E9ECEC, #C9D2D4, #8C9A9E, #44545B, #11171B.
+- [Position: 447]  / E9ECEC, #C9D2D4, #8C9A9E, #44545B, #11171B.
+- [Position: 448]  / E9ECEC, #C9D2D4, #8C9A9E, #44545B, #11171B.
+- [Position: 449]  / E9ECEC, #C9D2D4, #8C9A9E, #44545B, #11171B.
+- [Position: 450]  / E9ECEC, #C9D2D4, #8C9A9E, #44545B, #11171B.
+- [Position: 451]  / E9ECEC, #C9D2D4, #8C9A9E, #44545B, #11171B.
+- [Position: 452]  / E9ECEC, #C9D2D4, #8C9A9E, #44545B, #11171B.
+- [Position: 453]  / E9ECEC, #C9D2D4, #8C9A9E, #44545B, #11171B.
+- [Position: 454]  / E9ECEC, #C9D2D4, #8C9A9E, #44545B, #11171B.
+- [Position: 455]  / E9ECEC, #C9D2D4, #8C9A9E, #44545B, #11171B.
+- [Position: 456]  / E9ECEC, #C9D2D4, #8C9A9E, #44545B, #11171B. + Example usage + For time-sensitive applications, use Claude Haiku 4.5
+- [Position: 457]  / For time-sensitive applications, use Claude Haiku 4.5
+- [Position: 458]  / For time-sensitive applications, use Claude Haiku 4.5
+- [Position: 459]  / For time-sensitive applications, use Claude Haiku 4.5
+- [Position: 460]  / For time-sensitive applications, use Claude Haiku 4.5 + Sample user comments to test the content moderation + List of categories considered unsafe for content moderation
+- [Position: 461]  / Initialize the Anthropic client + Process each comment and print the results
+- [Position: 462]  / Initialize the Anthropic client
+- [Position: 463]  / Process each comment and print the results + Initialize the Anthropic client
+- [Position: 464]  / Dictionary of categories considered unsafe for content moderation, with their definitions
+- [Position: 465]  / Process each comment and print the results + Initialize the Anthropic client + Process the batch of comments and get the response + Print the results for each detected violation
+- [Position: 466]  / Print the results for each detected violation
+- [Position: 467]  / Print the results for each detected violation
+- [Position: 468]  / Print the results for each detected violation
+- [Position: 469]  / Print the results for each detected violation
+- [Position: 470]  / Print the results for each detected violation
+- [Position: 471]  / Print the results for each detected violation
+- [Position: 472]  / Print the results for each detected violation + Create the full URL from the GitHub repository + Download the PDF file into memory
+- [Position: 473]  / Load the PDF from memory + Initialize the Anthropic client
+- [Position: 474]  / Initialize the Anthropic client
+- [Position: 475]  / Initialize the Anthropic client + Initialize the Anthropic client
+- [Position: 476]  / Initialize the Anthropic client
+- [Position: 477]  / Initialize the Anthropic client
+- [Position: 478]  / Initialize the Anthropic client + Create an instance of the Claude API client
+- [Position: 479]  / Set the default model + Create an instance of the Claude API client + Set the default model
+- [Position: 480]  / Set the default model
+- [Position: 481]  / Set the default model
+- [Position: 482]  / Set the default model
+- [Position: 483]  / Set the default model
+- [Position: 484]  / Set the default model
+- [Position: 485]  / Set the default model
+- [Position: 486]  / Set the default model
+- [Position: 487]  / Set the default model
+- [Position: 488]  / Set the default model
+- [Position: 489]  / Set the default model
+- [Position: 490]  / Set the default model + Allow the tool to execute + Or deny it with an explanation + Allow the tool to execute + Or deny it with an explanation + Allow the tool to execute
+- [Position: 491]  / Or deny it with an explanation
+- [Position: 492]  / Or deny it with an explanation + Allow the tool to execute
+- [Position: 493]  / Or deny it with an explanation
+- [Position: 494]  / Or deny it with an explanation
+- [Position: 495]  / Or deny it with an explanation
+- [Position: 496]  / Or deny it with an explanation
+- [Position: 497]  / Or deny it with an explanation
+- [Position: 498]  / Or deny it with an explanation
+- [Position: 499]  / Or deny it with an explanation
+- [Position: 500]  / Or deny it with an explanation + List environments + Retrieve a specific environment + Archive an environment (read-only, existing sessions continue) + Delete an environment (only if no sessions reference it) + List environments + Retrieve a specific environment + Archive an environment (read-only, existing sessions continue) + Delete an environment (only if no sessions reference it) + List environments + Retrieve a specific environment + Archive an environment (read-only, existing sessions continue)
+- [Position: 501]  / Delete an environment (only if no sessions reference it) + List environments + Retrieve a specific environment + Archive an environment (read-only, existing sessions continue)
+- [Position: 502]  / Delete an environment (only if no sessions reference it)
+- [Position: 503]  / Delete an environment (only if no sessions reference it)
+- [Position: 504]  / Delete an environment (only if no sessions reference it)
+- [Position: 505]  / Delete an environment (only if no sessions reference it)
+- [Position: 506]  / Delete an environment (only if no sessions reference it) + List resources on the session + Rotate the authorization token + List resources on the session + Rotate the authorization token on a specific resource + List resources on the session + Rotate the authorization token + List resources on the session
+- [Position: 507]  / Rotate the authorization token
+- [Position: 508]  / Rotate the authorization token
+- [Position: 509]  / Rotate the authorization token
+- [Position: 510]  / Rotate the authorization token
+- [Position: 511]  / Rotate the authorization token + List files associated with a session + Download a file + List files associated with a session + Download a file + List files associated with a session
+- [Position: 512]  / Download a file + List files associated with a session
+- [Position: 513]  / Download a file
+- [Position: 514]  / Download a file
+- [Position: 515]  / Download a file
+- [Position: 516]  / Download a file
+- [Position: 517]  / Download a file
+- [Position: 518]  / Download a file
+- [Position: 519] DCF Model Rubric / Revenue Projections + Cost Structure + Discount Rate + Terminal Value + Output Quality
+- [Position: 520] DCF Model Rubric / Output Quality
+- [Position: 521] DCF Model Rubric / Output Quality
+- [Position: 522] DCF Model Rubric / Output Quality
+- [Position: 523] DCF Model Rubric / Output Quality
+- [Position: 524]  / Interrupt with a new direction: + Interrupt with a new direction:
+- [Position: 525]  / Interrupt with a new direction: + Open the stream first, then send the user message + Open the stream first, then send the user message
+- [Position: 526]  / Open the stream first, then send the user message
+- [Position: 527]  / Open the stream first, then send the user message + Open the stream first, then send the user message + Stream is open and buffering. List history before tailing live. + Tail live events, skipping anything already seen + Stream is open and buffering. List history before tailing live.
+- [Position: 528]  / Tail live events, skipping anything already seen
+- [Position: 529]  / Tail live events, skipping anything already seen + Stream is open and buffering. List history before tailing live.
+- [Position: 530]  / Tail live events, skipping anything already seen
+- [Position: 531]  / Tail live events, skipping anything already seen
+- [Position: 532]  / Tail live events, skipping anything already seen
+- [Position: 533]  / Tail live events, skipping anything already seen
+- [Position: 534]  / Tail live events, skipping anything already seen
+- [Position: 535]  / Resume a previously created session by ID
+- [Position: 536]  / Resume a previously created session by ID
+- [Position: 537]  / Resume a previously created session by ID
+- [Position: 538]  / Resume a previously created session by ID
+- [Position: 539]  / Resume a previously created session by ID
+- [Position: 540]  / Resume a previously created session by ID
+- [Position: 541]  / Resume a previously created session by ID
+- [Position: 542]  / Resume a previously created session by ID + List organization members + Update member role + Remove member + Create invite + List invites + Delete invite + Add member to workspace + List workspace members
+- [Position: 543]  / Update member role + Remove member from workspace + List API keys + Update API key
+- [Position: 544]  / Update API key
+- [Position: 545]  / Update API key
+- [Position: 546]  / Update API key
+- [Position: 547]  / Update API key + Check where inference actually ran
+- [Position: 548]  / Check where inference actually ran
+- [Position: 549]  / Check where inference actually ran
+- [Position: 550]  / Check where inference actually ran
+- [Position: 551]  / Check where inference actually ran
+- [Position: 552]  / Check where inference actually ran
+- [Position: 553]  / Check where inference actually ran
+- [Position: 554]  / Check where inference actually ran
+- [Position: 555]  / Create a workspace + List workspaces + Archive a workspace + Add a member to a workspace + Update a member's role + Remove a member from a workspace
+- [Position: 556]  / Remove a member from a workspace
+- [Position: 557]  / Remove a member from a workspace + First request
+- [Position: 558]  / Subsequent request using cursor from response
+- [Position: 559]  / Subsequent request using cursor from response
+- [Position: 560]  / Subsequent request using cursor from response
+- [Position: 561]  / Subsequent request using cursor from response
+- [Position: 562]  / Subsequent request using cursor from response
+- [Position: 563]  / Subsequent request using cursor from response
+- [Position: 564]  / Subsequent request using cursor from response
+- [Position: 565]  / Subsequent request using cursor from response + First request + Next request with pagination
+- [Position: 566]  / Next request with pagination
+- [Position: 567]  / Next request with pagination
+- [Position: 568]  / Gemfile
+- [Position: 569]  / Gemfile
+- [Position: 570]  / Gemfile
+- [Position: 571]  / Gemfile
+- [Position: 572]  / Gemfile + ant reads ANTHROPIC_API_KEY and sends it as x-api-key, which Foundry accepts + Get Azure Entra ID token
+- [Position: 573]  / Make request with token. Replace {resource} with your resource name + Get Azure Entra ID token using token provider pattern + Create client with Entra ID authentication + Make request
+- [Position: 574]  / Make request
+- [Position: 575]  / Make request + Gemfile
+- [Position: 576]  / Gemfile
+- [Position: 577]  / Gemfile
+- [Position: 578]  / Gemfile
+- [Position: 579]  / The ant CLI does not yet support Amazon Bedrock. + Default credentials resolve region from AWS_REGION env var + The ant CLI does not yet support Amazon Bedrock.
+- [Position: 580]  / Using US regional endpoint (CRIS)
+- [Position: 581]  / Using US regional endpoint (CRIS) + Gemfile
+- [Position: 582]  / Gemfile
+- [Position: 583]  / The ant CLI does not yet support Vertex AI.
+- [Position: 584]  / The ant CLI does not yet support Vertex AI.
+- [Position: 585]  / The ant CLI does not yet support Vertex AI.
+- [Position: 586]  / The ant CLI does not yet support Vertex AI.
+- [Position: 587]  / Opus migration
+- [Position: 588]  / Opus migration
+- [Position: 589]  / Opus migration
+- [Position: 590]  / Opus migration
+- [Position: 591]  / From Opus 4.1 + From Sonnet 4 + From Sonnet 3.7
+- [Position: 592]  / From Sonnet 3.7
+- [Position: 593]  / From Sonnet 4.5
+- [Position: 594]  / From Sonnet 4
+- [Position: 595]  / From Sonnet 4
+- [Position: 596]  / From Sonnet 4
+- [Position: 597]  / From Sonnet 4
+- [Position: 598]  / From Sonnet 4
+- [Position: 599]  / From Sonnet 4
+- [Position: 600]  / From Sonnet 4 + From Sonnet 4 + From Sonnet 3.7 + From Haiku 3.5
+- [Position: 601]  / From Haiku 3.5
+- [Position: 602]  / From Haiku 3.5 + Before (Opus 4.6) + After (Opus 4.7)
+- [Position: 603]  / After (Opus 4.7)
+- [Position: 604]  / After (Opus 4.7)
+- [Position: 605]  / After (Opus 4.7)
+- [Position: 606]  / After (Opus 4.7)
+- [Position: 607]  / After (Opus 4.7)
+- [Position: 608]  / After (Opus 4.7)
+- [Position: 609]  / After (Opus 4.7)
+- [Position: 610]  / After (Opus 4.7)
+- [Position: 611]  / After (Opus 4.7)
+- [Position: 612]  / After (Opus 4.7)
+- [Position: 613]  / After (Opus 4.7) + Restart your shell or run: autoload -U compinit && compinit
+- [Position: 614]  / ant @completion powershell >> $PROFILE
+- [Position: 615]  / ant @completion powershell >> $PROFILE
+- [Position: 616]  / ant @completion powershell >> $PROFILE
+- [Position: 617]  / ant @completion powershell >> $PROFILE
+- [Position: 618]  / ant @completion powershell >> $PROFILE
+- [Position: 619]  / ant @completion powershell >> $PROFILE
+- [Position: 620]  / ant @completion powershell >> $PROFILE
+- [Position: 621]  / ant @completion powershell >> $PROFILE
+- [Position: 622]  / ant @completion powershell >> $PROFILE
+- [Position: 623]  / ant @completion powershell >> $PROFILE
+- [Position: 624]  / ant @completion powershell >> $PROFILE
+- [Position: 625]  / ant @completion powershell >> $PROFILE
+- [Position: 626]  / ant @completion powershell >> $PROFILE
+- [Position: 627]  / ant @completion powershell >> $PROFILE
+- [Position: 628]  / ant @completion powershell >> $PROFILE
+- [Position: 629]  / ant @completion powershell >> $PROFILE
+- [Position: 630]  / ant @completion powershell >> $PROFILE
+- [Position: 631]  / ant @completion powershell >> $PROFILE
+- [Position: 632]  / ant @completion powershell >> $PROFILE
+- [Position: 633]  / ant @completion powershell >> $PROFILE
+- [Position: 634]  / ant @completion powershell >> $PROFILE
+- [Position: 635]  / ant @completion powershell >> $PROFILE + For AWS Bedrock support + For Google Vertex AI support
+- [Position: 636]  / For improved async performance with aiohttp
+- [Position: 637]  / Usage(input_tokens=25, output_tokens=13) + Use the tool_runner to automatically handle tool calls + Upload using a file path
+- [Position: 638]  / Upload using bytes + Configure the default for all requests: + Or, configure per-request: + Configure the default for all requests: + More granular control:
+- [Position: 639]  / Override per-request: + Automatically fetches more pages as needed. + Remove `await` for non-async usage. + Remove `await` for non-async usage. + Set default headers for all requests on the client + Or override per-request + Convert to JSON string
+- [Position: 640]  / Convert to dictionary
+- [Position: 641]  / Convert to dictionary
+- [Position: 642]  / HTTP client is automatically closed
+- [Position: 643]  / HTTP client is automatically closed + Automatically handles tool execution loop + Configure the default for all requests: + Or, configure per-request: + Configure the default for all requests:
+- [Position: 644]  / Or, configure per-request: + Fetch single item from page. + Automatically fetches more pages as needed. + Use `Pathname` to send the filename and/or avoid paging a large file into memory: + Alternatively, pass file contents or a `StringIO` directly: + Or, to control the filename and/or content type: + Hashes work, but are not typesafe: + You can also splat a full Params class: + :auto + Revealed type: `T.all(Anthropic::MessageCreateParams::ServiceTier, Symbol)` + Using the enum constants preserves the tagged type information:
+- [Position: 645]  / Literal values are also permissible:
+- [Position: 646]  / Literal values are also permissible:
+- [Position: 647]  / Literal values are also permissible:
+- [Position: 648]  / Literal values are also permissible:
+- [Position: 649]  / Literal values are also permissible:
+- [Position: 650]  / Literal values are also permissible:
+- [Position: 651]  / Literal values are also permissible:
+- [Position: 652]  / Literal values are also permissible:
+- [Position: 653]  / Literal values are also permissible:
+- [Position: 654]  / Literal values are also permissible:
+- [Position: 655]  / Literal values are also permissible:
+- [Position: 656]  / Literal values are also permissible:
+- [Position: 657]  / Literal values are also permissible:
+- [Position: 658]  / Literal values are also permissible:
+- [Position: 659]  / Literal values are also permissible:
+- [Position: 660]  / Literal values are also permissible:
+- [Position: 661]  / Literal values are also permissible:
+- [Position: 662]  / Literal values are also permissible:
+- [Position: 663]  / Literal values are also permissible:
+- [Position: 664]  / Literal values are also permissible:
+- [Position: 665]  / Literal values are also permissible:
+- [Position: 666]  / Literal values are also permissible:
+- [Position: 667]  / Literal values are also permissible:
+- [Position: 668]  / Literal values are also permissible:
+- [Position: 669]  / Literal values are also permissible:
+- [Position: 670]  / Literal values are also permissible:
+- [Position: 671]  / Literal values are also permissible:
+- [Position: 672]  / Literal values are also permissible:
+- [Position: 673]  / Literal values are also permissible:
+- [Position: 674]  / Literal values are also permissible:
+- [Position: 675]  / Literal values are also permissible:
+- [Position: 676]  / Literal values are also permissible:
+- [Position: 677]  / Literal values are also permissible:
+- [Position: 678]  / Literal values are also permissible:
+- [Position: 679]  / Literal values are also permissible:
+- [Position: 680]  / Literal values are also permissible:
+- [Position: 681]  / Literal values are also permissible:
+- [Position: 682]  / Literal values are also permissible:
+- [Position: 683]  / Literal values are also permissible:
+- [Position: 684]  / Literal values are also permissible:
+- [Position: 685]  / Literal values are also permissible:
+- [Position: 686]  / Literal values are also permissible:
+- [Position: 687]  / Literal values are also permissible:
+- [Position: 688]  / Literal values are also permissible:
+- [Position: 689]  / Literal values are also permissible:
+- [Position: 690]  / Literal values are also permissible:
+- [Position: 691]  / Literal values are also permissible:
+- [Position: 692]  / Literal values are also permissible:
+- [Position: 693]  / Literal values are also permissible:
+- [Position: 694]  / Literal values are also permissible:
+- [Position: 695]  / Literal values are also permissible:
+- [Position: 696]  / Literal values are also permissible:
+- [Position: 697]  / Literal values are also permissible:
+- [Position: 698]  / Literal values are also permissible:
+- [Position: 699]  / Literal values are also permissible:
+- [Position: 700]  / Literal values are also permissible:
+- [Position: 701]  / Literal values are also permissible:
+- [Position: 702]  / Literal values are also permissible:
+- [Position: 703]  / Literal values are also permissible:
+- [Position: 704]  / Literal values are also permissible:
+- [Position: 705]  / Literal values are also permissible:
+- [Position: 706]  / Literal values are also permissible:
+- [Position: 707]  / Literal values are also permissible:
+- [Position: 708]  / Literal values are also permissible:
+- [Position: 709]  / Literal values are also permissible:
+- [Position: 710]  / Literal values are also permissible:
+- [Position: 711]  / Literal values are also permissible:
+- [Position: 712]  / Literal values are also permissible:
+- [Position: 713]  / Literal values are also permissible:
+- [Position: 714]  / Literal values are also permissible:
+- [Position: 715]  / Literal values are also permissible:
+- [Position: 716]  / Literal values are also permissible:
+- [Position: 717]  / Literal values are also permissible:
+- [Position: 718]  / Literal values are also permissible:
+- [Position: 719]  / Literal values are also permissible:
+- [Position: 720]  / Literal values are also permissible:
+- [Position: 721]  / Literal values are also permissible:
+- [Position: 722]  / Literal values are also permissible:
+- [Position: 723]  / Literal values are also permissible:
+- [Position: 724]  / Literal values are also permissible:
+- [Position: 725]  / Literal values are also permissible:
+- [Position: 726]  / Literal values are also permissible:
+- [Position: 727]  / Literal values are also permissible:
+- [Position: 728]  / Literal values are also permissible:
+- [Position: 729]  / Literal values are also permissible:
+- [Position: 730]  / Literal values are also permissible:
+- [Position: 731]  / Literal values are also permissible:
+- [Position: 732]  / Literal values are also permissible:
+- [Position: 733]  / Literal values are also permissible:
+- [Position: 734]  / Literal values are also permissible:
+- [Position: 735]  / Literal values are also permissible:
+- [Position: 736]  / Literal values are also permissible:
+- [Position: 737]  / Literal values are also permissible:
+- [Position: 738]  / Literal values are also permissible:
+- [Position: 739]  / Literal values are also permissible:
+- [Position: 740]  / Literal values are also permissible:
+- [Position: 741]  / Literal values are also permissible:
+- [Position: 742]  / Literal values are also permissible:
+- [Position: 743]  / Literal values are also permissible:
+- [Position: 744]  / Literal values are also permissible:
+- [Position: 745]  / Literal values are also permissible:
+- [Position: 746]  / Literal values are also permissible:
+- [Position: 747]  / Literal values are also permissible:
+- [Position: 748]  / Literal values are also permissible:
+- [Position: 749]  / Literal values are also permissible:
+- [Position: 750]  / Literal values are also permissible:
+- [Position: 751]  / Literal values are also permissible:
+- [Position: 752]  / Literal values are also permissible:
+- [Position: 753]  / Literal values are also permissible:
+- [Position: 754]  / Literal values are also permissible:
+- [Position: 755]  / Literal values are also permissible:
+- [Position: 756]  / Literal values are also permissible:
+- [Position: 757]  / Literal values are also permissible:
+- [Position: 758]  / Literal values are also permissible:
+- [Position: 759]  / Literal values are also permissible:
+- [Position: 760]  / Literal values are also permissible:
+- [Position: 761]  / Literal values are also permissible:
+- [Position: 762]  / Literal values are also permissible:
+- [Position: 763]  / Literal values are also permissible:
+- [Position: 764]  / Literal values are also permissible:
+- [Position: 765]  / Literal values are also permissible:
+- [Position: 766]  / Literal values are also permissible:
+- [Position: 767]  / Literal values are also permissible:
+- [Position: 768]  / Literal values are also permissible:
+- [Position: 769]  / Literal values are also permissible:
+- [Position: 770]  / Literal values are also permissible:
+- [Position: 771]  / Literal values are also permissible:
+- [Position: 772]  / Literal values are also permissible:
+- [Position: 773]  / Literal values are also permissible:
+- [Position: 774]  / Literal values are also permissible:
+- [Position: 775]  / Literal values are also permissible:
+- [Position: 776]  / Literal values are also permissible:
+- [Position: 777]  / Literal values are also permissible:
+- [Position: 778]  / Literal values are also permissible:
+- [Position: 779]  / Literal values are also permissible:
+- [Position: 780]  / Literal values are also permissible:
+- [Position: 781]  / Literal values are also permissible:
+- [Position: 782]  / Literal values are also permissible:
+- [Position: 783]  / Literal values are also permissible:
+- [Position: 784]  / Literal values are also permissible:
+- [Position: 785]  / Literal values are also permissible:
+- [Position: 786]  / Literal values are also permissible:
+- [Position: 787]  / Literal values are also permissible:
+- [Position: 788]  / Literal values are also permissible:
+- [Position: 789]  / Literal values are also permissible:
+- [Position: 790]  / Literal values are also permissible:
+- [Position: 791]  / Literal values are also permissible:
+- [Position: 792]  / Literal values are also permissible:
+- [Position: 793]  / Literal values are also permissible:
+- [Position: 794]  / Literal values are also permissible:
+- [Position: 795]  / Literal values are also permissible:
+- [Position: 796]  / Literal values are also permissible:
+- [Position: 797]  / Literal values are also permissible:
+- [Position: 798]  / Literal values are also permissible:
+- [Position: 799]  / Literal values are also permissible:
+- [Position: 800]  / Literal values are also permissible:
+- [Position: 801]  / Literal values are also permissible:
+- [Position: 802]  / Literal values are also permissible:
+- [Position: 803]  / Literal values are also permissible:
+- [Position: 804]  / Literal values are also permissible:
+- [Position: 805]  / Literal values are also permissible:
+- [Position: 806]  / Literal values are also permissible:
+- [Position: 807]  / Literal values are also permissible:
+- [Position: 808]  / Literal values are also permissible:
+- [Position: 809]  / Literal values are also permissible:
+- [Position: 810]  / Literal values are also permissible:
+- [Position: 811]  / Literal values are also permissible:
+- [Position: 812]  / Literal values are also permissible:
+- [Position: 813]  / Literal values are also permissible:
+- [Position: 814]  / Literal values are also permissible:
+- [Position: 815]  / Literal values are also permissible:
+- [Position: 816]  / Literal values are also permissible:
+- [Position: 817]  / Literal values are also permissible:
+- [Position: 818]  / Literal values are also permissible:
+- [Position: 819]  / Literal values are also permissible:
+- [Position: 820]  / Literal values are also permissible:
+- [Position: 821]  / Literal values are also permissible:
+- [Position: 822]  / Literal values are also permissible:
+- [Position: 823]  / Literal values are also permissible:
+- [Position: 824]  / Literal values are also permissible:
+- [Position: 825]  / Literal values are also permissible:
+- [Position: 826]  / Literal values are also permissible:
+- [Position: 827]  / Literal values are also permissible:
+- [Position: 828]  / Literal values are also permissible:
+- [Position: 829]  / Literal values are also permissible:
+- [Position: 830]  / Literal values are also permissible:
+- [Position: 831]  / Literal values are also permissible:
+- [Position: 832]  / Literal values are also permissible:
+- [Position: 833]  / Literal values are also permissible:
+- [Position: 834]  / Literal values are also permissible:
+- [Position: 835]  / Literal values are also permissible:
+- [Position: 836]  / Literal values are also permissible:
+- [Position: 837]  / Literal values are also permissible:
+- [Position: 838]  / Literal values are also permissible:
+- [Position: 839]  / Literal values are also permissible:
+- [Position: 840]  / Literal values are also permissible:
+- [Position: 841]  / Literal values are also permissible:
+- [Position: 842]  / Literal values are also permissible:
+- [Position: 843]  / Literal values are also permissible:
+- [Position: 844]  / Literal values are also permissible:
+- [Position: 845]  / Literal values are also permissible:
+- [Position: 846]  / Literal values are also permissible:
+- [Position: 847]  / Literal values are also permissible:
+- [Position: 848]  / Literal values are also permissible:
+- [Position: 849]  / Literal values are also permissible:
+- [Position: 850]  / Literal values are also permissible:
+- [Position: 851]  / Literal values are also permissible:
+- [Position: 852]  / Literal values are also permissible:
+- [Position: 853]  / Literal values are also permissible:
+- [Position: 854]  / Literal values are also permissible:
+- [Position: 855]  / Literal values are also permissible:
+- [Position: 856]  / Literal values are also permissible:
+- [Position: 857]  / Literal values are also permissible:
+- [Position: 858]  / Literal values are also permissible:
+- [Position: 859]  / Literal values are also permissible:
+- [Position: 860]  / Literal values are also permissible:
+- [Position: 861]  / Literal values are also permissible:
+- [Position: 862]  / Literal values are also permissible:
+- [Position: 863]  / Literal values are also permissible:
+- [Position: 864]  / Literal values are also permissible:
+- [Position: 865]  / Literal values are also permissible:
+- [Position: 866]  / Literal values are also permissible:
+- [Position: 867]  / Literal values are also permissible:
+- [Position: 868]  / Literal values are also permissible:
+- [Position: 869]  / Literal values are also permissible:
+- [Position: 870]  / Literal values are also permissible:
+- [Position: 871]  / Literal values are also permissible:
+- [Position: 872]  / Literal values are also permissible:
+- [Position: 873]  / Literal values are also permissible:
+- [Position: 874]  / Literal values are also permissible:
+- [Position: 875]  / Literal values are also permissible:
+- [Position: 876]  / Literal values are also permissible:
+- [Position: 877]  / Literal values are also permissible:
+- [Position: 878]  / Literal values are also permissible:
+- [Position: 879]  / Literal values are also permissible:
+- [Position: 880]  / Literal values are also permissible:
+- [Position: 881]  / Literal values are also permissible:
+- [Position: 882]  / Literal values are also permissible:
+- [Position: 883]  / Literal values are also permissible:
+- [Position: 884]  / Literal values are also permissible:
+- [Position: 885]  / Literal values are also permissible:
+- [Position: 886]  / Literal values are also permissible:
+- [Position: 887]  / Literal values are also permissible:
+- [Position: 888]  / Literal values are also permissible:
+- [Position: 889]  / Literal values are also permissible:
+- [Position: 890]  / Literal values are also permissible:
+- [Position: 891]  / Literal values are also permissible:
+- [Position: 892]  / Literal values are also permissible:
+- [Position: 893]  / Literal values are also permissible:
+- [Position: 894]  / Literal values are also permissible:
+- [Position: 895]  / Literal values are also permissible:
+- [Position: 896]  / Literal values are also permissible:
+- [Position: 897]  / Literal values are also permissible:
+- [Position: 898]  / Literal values are also permissible:
+- [Position: 899]  / Literal values are also permissible:
+- [Position: 900]  / Literal values are also permissible:
+- [Position: 901]  / Literal values are also permissible:
+- [Position: 902]  / Literal values are also permissible:
+- [Position: 903]  / Literal values are also permissible:
+- [Position: 904]  / Literal values are also permissible:
+- [Position: 905]  / Literal values are also permissible:
+- [Position: 906]  / Literal values are also permissible:
+- [Position: 907]  / Literal values are also permissible:
+- [Position: 908]  / Literal values are also permissible:
+- [Position: 909]  / Literal values are also permissible:
+- [Position: 910]  / Literal values are also permissible:
+- [Position: 911]  / Literal values are also permissible:
+- [Position: 912]  / Literal values are also permissible:
+- [Position: 913]  / Literal values are also permissible:
+- [Position: 914]  / Literal values are also permissible:
+- [Position: 915]  / Literal values are also permissible:
+- [Position: 916]  / Literal values are also permissible:
+- [Position: 917]  / Literal values are also permissible:
+- [Position: 918]  / Literal values are also permissible:
+- [Position: 919]  / Literal values are also permissible:
+- [Position: 920]  / Literal values are also permissible:
+- [Position: 921]  / Literal values are also permissible:
+- [Position: 922]  / Literal values are also permissible:
+- [Position: 923]  / Literal values are also permissible:
+- [Position: 924]  / Literal values are also permissible:
+- [Position: 925]  / Literal values are also permissible:
+- [Position: 926]  / Literal values are also permissible:
+- [Position: 927]  / Literal values are also permissible:
+- [Position: 928]  / Literal values are also permissible:
+- [Position: 929]  / Literal values are also permissible:
+- [Position: 930]  / Literal values are also permissible:
+- [Position: 931]  / Literal values are also permissible:
+- [Position: 932]  / Literal values are also permissible:
+- [Position: 933]  / Literal values are also permissible:
+- [Position: 934]  / Literal values are also permissible:
+- [Position: 935]  / Literal values are also permissible:
+- [Position: 936]  / Literal values are also permissible:
+- [Position: 937]  / Literal values are also permissible:
+- [Position: 938]  / Literal values are also permissible:
+- [Position: 939]  / Literal values are also permissible:
+- [Position: 940]  / Literal values are also permissible:
+- [Position: 941]  / Literal values are also permissible:
+- [Position: 942]  / Literal values are also permissible:
+- [Position: 943]  / Literal values are also permissible:
+- [Position: 944]  / Literal values are also permissible:
+- [Position: 945]  / Literal values are also permissible:
+- [Position: 946]  / Literal values are also permissible:
+- [Position: 947]  / Literal values are also permissible:
+- [Position: 948]  / Literal values are also permissible:
+- [Position: 949]  / Literal values are also permissible:
+- [Position: 950]  / Literal values are also permissible:
+- [Position: 951]  / Literal values are also permissible:
+- [Position: 952]  / Literal values are also permissible:
+- [Position: 953]  / Literal values are also permissible:
+- [Position: 954]  / Literal values are also permissible:
+- [Position: 955]  / Literal values are also permissible:
+- [Position: 956]  / Literal values are also permissible:
+- [Position: 957]  / Literal values are also permissible:
+- [Position: 958]  / Literal values are also permissible:
+- [Position: 959]  / Literal values are also permissible:
+- [Position: 960]  / Literal values are also permissible:
+- [Position: 961]  / Literal values are also permissible:
+- [Position: 962]  / Literal values are also permissible:
+- [Position: 963]  / Literal values are also permissible:
+- [Position: 964]  / Literal values are also permissible:
+- [Position: 965]  / Literal values are also permissible:
+- [Position: 966]  / Literal values are also permissible:
+- [Position: 967]  / Literal values are also permissible:
+- [Position: 968]  / Literal values are also permissible:
+- [Position: 969]  / Literal values are also permissible:
+- [Position: 970]  / Literal values are also permissible:
+- [Position: 971]  / Literal values are also permissible:
+- [Position: 972]  / Literal values are also permissible:
+- [Position: 973]  / Literal values are also permissible:
+- [Position: 974]  / Literal values are also permissible:
+- [Position: 975]  / Literal values are also permissible:
+- [Position: 976]  / Literal values are also permissible:
+- [Position: 977]  / Literal values are also permissible:
+- [Position: 978]  / Literal values are also permissible:
+- [Position: 979]  / Literal values are also permissible:
+- [Position: 980]  / Literal values are also permissible:
+- [Position: 981]  / Literal values are also permissible:
+- [Position: 982]  / Literal values are also permissible:
+- [Position: 983]  / Literal values are also permissible:
+- [Position: 984]  / Literal values are also permissible:
+- [Position: 985]  / Literal values are also permissible:
+- [Position: 986]  / Literal values are also permissible:
+- [Position: 987]  / Literal values are also permissible:
+- [Position: 988]  / Literal values are also permissible:
+- [Position: 989]  / Literal values are also permissible:
+- [Position: 990]  / Literal values are also permissible:
+- [Position: 991]  / Literal values are also permissible:
+- [Position: 992]  / Literal values are also permissible:
+- [Position: 993]  / Literal values are also permissible:
+- [Position: 994]  / Literal values are also permissible:
+- [Position: 995]  / Literal values are also permissible:
+- [Position: 996]  / Literal values are also permissible:
+- [Position: 997]  / Literal values are also permissible:
+- [Position: 998]  / Literal values are also permissible:
+- [Position: 999]  / Literal values are also permissible:
+- [Position: 1000]  / Literal values are also permissible:
+- [Position: 1001]  / Literal values are also permissible:
+- [Position: 1002]  / Literal values are also permissible:
+- [Position: 1003]  / Literal values are also permissible:
+- [Position: 1004]  / Literal values are also permissible:
+- [Position: 1005]  / Literal values are also permissible:
+- [Position: 1006]  / Literal values are also permissible:
+- [Position: 1007]  / Literal values are also permissible:
+- [Position: 1008]  / Literal values are also permissible:
+- [Position: 1009]  / Literal values are also permissible:
+- [Position: 1010]  / Literal values are also permissible:
+- [Position: 1011]  / Literal values are also permissible:
+- [Position: 1012]  / Literal values are also permissible:
+- [Position: 1013]  / Literal values are also permissible:
+- [Position: 1014]  / Literal values are also permissible:
+- [Position: 1015]  / Literal values are also permissible:
+- [Position: 1016]  / Literal values are also permissible:
+- [Position: 1017]  / Literal values are also permissible:
+- [Position: 1018]  / Literal values are also permissible:
+- [Position: 1019]  / Literal values are also permissible:
+- [Position: 1020]  / Literal values are also permissible:
+- [Position: 1021]  / Literal values are also permissible:
+- [Position: 1022]  / Literal values are also permissible:
+- [Position: 1023]  / Literal values are also permissible:
+- [Position: 1024]  / Literal values are also permissible:
+- [Position: 1025]  / Literal values are also permissible:
+
+You should choose the relevant chunk position to read further using the view_content_chunk tool with DocumentId = https://platform.claude.com/docs/llms-full.txt. Choose at least one position.
+
+=== CHUNK 0 CONTENT (via view_content_chunk) ===
+Chunk content at position 0:
+headers:{type:MARKDOWN_NODE_TYPE_HEADER_1  text:"Anthropic Developer Documentation - Full Content"}  text:"This file provides comprehensive documentation with full rendered content."
