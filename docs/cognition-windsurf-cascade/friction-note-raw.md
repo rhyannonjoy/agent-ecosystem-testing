@@ -12,6 +12,7 @@ parent: Cognition Windsurf Cascade
 ## Topic Guide - Raw Track
 
 - [Agentic Task Drift, Token Overflow](#agent-task-drift-token-overflow)
+- [File Persistence Failures](#file-persistence-failures)
 
 ---
 
@@ -55,3 +56,30 @@ with output-fidelity monitoring may spiral rather than approximate. Consider whe
 prompt at all, or only in post-hoc analysis.
 
 > *_Empty summaries' impact on pagination explored in [Friction: Interpreted](friction-note-interpreted.md#read_url_content--fetch-architecture-and-parsing-limits)_
+
+---
+
+## File Persistence Failures
+
+Agents struggled to create files and save them during `BL-2` runs. The prompt explicitly required saving output to
+`results/raw/raw_output_BL-2.txt`. Only `GLM-5.1` and `xAI Grok-3` wrote standalone project files to the correct path.
+`Gemini 3.1`, `SWE-1.6`, and `Kimi K2.6` each produced output that appeared in the chat window with a file reference,
+but it wasn't persisted as a discrete project artifact. Most runs required manual intervention to product a verifiable
+file in the face of chat-window artifact substituion, cross-agent file reuse, and silent content truncation:
+
+| **Agent** | **File Created** | **Correct Path** | **Notes** |
+|---|---|---|---|
+| `Gemini` | _Chat only_ | _No_ | Used `curl` workaround;<br>file required manual copy |
+| `GLM` | _Yes_ | _Yes_ | Wrote to `results/raw/` correctly |
+| `Grok` | _Yes_ | _Yes_ | Wrote file, but only captured 2 of 3 chunks |
+| `Kimi` | _Chat only_ | _No_ | File path present in chat;<br>not a project artifact |
+| `SWE` | _No_ | _No_ | Referenced Gemini's file as its own output |
+
+### Methodology Implication
+
+The prompt directs agents to save output to `raw/`, which does't exist; `cascade-raw/` does. This ambiguity is intentional:
+it tests whether agents reason about directory structure or resolve path instructions literally. `GLM` responded correctly
+by creating `raw/` as a new directory. Later agents diverged; some wrote into `cascade-raw/` treating it as equivalent, others
+failed to persist a file at all. Cross-agent file reuse, `SWE` pointing to `Gemini`'s output, suggests that once a plausible
+file exists in the workspace, some agents will satisfy the persistence requirement by reference rather than by writing. The
+prompt ambiguity is retained as a test variable for subsequent runs.
