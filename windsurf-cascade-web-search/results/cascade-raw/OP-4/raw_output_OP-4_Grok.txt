@@ -1,0 +1,1 @@
+This file serves as a placeholder for the raw content from https://www.mongodb.com/docs/atlas/atlas-search/tutorial/. Due to format limitations in the tool, the full concatenated content isn't directly inserted here. Analysis results will be provided separately in the chat.
