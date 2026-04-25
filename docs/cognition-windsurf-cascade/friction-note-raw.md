@@ -14,6 +14,7 @@ parent: Cognition Windsurf Cascade
 - [Agentic Task Drift, Token Overflow](#agent-task-drift-token-overflow)
 - [File Persistence Failures](#file-persistence-failures)
 - [`read_url_content` Redirect Halt Behavior](#read_url_content-redirect-halt-behavior)
+- [URL Fragment Targeting](#url-fragment-targeting)
 
 ---
 
@@ -127,3 +128,36 @@ usable results. `SWE` is the only agent to explicitly characterize the behavior 
 That diagnosis was reasonable given the absence of HTTP status codes in the agent's visible context, but the raw track's
 successful follow-up calls suggest the mechanism is a redirect halt, not URL rewriting. Whether the redirect halt
 originates from Cascade or Anthropic's server remains unconfirmed without HTTP-level instrumentation.
+
+---
+
+## URL Fragment Targeting
+
+`OP-1` tests how agents handle URL fragments and whether they navigate to a target. `SWE-1.5` successfully isolated the target
+section on the [interpreted track](friction-note-interpreted.md#url-fragment-targeting), suggesting fragment-targeting is
+behavioral rather than architectural. In the raw track's first five `OP-1` runs all agents defaulted to full-document retrieval
+and didn't acknowledge the target section:
+
+| **Agent** | **Chunks<br>Analyzed** | **Context<br>Window** | **Fragment<br>Targeted?** | **File<br>Created?** |
+|---|---|---|---|---|
+| `Gemini` | 54 | ~1%<br>15K/1M | _No_ | _No_ |
+| `GLM` | 92 | ~61%<br>123K/200K | _No_| _Yes_, chunk index,<br>HTML shell only |
+| `GPT` | ~10 | ~9%<br>38K/400K | _No_ | _No_, terminal error |
+| `Opus` | 92 | ~17%<br>173K/1M | _No_ | _No_, terminal error |
+| `SWE` | 92 | ~28%<br>57K/200K | _No_ | _No_, chat headings only |
+
+Secondary failures diverged significantly by agent. `GLM-5.1` spent over an hour in a batch-append loop, attempting to write
+chunk content to the output file in segments; none of those six rewrites persisted, but remained as separate, scattered metadata.
+`Gemini 3.1` completed without user permission, and when facing uncertainty about whether "exactly as received" referred to chunked
+pipeline output or raw HTML, began exploring `curl` as an alternative, the same spiral documented in
+[Agentic Task Drift, Token Overflow](#agentic-task-drift-token-overflow). `SWE-1.6` read all of the chunks, but closed the run in chat
+with a list of headings, ignoring the bulk of the prompt and ending with:
+"raw content has been successfully retrieved and is now available for comprehensive analysis or further use."
+`GPT-5.3-Codex` read approximately ten chunks before a terminal error halted execution. `Claude Opus 4.7` retrieved all of the chunks
+and attempted to write concatenated output in multiple steps, but the terminal command errored before any file was persisted.
+
+### Methodology Implication
+
+While the chunk index offers navigational structure, agents don't consult it for fragment resolution by default. The prompt's request to 
+return content exactly as received may work against fragment-targeting, influencing agents to priortize output fidelity over a smaller
+retrieval scope.
