@@ -1,0 +1,95 @@
+Jump to content
+- [Main page](https://en.wikipedia.org/wiki/Main_Page)
+- [Contents](https://en.wikipedia.org/wiki/Wikipedia:Contents)
+- [Current events](https://en.wikipedia.org/wiki/Portal:Current_events)
+- [Random article](https://en.wikipedia.org/wiki/Special:Random)
+- [About Wikipedia](https://en.wikipedia.org/wiki/Wikipedia:About)
+- [Contact us](https://en.wikipedia.org/wiki/Wikipedia:Contact_us)
+[Main page](https://en.wikipedia.org/wiki/Main_Page)
+[Contents](https://en.wikipedia.org/wiki/Wikipedia:Contents)
+[Current events](https://en.wikipedia.org/wiki/Portal:Current_events)
+[Random article](https://en.wikipedia.org/wiki/Special:Random)
+[About Wikipedia](https://en.wikipedia.org/wiki/Wikipedia:About)
+[Contact us](https://en.wikipedia.org/wiki/Wikipedia:Contact_us)
+- [Help](https://en.wikipedia.org/wiki/Help:Learn_to_edit)
+- [Community portal](https://en.wikipedia.org/wiki/Wikipedia:Community_portal)
+- [Recent changes](https://en.wikipedia.org/wiki/Special:RecentChanges)
+- [Upload file](https://en.wikipedia.org/wiki/Wikipedia:File_upload_wizard)
+- [Special pages](https://en.wikipedia.org/wiki/Special:SpecialPages)
+[Help](https://en.wikipedia.org/wiki/Help:Learn_to_edit)
+[Community portal](https://en.wikipedia.org/wiki/Wikipedia:Community_portal)
+[Recent changes](https://en.wikipedia.org/wiki/Special:RecentChanges)
+[Upload file](https://en.wikipedia.org/wiki/Wikipedia:File_upload_wizard)
+[Special pages](https://en.wikipedia.org/wiki/Special:SpecialPages)
+[Search](https://en.wikipedia.org/wiki/Special:Search)
+- [Donate](https://donate.wikimedia.org/?wmf_source=donate&wmf_medium=sidebar&wmf_campaign=en.wikipedia.org&uselang=en)
+- [Create account](https://en.wikipedia.org/w/index.php?title=Special:CreateAccount&returnto=Machine+learning)
+- [Log in](https://en.wikipedia.org/w/index.php?title=Special:UserLogin&returnto=Machine+learning)
+[Donate](https://donate.wikimedia.org/?wmf_source=donate&wmf_medium=sidebar&wmf_campaign=en.wikipedia.org&uselang=en)
+[Create account](https://en.wikipedia.org/w/index.php?title=Special:CreateAccount&returnto=Machine+learning)
+[Log in](https://en.wikipedia.org/w/index.php?title=Special:UserLogin&returnto=Machine+learning)
+- [Donate](https://donate.wikimedia.org/?wmf_source=donate&wmf_medium=sidebar&wmf_campaign=en.wikipedia.org&uselang=en)
+- [Create account](https://en.wikipedia.org/w/index.php?title=Special:CreateAccount&returnto=Machine+learning)
+- [Log in](https://en.wikipedia.org/w/index.php?title=Special:UserLogin&returnto=Machine+learning)
+[Donate](https://donate.wikimedia.org/?wmf_source=donate&wmf_medium=sidebar&wmf_campaign=en.wikipedia.org&uselang=en)
+[Create account](https://en.wikipedia.org/w/index.php?title=Special:CreateAccount&returnto=Machine+learning)
+[Log in](https://en.wikipedia.org/w/index.php?title=Special:UserLogin&returnto=Machine+learning)
+
+# Machine learning
+
+## History
+[edit](https://en.wikipedia.org/w/index.php?title=Machine_learning&action=edit&section=1)
+[Timeline of machine learning](https://en.wikipedia.org/wiki/Timeline_of_machine_learning)
+The term machine learning was coined in 1959 by Arthur Samuel, an IBM employee and pioneer in the field of computer gaming and artificial intelligence.[5][6] The synonym self-teaching computers was also used during this time period.[7][8]
+The earliest machine learning program was introduced in the 1950s when Arthur Samuel invented a computer program that calculated the winning chance in checkers for each side, but the history of machine learning roots back to decades of human desire and effort to study human cognitive processes.[9] In 1949, Canadian psychologist Donald Hebb published the book The Organization of Behavior, in which he introduced a theoretical neural structure formed by certain interactions among nerve cells.[10] Hebb's model of neurons interacting with one another set a groundwork for how AIs and machine learning algorithms work under nodes, or artificial neurons used by computers to communicate data.[9] Other researchers who have studied human cognitive systems contributed to the modern machine learning technologies as well, including logician Walter Pitts and Warren McCulloch, who proposed the early mathematical models of neural networks to come up with algorithms that mirror human thought processes.[9]
+By the early 1960s, an experimental "learning machine" with punched tape memory, called Cybertron, had been developed by Raytheon Company to analyse sonar signals, electrocardiograms, and speech patterns using rudimentary reinforcement learning. It was repetitively "trained" by a human operator/teacher to recognise patterns and equipped with a "goof" button to cause it to reevaluate incorrect decisions.[11] A representative book on research into machine learning during the 1960s was Nils Nilsson's book on Learning Machines, dealing mostly with machine learning for pattern classification.[12] Interest related to pattern recognition continued into the 1970s, as described by Duda and Hart in 1973.[13] In 1981, a report was given on using teaching strategies so that an artificial neural network learns to recognise 40 characters (26 letters, 10 digits, and 4 special symbols) from a computer terminal.[14]
+Tom M. Mitchell provided a widely quoted, more formal definition of the algorithms studied in the machine learning field: "A computer program is said to learn from experience E with respect to some class of tasks T and performance measure P if its performance at tasks in T, as measured by P, improves with experience E."[15] This definition of the tasks in which machine learning is concerned offers a fundamentally operational definition rather than defining the field in cognitive terms. This follows Alan Turing's proposal in his paper "Computing Machinery and Intelligence", in which the question, "Can machines think?", is replaced by asking whether machines can convincingly imitate a human in its responses to human-posed questions.[16][17]
+Modern-day Machine Learning algorithms are broken into 3 algorithm types: Supervised Learning Algorithms, Unsupervised Learning Algorithms, and Reinforcement Learning Algorithms.[18]
+- Current Supervised Learning Algorithms have objectives of classification and regression.
+- Current Unsupervised Learning Algorithms have objectives of clustering, dimensionality reduction, and association rule.
+- Current Reinforcement Learning Algorithms focus on decisions that must be made with respect to some previous, unknown time and are broken down to either be studies of model-based methods or model-free methods.
+In 2014 Ian Goodfellow and others introduced generative adversarial networks (GANs) with realistic data synthesis.[19] By 2016 AlphaGo obtained victory against top human players using reinforcement learning techniques.[20]
+
+## Relationships to other fields
+[edit](https://en.wikipedia.org/w/index.php?title=Machine_learning&action=edit&section=2)
+
+### Artificial intelligence
+[edit](https://en.wikipedia.org/w/index.php?title=Machine_learning&action=edit&section=3)
+[Deep learning](https://en.wikipedia.org/wiki/Deep_learning)
+[artificial intelligence](https://en.wikipedia.org/wiki/Artificial_intelligence)
+[21]
+As a scientific endeavour, machine learning grew out of the quest for artificial intelligence (AI). In the early days of AI as an academic discipline, some researchers were interested in having machines learn from data. They attempted to approach the problem with various symbolic methods, as well as what were then termed "neural networks"; these were mostly perceptrons and other models that were later found to be reinventions of the generalised linear models of statistics.[22] Probabilistic reasoning was also employed, especially in automated medical diagnosis.[23]:488
+However, an increasing emphasis on the logical, knowledge-based approach caused a rift between AI and machine learning. Probabilistic systems were plagued by theoretical and practical problems of data acquisition and representation.[23]:488 By 1980, expert systems had come to dominate AI, and statistics was out of favour.[24] Work on symbolic/knowledge-based learning did continue within AI, leading to inductive logic programming(ILP), but the more statistical line of research was now outside the field of AI proper, in pattern recognition and information retrieval.[23]:708-710,755 Neural networks research had been abandoned by AI and computer science around the same time. This line, too, was continued outside the AI/CS field, as "connectionism", by researchers from other disciplines, including John Hopfield, David Rumelhart, and Geoffrey Hinton. Their main success came in the mid-1980s with the reinvention of backpropagation.[23]:25
+Machine learning (ML), reorganised and recognised as its own field, started to flourish in the 1990s. The field changed its goal from achieving artificial intelligence to tackling solvable problems of a practical nature. It shifted focus away from the symbolic approaches it had inherited from AI, and toward methods and models borrowed from statistics, fuzzy logic, and probability theory.[24]
+
+### Data compression
+[edit](https://en.wikipedia.org/w/index.php?title=Machine_learning&action=edit&section=4)
+[Data compression § Machine learning](https://en.wikipedia.org/wiki/Data_compression)
+[edit](https://en.wikipedia.org/w/index.php?title=Data_compression&action=edit)
+There is a close connection between machine learning and compression. A system that predicts the posterior probabilities of a sequence given its entire history can be used for optimal data compression (by using arithmetic coding on the output distribution). Conversely, an optimal compressor can be used for prediction (by finding the symbol that compresses best, given the previous history). This equivalence has been used as a justification for using data compression as a benchmark for "general intelligence".[25][26][27]
+An alternative view can show compression algorithms implicitly map strings into implicit feature space vectors, and compression-based similarity measures compute similarity within these feature spaces. For each compressor C(.) we define an associated vector space ℵ, such that C(.) maps an input string x, corresponding to the vector norm ||~x||. An exhaustive examination of the feature spaces underlying all compression algorithms is precluded by space; instead, feature vectors chooses to examine three representative lossless compression methods, LZW, LZ77, and PPM.[28]
+According to AIXI theory, a connection more directly explained in [Hutter Prize](https://en.wikipedia.org/wiki/Hutter_Prize), the best possible compression of x is the smallest possible software that generates x. For example, in that model, a zip file's compressed size includes both the zip file and the unzipping software, since you can not unzip it without both, but there may be an even smaller combined form.
+Examples of AI-powered audio/video compression software include NVIDIA Maxine, AIVC.[29] Examples of software that can perform AI-powered image compression include OpenCV, TensorFlow, MATLAB's Image Processing Toolbox (IPT) and High-Fidelity Generative Image Compression.[30]
+In unsupervised machine learning, k-means clustering can be utilized to compress data by grouping similar data points into clusters. This technique simplifies handling extensive datasets that lack predefined labels and finds widespread use in fields such as image compression.[31]
+Data compression aims to reduce the size of data files, enhancing storage efficiency and speeding up data transmission. K-means clustering, an unsupervised machine learning algorithm, is employed to partition a dataset into a specified number of clusters, k, each represented by the centroid of its points. This process condenses extensive datasets into a more compact set of representative points. Particularly beneficial in image and signal processing, k-means clustering aids in data reduction by replacing groups of data points with their centroids, thereby preserving the core information of the original data while significantly decreasing the required storage space.[32]
+Large language models (LLMs) are also efficient lossless data compressors on some data sets, as demonstrated by DeepMind's research with the Chinchilla 70B model. Developed by DeepMind, Chinchilla 70B effectively compressed data, outperforming conventional methods such as Portable Network Graphics (PNG) for images and Free Lossless Audio Codec (FLAC) for audio. It achieved compression of image and audio data to 43.4% and 16.4% of their original sizes, respectively. There is, however, some reason to be concerned that the data set used for testing overlaps the LLM training data set, making it possible that the Chinchilla 70B model is only an efficient compression tool on data it has already been trained on.[33][34]
+
+### Data mining
+[edit](https://en.wikipedia.org/w/index.php?title=Machine_learning&action=edit&section=5)
+Machine learning and data mining often employ the same methods and overlap significantly, but while machine learning focuses on prediction, based on known properties learned from the training data, data mining focuses on the discovery of (previously) unknown properties in the data (this is the analysis step of knowledge discovery in databases). Data mining uses many machine learning methods, but with different goals; on the other hand, machine learning also employs data mining methods as "unsupervised learning" or as a preprocessing step to improve learner accuracy. Much of the confusion between these two research communities (which do often have separate conferences and separate journals, ECML PKDD being a major exception) comes from the basic assumptions they work with: in machine learning, performance is usually evaluated with respect to the ability to reproduce known knowledge, while in knowledge discovery and data mining (KDD) the key task is the discovery of previously unknown knowledge. Evaluated with respect to known knowledge, an uninformed (unsupervised) method will easily be outperformed by other supervised methods, while in a typical KDD task, supervised methods cannot be used due to the unavailability of training data.[citation needed]
+Machine learning also has intimate ties to optimization: Many learning problems are formulated as minimisation of some loss function on a training set of examples. Loss functions express the discrepancy between the predictions of the model being trained and the actual problem instances (for example, in classification, one wants to assign a label to instances, and models are trained to correctly predict the preassigned labels of a set of examples).[35]
+
+### Generalization
+[edit](https://en.wikipedia.org/w/index.php?title=Machine_learning&action=edit&section=6)
+Characterizing the generalisation of various learning algorithms is an active topic of current research, especially for deep learning algorithms.[citation needed]
+
+### Statistics
+[edit](https://en.wikipedia.org/w/index.php?title=Machine_learning&action=edit&section=7)
+Machine learning and statistics are closely related fields in terms of methods, but distinct in their principal goal: statistics draws population inferences from a sample, while machine learning finds generalisable predictive patterns.[36]
+Conventional statistical analyses require the a priori selection of a model most suitable for the study data set. In addition, only significant or theoretically relevant variables based on previous experience are included for analysis. In contrast, machine learning is not built on a pre-structured model; rather, the data shape the model by detecting underlying patterns. The more variables (input) used to train the model, the more accurate the ultimate model will be.[37]
+Leo Breiman distinguished two statistical modelling paradigms: data model and algorithmic model,[38] wherein "algorithmic model" means more or less the machine learning algorithms like Random Forest.[clarification needed]
+Some statisticians have adopted methods from machine learning, leading to a combined field that they call statistical learning.[39]
+
+### Statistical physics
+[edit](https://en.wikipedia.org/w/index.php?title=Machine_learning&action=edit&section=8)
+Analytical and computational techniques derived from deep-rooted physics of disordered systems can be extended to large-scale problems, including machine learning, e.g., to analyse the weight space of deep neural networks.[40] Statistical physics is thus finding applications in the area of medical diagnostics.[41]

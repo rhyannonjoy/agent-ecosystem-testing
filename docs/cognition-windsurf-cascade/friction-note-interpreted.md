@@ -534,3 +534,5 @@ and confirming its index position at 16; demonstrating that fragment-targeting v
 navigational structure is there, and at least one agent used it. That makes the 4-of-5 miss rate a
 _behavioral finding rather than an architectural limitation_. The chunk index supports fragment-targeting; most agents
 just don't attempt it by default.
+
+> _This failure mode is also discussed in the [Friction: Raw content](friction-note-raw.md#url-fragment-targeting)._
