@@ -88,6 +88,12 @@ path verification while containing no target page content.
 | `Sonnet` | N/A | _Yes_ | Correct path; content: agent analysis, chunk index,<br>chunk position 0 summary |
 | `SWE` | _No_ | _Yes_ | First run failed entirely; retry used `curl`;<br>saved stipped HTML only |
 
+Agents analyzed most of `OP-4`'s chunks but seemed unable to concatenate and save them. `Kimi` constantly hit context
+deadline errors which ended with `Model provider unreachable` and no report at all. `Grok` explicitly cited tool
+"response format limitations," produced a one-line placeholder text file, and asked for an alternative method to handle large
+text data. `GPT-5.4`, `Minimax M2.5` and `Sonnet` created raw output files, but were mostly CSS and navigation boilerplate, not
+tutorial text; passing path verification while missing the target content.
+
 ### Methodology Implication
 
 The prompt directs agents to save output to `raw/`, which does't exist; `cascade-raw/` does. This ambiguity is intentional:
