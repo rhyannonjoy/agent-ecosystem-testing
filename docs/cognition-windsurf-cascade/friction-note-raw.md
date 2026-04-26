@@ -12,6 +12,7 @@ parent: Cognition Windsurf Cascade
 ## Topic Guide - Raw Track
 
 - [Agentic Task Drift, Token Overflow](#agent-task-drift-token-overflow)
+- [Cross-Agent File Reuse, Verification Limits](#cross-agent-file-reuse-verification-limits)
 - [File Persistence Failures](#file-persistence-failures)
 - [`read_url_content` Redirect Halt Behavior](#read_url_content-redirect-halt-behavior)
 - [URL Fragment Targeting](#url-fragment-targeting)
@@ -58,6 +59,34 @@ with output-fidelity monitoring may spiral rather than approximate. Consider whe
 prompt at all, or only in post-hoc analysis.
 
 > *_Empty summaries' impact on pagination explored in [Friction: Interpreted](friction-note-interpreted.md#read_url_content--fetch-architecture-and-parsing-limits)_
+
+---
+
+## Cross-Agent File Reuse, Verification Limits
+
+The verification script defines the raw track. If an agent claims to have retrieved and analyzed content, this script is
+designed to check path compliance, file size, checksum, and truncation indicators against what's actually on disk, but
+this only works if agents write files.
+
+While agents never directly admit it, three of five `BL-3` runs reference an existing file rather than writing a new one.
+Once a somewhat-plausible file exists at a similar path, whether or not it's in the prompt-specified directory with the
+prompt-specified name doesn't seem to matter - subsequent agents satisfy the persistence requirement with chat paths described
+as newly generated files, but point to artifacts of earlier runs. The script then verifies an earlier agent's file, not the
+current agent's retrieval. The agent can then claim another agent's calculations as their own, draining their own analysis of
+meaning. But when agents do write raw output files, they tend to produce content that passes path and size verification while
+containing no semantically valuable text. While the script can confirm a file exists and is structurally intact, it can't confirm
+that the file accurately represents the agent's retrieval behavior in that run.
+
+_Is there any value in agent metrics or self-reported methodology if it’s not based on genuine calculations and analysis?_
+
+This consistent failure to persist raw output files is unique to Cascade, possibly due to the Hybrid Arena setting,
+which allows for five agents to run sequentially and/or simultaneously. While Cascade claims session isolation, it is less
+plausible with each test run. The lack of output files reframes what this track is testing. Cascade's chunking pipeline
+processes the response before the agents sees it without a direct path to raw HTML. Agents often recognize this and use over-half
+of their context window exploring alternatives, use `curl`, which then only returns a Gatsby and/or React skeleton rather than
+any tutorial text. `BL-3` functions less as a retrieval benchmark and more as negative testing: presenting a tool with mismatched
+inputs and observing what agents do when success is structurally unavailable. This behavioral data in which agents disclose
+limitations, possibly fabricate completion, and silently reuse existing files is the finding, not the raw output files or metrics.
 
 ---
 

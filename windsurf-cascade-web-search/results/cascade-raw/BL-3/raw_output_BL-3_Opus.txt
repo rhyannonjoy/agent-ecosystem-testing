@@ -1,0 +1,103 @@
+Title: MongoDB Search Quick Start - Atlas - MongoDB Docs
+URL: https://www.mongodb.com/docs/atlas/atlas-search/tutorial/
+
+=== Chunk 0 ===
+text:"[.leafygreen-ui-1gc0qu9{background-image:url();-webkit-background-position:center;background-position:center;-webkit-background-size:cover;background-size:cover;background-color:#023430;height:100%;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;gap:20px;padding:0 11px;font-size:13px;line-height:20px;}Join us at MongoDB.local London on 7 May to unlock new possibilities for your data. Use WEB50 to save 50%.Register now >](https://www.mongodb.com/events/mongodb-local/london)
+[](https://www.mongodb.com)"
+
+=== Chunk 1 ===
+text:"- Products
+Platform
+Atlas - Build and scale with an AI-ready platform
+Platform Services: Database (Deploy a multi-cloud database), Search (Deliver engaging search experiences), Vector Search (Design intelligent apps with gen AI), Stream Processing (Integrate MongoDB and Kafka)
+Self Managed: Enterprise Advanced (Run and manage MongoDB yourself), Community Edition (Develop locally with MongoDB)
+Tools: Compass (Work with MongoDB data in a GUI), Integrations (Integrations with third-party services), Relational Migrator (Migrate to MongoDB with confidence)
+View All Products - Explore our full developer suite
+MongoDB 8.0 - Our fastest version ever
+Build with MongoDB Atlas - Get started for free in minutes - Sign Up
+Test Enterprise Advanced - Develop with MongoDB on-premises - Download
+Try Community Edition - Explore the latest version of MongoDB - Download"
+
+=== Chunk 2 ===
+text:"- Resources
+Documentation: Atlas Documentation (Get started using Atlas), Server Documentation (Learn to use MongoDB), Tools and Connectors (Learn how to connect to MongoDB), MongoDB Drivers (Use drivers and libraries for MongoDB), Resources Hub (Get help building the next big thing with MongoDB)
+Connect: Community (Join a global community of developers), Courses and Certification (Learn for free from MongoDB), Events and Webinars (Find an event or webinar near you)"
+
+=== Chunk 3 ===
+text:"- Solutions
+Use cases: Artificial Intelligence, Modernization, Payments, Serverless Development, Gaming, Intelligent Search, Edge and Mobile
+Industries: Financial Services, Telecommunications, Healthcare, Retail, Public Sector, Manufacturing
+Solutions Library - Organized and tailored solutions to kick-start projects
+AI Applications Program - Expedite your AI journey with expert guidance - Learn more
+Startups and AI Innovators - For world-changing ideas and AI pioneers - Learn more
+Customer Case Studies - Hear directly from our users - See Stories
+
+- Company
+Careers - Start your next adventure
+Blog - Read articles and announcements
+Newsroom - Read press releases and news stories
+Partners - Learn about our partner ecosystem
+Leadership - Meet our executive team
+Company - Learn more about who we are
+Contact Us - Reach out to MongoDB - Connect with an expert
+Investors - Visit our investor portal - Learn more"
+
+=== Chunk 4 ===
+text:"- Pricing
+[Atlas - Build and scale with an AI-ready platform](https://www.mongodb.com/atlas)
+[Database - Deploy a multi-cloud database](https://www.mongodb.com/products/platform/atlas-database)
+[Search - Deliver engaging search experiences](https://www.mongodb.com/products/platform/atlas-search)
+[Vector Search - Design intelligent apps with gen AI](https://www.mongodb.com/products/platform/atlas-vector-search)
+[Stream Processing - Integrate MongoDB and Kafka](https://www.mongodb.com/products/platform/atlas-stream-processing)
+[Enterprise Advanced - Run and manage MongoDB yourself](https://www.mongodb.com/products/self-managed/enterprise-advanced)
+[Community Edition - Develop locally with MongoDB](https://www.mongodb.com/products/self-managed/community-edition)
+[Compass - Work with MongoDB data in a GUI](https://www.mongodb.com/products/tools/compass)
+[Integrations - Integrations with third-party services](https://cloud.mongodb.com/ecosystem/?filter=integration)
+[Relational Migrator - Migrate to MongoDB with confidence](https://www.mongodb.com/products/tools/relational-migrator)"
+
+=== Chunk 5 ===
+text:"View All Products - Explore our full developer suite
+[MongoDB 8.0 - Our fastest version ever](https://www.mongodb.com/products/updates/version-release)
+[Sign Up](https://www.mongodb.com/cloud/atlas/register)
+[Download Enterprise](https://www.mongodb.com/try/download/enterprise)
+[Download Community](https://www.mongodb.com/try/download/community)
+[Atlas Documentation - Get started using Atlas](https://www.mongodb.com/docs/atlas/)
+[Server Documentation - Learn to use MongoDB](https://www.mongodb.com/docs/manual/)
+[Tools and Connectors - Learn how to connect to MongoDB](https://www.mongodb.com/docs/tools-and-connectors/)
+[MongoDB Drivers - Use drivers and libraries for MongoDB](https://www.mongodb.com/docs/drivers/)
+[Resources Hub - Get help building the next big thing with MongoDB](https://www.mongodb.com/resources)
+[Community - Join a global community of developers](https://www.mongodb.com/community/)
+[Courses and Certification - Learn for free from MongoDB](https://learn.mongodb.com/)
+[Events and Webinars - Find an event or webinar near you](https://www.mongodb.com/events)
+[Artificial Intelligence](https://www.mongodb.com/solutions/use-cases/artificial-intelligence)
+[Modernization](https://www.mongodb.com/solutions/use-cases/modernize)
+[Payments](https://www.mongodb.com/solutions/use-cases/payments)
+[Serverless Development](https://www.mongodb.com/solutions/use-cases/serverless)
+[Gaming](https://www.mongodb.com/solutions/use-cases/gaming)
+[Intelligent Search](https://www.mongodb.com/solutions/use-cases/intelligent-search)
+[Edge and Mobile](https://www.mongodb.com/solutions/use-cases/edge-and-mobile)
+[Financial Services](https://www.mongodb.com/solutions/industries/financial-services)
+[Telecommunications](https://www.mongodb.com/solutions/industries/telecommunications)
+[Healthcare](https://www.mongodb.com/solutions/industries/healthcare)
+[Retail](https://www.mongodb.com/solutions/industries/retail)
+[Public Sector](https://www.mongodb.com/solutions/industries/public-sector)
+[Manufacturing](https://www.mongodb.com/solutions/industries/manufacturing)"
+
+=== Chunk 6 ===
+text:"[Solutions Library - Organized and tailored solutions to kick-start projects](https://www.mongodb.com/docs/atlas/architecture/current/solutions-library)
+[AI Applications Program - Learn more](https://www.mongodb.com/services/consulting/ai-applications-program)
+[Startups - Learn more](https://www.mongodb.com/solutions/startups)
+[See Stories](https://www.mongodb.com/solutions/customer-case-studies)
+[Careers - Start your next adventure](https://www.mongodb.com/company/careers)
+[Blog - Read articles and announcements](https://www.mongodb.com/blog)
+[Newsroom - Read press releases and news stories](https://www.mongodb.com/company/newsroom)
+[Partners - Learn about our partner ecosystem](https://www.mongodb.com/company/partners)
+[Leadership - Meet our executive team](https://www.mongodb.com/company/leadership)
+[Company - Learn more about who we are](https://www.mongodb.com/company)
+[Connect with an expert](https://www.mongodb.com/company/contact)
+[Investors - Learn more](https://investors.mongodb.com/)
+[Pricing](https://www.mongodb.com/pricing)
+[Support](https://www.mongodb.com/services/support)
+[Sign In](https://account.mongodb.com/account/login)
+[Get Started](https://www.mongodb.com/cloud/atlas/register)
+[MongoDB logo](https://www.mongodb.com)"
