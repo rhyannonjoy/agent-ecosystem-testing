@@ -16,6 +16,7 @@ parent: Cognition Windsurf Cascade
 - [File Persistence Failures](#file-persistence-failures)
 - [`read_url_content` Redirect Halt Behavior](#read_url_content-redirect-halt-behavior)
 - [URL Fragment Targeting](#url-fragment-targeting)
+- [Write Ceiling, Output Fidelity](#write-ceiling-output-fidelity)
 
 ---
 
@@ -222,3 +223,52 @@ return content exactly as received may work against fragment-targeting, influenc
 retrieval scope. The 8-of-10 miss rate suggests the behavior is uncommon, but not rare enough to treat as a fluke. `Minimax`'s incidental
 hit is a separate finding: small-chunk sampling can accidentally recover the target section, which may inflate success metrics if output content
 is verified without examining the agent's navigational reasoning.
+
+---
+
+## Write Ceiling, Output Fidelity
+
+Across `SC-3` runs retrieval behavior was uniform. Agents analyzed all 60 chunks but struggled to report what they read
+with a raw output file. The prompt instructs "retrieve the content from this URL and return it EXACTLY as you received it" -
+seemingly creating a failure mode that no agent named or resolved cleanly. Each agent retrieved chunk content into context,
+then encountered on the write side: shell heredocs with special characters, `\n` escape sequences, and chunk metadata at a
+volume that caused terminal commands to hang, Python scripts to loop, and file writes to produce partial or empty output:
+
+| **Agent** | **Strategy** | **Outcome** |
+|---|---|---|
+| `Gemini` | Wandered through project files,<br>tried `npx`, `curl`, Python | 3 different artifacts,<br>276 KB partial HTML/JSON |
+| `GLM` | Heredoc failure,<br>switched to `curl` | 774 KB raw HTML,<br>not Cascade output |
+| `GPT` | Claimed `curl` bypass;<br>file never saved | Metrics reported, referenced<br>without verification path |
+| `Opus` | Sequential heredoc appends<br>in 6 batches | 1.05 KB stub; wrong directory<br> + filename, user canceled x3 |
+| `SWE` | Sequential heredoc appends,<br>Python batching | Partial file;<br>user canceled x3 |
+
+Agents acknowledged how tedious writing raw output would be, but not one claimed a write ceiling. Instead, each entered a
+loop of strategy-switching, treating the failure as a solvable engineering problem rather than a constraint of the environment.
+`SWE-1.6` and `Claude Opus 4.7` both identified token-cost awareness mid-task,
+_"this verbatim approach requires piping ~200–400 KB of raw text through shell commands, which is very token-expensive"_,
+but neither made an early exit. They identified symptoms without diagnosing the condition. Agents that produced files did so
+by abandoning the Cascade pipeline. `GLM-5.1` and `Gemini 3.1` saved raw HTML via `curl`, essentially writing content the prompt
+didn't request; the verification script can't meaningfully evaluate non-Cascade-specific behavior. `GPT-5.3-Codex` claimed to save
+a file and didn't. `SWE` and `Opus` produced stubs too small to verify.
+
+Agents ruminated on the prompt language "EXACTLY as you received it" - _does that mean Cascade's chunk index with metadata
+wrappers, already processed, or something pre-processed?_ `Opus` attempted to clarify mid-task and asked questions while others choose
+interpretation and process-spin, similar to the silent-resolution pattern described in
+[Agent as Unreliable Methodology Validator](friction-note-explicit.md#agent-as-unreliable-methodology-validator).
+
+As agents seemingly hit a write ceiling, they didn't reason a way out, but drifted. `Gemini` read the `README.md`, the verification
+script multiple times, and re-read the prompt, apparently trying to re-derive the task from project context. `SWE` reasoned through
+its own chunk history to reconstruct a write strategy. `Opus` asked a clarifying question, received an answer, then got stuck again
+on the same heredoc problem. `Gemini` tried `npx`. None of these strategies addressed the actual constraint. Like that described in
+[Agentic Inaction](friction-note-explicit.md#agentic-inaction) and [Agentic Task Drift, Token Overflow](#agentic-task-drift-token-overflow):
+agents that recognize an obstacle express uncertainty, attempt adjacent actions, and produced confident-looking output without naming
+the obstacle as a blocker or asking whether the task is achievable as stated.
+
+### Methodology Implication
+
+The read-write asymmetry is a restriction only the raw track could uncover. It reflects a structural mismatch between what Cascade's
+`view_content_chunk` produces at scale and what shell tooling can write back out. A writing ceiling introduces new layers to question
+path compliance and self-reporting fidelity. While agents claim to have received all 60 chunks, verification can't be completed by the
+chat output alone. Prompts specifying a target format may produce different results, but this testing framework is about capturing default
+web fetch behavior. Eventhough the output variety make for difficult hypotheses assessment and pokes holes in the verification script
+metrics, the variety is the finding, speaking to the challenges of combining qualitative and quantitative testing approaches.
