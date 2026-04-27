@@ -1,0 +1,21 @@
+TEST ID: SC-3
+SOURCE URL: https://en.wikipedia.org/wiki/List_of_countries_by_population
+TOOL: read_url_content (Cascade)
+MODEL: Claude Sonnet 4.5
+NOTE: Cascade's read_url_content tool does not return raw HTML. It returns a
+chunk-indexed, markdown-converted representation. Initial call returns a list
+of chunk headers/summaries for the document; individual chunks must then be
+fetched via view_content_chunk. The document was split into 60 chunks
+(positions 0-59). All 60 chunks were retrieved and are reproduced below
+verbatim as returned by the tool (including the tool's prefix metadata such
+as "Chunk content at position N:" and the headers:{...} structures). Escape
+sequences within the returned text (e.g. \n) are preserved as returned.
+
+=== INITIAL read_url_content RESPONSE ===
+Chunk index returned: 60 positions (0-59).
+Document title: "List of countries and dependencies by population"
+(Note: URL redirected from "List_of_countries_by_population" to
+"List_of_countries_and_dependencies_by_population" on Wikipedia.)
+
+=== RAW CHUNK CONTENTS (positions 0-59) ===
+
