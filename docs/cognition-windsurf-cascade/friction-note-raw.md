@@ -133,6 +133,8 @@ failed to persist a file at all. Cross-agent file reuse, `SWE` pointing to `Gemi
 file exists in the workspace, some agents will satisfy the persistence requirement by reference rather than by writing. The
 prompt ambiguity is retained as a test variable for subsequent runs for observing path compliance and content fidelity.
 
+> _`SC-3` file persistence failures discussed in [Write Ceiling, Output Fidelity](#write-ceiling-output-fidelity)_
+
 ---
 
 ## `read_url_content` Redirect Halt Behavior
@@ -260,9 +262,9 @@ As agents seemingly hit a write ceiling, they didn't reason a way out, but drift
 script multiple times, and re-read the prompt, apparently trying to re-derive the task from project context. `SWE` reasoned through
 its own chunk history to reconstruct a write strategy. `Opus` asked a clarifying question, received an answer, then got stuck again
 on the same heredoc problem. `Gemini` tried `npx`. None of these strategies addressed the actual constraint. Like that described in
-[Agentic Inaction](friction-note-explicit.md#agentic-inaction) and [Agentic Task Drift, Token Overflow](#agentic-task-drift-token-overflow):
-agents that recognize an obstacle express uncertainty, attempt adjacent actions, and produced confident-looking output without naming
-the obstacle as a blocker or asking whether the task is achievable as stated.
+[Agentic Inaction](friction-note-explicit.md#agentic-inaction), [Agentic Task Drift, Token Overflow](#agentic-task-drift-token-overflow),
+and [File Persistence Failures](#file-persistence-failures): agents that recognize an obstacle express uncertainty, attempt adjacent
+actions, and produced confident-looking output without naming the obstacle as a blocker or asking whether the task is achievable as stated.
 
 ### Methodology Implication
 
