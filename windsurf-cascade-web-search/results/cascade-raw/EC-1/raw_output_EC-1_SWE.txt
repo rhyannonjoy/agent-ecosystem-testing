@@ -1,0 +1,802 @@
+Skip to main content
+- 
+      [English](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Deutsch](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Español – América Latina](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Français](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Indonesia](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Italiano](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Polski](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Português – Brasil](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Shqip](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Tiếng Việt](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Türkçe](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Русский](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [עברית](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [العربيّة](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [فارسی](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [हिंदी](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [বাংলা](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [ภาษาไทย](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [中文 – 简体](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [中文 – 繁體](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [日本語](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [한국어](https://ai.google.dev/gemini-api/docs)
+
+[English](https://ai.google.dev/gemini-api/docs)
+[Deutsch](https://ai.google.dev/gemini-api/docs)
+[Español – América Latina](https://ai.google.dev/gemini-api/docs)
+[Français](https://ai.google.dev/gemini-api/docs)
+[Indonesia](https://ai.google.dev/gemini-api/docs)
+[Italiano](https://ai.google.dev/gemini-api/docs)
+[Polski](https://ai.google.dev/gemini-api/docs)
+[Português – Brasil](https://ai.google.dev/gemini-api/docs)
+[Shqip](https://ai.google.dev/gemini-api/docs)
+[Tiếng Việt](https://ai.google.dev/gemini-api/docs)
+[Türkçe](https://ai.google.dev/gemini-api/docs)
+[Русский](https://ai.google.dev/gemini-api/docs)
+[עברית](https://ai.google.dev/gemini-api/docs)
+[العربيّة](https://ai.google.dev/gemini-api/docs)
+[فارسی](https://ai.google.dev/gemini-api/docs)
+[हिंदी](https://ai.google.dev/gemini-api/docs)
+[বাংলা](https://ai.google.dev/gemini-api/docs)
+[ภาษาไทย](https://ai.google.dev/gemini-api/docs)
+[中文 – 简体](https://ai.google.dev/gemini-api/docs)
+[中文 – 繁體](https://ai.google.dev/gemini-api/docs)
+[日本語](https://ai.google.dev/gemini-api/docs)
+[한국어](https://ai.google.dev/gemini-api/docs)
+[Get API key](https://aistudio.google.com/apikey)
+[Cookbook](https://github.com/google-gemini/cookbook)
+[Community](https://discuss.ai.google.dev/c/gemini-api/)
+[Docs](https://ai.google.dev/gemini-api/docs)
+[API reference](https://ai.google.dev/api)
+- 
+
+
+
+
+
+
+      Gemini API
+
+
+
+
+
+
+
+
+
+
+      Docs
+
+
+
+  [API reference](https://ai.google.dev/api)
+
+
+
+
+- 
+
+  [Docs](https://ai.google.dev/gemini-api/docs)
+
+
+
+- 
+
+  [API reference](https://ai.google.dev/api)
+
+
+
+- 
+
+  [Get API key](https://aistudio.google.com/apikey)
+
+
+
+- 
+
+  [Cookbook](https://github.com/google-gemini/cookbook)
+
+
+
+- 
+
+  [Community](https://discuss.ai.google.dev/c/gemini-api/)
+
+
+
+[Gemini API](https://ai.google.dev/gemini-api/docs)
+- 
+
+  [Docs](https://ai.google.dev/gemini-api/docs)
+
+
+
+- 
+
+  [API reference](https://ai.google.dev/api)
+
+
+
+[Docs](https://ai.google.dev/gemini-api/docs)
+[API reference](https://ai.google.dev/api)
+[Get API key](https://aistudio.google.com/apikey)
+[Cookbook](https://github.com/google-gemini/cookbook)
+[Community](https://discuss.ai.google.dev/c/gemini-api/)
+- 
+        Get started
+
+- [Overview](https://ai.google.dev/gemini-api/docs)
+- [Quickstart](https://ai.google.dev/gemini-api/docs/quickstart)
+- [API keys](https://ai.google.dev/gemini-api/docs/api-key)
+- [Libraries](https://ai.google.dev/gemini-api/docs/libraries)
+- [Pricing](https://ai.google.dev/gemini-api/docs/pricing)
+- [Interactions API](https://ai.google.dev/gemini-api/docs/interactions)
+- [Coding agent setup](https://ai.google.dev/gemini-api/docs/coding-agents)
+- 
+        Models
+
+- [All models](https://ai.google.dev/gemini-api/docs/models)
+- [Gemini 3](https://ai.google.dev/gemini-api/docs/gemini-3)
+- [Nano Banana](https://ai.google.dev/gemini-api/docs/image-generation)
+- [Veo](https://ai.google.dev/gemini-api/docs/video)
+- [Lyria 3](https://ai.google.dev/gemini-api/docs/music-generation)
+- [Lyria RealTime](https://ai.google.dev/gemini-api/docs/realtime-music-generation)
+- [Imagen](https://ai.google.dev/gemini-api/docs/imagen)
+- [Text-to-speech](https://ai.google.dev/gemini-api/docs/speech-generation)
+- [Embeddings](https://ai.google.dev/gemini-api/docs/embeddings)
+- [Robotics](https://ai.google.dev/gemini-api/docs/robotics-overview)
+- 
+        Core capabilities
+
+- [Text](https://ai.google.dev/gemini-api/docs/text-generation)
+- 
+
+        Image
+      Image generation 🍌[Image understanding](https://ai.google.dev/gemini-api/docs/image-understanding)
+- [Image generation 🍌](https://ai.google.dev/gemini-api/docs/image-generation)
+- [Image understanding](https://ai.google.dev/gemini-api/docs/image-understanding)
+- 
+
+        Video
+      Video generation[Video understanding](https://ai.google.dev/gemini-api/docs/video-understanding)
+- [Video generation](https://ai.google.dev/gemini-api/docs/video)
+- [Video understanding](https://ai.google.dev/gemini-api/docs/video-understanding)
+- [Documents](https://ai.google.dev/gemini-api/docs/document-processing)
+- 
+
+        Speech and audio
+      Speech generation[Audio understanding](https://ai.google.dev/gemini-api/docs/audio)
+- [Speech generation](https://ai.google.dev/gemini-api/docs/speech-generation)
+- [Audio understanding](https://ai.google.dev/gemini-api/docs/audio)
+- 
+
+        Thinking
+      Thinking[Thought signatures](https://ai.google.dev/gemini-api/docs/thought-signatures)
+- [Thinking](https://ai.google.dev/gemini-api/docs/thinking)
+- [Thought signatures](https://ai.google.dev/gemini-api/docs/thought-signatures)
+- [Structured outputs](https://ai.google.dev/gemini-api/docs/structured-output)
+- [Function calling](https://ai.google.dev/gemini-api/docs/function-calling)
+- [Long context](https://ai.google.dev/gemini-api/docs/long-context)
+- 
+        Agents
+
+- [Overview](https://ai.google.dev/gemini-api/docs/agents)
+- [Deep Research Agent](https://ai.google.dev/gemini-api/docs/deep-research)
+- 
+        Tools
+
+- [Overview](https://ai.google.dev/gemini-api/docs/tools)
+- [Google Search](https://ai.google.dev/gemini-api/docs/google-search)
+- [Google Maps](https://ai.google.dev/gemini-api/docs/maps-grounding)
+- [Code execution](https://ai.google.dev/gemini-api/docs/code-execution)
+- [URL context](https://ai.google.dev/gemini-api/docs/url-context)
+- [Computer Use](https://ai.google.dev/gemini-api/docs/computer-use)
+- [File Search](https://ai.google.dev/gemini-api/docs/file-search)
+- [Combine Tools and Function calling](https://ai.google.dev/gemini-api/docs/tool-combination)
+- 
+        Live API
+
+- [Overview](https://ai.google.dev/gemini-api/docs/live-api)
+- 
+
+        Get started
+      Get started using the GenAI SDK[Get started using raw WebSockets](https://ai.google.dev/gemini-api/docs/live-api/get-started-websocket)
+- [Get started using the GenAI SDK](https://ai.google.dev/gemini-api/docs/live-api/get-started-sdk)
+- [Get started using raw WebSockets](https://ai.google.dev/gemini-api/docs/live-api/get-started-websocket)
+- [Capabilities](https://ai.google.dev/gemini-api/docs/live-api/capabilities)
+- [Tool use](https://ai.google.dev/gemini-api/docs/live-api/tools)
+- [Session management](https://ai.google.dev/gemini-api/docs/live-api/session-management)
+- [Ephemeral tokens](https://ai.google.dev/gemini-api/docs/live-api/ephemeral-tokens)
+- [Best practices](https://ai.google.dev/gemini-api/docs/live-api/best-practices)
+- 
+        Optimization
+
+- [Overview](https://ai.google.dev/gemini-api/docs/optimization)
+- [Batch API](https://ai.google.dev/gemini-api/docs/batch-api)
+- [Flex inference](https://ai.google.dev/gemini-api/docs/flex-inference)
+- [Priority inference](https://ai.google.dev/gemini-api/docs/priority-inference)
+- [Context caching](https://ai.google.dev/gemini-api/docs/caching)
+- 
+        Guides
+
+- 
+
+        File input
+      Input methods[Files API](https://ai.google.dev/gemini-api/docs/files)
+- [Input methods](https://ai.google.dev/gemini-api/docs/file-input-methods)
+- [Files API](https://ai.google.dev/gemini-api/docs/files)
+- [OpenAI compatibility](https://ai.google.dev/gemini-api/docs/openai)
+- [Media resolution](https://ai.google.dev/gemini-api/docs/media-resolution)
+- [Token counting](https://ai.google.dev/gemini-api/docs/tokens)
+- [Prompt engineering](https://ai.google.dev/gemini-api/docs/prompting-strategies)
+- 
+
+        Logs and datasets
+Get started with logs[Data logging and sharing](https://ai.google.dev/gemini-api/docs/logs-policy)
+- [Get started with logs](https://ai.google.dev/gemini-api/docs/logs-datasets)
+- [Data logging and sharing](https://ai.google.dev/gemini-api/docs/logs-policy)
+- 
+
+        Safety
+      Safety settings[Safety guidance](https://ai.google.dev/gemini-api/docs/safety-guidance)
+- [Safety settings](https://ai.google.dev/gemini-api/docs/safety-settings)
+- [Safety guidance](https://ai.google.dev/gemini-api/docs/safety-guidance)
+- 
+
+        Frameworks
+      LangChain & LangGraphCrewAILlamaIndexVercel AI SDK[Temporal](https://ai.google.dev/gemini-api/docs/temporal-example)
+- [LangChain & LangGraph](https://ai.google.dev/gemini-api/docs/langgraph-example)
+- [CrewAI](https://ai.google.dev/gemini-api/docs/crewai-example)
+- [LlamaIndex](https://ai.google.dev/gemini-api/docs/llama-index)
+- [Vercel AI SDK](https://ai.google.dev/gemini-api/docs/vercel-ai-sdk-example)
+- [Temporal](https://ai.google.dev/gemini-api/docs/temporal-example)
+- 
+
+        Resources
+
+- [Release notes](https://ai.google.dev/gemini-api/docs/changelog)
+- [Deprecations](https://ai.google.dev/gemini-api/docs/deprecations)
+- [Rate limits](https://ai.google.dev/gemini-api/docs/rate-limits)
+- [Billing info](https://ai.google.dev/gemini-api/docs/billing)
+- [Migrate to Gen AI SDK](https://ai.google.dev/gemini-api/docs/migrate)
+- [API troubleshooting](https://ai.google.dev/gemini-api/docs/troubleshooting)
+- [Partner and library integrations](https://ai.google.dev/gemini-api/docs/partner-integration)
+- 
+
+        Google AI Studio
+      QuickstartVibe code in Build modeDeveloping Full-Stack AppsTroubleshooting[Access for Workspace users](https://ai.google.dev/gemini-api/docs/workspace)
+- [Quickstart](https://ai.google.dev/gemini-api/docs/ai-studio-quickstart)
+- [Vibe code in Build mode](https://ai.google.dev/gemini-api/docs/aistudio-build-mode)
+- [Developing Full-Stack Apps](https://ai.google.dev/gemini-api/docs/aistudio-fullstack)
+- [Troubleshooting](https://ai.google.dev/gemini-api/docs/troubleshoot-ai-studio)
+- [Access for Workspace users](https://ai.google.dev/gemini-api/docs/workspace)
+- 
+
+        Google Cloud Platform
+      Gemini Enterprise Agent Platform Gemini API[OAuth authentication](https://ai.google.dev/gemini-api/docs/oauth)
+- [Gemini Enterprise Agent Platform Gemini API](https://ai.google.dev/gemini-api/docs/migrate-to-cloud)
+- [OAuth authentication](https://ai.google.dev/gemini-api/docs/oauth)
+- 
+
+        Policies
+
+- [Terms of service](https://ai.google.dev/gemini-api/terms)
+- [Available regions](https://ai.google.dev/gemini-api/docs/available-regions)
+- [Abuse monitoring](https://ai.google.dev/gemini-api/docs/usage-policies)
+- [Feedback information](https://ai.google.dev/gemini-api/docs/feedback-policies)
+[Overview](https://ai.google.dev/gemini-api/docs)
+[Quickstart](https://ai.google.dev/gemini-api/docs/quickstart)
+[API keys](https://ai.google.dev/gemini-api/docs/api-key)
+[Libraries](https://ai.google.dev/gemini-api/docs/libraries)
+[Pricing](https://ai.google.dev/gemini-api/docs/pricing)
+[Interactions API](https://ai.google.dev/gemini-api/docs/interactions)
+[Coding agent setup](https://ai.google.dev/gemini-api/docs/coding-agents)
+[All models](https://ai.google.dev/gemini-api/docs/models)
+[Gemini 3](https://ai.google.dev/gemini-api/docs/gemini-3)
+[Nano Banana](https://ai.google.dev/gemini-api/docs/image-generation)
+[Veo](https://ai.google.dev/gemini-api/docs/video)
+[Lyria 3](https://ai.google.dev/gemini-api/docs/music-generation)
+[Lyria RealTime](https://ai.google.dev/gemini-api/docs/realtime-music-generation)
+[Imagen](https://ai.google.dev/gemini-api/docs/imagen)
+[Text-to-speech](https://ai.google.dev/gemini-api/docs/speech-generation)
+[Embeddings](https://ai.google.dev/gemini-api/docs/embeddings)
+[Robotics](https://ai.google.dev/gemini-api/docs/robotics-overview)
+[Text](https://ai.google.dev/gemini-api/docs/text-generation)
+- [Image generation 🍌](https://ai.google.dev/gemini-api/docs/image-generation)
+- [Image understanding](https://ai.google.dev/gemini-api/docs/image-understanding)
+[Image generation 🍌](https://ai.google.dev/gemini-api/docs/image-generation)
+[Image understanding](https://ai.google.dev/gemini-api/docs/image-understanding)
+- [Video generation](https://ai.google.dev/gemini-api/docs/video)
+- [Video understanding](https://ai.google.dev/gemini-api/docs/video-understanding)
+[Video generation](https://ai.google.dev/gemini-api/docs/video)
+[Video understanding](https://ai.google.dev/gemini-api/docs/video-understanding)
+[Documents](https://ai.google.dev/gemini-api/docs/document-processing)
+- [Speech generation](https://ai.google.dev/gemini-api/docs/speech-generation)
+- [Audio understanding](https://ai.google.dev/gemini-api/docs/audio)
+[Speech generation](https://ai.google.dev/gemini-api/docs/speech-generation)
+[Audio understanding](https://ai.google.dev/gemini-api/docs/audio)
+- [Thinking](https://ai.google.dev/gemini-api/docs/thinking)
+- [Thought signatures](https://ai.google.dev/gemini-api/docs/thought-signatures)
+[Thinking](https://ai.google.dev/gemini-api/docs/thinking)
+[Thought signatures](https://ai.google.dev/gemini-api/docs/thought-signatures)
+[Structured outputs](https://ai.google.dev/gemini-api/docs/structured-output)
+[Function calling](https://ai.google.dev/gemini-api/docs/function-calling)
+[Long context](https://ai.google.dev/gemini-api/docs/long-context)
+[Overview](https://ai.google.dev/gemini-api/docs/agents)
+[Deep Research Agent](https://ai.google.dev/gemini-api/docs/deep-research)
+[Overview](https://ai.google.dev/gemini-api/docs/tools)
+[Google Search](https://ai.google.dev/gemini-api/docs/google-search)
+[Google Maps](https://ai.google.dev/gemini-api/docs/maps-grounding)
+[Code execution](https://ai.google.dev/gemini-api/docs/code-execution)
+[URL context](https://ai.google.dev/gemini-api/docs/url-context)
+[Computer Use](https://ai.google.dev/gemini-api/docs/computer-use)
+[File Search](https://ai.google.dev/gemini-api/docs/file-search)
+[Combine Tools and Function calling](https://ai.google.dev/gemini-api/docs/tool-combination)
+[Overview](https://ai.google.dev/gemini-api/docs/live-api)
+- [Get started using the GenAI SDK](https://ai.google.dev/gemini-api/docs/live-api/get-started-sdk)
+- [Get started using raw WebSockets](https://ai.google.dev/gemini-api/docs/live-api/get-started-websocket)
+[Get started using the GenAI SDK](https://ai.google.dev/gemini-api/docs/live-api/get-started-sdk)
+[Get started using raw WebSockets](https://ai.google.dev/gemini-api/docs/live-api/get-started-websocket)
+[Capabilities](https://ai.google.dev/gemini-api/docs/live-api/capabilities)
+[Tool use](https://ai.google.dev/gemini-api/docs/live-api/tools)
+[Session management](https://ai.google.dev/gemini-api/docs/live-api/session-management)
+[Ephemeral tokens](https://ai.google.dev/gemini-api/docs/live-api/ephemeral-tokens)
+[Best practices](https://ai.google.dev/gemini-api/docs/live-api/best-practices)
+[Overview](https://ai.google.dev/gemini-api/docs/optimization)
+[Batch API](https://ai.google.dev/gemini-api/docs/batch-api)
+[Flex inference](https://ai.google.dev/gemini-api/docs/flex-inference)
+[Priority inference](https://ai.google.dev/gemini-api/docs/priority-inference)
+[Context caching](https://ai.google.dev/gemini-api/docs/caching)
+- [Input methods](https://ai.google.dev/gemini-api/docs/file-input-methods)
+- [Files API](https://ai.google.dev/gemini-api/docs/files)
+[Input methods](https://ai.google.dev/gemini-api/docs/file-input-methods)
+[Files API](https://ai.google.dev/gemini-api/docs/files)
+[OpenAI compatibility](https://ai.google.dev/gemini-api/docs/openai)
+[Media resolution](https://ai.google.dev/gemini-api/docs/media-resolution)
+[Token counting](https://ai.google.dev/gemini-api/docs/tokens)
+[Prompt engineering](https://ai.google.dev/gemini-api/docs/prompting-strategies)
+- [Get started with logs](https://ai.google.dev/gemini-api/docs/logs-datasets)
+- [Data logging and sharing](https://ai.google.dev/gemini-api/docs/logs-policy)
+[Get started with logs](https://ai.google.dev/gemini-api/docs/logs-datasets)
+[Data logging and sharing](https://ai.google.dev/gemini-api/docs/logs-policy)
+- [Safety settings](https://ai.google.dev/gemini-api/docs/safety-settings)
+- [Safety guidance](https://ai.google.dev/gemini-api/docs/safety-guidance)
+[Safety settings](https://ai.google.dev/gemini-api/docs/safety-settings)
+[Safety guidance](https://ai.google.dev/gemini-api/docs/safety-guidance)
+- [LangChain & LangGraph](https://ai.google.dev/gemini-api/docs/langgraph-example)
+- [CrewAI](https://ai.google.dev/gemini-api/docs/crewai-example)
+- [LlamaIndex](https://ai.google.dev/gemini-api/docs/llama-index)
+- [Vercel AI SDK](https://ai.google.dev/gemini-api/docs/vercel-ai-sdk-example)
+- [Temporal](https://ai.google.dev/gemini-api/docs/temporal-example)
+[LangChain & LangGraph](https://ai.google.dev/gemini-api/docs/langgraph-example)
+[CrewAI](https://ai.google.dev/gemini-api/docs/crewai-example)
+[LlamaIndex](https://ai.google.dev/gemini-api/docs/llama-index)
+[Vercel AI SDK](https://ai.google.dev/gemini-api/docs/vercel-ai-sdk-example)
+[Temporal](https://ai.google.dev/gemini-api/docs/temporal-example)
+[Release notes](https://ai.google.dev/gemini-api/docs/changelog)
+[Deprecations](https://ai.google.dev/gemini-api/docs/deprecations)
+[Rate limits](https://ai.google.dev/gemini-api/docs/rate-limits)
+[Billing info](https://ai.google.dev/gemini-api/docs/billing)
+[Migrate to Gen AI SDK](https://ai.google.dev/gemini-api/docs/migrate)
+[API troubleshooting](https://ai.google.dev/gemini-api/docs/troubleshooting)
+[Partner and library integrations](https://ai.google.dev/gemini-api/docs/partner-integration)
+- [Quickstart](https://ai.google.dev/gemini-api/docs/ai-studio-quickstart)
+- [Vibe code in Build mode](https://ai.google.dev/gemini-api/docs/aistudio-build-mode)
+- [Developing Full-Stack Apps](https://ai.google.dev/gemini-api/docs/aistudio-fullstack)
+- [Troubleshooting](https://ai.google.dev/gemini-api/docs/troubleshoot-ai-studio)
+- [Access for Workspace users](https://ai.google.dev/gemini-api/docs/workspace)
+[Quickstart](https://ai.google.dev/gemini-api/docs/ai-studio-quickstart)
+[Vibe code in Build mode](https://ai.google.dev/gemini-api/docs/aistudio-build-mode)
+[Developing Full-Stack Apps](https://ai.google.dev/gemini-api/docs/aistudio-fullstack)
+[Troubleshooting](https://ai.google.dev/gemini-api/docs/troubleshoot-ai-studio)
+[Access for Workspace users](https://ai.google.dev/gemini-api/docs/workspace)
+- [Gemini Enterprise Agent Platform Gemini API](https://ai.google.dev/gemini-api/docs/migrate-to-cloud)
+- [OAuth authentication](https://ai.google.dev/gemini-api/docs/oauth)
+[Gemini Enterprise Agent Platform Gemini API](https://ai.google.dev/gemini-api/docs/migrate-to-cloud)
+[OAuth authentication](https://ai.google.dev/gemini-api/docs/oauth)
+[Terms of service](https://ai.google.dev/gemini-api/terms)
+[Available regions](https://ai.google.dev/gemini-api/docs/available-regions)
+[Abuse monitoring](https://ai.google.dev/gemini-api/docs/usage-policies)
+[Feedback information](https://ai.google.dev/gemini-api/docs/feedback-policies)
+[Gemini Deep Research](https://ai.google.dev/gemini-api/docs/deep-research)
+- 
+
+
+
+  [Home](https://ai.google.dev/)
+
+
+
+
+  [Gemini API](https://ai.google.dev/gemini-api)
+
+
+
+
+  [Docs](https://ai.google.dev/gemini-api/docs)
+
+
+[Home](https://ai.google.dev/)
+[Gemini API](https://ai.google.dev/gemini-api)
+[Docs](https://ai.google.dev/gemini-api/docs)
+# Gemini API
+We have updated our [Terms of Service](https://ai.google.dev/gemini-api/terms).
+The fastest path from prompt to production with Gemini, Veo, Nano Banana, and more.
+### Python
+```
+from google import genai client = genai.Client() response = client.models.generate_content( model="gemini-3-flash-preview", contents="Explain how AI works in a few words", ) print(response.text)
+```
+
+
+```
+from google import genai client = genai.Client() response = client.models.generate_content( model="gemini-3-flash-preview", contents="Explain how AI works in a few words", ) print(response.text)
+```
+
+### JavaScript
+```
+import { GoogleGenAI } from "@google/genai"; const ai = new GoogleGenAI({}); async function main() { const response = await ai.models.generateContent({ model: "gemini-3-flash-preview", contents: "Explain how AI works in a few words", }); console.log(response.text); } await main();
+```
+
+
+```
+import { GoogleGenAI } from "@google/genai"; const ai = new GoogleGenAI({}); async function main() { const response = await ai.models.generateContent({ model: "gemini-3-flash-preview", contents: "Explain how AI works in a few words", }); console.log(response.text); } await main();
+```
+
+### Go
+```
+package main import ( "context" "fmt" "log" "google.golang.org/genai" ) func main() { ctx := context.Background() client, err := genai.NewClient(ctx, nil) if err != nil { log.Fatal(err) } result, err := client.Models.GenerateContent( ctx, "gemini-3-flash-preview", genai.Text("Explain how AI works in a few words"), nil, ) if err != nil { log.Fatal(err) } fmt.Println(result.Text()) }
+```
+
+
+```
+package main import ( "context" "fmt" "log" "google.golang.org/genai" ) func main() { ctx := context.Background() client, err := genai.NewClient(ctx, nil) if err != nil { log.Fatal(err) } result, err := client.Models.GenerateContent( ctx, "gemini-3-flash-preview", genai.Text("Explain how AI works in a few words"), nil, ) if err != nil { log.Fatal(err) } fmt.Println(result.Text()) }
+```
+
+### Java
+```
+package com.example; import com.google.genai.Client; import com.google.genai.types.GenerateContentResponse; public class GenerateTextFromTextInput { public static void main(String[] args) { Client client = new Client(); GenerateContentResponse response = client.models.generateContent( "gemini-3-flash-preview", "Explain how AI works in a few words", null); System.out.println(response.text()); } }
+```
+
+
+```
+package com.example; import com.google.genai.Client; import com.google.genai.types.GenerateContentResponse; public class GenerateTextFromTextInput { public static void main(String[] args) { Client client = new Client(); GenerateContentResponse response = client.models.generateContent( "gemini-3-flash-preview", "Explain how AI works in a few words", null); System.out.println(response.text()); } }
+```
+
+### C#
+```
+using System.Threading.Tasks; using Google.GenAI; using Google.GenAI.Types; public class GenerateContentSimpleText { public static async Task main() { var client = new Client(); var response = await client.Models.GenerateContentAsync( model: "gemini-3-flash-preview", contents: "Explain how AI works in a few words" ); Console.WriteLine(response.Candidates[0].Content.Parts[0].Text); } }
+```
+
+
+```
+using System.Threading.Tasks; using Google.GenAI; using Google.GenAI.Types; public class GenerateContentSimpleText { public static async Task main() { var client = new Client(); var response = await client.Models.GenerateContentAsync( model: "gemini-3-flash-preview", contents: "Explain how AI works in a few words" ); Console.WriteLine(response.Candidates[0].Content.Parts[0].Text); } }
+```
+
+### REST
+```
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent" \ -H "x-goog-api-key: $GEMINI_API_KEY" \ -H 'Content-Type: application/json' \ -X POST \ -d '{ "contents": [ { "parts": [ { "text": "Explain how AI works in a few words" } ] } ] }'
+```
+
+
+```
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent" \ -H "x-goog-api-key: $GEMINI_API_KEY" \ -H 'Content-Type: application/json' \ -X POST \ -d '{ "contents": [ { "parts": [ { "text": "Explain how AI works in a few words" } ] } ] }'
+```
+
+[Start building](https://ai.google.dev/gemini-api/docs/quickstart)
+Follow our Quickstart guide to get an API key and make your first API call in minutes.
+## Meet the models
+[View all](https://ai.google.dev/gemini-api/docs/models)
+[auto_awesome
+        Gemini 3.1 Pro
+        New
+
+
+        Our most intelligent model, the best in the world for multimodal understanding, all built on state-of-the-art reasoning.](https://ai.google.dev/gemini-api/docs/models/gemini-3.1-pro-preview)
+auto_awesome Gemini 3.1 Pro New
+Our most intelligent model, the best in the world for multimodal understanding, all built on state-of-the-art reasoning.
+[spark
+        Gemini 3 Flash
+        New
+
+
+        Frontier-class performance rivaling larger models at a fraction of the cost.](https://ai.google.dev/gemini-api/docs/models/gemini-3-flash-preview)
+spark Gemini 3 Flash New
+Frontier-class performance rivaling larger models at a fraction of the cost.
+[spark
+        Gemini 3.1 Flash-Lite
+        New
+
+
+        High-volume, cost-sensitive workhorse model with the performance and quality of the Gemini 3 series.](https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite-preview)
+spark Gemini 3.1 Flash-Lite New
+High-volume, cost-sensitive workhorse model with the performance and quality of the Gemini 3 series.
+[🍌
+        Nano Banana 2 and Nano Banana Pro
+
+
+        State-of-the-art image generation and editing models.](https://ai.google.dev/gemini-api/docs/image-generation)
+🍌 Nano Banana 2 and Nano Banana Pro
+State-of-the-art image generation and editing models.
+[video_library
+        Veo 3.1
+
+
+        Our state-of-the-art video generation model, with native audio.](https://ai.google.dev/gemini-api/docs/video)
+video_library Veo 3.1
+Our state-of-the-art video generation model, with native audio.
+[spark
+        Gemini Robotics
+
+
+        A vision-language model (VLM) that brings Gemini's agentic capabilities to robotics and enables advanced reasoning in the physical world.](https://ai.google.dev/gemini-api/docs/robotics-overview)
+spark Gemini Robotics
+A vision-language model (VLM) that brings Gemini's agentic capabilities to robotics and enables advanced reasoning in the physical world.
+## Explore Capabilities
+[imagesmode
+
+
+
+          Native Image Generation (Nano Banana)
+
+
+          Generate and edit highly contextual images natively with Gemini 2.5 Flash Image.](https://ai.google.dev/gemini-api/docs/image-generation)
+Native Image Generation (Nano Banana)
+Generate and edit highly contextual images natively with Gemini 2.5 Flash Image.
+[article
+
+
+
+          Long Context
+
+
+          Input millions of tokens to Gemini models and derive understanding from unstructured images, videos, and documents.](https://ai.google.dev/gemini-api/docs/long-context)
+Long Context
+Input millions of tokens to Gemini models and derive understanding from unstructured images, videos, and documents.
+[code
+
+
+
+          Structured Outputs
+
+
+          Constrain Gemini to respond with JSON, a structured data format suitable for automated processing.](https://ai.google.dev/gemini-api/docs/structured-output)
+Structured Outputs
+Constrain Gemini to respond with JSON, a structured data format suitable for automated processing.
+[functions
+
+
+
+          Function Calling
+
+
+          Build agentic workflows by connecting Gemini to external APIs and tools.](https://ai.google.dev/gemini-api/docs/function-calling)
+Function Calling
+Build agentic workflows by connecting Gemini to external APIs and tools.
+[videocam
+
+
+
+          Video Generation with Veo 3.1
+
+
+          Create high-quality video content from text or image prompts with our state-of-the-art model.](https://ai.google.dev/gemini-api/docs/video)
+Video Generation with Veo 3.1
+Create high-quality video content from text or image prompts with our state-of-the-art model.
+[android_recorder
+
+
+
+          Voice Agents with Live API
+
+
+          Build real-time voice applications and agents with the Live API.](https://ai.google.dev/gemini-api/docs/live)
+Voice Agents with Live API
+Build real-time voice applications and agents with the Live API.
+[build
+
+
+
+          Tools
+
+
+          Connect Gemini to the world through built-in tools like Google Search, URL Context, Google Maps, Code Execution and Computer Use.](https://ai.google.dev/gemini-api/docs/tools)
+Tools
+Connect Gemini to the world through built-in tools like Google Search, URL Context, Google Maps, Code Execution and Computer Use.
+[stacks
+
+
+
+          Document Understanding
+
+
+          Process up to 1000 pages of PDF files with full multimodal understanding or other text-based file types.](https://ai.google.dev/gemini-api/docs/document-processing)
+Document Understanding
+Process up to 1000 pages of PDF files with full multimodal understanding or other text-based file types.
+[cognition_2
+
+
+
+          Thinking
+
+
+          Explore how thinking capabilities improve reasoning for complex tasks and agents.](https://ai.google.dev/gemini-api/docs/thinking)
+Thinking
+Explore how thinking capabilities improve reasoning for complex tasks and agents.
+[Google AI Studio
+
+        Test prompts, manage your API keys, monitor usage, and build prototypes.](https://aistudio.google.com)
+Test prompts, manage your API keys, monitor usage, and build prototypes.
+[group
+
+        Developer Community
+
+
+        Ask questions and find solutions from other developers and Google engineers.](https://discuss.ai.google.dev/c/gemini-api/4)
+Ask questions and find solutions from other developers and Google engineers.
+[menu_book
+
+        API Reference
+
+
+        Find detailed information about the Gemini API in the official reference documentation.](https://ai.google.dev/api)
+Find detailed information about the Gemini API in the official reference documentation.
+[sensors
+
+        Status
+
+
+        Check the status of Gemini API, Google AI Studio, and our model services.](https://aistudio.google.com/status)
+Check the status of Gemini API, Google AI Studio, and our model services.
+Except as otherwise noted, the content of this page is licensed under the Creative Commons Attribution 4.0 License, and code samples are licensed under the Apache 2.0 License. For details, see the [Google Developers Site Policies](https://developers.google.com/site-policies). Java is a registered trademark of Oracle and/or its affiliates.
+Last updated 2026-03-25 UTC.
+- 
+
+        [Terms](https://policies.google.com/terms)
+
+
+- 
+
+        [Privacy](https://policies.google.com/privacy)
+
+
+- 
+
+        Manage cookies
+
+
+[Terms](https://policies.google.com/terms)
+[Privacy](https://policies.google.com/privacy)
+Manage cookies
+- 
+      [English](https://ai.google.dev/gemini-api/docs)
+
+-
+[Deutsch](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Español – América Latina](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Français](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Indonesia](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Italiano](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Polski](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Português – Brasil](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Shqip](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Tiếng Việt](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Türkçe](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [Русский](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [עברית](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [العربيّة](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [فارسی](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [हिंदी](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [বাংলা](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [ภาษาไทย](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [中文 – 简体](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [中文 – 繁體](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [日本語](https://ai.google.dev/gemini-api/docs)
+
+- 
+      [한국어](https://ai.google.dev/gemini-api/docs)
+
+[English](https://ai.google.dev/gemini-api/docs)
+[Deutsch](https://ai.google.dev/gemini-api/docs)
+[Español – América Latina](https://ai.google.dev/gemini-api/docs)
+[Français](https://ai.google.dev/gemini-api/docs)
+[Indonesia](https://ai.google.dev/gemini-api/docs)
+[Italiano](https://ai.google.dev/gemini-api/docs)
+[Polski](https://ai.google.dev/gemini-api/docs)
+[Português – Brasil](https://ai.google.dev/gemini-api/docs)
+[Shqip](https://ai.google.dev/gemini-api/docs)
+[Tiếng Việt](https://ai.google.dev/gemini-api/docs)
+[Türkçe](https://ai.google.dev/gemini-api/docs)
+[Русский](https://ai.google.dev/gemini-api/docs)
+[עברית](https://ai.google.dev/gemini-api/docs)
+[العربيّة](https://ai.google.dev/gemini-api/docs)
+[فارسی](https://ai.google.dev/gemini-api/docs)
+[हिंदी](https://ai.google.dev/gemini-api/docs)
+[বাংলা](https://ai.google.dev/gemini-api/docs)
+[ภาษาไทย](https://ai.google.dev/gemini-api/docs)
+[中文 – 简体](https://ai.google.dev/gemini-api/docs)
+[中文 – 繁體](https://ai.google.dev/gemini-api/docs)
+[日本語](https://ai.google.dev/gemini-api/docs)
+[한국어](https://ai.google.dev/gemini-api/docs)
