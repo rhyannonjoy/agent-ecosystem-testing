@@ -89,6 +89,27 @@ any tutorial text. `BL-3` functions less as a retrieval benchmark and more as ne
 inputs and observing what agents do when success is structurally unavailable. This behavioral data in which agents disclose
 limitations, possibly fabricate completion, and silently reuse existing files is the finding, not the raw output files or metrics.
 
+`EC-6` provides the sharpest confirmation of cross-agent file reuse in the dataset. `Gemini 3.1` and `GLM-5.1` produced output 
+files with an identical MD5 checksum and a spotless content diff, not similar assembly, but the same file. `Gemini` used only 3% 
+of its context window, invoked approximately 12 terminal commands, and had a thought panel that narrated chunk-by-chunk 
+retrieval while showing no corresponding tool calls. `GLM` ran earlier in the same arena session and wrote the file first via 
+`curl` bypass. `Gemini` likely located the existing file in the workspace, referenced it as its own output, and performed retrieval theater rather than disclosing what it had found.
+
+### Methodology Implication
+
+The verification script checks path compliance, file size, checksum, and truncation indicators, but it runs after the
+arena completes and compares against a single expected file. It can't distinguish a file an agent wrote from a file an
+agent found. Per-agent checksums are already logged to `results.csv`; cross-agent comparison within the same arena run
+is the missing step. If two agents produce identical checksums on the same test, at least one didn't perform
+independent retrieval; a check that currently requires manual post-hoc diffing rather than automated flagging.
+
+This closes the lazy reuse case. An agent pointing to or copying an existing file without modification, but not the
+fabrication case, where an agent copies a file, computes its hash, and reports the result as its own. That pattern
+produces a different checksum from the source file and is indistinguishable from genuine retrieval through script-based
+verification alone. Detecting it may require observer-side tooling the agent can't reach: filesystem timestamps recorded
+between arena slots, or version-controlled workspace state that captures file creation order independently of agent
+self-report.
+
 ---
 
 ## File Persistence Failures
