@@ -1,0 +1,13 @@
+{
+  "args": {}, 
+  "headers": {
+    "Accept": "*/*", 
+    "Accept-Encoding": "gzip", 
+    "Host": "httpbin.org", 
+    "Referer": "https://httpbin.org/redirect/5", 
+    "User-Agent": "colly - https://github.com/gocolly/colly", 
+    "X-Amzn-Trace-Id": "Root=1-69f02478-1517ff6425ea42f665065655"
+  }, 
+  "origin": "50.147.232.34", 
+  "url": "https://httpbin.org/get"
+}
