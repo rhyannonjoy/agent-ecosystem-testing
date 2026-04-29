@@ -403,6 +403,351 @@ Unlike the interpreted track — where full retrieval at small chunk counts was 
  
 ---
 
+## Write Outcome
+ 
+The pagination depth map shows claimed retrieval — what agents reported reading. The write outcome map shows verified output: what actually ended up on disk, and in what form. The two maps together reveal the gap. `Gemini 3.1`'s EC-6 run reads as 29% pagination coverage but maps to no file — confirmed retrieval theater via MD5 checksum. The write outcome is the only column that can't be faked.
+ 
+{% raw %}
+<div id="raw-wo-root"></div>
+<style>
+.raw-wo-wrap { overflow-x: auto; }
+table.raw-wo { border-collapse: collapse; width: 100%; }
+table.raw-wo th { font-size: 11px; font-weight: 500; padding: 4px 5px; text-align: center; white-space: nowrap; color: inherit; }
+table.raw-wo th.raw-wo-row-head { text-align: left; }
+table.raw-wo th .raw-wo-chunk-count { font-weight: 400; font-size: 11px; opacity: 0.6; }
+table.raw-wo td { padding: 2px 3px; text-align: center; }
+table.raw-wo td.raw-wo-row-label { font-size: 12px; text-align: left; padding-left: 0; white-space: nowrap; font-weight: 400; padding-right: 6px; color: inherit; }
+.raw-wo-hint { font-size: 11px; opacity: 0.5; margin-top: 6px; cursor: pointer; color: inherit; }
+.raw-wo-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.raw-wo-overlay-inner {
+  border-radius: 10px;
+  padding: 24px 28px;
+  max-width: 98vw;
+  max-height: 92vh;
+  overflow: auto;
+  position: relative;
+}
+.raw-wo-close {
+  position: absolute; top: 12px; right: 14px;
+  background: none; border: none; font-size: 20px;
+  cursor: pointer; opacity: 0.5; line-height: 1;
+}
+.raw-wo-close:hover { opacity: 1; }
+.raw-wo-note { font-size: 12px; margin-top: 10px; line-height: 1.6; opacity: 0.7; }
+</style>
+ 
+<script>
+(function() {
+  var e = React.createElement;
+  function detectDark() {
+    var theme = document.documentElement.getAttribute('data-theme');
+    if (theme === 'dark') return true;
+    if (theme === 'light') return false;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  // S = success, P = partial success, C = curl bypass, F = failure, no file
+  var testOrder = [
+    {id:'EC-3', l1:'EC-3', l2:'null' },
+    {id:'BL-2', l1:'BL-2', l2:'3'    },
+    {id:'EC-1', l1:'EC-1', l2:'10'   },
+    {id:'SC-1', l1:'SC-1', l2:'14'   },
+    {id:'SC-4', l1:'SC-4', l2:'33'   },
+    {id:'EC-6', l1:'EC-6', l2:'41'   },
+    {id:'BL-3', l1:'BL-3', l2:'53'   },
+    {id:'OP-4', l1:'OP-4', l2:'53'   },
+    {id:'BL-1', l1:'BL-1', l2:'54'   },
+    {id:'SC-3', l1:'SC-3', l2:'60'   },
+    {id:'OP-1', l1:'OP-1', l2:'92'   },
+    {id:'SC-2', l1:'SC-2', l2:'1,026'},
+  ];
+  var runs = [
+    // EC-3 no chunking pipeline
+    {test:'EC-3', agent:'SWE',     outcome:'S'},
+    {test:'EC-3', agent:'Sonnet',  outcome:'S'},
+    {test:'EC-3', agent:'Kimi',    outcome:'S'},
+    {test:'EC-3', agent:'GPT55',   outcome:'S'},
+    {test:'EC-3', agent:'Grok',    outcome:'S'},
+    // BL-2
+    {test:'BL-2', agent:'GLM',     outcome:'S'},
+    {test:'BL-2', agent:'Gemini',  outcome:'F'},
+    {test:'BL-2', agent:'SWE',     outcome:'F'},
+    {test:'BL-2', agent:'Grok',    outcome:'P'},
+    {test:'BL-2', agent:'Kimi',    outcome:'F'},
+    // EC-1
+    {test:'EC-1', agent:'SWE',     outcome:'S'},
+    {test:'EC-1', agent:'Opus',    outcome:'S'},
+    {test:'EC-1', agent:'Codex',   outcome:'C'},
+    {test:'EC-1', agent:'Gemini',  outcome:'C'},
+    {test:'EC-1', agent:'GLM',     outcome:'P'},
+    // SC-1
+    {test:'SC-1', agent:'Sonnet',  outcome:'S'},
+    {test:'SC-1', agent:'Kimi',    outcome:'F'},
+    {test:'SC-1', agent:'GPT55',   outcome:'F'},
+    {test:'SC-1', agent:'Minimax', outcome:'S'},
+    {test:'SC-1', agent:'Grok',    outcome:'S'},
+    // SC-4
+    {test:'SC-4', agent:'Kimi',    outcome:'F'},
+    {test:'SC-4', agent:'Sonnet',  outcome:'S'},
+    {test:'SC-4', agent:'Grok',    outcome:'F'},
+    {test:'SC-4', agent:'Minimax', outcome:'S'},
+    {test:'SC-4', agent:'GPT55',   outcome:'F'},
+    // EC-6
+    {test:'EC-6', agent:'Opus',    outcome:'S'},
+    {test:'EC-6', agent:'GLM',     outcome:'F'},
+    {test:'EC-6', agent:'Minimax', outcome:'S'},
+    {test:'EC-6', agent:'Gemini',  outcome:'F'},
+    {test:'EC-6', agent:'Codex',   outcome:'F'},
+    // BL-3
+    {test:'BL-3', agent:'Opus',    outcome:'E'},
+    {test:'BL-3', agent:'SWE',     outcome:'F'},
+    {test:'BL-3', agent:'Codex',   outcome:'F'},
+    {test:'BL-3', agent:'GLM',     outcome:'C'},
+    {test:'BL-3', agent:'Gemini',  outcome:'C'},
+    // OP-4
+    {test:'OP-4', agent:'Sonnet',  outcome:'P'},
+    {test:'OP-4', agent:'Kimi',    outcome:'F'},
+    {test:'OP-4', agent:'GPT54',   outcome:'C'},
+    {test:'OP-4', agent:'Minimax', outcome:'C'},
+    {test:'OP-4', agent:'Grok',    outcome:'P'},
+    // BL-1
+    {test:'BL-1', agent:'GLM',     outcome:'S'},
+    {test:'BL-1', agent:'Gemini',  outcome:'F'},
+    {test:'BL-1', agent:'GPT54',   outcome:'C'},
+    {test:'BL-1', agent:'SWE',     outcome:'F'},
+    {test:'BL-1', agent:'Opus',    outcome:'P'},
+    // SC-3
+    {test:'SC-3', agent:'SWE',     outcome:'S'},
+    {test:'SC-3', agent:'Opus',    outcome:'F'},
+    {test:'SC-3', agent:'Codex',   outcome:'F'},
+    {test:'SC-3', agent:'GLM',     outcome:'C'},
+    {test:'SC-3', agent:'Gemini',  outcome:'C'},
+    // OP-1 (10 runs)
+    {test:'OP-1', agent:'GLM',     outcome:'P'},
+    {test:'OP-1', agent:'Gemini',  outcome:'F'},
+    {test:'OP-1', agent:'SWE',     outcome:'F'},
+    {test:'OP-1', agent:'Codex',   outcome:'F'},
+    {test:'OP-1', agent:'Opus',    outcome:'F'},
+    {test:'OP-1', agent:'Sonnet',  outcome:'F'},
+    {test:'OP-1', agent:'Kimi',    outcome:'F'},
+    {test:'OP-1', agent:'GPT54',   outcome:'P'},
+    {test:'OP-1', agent:'Minimax', outcome:'P'},
+    {test:'OP-1', agent:'Grok',    outcome:'S'},
+    // SC-2
+    {test:'SC-2', agent:'GLM',     outcome:'P'},
+    {test:'SC-2', agent:'Gemini',  outcome:'C'},
+    {test:'SC-2', agent:'Kimi',    outcome:'C'},
+    {test:'SC-2', agent:'Sonnet',  outcome:'P'},
+    {test:'SC-2', agent:'SWE',     outcome:'F'},
+    {test:'SC-2', agent:'SWE2',    outcome:'C'},
+  ];
+  var agentOrder = ['Opus','Sonnet','Gemini','GLM','Codex','GPT54','GPT55','Kimi','Minimax','Grok','SWE', 'SWE2'];
+  var agentLabels = {
+    Opus:    'Claude Opus 4.7',
+    Sonnet:  'Claude Sonnet 4.6',
+    Gemini:  'Gemini 3.1',
+    GLM:     'GLM-5.1',
+    Codex:   'GPT-5.3-Codex',
+    GPT54:   'GPT-5.4',
+    GPT55:   'GPT-5.5',
+    Kimi:    'Kimi K2.6',
+    Minimax: 'Minimax M2.5',
+    Grok:    'xAI Grok-3',
+    SWE:     'SWE-1.6',
+    SWE2: 'SWE-1.6*',
+  };
+  function getCellStyle(isDark, outcome) {
+    switch(outcome) {
+      case 'S': return {bg:isDark?'#0F6E56':'#1D9E75', fg:'#fff',                         label:'S'};
+      case 'P': return {bg:isDark?'#185FA5':'#378ADD', fg:'#fff',                         label:'P'};
+      case 'C': return {bg:isDark?'#cba452':'#FFB74D', fg:isDark?'#412402':'#412402',     label:'C'};
+      case 'F': return {bg:isDark?'#A32D2D':'#F06292', fg:'#fff',                         label:'F'};
+      default:  return {bg:isDark?'#363634':'#d0cec7', fg:'inherit',                      label:''  };
+    }
+  }
+  function getLegendItems(isDark, notObsBg) {
+    return [
+      {bg:isDark?'#0F6E56':'#1D9E75', label:'S — success: pipeline accepted, Cascade output'},
+      {bg:isDark?'#185FA5':'#378ADD', label:'P — partial success: content loss'},
+      {bg:isDark?'#cba452':'#FFB74D', label:'C — curl bypass: file present, no semantic content'},
+      {bg:isDark?'#A32D2D':'#F06292', label:'F — failure: false completion, reuse, or terminal error'},
+      {bg:notObsBg,                   label:'untested'},
+    ];
+  }
+  function Code(props) {
+    return e('code', {style:{
+      background: props.isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.07)',
+      color: props.textColor || 'inherit',
+      borderRadius: 3, padding: '1px 4px', fontSize: '11px', fontFamily: 'monospace'
+    }}, props.children);
+  }
+  function WOTable(props) {
+    var dark = props.isDark;
+    var cellW = props.large ? 48 : 36;
+    var cellH = props.large ? 36 : 28;
+    var agentColW = props.large ? 160 : 120;
+    var fs = props.large ? 12 : 11;
+    var tc = props.textColor || 'inherit';
+    var notObsBg = dark ? '#363634' : '#d0cec7';
+    return e('div', {className:'raw-wo-wrap'},
+      e('table', {className:'raw-wo'},
+        e('thead', null,
+          e('tr', null,
+            e('th', {className:'raw-wo-row-head', style:{minWidth:agentColW, color:tc}}, 'Agent'),
+            testOrder.map(function(t) {
+              return e('th', {key:t.id, style:{color:tc}},
+                t.l1, e('br'), e('span', {className:'raw-wo-chunk-count'}, t.l2)
+              );
+            })
+          )
+        ),
+        e('tbody', null,
+          agentOrder.map(function(agent) {
+            var ar = runs.filter(function(r) { return r.agent === agent; });
+            if (!ar.length) return null;
+            return e('tr', {key:agent},
+              e('td', {className:'raw-wo-row-label', style:{color:tc, verticalAlign:'middle'}}, agentLabels[agent]),
+              testOrder.map(function(t) {
+                var run = ar.find(function(r) { return r.test === t.id; });
+                if (!run) {
+                  return e('td', {key:t.id},
+                    e('div', {style:{
+                      borderRadius:4, fontSize:fs, fontWeight:500,
+                      display:'flex', alignItems:'center', justifyContent:'center',
+                      width:cellW, height:cellH, margin:'1px auto',
+                      background:notObsBg
+                    }})
+                  );
+                }
+                var c = getCellStyle(dark, run.outcome);
+                return e('td', {key:t.id},
+                  e('div', {
+                    title: run.outcome,
+                    style:{
+                      borderRadius:4, fontSize:fs, fontWeight:600,
+                      display:'flex', alignItems:'center', justifyContent:'center',
+                      width:cellW, height:cellH, margin:'1px auto',
+                      background:c.bg, color:c.fg
+                    }
+                  }, c.label)
+                );
+              })
+            );
+          })
+        )
+      )
+    );
+  }
+  function Legend(props) {
+    var dark = props.isDark;
+    var notObsBg = dark ? '#363634' : '#d0cec7';
+    var tc = props.textColor || 'inherit';
+    var items = getLegendItems(dark, notObsBg);
+    return e('table', {style:{borderCollapse:'collapse', marginTop:0, fontSize:11, width:'auto'}},
+      e('tbody', null,
+        items.map(function(item, i) {
+          return e('tr', {key:i},
+            e('td', {style:{paddingRight:8, paddingBottom:4, verticalAlign:'middle'}},
+              e('span', {style:{
+                width:12, height:12, borderRadius:2, display:'inline-block',
+                background:item.bg, border:'0.5px solid rgba(128,128,128,0.3)'
+              }})
+            ),
+            e('td', {style:{paddingBottom:4, color:tc, opacity:0.8, whiteSpace:'nowrap'}}, item.label)
+          );
+        })
+      )
+    );
+  }
+  function Note(props) {
+    var tc = props.textColor || 'inherit';
+    var dark = props.isDark;
+    var C = function(p) { return e(Code, {textColor:tc, isDark:dark}, p.children); };
+    return e('p', {className:'raw-wo-note', style:{color:tc, marginTop:0, paddingTop:0}},
+    e('i', null,
+        'Columns: total chunks, ascending. ',
+        e(C, null, 'EC-6'), ', ', e(C, null, 'BL-3'), ' - strongest file reuse evidence. ',
+        e(C, null, 'OP-1'), ' ran 2 arena rounds. ',
+        e(C, null, 'EC-3'), ' included as all agents produced output despite JSON response below chunking threshold. ',
+        e(C, null, 'SWE-1.6*'), ' single retry produced different outcome than arena run.'
+
+      )
+    );
+  }
+  function App() {
+    var state = React.useState(false);
+    var isOpen = state[0];
+    var setOpen = state[1];
+    var isDark = detectDark();
+    var lbBg   = isDark ? '#1e1e1c' : '#ffffff';
+    var lbText = isDark ? '#e8e6df' : '#1a1a18';
+    React.useEffect(function() {
+      function onKey(ev) { if (ev.key === 'Escape') setOpen(false); }
+      if (isOpen) {
+        document.addEventListener('keydown', onKey);
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
+      return function() {
+        document.removeEventListener('keydown', onKey);
+        document.body.style.overflow = '';
+      };
+    }, [isOpen]);
+    return e('div', {style:{marginTop:'1.5rem', fontFamily:'inherit'}},
+      e('div', {onClick:function(){ setOpen(true); }, style:{cursor:'pointer'}},
+        e(WOTable, {large:false, isDark:isDark}),
+        e('p', {className:'raw-wo-hint'}, '\u2197 click to expand')
+      ),
+      e('div', {style:{display:'flex', gap:32, alignItems:'center', flexWrap:'wrap', marginTop:8, width:'100%', justifyContent:'center'}},
+        e('div', {style:{flexShrink:0}},
+          e(Legend, {isDark:isDark})
+        ),
+        e('div', {style:{flex:1, maxWidth:420}},
+          e(Note, {isDark:isDark})
+        )
+      ),
+      isOpen && e('div', {
+        className:'raw-wo-overlay',
+        onClick:function(ev){ if (ev.target === ev.currentTarget) setOpen(false); }
+      },
+        e('div', {
+          className:'raw-wo-overlay-inner',
+          style:{background:lbBg, color:lbText, width:'98vw'}
+        },
+          e('button', {
+            className:'raw-wo-close',
+            style:{color:lbText},
+            onClick:function(){ setOpen(false); },
+            'aria-label':'Close'
+          }, '\u00d7'),
+          e(WOTable, {large:true, isDark:isDark, textColor:lbText}),
+          e('div', {style:{display:'flex', gap:32, alignItems:'center', flexWrap:'nowrap', marginTop:8, width:'100%', justifyContent:'center'}},
+            e('div', {style:{flexShrink:0}},
+              e(Legend, {isDark:isDark, textColor:lbText})
+            ),
+            e('div', {style:{flex:1, maxWidth:420}},
+              e(Note, {isDark:isDark, textColor:lbText})
+            )
+          )
+        )
+      )
+    );
+  }
+  var root = ReactDOM.createRoot(document.getElementById('raw-wo-root'));
+  root.render(e(App));
+})();
+</script>
+{% endraw %}
+ 
+Comparing the two maps directly: tests where pagination depth is high but write outcomes are weak — `BL-3`, `SC-3`, `OP-1` — are where the read-write asymmetry is most visible. `EC-3` is the only test with a clean sweep of `P` across all agents, and it required no chunking at all. `SC-4` and `EC-6` are the only multi-chunk tests where pipeline-accepting agents consistently produced clean output.
+ 
+---
+
 ## Truncation Analysis
 
 | **#** | **Finding** | **Tests** | **Observed** | **Conclusion** |
