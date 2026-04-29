@@ -241,4 +241,4 @@ python web_content_retrieval_results_analyzer.py \
 ```
 
 >_Provide full relative path, including subdirectory:
->`results/copilot-interpreted/results.csv` or `results/raw/results.csv`_
+>`results/copilot-interpreted/results.csv` or `results/cascade-raw/results.csv`_
