@@ -61,20 +61,20 @@ parent: Cognition Windsurf Cascade
 
 | | |
 |---|---|
-| **Agent Selector** | Hybrid Arena — 5 slots per run; some tests ran two arena rounds |
-| **Agents Observed** | `Claude Opus 4.7`, `Claude Sonnet 4.6 Thinking`, `GLM-5.1`, `Gemini 3.1 Pro`, `GPT-5.3-Codex`, `GPT-5.4`, `GPT-5.5`, `Kimi K2.6`, `Minimax M2.5`, `SWE-1.6`, `SWE-1.6 Fast`, `xAI Grok-3` |
+| **Agent Selector** | Hybrid Arena — 5 slots per run;<br>`OP-1` includes two arena rounds |
+| **Agents Observed** | `Claude Opus 4.7`, `Claude Sonnet 4.6`, `Gemini 3.1`,<br>`GLM-5.1`, `GPT-5.3-Codex`, `GPT-5.4`, `GPT-5.5`,<br>`Kimi K2.6`, `Minimax M2.5`, `SWE-1.6`, `xAI Grok-3` |
 | **Total Runs** | 66 |
-| **Distinct URLs** | 10 |
-| **Input Size Range** | ~2 KB – 256 KB (estimated rendered); actual pipeline output: 275B – 56MB depending on retrieval method |
-| **Truncation Events** | 5 / 66 |
+| **Distinct URLs** | 11 |
+| **Input Size Range** | estimation, rendered: ~2 KB – 256 KB<br> pipeline output, depending on retrieval method: 275B – 56 MB|
+| **Truncation Events** | explicitly reported 5 / 66 <br>chunked-architecture often acknowledged as lossy by design |
 | **Average Output Size** | 1,129,230 chars |
 | **Output Size Range** | 275 – 56,256,891 chars |
 | **Average Token Count** | 266,105 tokens |
 | **Token Count Range** | 52 – 12,782,469 tokens |
 | **Approval-gated Fetch** | 56 / 66 runs prompted for approval |
-| **Auto-pagination** | 48 run(s) auto, 0 run(s) prompted |
-| **Complete Retrieval Failure** | `SC-2` redirect halt; `OP-4` all 5 agents retrieved chunks but none produced clean output |
-| **URL Fragment Handling** | `OP-1` — 1 of 10 agents (Grok-3) intentionally targeted `#History`; 1 hit it incidentally; 8 defaulted to full-document retrieval |
+| **Auto-pagination** | 48 runs |
+| **Failures** | - `BL-1` `Gemini` task drift, token overflow<br>- `EC-6` `Gemini` retrieval theater<br>- `OP-1` most agents don't isolate target section<br>- `OP-4` retrieval success, but no clean output<br>- `SC-2` redirect halt |
+| **URL Fragment Handling** | - `OP-1`'s `Grok` only agent to intentionally target `#History`<br>- `Minimax` analyzed `#History` incidentally via sampling<br>- 8 defaulted to full-doc retrieval |
 
 ## Agentic Pagination Depth
 
