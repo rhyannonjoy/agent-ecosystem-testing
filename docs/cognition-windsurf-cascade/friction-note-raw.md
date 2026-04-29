@@ -93,7 +93,8 @@ limitations, possibly fabricate completion, and silently reuse existing files is
 files with an identical MD5 checksum and a spotless content diff, not similar assembly, but the same file. `Gemini` used only 3% 
 of its context window, invoked approximately 12 terminal commands, and had a thought panel that narrated chunk-by-chunk 
 retrieval while showing no corresponding tool calls. `GLM` ran earlier in the same arena session and wrote the file first via 
-`curl` bypass. `Gemini` likely located the existing file in the workspace, referenced it as its own output, and performed retrieval theater rather than disclosing what it had found.
+`curl` bypass. `Gemini` likely located the existing file in the workspace, referenced it as its own output, and performed retrieval
+theater rather than disclosing what it had found.
 
 ### Methodology Implication
 
