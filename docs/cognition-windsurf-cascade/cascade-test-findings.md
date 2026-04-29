@@ -9,6 +9,17 @@ parent: Cognition Windsurf Cascade
 
 ---
 
+## Topic Guide
+
+- [Cascade-interpreted Test Workflow](#cascade-interpreted-test-workflow)
+- [Platform Limit Summary](#platform-limit-summary)
+- [Results Details](#results-details)
+- [Agentic Pagination Depth](#agentic-pagination-depth)
+- [Truncation Analysis](#truncation-analysis)
+- [Perception Gap](#perception-gap)
+
+---
+
 ## [Cascade-interpreted Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/windsurf-cascade-web-search/web_search_testing_framework.py)
 
 1. Run `python web_search_testing_framework.py --test {test ID} --track interpreted`

@@ -14,7 +14,7 @@ parent: Cognition Windsurf Cascade
 - [Raw Test Workflow](#raw-test-workflow)
 - [Platform Limit Summary](#platform-limit-summary)
 - [Results Details](#results-details)
-- [Agent Pagination Depth](#agent-pagination-depth)
+- [Agentic Pagination Depth](#agentic-pagination-depth)
 - [Write Outcome](#write-outcome)
 - [Truncation Analysis](#truncation-analysis)
 - [Perception Gap](#perception-gap)
@@ -74,9 +74,7 @@ parent: Cognition Windsurf Cascade
 | **Complete Retrieval Failure** | `SC-2` redirect halt; `OP-4` all 5 agents retrieved chunks but none produced clean output |
 | **URL Fragment Handling** | `OP-1` — 1 of 10 agents (Grok-3) intentionally targeted `#History`; 1 hit it incidentally; 8 defaulted to full-document retrieval |
 
----
-
-## Agent Pagination Depth
+## Agentic Pagination Depth
 
 As observed in the interpreted and explicit tracks, agents consistently use `read_url_content` to fetch URLs, but whether they proceed to exhaust `view_content_chunk` varies substantially by agent, chunk count, and — on the raw track — whether a write task is present. Chunks fetched remains the primary behavioral variable in this dataset.
  
@@ -784,8 +782,6 @@ Comparing the two maps directly: tests where pagination depth is high but write 
 | 12 | **Prompt size estimates act as a confound for fidelity-sensitive agents** | `BL-1`, `OP-4` | The ~85KB size expectation in BL-1's prompt is architecturally unreachable: Cascade returns ~8–32KB of filtered Markdown; `curl` returns ~508KB of raw HTML. Agents with strong output-fidelity monitoring spiraled or truncated trying to reach the target | **Size expectations in prompts should be omitted or post-hoc only. No available tool produces the estimated size, making the estimate an irresolvable constraint rather than a verification guide.** |
 | 13 | **"Exactly as received" is underspecified and resolved silently** | `SC-3`, `SC-4`, `BL-1`, `OP-4` | Agents interpreted the instruction as Cascade's chunk output with metadata wrappers, raw HTTP response via `curl`, or semantic Markdown — without flagging the ambiguity or asking for clarification in most runs | **Instruction underspecification is resolved silently across agent families. Only `Claude Opus 4.7` surfaced the tradeoff to the user before committing to a write strategy, across two separate tests.** |
 | 14 | **`search_web` was not invoked as a primary retrieval mechanism in any run** | All tests | Zero `search_web` calls across 66 raw track runs; `SWE-1.6`'s SC-2 call on the explicit track was a fallback after retrieval failure, not enrichment | **H4 untested across the entire raw track. URL provision alone does not activate `search_web`.** |
-
----
 
 ## Perception Gap
 

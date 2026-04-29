@@ -20,6 +20,18 @@ CSS extraction failure, and self-reporting fidelity gaps. Extensions:
 
 ---
 
+## Topic Guide
+
+- [Cascade-explicit Test Workflow](#cascade-explicit-test-workflow)
+- [Platform Limit Summary](#platform-limit-summary)
+- [Results Details](#results-details)
+- [Agentic Pagination Depth](#agentic-pagination-depth)
+- [`@web`: Routing Hint, not Retrieval Modifier](#web-routing-hint-not-retrieval-modifier)
+- [Truncation Analysis](#truncation-analysis)
+- [Perception Gap](#perception-gap)
+
+---
+
 ## [Cascade-explicit Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/windsurf-cascade-web-search/web_search_testing_framework.py)
 
 1. Run `python web_search_testing_framework.py --test {test ID} --track explicit`
