@@ -7,22 +7,24 @@ parent: Cognition Windsurf Cascade
 
 ## Key Findings for Cascade's Web Search Behavior, Raw
 
-_testing in progress_
-
 ---
 
-## Cascade-raw Test Workflow
+## [Raw Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/windsurf-cascade-web-search/web_search_testing_framework.py)
 
 1. Run `python web_search_testing_framework.py --test {test ID} --track raw`
 2. Review the terminal output
-3. Copy the provided prompt instructing the agent to retrieve the URL and return content exactly as received, saving output to `results/raw/raw_output_{test_ID}.txt`
-4. Open a new Cascade Hybrid Arena session in Windsurf and paste the prompt
-5. Approve web fetch calls; cancel stuck terminal commands if heredoc or Python write loops hang
-6. Run the verification script against the saved file; capture path compliance, file size, checksum, and truncation indicators
+3. Copy the provided prompt instructing the agent to retrieve the URL and return
+   content exactly as received, saving output to `results/raw/raw_output_{test_ID}.txt`
+4. Open a new Cascade session in Windsurf and paste the prompt into the chat window
+5. Approve web fetch calls and terminal commands; cancel if any run loops hang
+6. Run the verification script against the saved file; capture path compliance,
+   file size, checksum, and truncation indicators
 7. Log structured metadata as described in `framework-reference.md`
 8. Ensure log results are saved to `/results/cascade-raw/results.csv`
 
-> _The raw track asks agents to persist a standalone file rather than report on what they received. File presence, path compliance, and content fidelity are tracked as independent variables. Agents that claim a successful save without writing a file, reference another agent's existing file, or write a structurally correct file containing the wrong content all produce distinct failure signatures. See [Friction: Raw](friction-note-raw.md) for extended analysis._
+> _Raw output file presence, path compliance, and content fidelity are tracked. Claiming a save without writing a file, referencing another
+> agent's file, or generating structurally accurate but semantically unmeaningful content all describe distinct failure modes;
+> analysis in [Friction: Raw](friction-note-raw.md)._
 
 ---
 
@@ -30,16 +32,16 @@ _testing in progress_
 
 | **Limit** | **Observed** |
 |---|---|
-| **Hard Character Limit** | _None detected_: output sizes ranged from 275 to 56,256,891 chars; where ceilings were observed, they were self-imposed or write-stage failures, not tool-imposed byte limits |
-| **Hard Token Limit** | _None detected_: token counts ranged from 52 to 12,782,469; `SWE-1.6` hit an output token ceiling at the write stage in `BL-3`, the first directly observable instance in the dataset |
-| **Output Consistency** | _Agent- and strategy-dependent_: same URL and prompt produces 275B (`EC-3`) to 56MB (`SC-2 Kimi`) depending on agent, pipeline acceptance, and write method |
-| **Content Selection Behavior** | _Two-stage chunked retrieval_: identical to interpreted track; all agents used `read_url_content` → `view_content_chunk`; no agent invoked `search_web` as a primary retrieval mechanism |
-| **Truncation Pattern** | _Write-stage asymmetry_: retrieval via `view_content_chunk` was reliable across agents and chunk counts; write failures — heredoc errors, token ceiling hits, false completion claims, and cross-agent file reuse — were the dominant failure mode |
-| **Redirect Chains** | _Behavior-dependent_: `EC-3` 5-hop redirect chain followed cleanly by all agents; `SC-2` single cross-domain redirect caused `read_url_content` to halt and surface the destination in an error payload |
-| **Auto-pagination** | _Consistent up to ~60 chunks; abandoned at 1,026_: all agents auto-paginated at chunk counts ≤60; no agent paginated beyond position 0 at SC-2's 1,026-chunk corpus, confirming a behavioral threshold between small and large document sets |
-| **False Completion Claims** | _Distinct failure mode_: observed across `SWE-1.6` (BL-1, OP-1), `GPT-5.3-Codex` (BL-3, SC-3), and `Gemini 3.1` (EC-6); agents reported saved files with metrics and checksums for content that was never written |
-| **Cross-Agent File Reuse** | _Confirmed via MD5 checksum in EC-6_: once a plausible file exists in the workspace, subsequent agents satisfy the persistence requirement by reference rather than by writing; confirmed across BL-2, BL-3, OP-1, and EC-6 |
-| **`curl` as Fidelity Escape Hatch** | _Consistent pattern_: agents that correctly diagnose the Cascade pipeline as returning processed Markdown rather than raw HTML switch to `curl`; resulting files are architecturally correct (correct path, large size) but contain raw HTML skeletons with no semantic page content |
+| **Hard Character Limit** | _None detected_: output sizes ranged from 275-56,256,891 chars; ceilings agent-imposed or write-stage failures, not explicitly platform-imposed byte limits |
+| **Hard Token Limit** | _None detected_: token counts ranged from 52-12,782,469; `BL-3`'s `SWE-1.6` appears to hit a write ceiling |
+| **Output Consistency** | _Agent- and strategy-dependent_: same URL, prompt produces 275 B -`EC-3` to 56 MB - `SC-2 Kimi` depending on agent, pipeline acceptance, write method |
+| **Content Selection Behavior** | _Two-stage chunked retrieval_: identical to interpreted track; all agents used `read_url_content` → `view_content_chunk`; no agent called `search_web` for verification |
+| **Truncation Pattern** | _Write-stage asymmetry_: `view_content_chunk` retrieval reliable across agents, chunk counts; dominant failure modes were write-related: heredoc errors, token ceiling, false completions, file reuse |
+| **Redirect Chains** | _Size-influenced, behavior dependent_: `EC-3` 5-hop redirect chain followed cleanly by all agents; `SC-2` single cross-domain redirect caused `read_url_content` to halt, name destination in error message |
+| **Auto-pagination** | _Consistent up to ~60 chunks; abandoned at 1,026_: agents auto-paginated at chunk counts ≤ 60; no agent paginated beyond position 0 at `SC-2`'s 1,026-chunk corpus, confirming size threshold |
+| **False Completion Claims** | _Distinct failure mode_: observed across `BL-1`, `OP-1` - `SWE-1.6`; `BL-3`, `SC-3` - `GPT-5.3-Codex`; `EC-6` - `Gemini 3.1`; agents reported saved files with content metrics that was never written |
+| **Cross-Agent File Reuse** | _Confirmed via `EC-6` MD5 checksum_: once a plausible file exists in the workspace, subsequent agents satisfy the persistence requirement by reference rather than by writing; confirmed across `BL-2`, `BL-3`, `OP-1`, `EC-6` |
+| **`curl` as Fidelity Escape Hatch** | _Consistent pattern_: agents that correctly diagnose the Cascade pipeline as returning processed Markdown rather than raw HTML switch to `curl`; resulting files are architecturally correct, but contain raw HTML skeletons without prose |
 
 ---
 
