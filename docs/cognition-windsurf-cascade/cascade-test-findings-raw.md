@@ -201,7 +201,7 @@ table.raw-hm td.raw-row-label { font-size: 12px; text-align: left; padding-left:
     {test:'SC-2', agent:'Sonnet',  fetched:1,   total:1026},
     {test:'SC-2', agent:'SWE',     fetched:0,   total:1026},
   ];
-  var agentOrder = ['Opus','Sonnet','Gemini','GLM','Codex','GPT54','GPT55','Kimi','Minimax','Grok','SWE'];
+  var agentOrder = ['Opus','Sonnet','Gemini','GLM','Codex','GPT54','GPT55','Kimi','Minimax','SWE','Grok'];
   var agentLabels = {
     Opus:    'Claude Opus 4.7',
     Sonnet:  'Claude Sonnet 4.6',
@@ -503,7 +503,7 @@ table.raw-wo td.raw-wo-row-label { font-size: 12px; text-align: left; padding-le
     {test:'EC-6', agent:'Gemini',  outcome:'F'},
     {test:'EC-6', agent:'Codex',   outcome:'F'},
     // BL-3
-    {test:'BL-3', agent:'Opus',    outcome:'E'},
+    {test:'BL-3', agent:'Opus',    outcome:'P'},
     {test:'BL-3', agent:'SWE',     outcome:'F'},
     {test:'BL-3', agent:'Codex',   outcome:'F'},
     {test:'BL-3', agent:'GLM',     outcome:'C'},
@@ -517,11 +517,11 @@ table.raw-wo td.raw-wo-row-label { font-size: 12px; text-align: left; padding-le
     // BL-1
     {test:'BL-1', agent:'GLM',     outcome:'S'},
     {test:'BL-1', agent:'Gemini',  outcome:'F'},
-    {test:'BL-1', agent:'GPT54',   outcome:'C'},
+    {test:'BL-1', agent:'GPT54',   outcome:'F'},
     {test:'BL-1', agent:'SWE',     outcome:'F'},
     {test:'BL-1', agent:'Opus',    outcome:'P'},
     // SC-3
-    {test:'SC-3', agent:'SWE',     outcome:'S'},
+    {test:'SC-3', agent:'SWE',     outcome:'P'},
     {test:'SC-3', agent:'Opus',    outcome:'F'},
     {test:'SC-3', agent:'Codex',   outcome:'F'},
     {test:'SC-3', agent:'GLM',     outcome:'C'},
@@ -539,13 +539,13 @@ table.raw-wo td.raw-wo-row-label { font-size: 12px; text-align: left; padding-le
     {test:'OP-1', agent:'Grok',    outcome:'S'},
     // SC-2
     {test:'SC-2', agent:'GLM',     outcome:'P'},
-    {test:'SC-2', agent:'Gemini',  outcome:'C'},
+    {test:'SC-2', agent:'Gemini',  outcome:'F'},
     {test:'SC-2', agent:'Kimi',    outcome:'C'},
     {test:'SC-2', agent:'Sonnet',  outcome:'P'},
     {test:'SC-2', agent:'SWE',     outcome:'F'},
     {test:'SC-2', agent:'SWE2',    outcome:'C'},
   ];
-  var agentOrder = ['Opus','Sonnet','Gemini','GLM','Codex','GPT54','GPT55','Kimi','Minimax','Grok','SWE', 'SWE2'];
+  var agentOrder = ['Opus','Sonnet','Gemini','GLM','Codex','GPT54','GPT55','Kimi','Minimax','SWE', 'SWE2', 'Grok'];
   var agentLabels = {
     Opus:    'Claude Opus 4.7',
     Sonnet:  'Claude Sonnet 4.6',
@@ -558,8 +558,14 @@ table.raw-wo td.raw-wo-row-label { font-size: 12px; text-align: left; padding-le
     Minimax: 'Minimax M2.5',
     Grok:    'xAI Grok-3',
     SWE:     'SWE-1.6',
-    SWE2: 'SWE-1.6*',
+    SWE2:    'SWE-1.6*',
   };
+  var outcomeLabels = {
+  S: 'Success',
+  P: 'Partial Success',
+  C: 'curl bypass',
+  F: 'Failure',
+ };
   function getCellStyle(isDark, outcome) {
     switch(outcome) {
       case 'S': return {bg:isDark?'#0F6E56':'#1D9E75', fg:'#fff',                         label:'S'};
@@ -626,7 +632,7 @@ table.raw-wo td.raw-wo-row-label { font-size: 12px; text-align: left; padding-le
                 var c = getCellStyle(dark, run.outcome);
                 return e('td', {key:t.id},
                   e('div', {
-                    title: run.outcome,
+                    title: outcomeLabels[run.outcome] || run.outcome,
                     style:{
                       borderRadius:4, fontSize:fs, fontWeight:600,
                       display:'flex', alignItems:'center', justifyContent:'center',
