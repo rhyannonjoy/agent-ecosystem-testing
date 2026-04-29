@@ -78,7 +78,13 @@ parent: Cognition Windsurf Cascade
 
 ## Agentic Pagination Depth
 
-As observed in the interpreted and explicit tracks, agents consistently use `read_url_content` to fetch URLs, but whether they proceed to exhaust `view_content_chunk` varies substantially by agent, chunk count, and — on the raw track — whether a write task is present. Chunks fetched remains the primary behavioral variable in this dataset.
+As observed in the interpreted and explicit tracks, agents consistently use `read_url_content` to fetch URLs, but whether
+they proceed to exhaust `view_content_chunk` varies substantially by agent, chunk count, and exclusively on the raw track -
+how they strategize the write task. Chunks-analyzed remains a primary behavioral variable in this dataset.
+
+Full pagination appears more consistently throughout the raw track, suggesting the write task influences reason to retrieve
+each chunk. Document size and structure still have an impact, as `OP-1`, `OP-4`, and `SC-2` produce the widest variance.
+`SC-2` confirms abandonment is universal at 1,026 chunks regardless of agent family.
  
 {% raw %}
 <div id="raw-hm-root"></div>
@@ -410,9 +416,7 @@ table.raw-hm td.raw-row-label { font-size: 12px; text-align: left; padding-left:
 })();
 </script>
 {% endraw %}
- 
-Unlike the interpreted track — where full retrieval at small chunk counts was near-universal — the raw track shows much spottier coverage even at low counts. Full pagination appears more consistently on write-task tests (EC-6, BL-1, SC-3, BL-3) where agents have a concrete reason to fetch every chunk, while tests with ambiguous scope or instruction friction (OP-1, SC-2, OP-4) produce the widest variance. The SC-2 column confirms abandonment is universal at 1,026 chunks regardless of agent family.
- 
+  
 ---
 
 ## Write Outcome
