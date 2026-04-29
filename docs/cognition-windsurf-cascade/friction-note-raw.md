@@ -12,6 +12,7 @@ parent: Cognition Windsurf Cascade
 ## Topic Guide - Raw Track
 
 - [Agentic Task Drift, Token Overflow](#agent-task-drift-token-overflow)
+- [Context Window Reporting, Compaction Artifacts](#context-window-reporting-compaction-artifacts)
 - [Cross-Agent File Reuse, Verification Limits](#cross-agent-file-reuse-verification-limits)
 - [File Persistence Failures](#file-persistence-failures)
 - [`read_url_content` Redirect Halt Behavior](#read_url_content-redirect-halt-behavior)
@@ -60,6 +61,31 @@ with output-fidelity monitoring may spiral rather than approximate. Consider whe
 prompt at all, or only in post-hoc analysis.
 
 > *_Empty summaries' impact on pagination explored in [Friction: Interpreted](friction-note-interpreted.md#read_url_content--fetch-architecture-and-parsing-limits)_
+
+---
+
+## Context Window Reporting, Compaction Artifacts
+
+Context window percentages are logged for every raw track run, but at least one run, `SC-3` using `SWE-1.6`, shows the
+counter appearing to reset or compress mid-session. The notes read: _"context window metrics change/compress/restart."_
+If the counter resets after a tool call batch or at some internal threshold, a 13% reading and a 98% reading may not be
+measuring the same thing across runs.
+
+This matters most for any effort-to-outcome analysis. `EC-6`'s `Gemini 3.1` run at 3% context with a confirmed reused file
+and `SC-3`'s `Claude Opus 4.7` run at 98% context with a 1.05 KB stub would be striking side by side, but only if both
+percentages reflect the same denominator. The compaction behavior means they may not.
+
+The data is retained in `results.csv` and the pattern is visible in the pagination and write outcome maps without requiring
+the percentages directly. A standalone effort-to-outcome visualization would require either a Windsurf update that stabilizes
+context window tracking, or instrumentation that captures token spend independently of what the agent reports. Until then,
+context window percentage is treated as directionally _suggestive_ rather than analytically reliable, and is noted per
+run rather than aggregated.
+
+### Methodology Implication
+
+This is primarily a data visualization problem rather than a core research finding. The behavioral stories including retrieval
+theater, false completion claims, and write ceiling failures, are legible without it. Context window percentage would add
+resolution to those stories, not change them.
 
 ---
 
