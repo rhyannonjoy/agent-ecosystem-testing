@@ -43,8 +43,6 @@ parent: Cognition Windsurf Cascade
 | **Cross-Agent File Reuse** | _Confirmed via `EC-6` MD5 checksum_: `BL-2`, `BL-3`, `OP-1`, `EC-6` - once a plausible file exists in the workspace, agents may satisfy persistence requirement by reference rather than by writing |
 | **`curl` as Fidelity Escape Hatch** | _Consistent pattern_: agents that correctly diagnose Cascade pipeline returns Markdown-ish, not raw HTML switch to `curl`; output files architecturally correct, but contain HTML shells without prose |
 
----
-
 ## Results Details
 
 | | |
@@ -202,13 +200,12 @@ table.raw-hm td.raw-row-label { font-size: 12px; text-align: left; padding-left:
     {test:'SC-2', agent:'Kimi',    fetched:1,   total:1026},
     {test:'SC-2', agent:'Sonnet',  fetched:1,   total:1026},
     {test:'SC-2', agent:'SWE',     fetched:0,   total:1026},
-    {test:'SC-2', agent:'SWE2',    fetched:0,   total:1026},
   ];
-  var agentOrder = ['Opus','Sonnet','Gemini','GLM','Codex','GPT54','GPT55','Kimi','Minimax','Grok','SWE','SWE2'];
+  var agentOrder = ['Opus','Sonnet','Gemini','GLM','Codex','GPT54','GPT55','Kimi','Minimax','Grok','SWE'];
   var agentLabels = {
     Opus:    'Claude Opus 4.7',
     Sonnet:  'Claude Sonnet 4.6',
-    Gemini:  'Gemini 3.1 Pro',
+    Gemini:  'Gemini 3.1',
     GLM:     'GLM-5.1',
     Codex:   'GPT-5.3-Codex',
     GPT54:   'GPT-5.4',
@@ -217,7 +214,6 @@ table.raw-hm td.raw-row-label { font-size: 12px; text-align: left; padding-left:
     Minimax: 'Minimax M2.5',
     Grok:    'xAI Grok-3',
     SWE:     'SWE-1.6',
-    SWE2:    'SWE-1.6*',
   };
   function getCellColors(isDark, fetched, total) {
     if (fetched === 0) return {bg:isDark?'#3C3489':'#BA68C8', fg:'#fff', label:'0'};
@@ -229,12 +225,12 @@ table.raw-hm td.raw-row-label { font-size: 12px; text-align: left; padding-left:
   }
   function getLegendItems(isDark, notObsBg) {
     return [
-      {bg:isDark?'#0F6E56':'#1D9E75', label:'100% chunks fetched'},
-      {bg:isDark?'#185FA5':'#378ADD', label:'50–99% — most chunks fetched'},
-      {bg:isDark?'#cba452':'#FFB74D', label:'10–49% — sparse sampling'},
-      {bg:isDark?'#A32D2D':'#F06292', label:'<10% — minimal sampling'},
-      {bg:isDark?'#3C3489':'#BA68C8', label:'0 — no view_content_chunk calls'},
-      {bg:notObsBg,                   label:'not observed in this test'},
+      {bg:isDark?'#0F6E56':'#1D9E75', label:'100% chunk summaries viewed'},
+      {bg:isDark?'#185FA5':'#378ADD', label:'50–99% — most chunk summaries viewed'},
+      {bg:isDark?'#cba452':'#FFB74D', label:'10–49% — sparse chunk summary sampling'},
+      {bg:isDark?'#A32D2D':'#F06292', label:'<10% — minimal and/or endpoint summary sampling'},
+      {bg:isDark?'#3C3489':'#BA68C8', label:'0 — declined pagination'},
+      {bg:notObsBg,                   label:'untested'},
     ];
   }
   function Code(props) {
@@ -322,18 +318,18 @@ table.raw-hm td.raw-row-label { font-size: 12px; text-align: left; padding-left:
       )
     );
   }
-  function Note(props) {
+   function Note(props) {
     var tc = props.textColor || 'inherit';
     var dark = props.isDark;
     var C = function(p) { return e(Code, {textColor:tc, isDark:dark}, p.children); };
     return e('p', {className:'raw-note', style:{color:tc, marginTop:0, paddingTop:0}},
       e('i', null,
-        'Columns: total chunks, ascending. Excluded: ',
-        e(C, null, 'EC-3'), ' — chunked pipeline not triggered (366B response). ',
-        e(C, null, 'SC-2'), ' included; redirect delivered full docs corpus, not target page. ',
-        e(C, null, 'OP-1'), ' ran 10 agents across 2 arena rounds; all shown. ',
-        e(C, null, 'SWE-1.6*'), ': SC-2 retry run. ',
-        '0: agent present but no ', e(C, null, 'view_content_chunk'), ' calls made. Hover for fetched/total.'
+        'Columns: total chunks, ascending. ',
+        e(C, null, 'EC-3'), ' excluded as inline JSON response below chunking threshold, but successful retrieval. ',
+        e(C, null, 'SC-2'), ' redirect delivered full docs set, not target page; ',
+        e(C, null, 'SWE'), ' retry declined pagination. ',
+        e(C, null, 'OP-1'), ' ran 2 arena rounds. ',
+        e(C, null, '0'), ': agent observed but made no ', e(C, null, 'view_content_chunk'), ' calls. Hover over cells for fetched/total counts.'
       )
     );
   }

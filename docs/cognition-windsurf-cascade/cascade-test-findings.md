@@ -129,6 +129,7 @@ table.cas-hm td.cas-row-label { font-size: 12px; text-align: left; padding-left:
     {id:'BL-1', total:54, l1:'BL-1', l2:'54' },
     {id:'SC-3', total:59, l1:'SC-3', l2:'59' },
     {id:'OP-1', total:91, l1:'OP-1', l2:'91' },
+    {id:'SC-2', total:0, l1:'SC-2', l2:'null'},
   ];
 
   var runs = [
@@ -152,6 +153,11 @@ table.cas-hm td.cas-row-label { font-size: 12px; text-align: left; padding-left:
     {test:'SC-1',agent:'SWE',    fetched:14, total:14},
     {test:'SC-1',agent:'Opus',   fetched:14, total:14},
     {test:'SC-1',agent:'Sonnet', fetched:10, total:14},
+    {test:'SC-2', agent:'Codex',  fetched:0, total:0, declined:true},
+    {test:'SC-2', agent:'Sonnet', fetched:0, total:0, declined:true},
+    {test:'SC-2', agent:'GPT54',  fetched:0, total:0, declined:true},
+    {test:'SC-2', agent:'Opus',   fetched:0, total:0, declined:true},
+    {test:'SC-2', agent:'SWE',    fetched:0, total:0, declined:true},
     {test:'SC-3',agent:'Codex',  fetched:2,  total:59},
     {test:'SC-3',agent:'Sonnet', fetched:2,  total:59},
     {test:'SC-3',agent:'Opus',   fetched:3,  total:59},
@@ -309,10 +315,10 @@ table.cas-hm td.cas-row-label { font-size: 12px; text-align: left; padding-left:
   var C = function(p) { return e(Code, {textColor:tc, isDark:dark}, p.children); };
   return e('p', {className:'cas-note', style:{color:tc, marginTop:0, paddingTop:0}},
     e('i', null,
-      'Columns: total chunks, ascending. Excluded: ',
-      e(C, null, 'EC-3'), ' untriggered chunk pipeline; ',
+      'Columns: total chunks, ascending. ',
+      e(C, null, 'EC-3'), ' excluded as inline JSON response below chunking threshold, but successful retrieval. ',
       e(C, null, 'SC-2'), ' URL rewriting failure, no content retrieval. ',
-      '0: agent observed, but no ', e(C, null, 'view_content_chunk'), ' call. ',
+      e(C, null, '0'),': agent observed, but made no ', e(C, null, 'view_content_chunk'), ' calls. ',
       e(C, null, 'Sonnet 4.6*'), ': single retry after prompt refusal. Hover over cells for fetched/total counts.'
     )
   );

@@ -326,10 +326,10 @@ table.exp-hm td.exp-row-label { font-size: 12px; text-align: left; padding-left:
     var C = function(p) { return e(Code, {textColor:tc, isDark:dark}, p.children); };
     return e('p', {className:'exp-note', style:{color:tc, marginTop:0, paddingTop:0}},
       e('i', null,
-        'Columns: total chunks, ascending. Excluded: ',
-        e(C, null, 'EC-3'), ' — untriggered chunked pipeline. ',
-        '0: agent observed, but no ', e(C, null, 'view_content_chunk'), ' call made. ',
-        e(C, null, 'SC-2'), ' included; URL redirect delivered entire docs set, not targeted page. ',
+        'Columns: total chunks, ascending. ',
+        e(C, null, 'EC-3'), ' excluded as inline JSON response below chunking threshold, but successful retrieval. ',
+        e(C, null, '0'),': agent observed, but made no ', e(C, null, 'view_content_chunk'), ' calls. ',
+        e(C, null, 'SC-2'), ' URL redirect delivered entire docs set, not targeted page. ',
         'Hover over cells for fetched/total counts.'
       )
     );
