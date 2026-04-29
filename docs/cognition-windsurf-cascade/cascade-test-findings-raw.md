@@ -9,6 +9,18 @@ parent: Cognition Windsurf Cascade
 
 ---
 
+## Topic Guide
+
+- [Raw Test Workflow](#raw-test-workflow)
+- [Platform Limit Summary](#platform-limit-summary)
+- [Results Details](#results-details)
+- [Agent Pagination Depth](#agent-pagination-depth)
+- [Write Outcome](#write-outcome)
+- [Truncation Analysis](#truncation-analysis)
+- [Perception Gap](#perception-gap)
+
+---
+
 ## [Raw Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/windsurf-cascade-web-search/web_search_testing_framework.py)
 
 1. Run `python web_search_testing_framework.py --test {test ID} --track raw`
@@ -34,7 +46,7 @@ parent: Cognition Windsurf Cascade
 |---|---|
 | **Hard Character Limit** | _None detected_: output sizes ranged from 275-56,256,891 chars; ceilings agent-imposed or write-stage failures, not explicitly platform-imposed byte limits |
 | **Hard Token Limit** | _None detected_: token counts ranged from 52-12,782,469; `BL-3`'s `SWE-1.6` appears to hit a write ceiling |
-| **Output Consistency** | _Agent- and strategy-dependent_: pipeline-accepting runs cluster within a narrow size band per URL; `curl`-bypass runs produce larger files for same URLs that pass path and size verification, but containing no semantic meaning |
+| **Write Strategy** | _Patterns in which tool capability doesn't predict output quality, but agent strategy_: chunking-pipeline acceptance runs cluster within narrow size band per URL, deliberate elision - `Claude Opus 4.7` only agent to ask clarifying questions mid-session, curl bypass - files pass verification, no semantic content, and silent failure - false completions, reuse, scale outliers — no independent artifact |
 | **Content Selection Behavior** | _Two-stage chunked retrieval_: mirrors interpreted, explicit tracks; all agents used `read_url_content` → `view_content_chunk`; `SC-2`'s `SWE-1.6` called `search_web` once as a fallback in repsonse to redirect, found URL but didn't return content |
 | **Truncation Pattern** | _Write-stage asymmetry_: `view_content_chunk` retrieval reliable across agents, chunk counts; dominant failure modes were write-related: heredoc errors, token ceiling, false completions, file reuse |
 | **Redirect Chains** | _Size-influenced, behavior dependent_: `EC-3` 5-hop redirect chain followed cleanly by all agents; `SC-2` single cross-domain redirect caused `read_url_content` halt, named destination in error message |
@@ -788,17 +800,3 @@ Comparing the two maps directly: tests where pagination depth is high but write 
 | **`EC-3` Redirect JSON** | ~366 B | 366B (all 5 runs, identical content) | ~100% | _"Complete — 5-hop redirect chain followed cleanly; unique `X-Amzn-Trace-Id` per run confirms independent live requests"_ |
 
 > _Implication: on the raw track, output size is determined by whether agents accept the pipeline or bypass it via `curl`, not by a retrieval ceiling. Pipeline-accepting runs cluster tightly by source URL regardless of agent. `curl`-bypass runs produce structurally valid files — large, correct path, clean endings — that contain no semantic page content. Neither outcome is distinguishable from a successful retrieval through path-and-size verification alone._
-
----
-
-## Agent Behavior Patterns
-
-Across 66 raw track runs, agent behavior sorted into four observable strategies. Strategy selection, not tool capability, was the primary predictor of output quality:
-
-**Pipeline acceptance** — agents that accepted Cascade's Markdown output and wrote it verbatim produced the most consistent successful files. `SWE-1.6 Fast` (EC-1, EC-3), `Minimax M2.5` (SC-1, SC-4, EC-6), and `Claude Sonnet 4.6 Thinking` (EC-3, SC-4) represent this pattern. These runs clustered within a narrow size band per URL and passed content verification.
-
-**Deliberate elision** — `Claude Opus 4.7` consistently read all chunks, assessed the output against practical write constraints, saved a partial file, and disclosed the decision. The behavior was documented in BL-1, BL-3, and SC-3 and is the only consistent instance across the dataset of an agent explicitly communicating a tradeoff between semantic fidelity and verbatim completeness before the user asked.
-
-**`curl` bypass** — agents that correctly diagnosed the pipeline as returning processed Markdown switched to `curl` to retrieve "raw" content. The strategy consistently produced structurally valid files — large, correct path, clean endings — containing raw HTML or JS framework skeletons with no semantic page content. Observed across `Gemini 3.1`, `GLM-5.1`, `GPT-5.3-Codex`, and `SWE-1.6` across multiple tests.
-
-**Silent failure** — false completion claims, cross-agent file reuse, and environment-degrading scale outliers. These runs produced metrics, checksums, and file paths for content that was either absent, identical to another agent's prior output, or unworkable as a project artifact. `Gemini 3.1` (EC-6 reuse), `GPT-5.3-Codex` (SC-3 false completion), and `Kimi K2.6` (SC-2 scale outlier) are the clearest instances.
