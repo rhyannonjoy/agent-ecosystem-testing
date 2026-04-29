@@ -34,14 +34,14 @@ parent: Cognition Windsurf Cascade
 |---|---|
 | **Hard Character Limit** | _None detected_: output sizes ranged from 275-56,256,891 chars; ceilings agent-imposed or write-stage failures, not explicitly platform-imposed byte limits |
 | **Hard Token Limit** | _None detected_: token counts ranged from 52-12,782,469; `BL-3`'s `SWE-1.6` appears to hit a write ceiling |
-| **Output Consistency** | _Agent- and strategy-dependent_: same URL, prompt produces 275 B -`EC-3` to 56 MB - `SC-2 Kimi` depending on agent, pipeline acceptance, write method |
-| **Content Selection Behavior** | _Two-stage chunked retrieval_: identical to interpreted track; all agents used `read_url_content` → `view_content_chunk`; no agent called `search_web` for verification |
+| **Output Consistency** | _Agent- and strategy-dependent_: pipeline-accepting runs cluster within a narrow size band per URL; `curl`-bypass runs produce larger files for same URLs that pass path and size verification, but containing no semantic meaning |
+| **Content Selection Behavior** | _Two-stage chunked retrieval_: mirrors interpreted, explicit tracks; all agents used `read_url_content` → `view_content_chunk`; `SC-2`'s `SWE-1.6` called `search_web` once as a fallback in repsonse to redirect, found URL but didn't return content |
 | **Truncation Pattern** | _Write-stage asymmetry_: `view_content_chunk` retrieval reliable across agents, chunk counts; dominant failure modes were write-related: heredoc errors, token ceiling, false completions, file reuse |
-| **Redirect Chains** | _Size-influenced, behavior dependent_: `EC-3` 5-hop redirect chain followed cleanly by all agents; `SC-2` single cross-domain redirect caused `read_url_content` to halt, name destination in error message |
-| **Auto-pagination** | _Consistent up to ~60 chunks; abandoned at 1,026_: agents auto-paginated at chunk counts ≤ 60; no agent paginated beyond position 0 at `SC-2`'s 1,026-chunk corpus, confirming size threshold |
-| **False Completion Claims** | _Distinct failure mode_: observed across `BL-1`, `OP-1` - `SWE-1.6`; `BL-3`, `SC-3` - `GPT-5.3-Codex`; `EC-6` - `Gemini 3.1`; agents reported saved files with content metrics that was never written |
-| **Cross-Agent File Reuse** | _Confirmed via `EC-6` MD5 checksum_: once a plausible file exists in the workspace, subsequent agents satisfy the persistence requirement by reference rather than by writing; confirmed across `BL-2`, `BL-3`, `OP-1`, `EC-6` |
-| **`curl` as Fidelity Escape Hatch** | _Consistent pattern_: agents that correctly diagnose the Cascade pipeline as returning processed Markdown rather than raw HTML switch to `curl`; resulting files are architecturally correct, but contain raw HTML skeletons without prose |
+| **Redirect Chains** | _Size-influenced, behavior dependent_: `EC-3` 5-hop redirect chain followed cleanly by all agents; `SC-2` single cross-domain redirect caused `read_url_content` halt, named destination in error message |
+| **Auto-pagination** | _Consistent up to ~60 chunks; abandoned at 1,026_: agents auto-paginated chunk counts ≤ 60; no agent paginated beyond position 0 at `SC-2`'s 1,026-chunk corpus, confirming size threshold |
+| **False Completion Claims** | _Distinct failure mode_: `BL-1`, `OP-1` - `SWE-1.6`; `BL-3`, `SC-3` - `GPT-5.3-Codex`; `EC-6` - `Gemini 3.1`; agents reported saved files with metrics that were never written |
+| **Cross-Agent File Reuse** | _Confirmed via `EC-6` MD5 checksum_: `BL-2`, `BL-3`, `OP-1`, `EC-6` - once a plausible file exists in the workspace, agents may satisfy persistence requirement by reference rather than by writing |
+| **`curl` as Fidelity Escape Hatch** | _Consistent pattern_: agents that correctly diagnose Cascade pipeline returns Markdown-ish, not raw HTML switch to `curl`; output files architecturally correct, but contain HTML shells without prose |
 
 ---
 
@@ -64,6 +64,347 @@ parent: Cognition Windsurf Cascade
 | **Complete Retrieval Failure** | `SC-2` redirect halt; `OP-4` all 5 agents retrieved chunks but none produced clean output |
 | **URL Fragment Handling** | `OP-1` — 1 of 10 agents (Grok-3) intentionally targeted `#History`; 1 hit it incidentally; 8 defaulted to full-document retrieval |
 
+---
+
+## Agent Pagination Depth
+
+As observed in the interpreted and explicit tracks, agents consistently use `read_url_content` to fetch URLs, but whether they proceed to exhaust `view_content_chunk` varies substantially by agent, chunk count, and — on the raw track — whether a write task is present. Chunks fetched remains the primary behavioral variable in this dataset.
+ 
+{% raw %}
+<div id="raw-hm-root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+ 
+<style>
+.raw-hm-wrap { overflow-x: auto; }
+table.raw-hm { border-collapse: collapse; width: 100%; }
+table.raw-hm th { font-size: 11px; font-weight: 500; padding: 4px 5px; text-align: center; white-space: nowrap; color: inherit; }
+table.raw-hm th.raw-row-head { text-align: left; }
+table.raw-hm th .raw-chunk-count { font-weight: 400; font-size: 11px; opacity: 0.6; }
+table.raw-hm td { padding: 2px 3px; text-align: center; }
+table.raw-hm td.raw-row-label { font-size: 12px; text-align: left; padding-left: 0; white-space: nowrap; font-weight: 400; padding-right: 6px; color: inherit; }
+.raw-hint { font-size: 11px; opacity: 0.5; margin-top: 6px; cursor: pointer; color: inherit; }
+.raw-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.raw-overlay-inner {
+  border-radius: 10px;
+  padding: 24px 28px;
+  max-width: 98vw;
+  max-height: 92vh;
+  overflow: auto;
+  position: relative;
+}
+.raw-close {
+  position: absolute; top: 12px; right: 14px;
+  background: none; border: none; font-size: 20px;
+  cursor: pointer; opacity: 0.5; line-height: 1;
+}
+.raw-close:hover { opacity: 1; }
+.raw-note { font-size: 12px; margin-top: 10px; line-height: 1.6; opacity: 0.7; }
+</style>
+ 
+<script>
+(function() {
+  var e = React.createElement;
+  function detectDark() {
+    var theme = document.documentElement.getAttribute('data-theme');
+    if (theme === 'dark') return true;
+    if (theme === 'light') return false;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  var testOrder = [
+    {id:'BL-2', total:3,    l1:'BL-2', l2:'3'    },
+    {id:'EC-1', total:10,   l1:'EC-1', l2:'10'   },
+    {id:'SC-1', total:14,   l1:'SC-1', l2:'14'   },
+    {id:'SC-4', total:33,   l1:'SC-4', l2:'33'   },
+    {id:'EC-6', total:41,   l1:'EC-6', l2:'41'   },
+    {id:'BL-3', total:53,   l1:'BL-3', l2:'53'   },
+    {id:'OP-4', total:53,   l1:'OP-4', l2:'53'   },
+    {id:'BL-1', total:54,   l1:'BL-1', l2:'54'   },
+    {id:'SC-3', total:60,   l1:'SC-3', l2:'60'   },
+    {id:'OP-1', total:92,   l1:'OP-1', l2:'92'   },
+    {id:'SC-2', total:1026, l1:'SC-2', l2:'1,026'},
+  ];
+  // fetched values from CSV notes + per-test summaries
+  var runs = [
+    // BL-2 (3 chunks)
+    {test:'BL-2', agent:'GLM',     fetched:3,   total:3   },
+    {test:'BL-2', agent:'Gemini',  fetched:3,   total:3   },
+    {test:'BL-2', agent:'SWE',     fetched:3,   total:3   },
+    {test:'BL-2', agent:'Grok',    fetched:2,   total:3   },
+    {test:'BL-2', agent:'Kimi',    fetched:3,   total:3   },
+    // EC-1 (10 chunks)
+    {test:'EC-1', agent:'SWE',     fetched:10,  total:10  },
+    {test:'EC-1', agent:'Opus',    fetched:10,  total:10  },
+    {test:'EC-1', agent:'Codex',   fetched:0,   total:10  },
+    {test:'EC-1', agent:'Gemini',  fetched:10,  total:10  },
+    {test:'EC-1', agent:'GLM',     fetched:10,  total:10  },
+    // SC-1 (14 chunks)
+    {test:'SC-1', agent:'Sonnet',  fetched:14,  total:14  },
+    {test:'SC-1', agent:'Kimi',    fetched:14,  total:14  },
+    {test:'SC-1', agent:'GPT55',   fetched:14,  total:14  },
+    {test:'SC-1', agent:'Minimax', fetched:14,  total:14  },
+    {test:'SC-1', agent:'Grok',    fetched:9,   total:14  },
+    // SC-4 (33 chunks)
+    {test:'SC-4', agent:'Kimi',    fetched:33,  total:33  },
+    {test:'SC-4', agent:'Sonnet',  fetched:33,  total:33  },
+    {test:'SC-4', agent:'Grok',    fetched:33,  total:33  },
+    {test:'SC-4', agent:'Minimax', fetched:33,  total:33  },
+    {test:'SC-4', agent:'GPT55',   fetched:33,  total:33  },
+    // EC-6 (41 chunks)
+    {test:'EC-6', agent:'Opus',    fetched:41,  total:41  },
+    {test:'EC-6', agent:'GLM',     fetched:41,  total:41  },
+    {test:'EC-6', agent:'Minimax', fetched:41,  total:41  },
+    {test:'EC-6', agent:'Gemini',  fetched:12,  total:41  },
+    {test:'EC-6', agent:'Codex',   fetched:41,  total:41  },
+    // BL-3 (53 chunks)
+    {test:'BL-3', agent:'Opus',    fetched:53,  total:53  },
+    {test:'BL-3', agent:'SWE',     fetched:53,  total:53  },
+    {test:'BL-3', agent:'Codex',   fetched:1,   total:53  },
+    {test:'BL-3', agent:'GLM',     fetched:53,  total:53  },
+    {test:'BL-3', agent:'Gemini',  fetched:53,  total:53  },
+    // OP-4 (53 chunks)
+    {test:'OP-4', agent:'Sonnet',  fetched:53,  total:53  },
+    {test:'OP-4', agent:'Kimi',    fetched:53,  total:53  },
+    {test:'OP-4', agent:'GPT54',   fetched:12,  total:53  },
+    {test:'OP-4', agent:'Minimax', fetched:38,  total:53  },
+    {test:'OP-4', agent:'Grok',    fetched:53,  total:53  },
+    // BL-1 (54 chunks)
+    {test:'BL-1', agent:'GLM',     fetched:54,  total:54  },
+    {test:'BL-1', agent:'Gemini',  fetched:54,  total:54  },
+    {test:'BL-1', agent:'GPT54',   fetched:18,  total:54  },
+    {test:'BL-1', agent:'SWE',     fetched:54,  total:54  },
+    {test:'BL-1', agent:'Opus',    fetched:54,  total:54  },
+    // SC-3 (60 chunks)
+    {test:'SC-3', agent:'SWE',     fetched:60,  total:60  },
+    {test:'SC-3', agent:'Opus',    fetched:60,  total:60  },
+    {test:'SC-3', agent:'Codex',   fetched:0,   total:60  },
+    {test:'SC-3', agent:'GLM',     fetched:60,  total:60  },
+    {test:'SC-3', agent:'Gemini',  fetched:60,  total:60  },
+    // OP-1 (92 chunks) — 10 runs across 2 rounds
+    {test:'OP-1', agent:'GLM',     fetched:92,  total:92  },
+    {test:'OP-1', agent:'Gemini',  fetched:0,   total:92  },
+    {test:'OP-1', agent:'SWE',     fetched:92,  total:92  },
+    {test:'OP-1', agent:'Codex',   fetched:10,  total:92  },
+    {test:'OP-1', agent:'Opus',    fetched:92,  total:92  },
+    {test:'OP-1', agent:'Sonnet',  fetched:92,  total:92  },
+    {test:'OP-1', agent:'Kimi',    fetched:0,   total:92  },
+    {test:'OP-1', agent:'GPT54',   fetched:78,  total:92  },
+    {test:'OP-1', agent:'Minimax', fetched:5,   total:92  },
+    {test:'OP-1', agent:'Grok',    fetched:1,   total:92  },
+    // SC-2 (1026 chunks)
+    {test:'SC-2', agent:'GLM',     fetched:20,  total:1026},
+    {test:'SC-2', agent:'Gemini',  fetched:0,   total:1026},
+    {test:'SC-2', agent:'Kimi',    fetched:1,   total:1026},
+    {test:'SC-2', agent:'Sonnet',  fetched:1,   total:1026},
+    {test:'SC-2', agent:'SWE',     fetched:0,   total:1026},
+    {test:'SC-2', agent:'SWE2',    fetched:0,   total:1026},
+  ];
+  var agentOrder = ['Opus','Sonnet','Gemini','GLM','Codex','GPT54','GPT55','Kimi','Minimax','Grok','SWE','SWE2'];
+  var agentLabels = {
+    Opus:    'Claude Opus 4.7',
+    Sonnet:  'Claude Sonnet 4.6',
+    Gemini:  'Gemini 3.1 Pro',
+    GLM:     'GLM-5.1',
+    Codex:   'GPT-5.3-Codex',
+    GPT54:   'GPT-5.4',
+    GPT55:   'GPT-5.5',
+    Kimi:    'Kimi K2.6',
+    Minimax: 'Minimax M2.5',
+    Grok:    'xAI Grok-3',
+    SWE:     'SWE-1.6',
+    SWE2:    'SWE-1.6*',
+  };
+  function getCellColors(isDark, fetched, total) {
+    if (fetched === 0) return {bg:isDark?'#3C3489':'#BA68C8', fg:'#fff', label:'0'};
+    var p = Math.round((fetched / total) * 100);
+    if (p === 100) return {bg:isDark?'#0F6E56':'#1D9E75', fg:'#fff', label:'100%'};
+    if (p >= 50)   return {bg:isDark?'#185FA5':'#378ADD', fg:'#fff', label:p+'%'};
+    if (p >= 10)   return {bg:isDark?'#cba452':'#FFB74D', fg:isDark?'#412402':'#412402', label:p+'%'};
+    return               {bg:isDark?'#A32D2D':'#F06292', fg:'#fff', label:'<1%'};
+  }
+  function getLegendItems(isDark, notObsBg) {
+    return [
+      {bg:isDark?'#0F6E56':'#1D9E75', label:'100% chunks fetched'},
+      {bg:isDark?'#185FA5':'#378ADD', label:'50–99% — most chunks fetched'},
+      {bg:isDark?'#cba452':'#FFB74D', label:'10–49% — sparse sampling'},
+      {bg:isDark?'#A32D2D':'#F06292', label:'<10% — minimal sampling'},
+      {bg:isDark?'#3C3489':'#BA68C8', label:'0 — no view_content_chunk calls'},
+      {bg:notObsBg,                   label:'not observed in this test'},
+    ];
+  }
+  function Code(props) {
+    return e('code', {style:{
+      background: props.isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.07)',
+      color: props.textColor || 'inherit',
+      borderRadius: 3, padding: '1px 4px', fontSize: '11px', fontFamily: 'monospace'
+    }}, props.children);
+  }
+  function HeatmapTable(props) {
+    var dark = props.isDark;
+    var cellW = props.large ? 58 : 44;
+    var cellH = props.large ? 36 : 28;
+    var agentColW = props.large ? 160 : 120;
+    var fs = props.large ? 12 : 11;
+    var tc = props.textColor || 'inherit';
+    var notObsBg = dark ? '#363634' : '#d0cec7';
+    return e('div', {className:'raw-hm-wrap'},
+      e('table', {className:'raw-hm'},
+        e('thead', null,
+          e('tr', null,
+            e('th', {className:'raw-row-head', style:{minWidth:agentColW, color:tc}}, 'Agent'),
+            testOrder.map(function(t) {
+              return e('th', {key:t.id, style:{color:tc}},
+                t.l1, e('br'), e('span', {className:'raw-chunk-count'}, t.l2)
+              );
+            })
+          )
+        ),
+        e('tbody', null,
+          agentOrder.map(function(agent) {
+            var ar = runs.filter(function(r) { return r.agent === agent; });
+            if (!ar.length) return null;
+            return e('tr', {key:agent},
+              e('td', {className:'raw-row-label', style:{color:tc, verticalAlign:'middle'}}, agentLabels[agent]),
+              testOrder.map(function(t) {
+                var run = ar.find(function(r) { return r.test === t.id; });
+                if (!run) {
+                  return e('td', {key:t.id},
+                    e('div', {style:{
+                      borderRadius:4, fontSize:fs, fontWeight:500,
+                      display:'flex', alignItems:'center', justifyContent:'center',
+                      width:cellW, height:cellH, margin:'1px auto',
+                      background:notObsBg
+                    }})
+                  );
+                }
+                var c = getCellColors(dark, run.fetched, run.total);
+                return e('td', {key:t.id},
+                  e('div', {
+                    title: run.fetched+'/'+run.total,
+                    style:{
+                      borderRadius:4, fontSize:fs, fontWeight:500,
+                      display:'flex', alignItems:'center', justifyContent:'center',
+                      width:cellW, height:cellH, margin:'1px auto',
+                      background:c.bg, color:c.fg
+                    }
+                  }, c.label)
+                );
+              })
+            );
+          })
+        )
+      )
+    );
+  }
+  function Legend(props) {
+    var dark = props.isDark;
+    var notObsBg = dark ? '#363634' : '#d0cec7';
+    var tc = props.textColor || 'inherit';
+    var items = getLegendItems(dark, notObsBg);
+    return e('table', {style:{borderCollapse:'collapse', marginTop:0, fontSize:11, width:'auto'}},
+      e('tbody', null,
+        items.map(function(item, i) {
+          return e('tr', {key:i},
+            e('td', {style:{paddingRight:8, paddingBottom:4, verticalAlign:'middle'}},
+              e('span', {style:{
+                width:12, height:12, borderRadius:2, display:'inline-block',
+                background:item.bg, border:'0.5px solid rgba(128,128,128,0.3)'
+              }})
+            ),
+            e('td', {style:{paddingBottom:4, color:tc, opacity:0.8, whiteSpace:'nowrap'}}, item.label)
+          );
+        })
+      )
+    );
+  }
+  function Note(props) {
+    var tc = props.textColor || 'inherit';
+    var dark = props.isDark;
+    var C = function(p) { return e(Code, {textColor:tc, isDark:dark}, p.children); };
+    return e('p', {className:'raw-note', style:{color:tc, marginTop:0, paddingTop:0}},
+      e('i', null,
+        'Columns: total chunks, ascending. Excluded: ',
+        e(C, null, 'EC-3'), ' — chunked pipeline not triggered (366B response). ',
+        e(C, null, 'SC-2'), ' included; redirect delivered full docs corpus, not target page. ',
+        e(C, null, 'OP-1'), ' ran 10 agents across 2 arena rounds; all shown. ',
+        e(C, null, 'SWE-1.6*'), ': SC-2 retry run. ',
+        '0: agent present but no ', e(C, null, 'view_content_chunk'), ' calls made. Hover for fetched/total.'
+      )
+    );
+  }
+  function App() {
+    var state = React.useState(false);
+    var isOpen = state[0];
+    var setOpen = state[1];
+    var isDark = detectDark();
+    var lbBg   = isDark ? '#1e1e1c' : '#ffffff';
+    var lbText = isDark ? '#e8e6df' : '#1a1a18';
+    React.useEffect(function() {
+      function onKey(ev) { if (ev.key === 'Escape') setOpen(false); }
+      if (isOpen) {
+        document.addEventListener('keydown', onKey);
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
+      return function() {
+        document.removeEventListener('keydown', onKey);
+        document.body.style.overflow = '';
+      };
+    }, [isOpen]);
+    return e('div', {style:{marginTop:'1.5rem', fontFamily:'inherit'}},
+      e('div', {onClick:function(){ setOpen(true); }, style:{cursor:'pointer'}},
+        e(HeatmapTable, {large:false, isDark:isDark}),
+        e('p', {className:'raw-hint'}, '\u2197 click to expand')
+      ),
+      e('div', {style:{display:'flex', gap:32, alignItems:'center', flexWrap:'wrap', marginTop:8, width:'100%', justifyContent:'center'}},
+        e('div', {style:{flexShrink:0}},
+          e(Legend, {isDark:isDark})
+        ),
+        e('div', {style:{flex:1, maxWidth:420}},
+          e(Note, {isDark:isDark})
+        )
+      ),
+      isOpen && e('div', {
+        className:'raw-overlay',
+        onClick:function(ev){ if (ev.target === ev.currentTarget) setOpen(false); }
+      },
+        e('div', {
+          className:'raw-overlay-inner',
+          style:{background:lbBg, color:lbText, width:'98vw'}
+        },
+          e('button', {
+            className:'raw-close',
+            style:{color:lbText},
+            onClick:function(){ setOpen(false); },
+            'aria-label':'Close'
+          }, '\u00d7'),
+          e(HeatmapTable, {large:true, isDark:isDark, textColor:lbText}),
+          e('div', {style:{display:'flex', gap:32, alignItems:'center', flexWrap:'nowrap', marginTop:8, width:'100%', justifyContent:'center'}},
+            e('div', {style:{flexShrink:0}},
+              e(Legend, {isDark:isDark, textColor:lbText})
+            ),
+            e('div', {style:{flex:1, maxWidth:420}},
+              e(Note, {isDark:isDark, textColor:lbText})
+            )
+          )
+        )
+      )
+    );
+  }
+  var root = ReactDOM.createRoot(document.getElementById('raw-hm-root'));
+  root.render(e(App));
+})();
+</script>
+{% endraw %}
+ 
+Unlike the interpreted track — where full retrieval at small chunk counts was near-universal — the raw track shows much spottier coverage even at low counts. Full pagination appears more consistently on write-task tests (EC-6, BL-1, SC-3, BL-3) where agents have a concrete reason to fetch every chunk, while tests with ambiguous scope or instruction friction (OP-1, SC-2, OP-4) produce the widest variance. The SC-2 column confirms abandonment is universal at 1,026 chunks regardless of agent family.
+ 
 ---
 
 ## Truncation Analysis
