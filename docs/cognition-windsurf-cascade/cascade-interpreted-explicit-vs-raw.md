@@ -20,21 +20,28 @@ parent: Cognition Windsurf Cascade
 
 ## Limits of Truncation Testing on a Lossy Architecture
 
-The Cascade testing framework is the most structurally complex in this collection.
-Where prior platforms surface a truncation ceiling — a point at which content arriving
-intact gets cut — Cascade's architecture discards content before an agent makes any
-selection decision. Go Colly scrapes the page. Cascade processes that output into a
-chunk index organized by headers, summaries, and metadata. The summaries themselves
-carry explicit truncation notices flagging bytes hidden per section. An agent reading
-the chunk index is already working from a lossy representation. Testing for a character
-or byte ceiling assumes content arrives intact. In this pipeline, it does not.
+The Cascade testing framework is the most structurally complex in this collection, and the
+one that most directly exposes the limits of truncation as a research question. Prior
+platforms did not resolve this cleanly either. Cursor's data suggests a ceiling, but its
+architecture is the most opaque in the series — no thought panel, no tool visibility, just
+filesystem output — so what reads as a confident measurement may reflect the limits of
+observation as much as the limits of the platform. Copilot's `fetch_webpage` performs
+relevance-ranked excerpting with no detectable fixed ceiling. Across all three, the
+pipeline between a URL and a model response is partially observable at best.
+
+Cascade makes the problem legible in a different way. Go Colly scrapes the page. Cascade
+processes that output into a chunk index organized by headers, summaries, and metadata.
+The summaries themselves carry explicit truncation notices flagging bytes hidden per
+section. An agent reading the chunk index is already working from a lossy representation.
+Testing for a character or byte ceiling assumes content arrives intact. In this pipeline,
+it does not.
 
 This is likely not a Cascade-specific property. Based on observed agent behavior across
 this testing series, content transformation before generation appears to be a general
 characteristic of agentic web fetch — agents are not web crawlers, and the pipeline
-between a URL and a model response typically passes through layers that filter, restructure,
-or summarize content before it reaches the primary LLM. This dataset does not confirm
-that claim universally, but the Cascade findings are consistent with it.
+between a URL and a model response typically passes through layers that filter,
+restructure, or summarize content before it reaches the primary LLM. This dataset does
+not confirm that claim universally, but the Cascade findings are consistent with it.
 
 The three tracks still produce findings, though not the ones the hypothesis framework
 assumed. The interpreted track and the explicit track expose chunk selection behavior,
