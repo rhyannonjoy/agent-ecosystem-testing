@@ -34,7 +34,12 @@ processes that output into a chunk index organized by headers, summaries, and me
 The summaries themselves carry explicit truncation notices flagging bytes hidden per
 section. An agent reading the chunk index is already working from a lossy representation.
 Testing for a character or byte ceiling assumes content arrives intact. In this pipeline,
-it does not.
+it does not. When agents across both Copilot and Cascade testing recognized this — that
+the pipeline was returning filtered, restructured content rather than the source — some
+switched to `curl` as a workaround. `curl` retrieval produces output closer to complete
+in byte terms, but raw HTML or JavaScript skeletons are not semantically meaningful for
+a reader trying to answer a development question from public docs. Completeness and
+usability are not the same measurement, and neither track alone captures both.
 
 This is likely not a Cascade-specific property. Based on observed agent behavior across
 this testing series, content transformation before generation appears to be a general
