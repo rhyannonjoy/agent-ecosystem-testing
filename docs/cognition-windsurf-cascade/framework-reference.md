@@ -193,7 +193,7 @@ Examine truncation analysis, method and track comparison, hypothesis matching:
 python web_search_results_analyzer.py --csv results/cascade-interpreted/results.csv --full
 python web_search_results_analyzer.py --csv results/cascade-interpreted/results.csv --summary
 python web_search_results_analyzer.py --csv results/cascade-explicit/results.csv --summary
-python web_search_results_analyzer.py --csv results/raw/results.csv --full
+python web_search_results_analyzer.py --csv results/cascade-raw/results.csv --full
 
 # Filter by method
 python cascade_web_search_results_analyzer.py \
@@ -206,9 +206,9 @@ python web_search_results_analyzer.py \
 # Compare all three tracks
 python web_search_results_analyzer.py \
    --csv results/cascade-interpreted/results.csv \
-         results/raw/results.csv \
-         results/explicit/results.csv --full
+         results/cascade-explicit/results.csv \
+         results/cascade-raw/results.csv --full
 ```
 
 >_Provide full relative path, including subdirectory: `results/cascade-interpreted/results.csv`,
->`results/raw/results.csv`, or `results/cascade-explicit/results.csv`_
+>`results/cascade-explicit/results.csv` or `results/cascade-raw/results.csv`_
