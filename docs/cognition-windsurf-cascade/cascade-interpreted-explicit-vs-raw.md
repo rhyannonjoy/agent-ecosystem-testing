@@ -20,26 +20,36 @@ parent: Cognition Windsurf Cascade
 
 ## Limits of Truncation Testing on a Lossy Architecture
 
-The central finding across all three tracks is that truncation — as a character or byte
-ceiling — was the wrong research question for Cascade. The pipeline discards content before
-an agent ever makes a selection decision. Go Colly scrapes the page, Cascade processes that
-output into a chunk index organized by headers, summaries, and metadata, and the summaries
-themselves carry explicit truncation notices flagging bytes hidden per section. An agent
-reading the index is already working from a lossy representation. Testing whether a ceiling
-exists assumes content arrives intact and gets cut. In Cascade's architecture, the cut
-happens upstream.
+The Cascade testing framework is the most structurally complex in this collection.
+Where prior platforms surface a truncation ceiling — a point at which content arriving
+intact gets cut — Cascade's architecture discards content before an agent makes any
+selection decision. Go Colly scrapes the page. Cascade processes that output into a
+chunk index organized by headers, summaries, and metadata. The summaries themselves
+carry explicit truncation notices flagging bytes hidden per section. An agent reading
+the chunk index is already working from a lossy representation. Testing for a character
+or byte ceiling assumes content arrives intact. In this pipeline, it does not.
 
-The three tracks still produce findings — just not the ones the hypothesis framework assumed.
-The interpreted and explicit tracks expose where chunk selection behavior, extraction ratio
-gaps, and self-report fidelity break down under normal use. The explicit track was designed
-to isolate a second retrieval path via Cascade's `@web` directive, which was expected to
-route to `search_web`. It did not: agents defaulted to `read_url_content` with a URL in
-all but one run across 66, confirming that `@web` is a routing hint, not a retrieval modifier,
-and that `search_web` is not a meaningful retrieval path in this context. The raw track adds
-a write task, which is where the most unexpected finding surfaces: agents can claim to have
-read content they cannot reproduce. The gap between pagination depth and write outcome has
-implications for agentic comprehension and for any pipeline that depends on Cascade
-performing documentation or retrieval tasks at scale.
+This is likely not a Cascade-specific property. Based on observed agent behavior across
+this testing series, content transformation before generation appears to be a general
+characteristic of agentic web fetch — agents are not web crawlers, and the pipeline
+between a URL and a model response typically passes through layers that filter, restructure,
+or summarize content before it reaches the primary LLM. This dataset does not confirm
+that claim universally, but the Cascade findings are consistent with it.
+
+The three tracks still produce findings, though not the ones the hypothesis framework
+assumed. The interpreted track and the explicit track expose chunk selection behavior,
+extraction ratio gaps, and self-report fidelity under normal use conditions. The explicit
+track was designed to isolate a second retrieval path: Cascade's `@web` directive was
+expected to route to `search_web`. It did not. Agents defaulted to `read_url_content`
+with a URL provided in all but one run across 66, confirming that `@web` is a routing
+hint and not a retrieval modifier, and that `search_web` is not a meaningful retrieval
+path in this context.
+
+The raw track adds a write task. This is where the most unexpected finding surfaces:
+agents can claim to have read content they cannot reproduce. The gap between pagination
+depth and write outcome is the clearest signal in this dataset about the limits of
+agentic comprehension — and about what it means to test a platform against a task it
+was not designed to perform. That negative result is itself the specification.
 
 ---
 
