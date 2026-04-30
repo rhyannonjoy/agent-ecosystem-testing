@@ -11,57 +11,45 @@ parent: Cognition Windsurf Cascade
 
 ## Topic Guide
 
-- [Three Tracks, Three Failure Modes](#three-tracks-three-failure-modes)
+- [Truncation Testing Lossy Architecture](#truncation-testing-lossy-architecture)
 - [Track Design](#track-design)
 - [Key Observations](#key-observations)
 - [Implications for Agent Developers](#implications-for-agent-developers)
 
 ---
 
-## Limits of Truncation Testing on a Lossy Architecture
+## Truncation Testing Lossy Architecture
 
-The Cascade testing framework is the most structurally complex in this collection, and the
-one that most directly exposes the limits of truncation as a research question. Prior
-platforms did not resolve this cleanly either. Cursor's data suggests a ceiling, but its
-architecture is the most opaque in the series — no thought panel, no tool visibility, just
-filesystem output — so what reads as a confident measurement may reflect the limits of
-observation as much as the limits of the platform. Copilot's `fetch_webpage` performs
-relevance-ranked excerpting with no detectable fixed ceiling. Across all three, the
-pipeline between a URL and a model response is partially observable at best.
+The Cascade testing framework is the most complex in this collection, and the one that most directly exposes the limits of
+truncation as a research question. With that said, prior platforms didn't resolve this cleanly either. Cursor's data suggests
+a ceiling, but its architecture is the most opaque in the series; no thought panel, no tool visibility, just filesystem output,
+so what reads as a confident measurement may reflect the limits of observation as much as the limits of the platform. Copilot's
+`fetch_webpage` performs relevance-ranked excerpting with no detectable fixed ceiling. Across all three, the pipeline between a
+URL and a model response is partially observable at best.
 
-Cascade makes the problem legible in a different way. Go Colly scrapes the page. Cascade
-processes that output into a chunk index organized by headers, summaries, and metadata.
-The summaries themselves carry explicit truncation notices flagging bytes hidden per
-section. An agent reading the chunk index is already working from a lossy representation.
-Testing for a character or byte ceiling assumes content arrives intact. In this pipeline,
-it does not. When agents across both Copilot and Cascade testing recognized this — that
-the pipeline was returning filtered, restructured content rather than the source — some
-switched to `curl` as a workaround. `curl` retrieval produces output closer to complete
-in byte terms, but raw HTML or JavaScript skeletons are not semantically meaningful for
-a reader trying to answer a development question from public docs. Completeness and
-usability are not the same measurement, and neither track alone captures both.
+Cascade makes the problem legible in a different way. [Colly](https://github.com/gocolly/colly) scrapes the page. Cascade
+processes that output into a chunk index organized by headers, summaries, and metadata. The summaries themselves carry explicit
+truncation notices flagging bytes hidden per section. An agent reading the chunk index is already working from a lossy representation.
+Testing for a character or byte ceiling assumes content arrives intact. In this pipeline, it does not. When agents across both Copilot
+and Cascade testing recognized this, that the pipeline was returning filtered, restructured content rather than the source, some
+switched to `curl` as a workaround. `curl` retrieval produces output closer to complete in byte terms, but raw HTML or JavaScript
+skeletons are not semantically meaningful for a human reader trying to answer a development question from public docs. Completeness and
+usability aren't the same measurement, and neither track alone captures both.
 
-This is likely not a Cascade-specific property. Based on observed agent behavior across
-this testing series, content transformation before generation appears to be a general
-characteristic of agentic web fetch — agents are not web crawlers, and the pipeline
-between a URL and a model response typically passes through layers that filter,
-restructure, or summarize content before it reaches the primary LLM. This dataset does
-not confirm that claim universally, but the Cascade findings are consistent with it.
+This is likely not a Cascade-specific design. Based on observed agent behavior across this testing series, content transformation
+before chat output generation appears to be a general characteristic of agentic web fetch. While their systems may include retrieving web
+crawler content, agents don't perform web crawling on demand by default. The pipeline between a URL and an agent response typically passes
+through layers that filter, restructure, and/or summarize content before it reaches the primary LLM.
 
-The three tracks still produce findings, though not the ones the hypothesis framework
-assumed. The interpreted track and the explicit track expose chunk selection behavior,
-extraction ratio gaps, and self-report fidelity under normal use conditions. The explicit
-track was designed to isolate a second retrieval path: Cascade's `@web` directive was
-expected to route to `search_web`. It did not. Agents defaulted to `read_url_content`
-with a URL provided in all but one run across 66, confirming that `@web` is a routing
-hint and not a retrieval modifier, and that `search_web` is not a meaningful retrieval
-path in this context.
+The three tracks still produce findings, though not the ones the hypothesis framework assumed. The interpreted track and the explicit track
+expose chunk selection behavior, extraction ratio gaps, and self-report fidelity under common use conditions. The explicit track was designed
+to isolate a second retrieval path: Cascade's `@web` directive was expected to route to `search_web`, but it didn't. Agents defaulted to
+`read_url_content` with a URL provided in all but one run across 66, confirming that `@web` is a routing hint and not a retrieval modifier;
+`search_web` isn't a meaningful retrieval path in this context.
 
-The raw track adds a write task. This is where the most unexpected finding surfaces:
-agents can claim to have read content they cannot reproduce. The gap between pagination
-depth and write outcome is the clearest signal in this dataset about the limits of
-agentic comprehension — and about what it means to test a platform against a task it
-was not designed to perform. That negative result is itself the specification.
+The raw track adds a write task, which brought the most unexpected finding: agents can claim to have read content they largely can't reproduce.
+The gap between pagination depth and write outcome is the clearest signal in this dataset about the limits of agentic comprehension, and about
+what it means to test a platform against a task it perhaps wasn't designed to perform. That negative result is itself the specification.
 
 ---
 
@@ -85,9 +73,12 @@ against ground truth via byte count, MD5 checksum, and token count. The gap betw
 depth and write outcome is itself a finding.
 
 The gap between the interpreted and explicit tracks is narrow: `@web` produced no behavioral
-change. The gap between either of those tracks and the raw track is substantial: agents that
-successfully paginated all chunks in the interpreted and explicit tracks frequently failed to
-produce a valid output file in the raw track.
+change. The gap between either of those tracks and the raw track is more subtle than it first
+appears. Claiming full retrieval was common across all three tracks — in the raw track, roughly
+20 of 66 runs reported reading 100% of available chunks. Proving it was not: only approximately
+17 of those runs produced a successful write output. The write task was designed to test whether
+retrieval claims held under output accountability. For most agents, on most large-chunk sources,
+they did not.
 
 | | Interpreted Track | Explicit Track | Raw Track |
 | - | ---------------------- | ---------------------- | -------------------------- |
@@ -142,13 +133,14 @@ produce a valid output file in the raw track.
     chars, compared to 37,600 chars on the interpreted track and 43,441 chars on the explicit
     track. The divergence reflects write strategy variation, not retrieval ceiling differences.
 
-4. **Four write failure modes are documented in the raw track**
+4. **Write outcomes in the raw track cluster into four categories**
 
-    Failure in the raw track does not cluster around a single mechanism. Four distinct modes
+    Outcome in the raw track does not cluster around a single mechanism. Four categories
     were observed:
 
     - **Pipeline acceptance**: agent retrieved chunks, assembled content, produced a valid output
-      file. Runs cluster within a narrow size band per URL.
+      file. Content quality varies — output may be structurally complete but semantically thin,
+      depending on extraction ratio and chunk selection depth.
     - **`curl` bypass**: agent correctly diagnosed that Cascade returns processed Markdown rather
       than raw content and switched to `curl`. Output files pass verification script checks but
       contain raw HTML or JavaScript skeletons without semantic prose content.
@@ -206,21 +198,34 @@ produce a valid output file in the raw track.
       in all `BL-3` runs regardless of agent or retrieval depth. Navigation and chrome were
       recovered. Article content was not.
 
-9. **SC-2 URL rewriting behavior differs between Cascade and Copilot**
+9. **SC-2 redirect behavior: successful redirect, unusable payload**
 
-    In the interpreted and explicit tracks, `docs.anthropic.com/en/api/messages` was silently
-    rewritten to `llms-full.txt` by `read_url_content`, delivering the full Anthropic docs corpus
-    instead of the targeted Messages API page. This appeared to be a tool-layer rewriting bug.
+    In all three tracks, no agent retrieved the target content at
+    `docs.anthropic.com/en/api/messages`. The URL redirected to `llms-full.txt` —
+    a format deliberately designed for LLM consumption — and the redirect completed
+    successfully. No literal error codes or HTTP status metadata confirmed the layer
+    responsible for the redirect, so whether it originated inside `read_url_content`
+    or from Anthropic's server remains unresolved. Agents across all three tracks
+    attributed the failure to a `read_url_content` tool bug — a characterization that
+    `SWE-1.6` constructed most explicitly — without considering that the redirect may
+    have been intentional. The `EC-3` test confirmed that 5-hop redirect chains
+    returning small JSON payloads completed cleanly. Scale, not redirect behavior,
+    is what made `SC-2` fail.
 
-    The raw track resolved this. Three agents successfully called `read_url_content` a second time
-    against the redirect destination surfaced in the error payload and received valid chunked
-    responses. The behavior is a server-side redirect halt, not silent pre-network URL substitution.
-    `read_url_content` makes the network call, receives the redirect, and halts rather than
-    automatically following it. The destination is actionable via a follow-up call.
+    The redirect destination is not the problem. The scale of what it delivers is.
+    `llms-full.txt` is the full Anthropic docs corpus. No agent across any track could
+    complete a targeted retrieval task against a payload that large. `Kimi` followed
+    the redirect in the raw track and produced a 53.65 MB output file. VS Code
+    tokenization, syntax highlighting, and scroll were disabled on open. The file
+    exists; the retrieval task did not succeed.
 
-    `SC-2`'s `Kimi` produced a 53.65 MB output file by following the redirect to the full docs
-    corpus. VS Code tokenization, syntax highlighting, and scroll were disabled on open. The file
-    exists; the environment was degraded.
+    The `llms-full.txt` pattern is well-intentioned — a single LLM-optimized resource
+    is a reasonable design for general agent consumption. But for targeted page
+    retrieval, granularity matters. A redirect that delivers the entire docs corpus
+    when a specific endpoint is requested may work at the network level while still
+    failing the agent trying to answer a specific development question. This suggests
+    that page-level `llms.txt` files, where they exist, may serve targeted agentic
+    retrieval better than a corpus-level redirect.
 
 10. **Agent self-report cannot distinguish retrieval mechanisms without verification**
 
