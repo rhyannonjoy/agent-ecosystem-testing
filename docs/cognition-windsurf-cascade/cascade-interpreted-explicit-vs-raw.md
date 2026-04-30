@@ -18,16 +18,28 @@ parent: Cognition Windsurf Cascade
 
 ---
 
-## Three Tracks, Three Failure Modes
+## Limits of Truncation Testing on a Lossy Architecture
 
-The central finding across all three tracks is that Cascade's retrieval behavior is not
-accurately characterized by any single observation method. The interpreted and explicit tracks
-share the same two-stage chunked pipeline architecture and produce comparable self-reported
-outputs, but neither surfaces what actually ends up on disk. The raw track provides verified
-output via filesystem measurement, but introduces a distinct second class of failure: the
-read-write asymmetry, where retrieval succeeds and persistence fails. These three tracks
-produce outputs different enough in character that cross-referencing all three is required
-to distinguish platform behavior from agent behavior, and retrieval outcome from write outcome.
+The central finding across all three tracks is that truncation — as a character or byte
+ceiling — was the wrong research question for Cascade. The pipeline discards content before
+an agent ever makes a selection decision. Go Colly scrapes the page, Cascade processes that
+output into a chunk index organized by headers, summaries, and metadata, and the summaries
+themselves carry explicit truncation notices flagging bytes hidden per section. An agent
+reading the index is already working from a lossy representation. Testing whether a ceiling
+exists assumes content arrives intact and gets cut. In Cascade's architecture, the cut
+happens upstream.
+
+The three tracks still produce findings — just not the ones the hypothesis framework assumed.
+The interpreted and explicit tracks expose where chunk selection behavior, extraction ratio
+gaps, and self-report fidelity break down under normal use. The explicit track was designed
+to isolate a second retrieval path via Cascade's `@web` directive, which was expected to
+route to `search_web`. It did not: agents defaulted to `read_url_content` with a URL in
+all but one run across 66, confirming that `@web` is a routing hint, not a retrieval modifier,
+and that `search_web` is not a meaningful retrieval path in this context. The raw track adds
+a write task, which is where the most unexpected finding surfaces: agents can claim to have
+read content they cannot reproduce. The gap between pagination depth and write outcome has
+implications for agentic comprehension and for any pipeline that depends on Cascade
+performing documentation or retrieval tasks at scale.
 
 ---
 
