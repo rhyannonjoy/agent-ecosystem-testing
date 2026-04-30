@@ -15,7 +15,7 @@ parent: Cognition Windsurf Cascade
 - [Platform Limit Summary](#platform-limit-summary)
 - [Results Details](#results-details)
 - [Agentic Pagination Depth](#agentic-pagination-depth)
-- [Write Outcome](#write-outcome)
+- [Agentic Write Performance](#agentic-write-performance)
 - [Truncation Analysis](#truncation-analysis)
 - [Perception Gap](#perception-gap)
 
@@ -416,13 +416,18 @@ table.raw-hm td.raw-row-label { font-size: 12px; text-align: left; padding-left:
 })();
 </script>
 {% endraw %}
-  
----
 
-## Write Outcome
+## Agentic Write Performance
  
-The pagination depth map shows claimed retrieval — what agents reported reading. The write outcome map shows verified output: what actually ended up on disk, and in what form. The two maps together reveal the gap. `Gemini 3.1`'s EC-6 run reads as 29% pagination coverage but maps to no file — confirmed retrieval theater via MD5 checksum. The write outcome is the only column that can't be faked.
- 
+While the [pagination depth map](#agentic-pagination-depth) shows claimed retrieval, what agents reported reading, the
+write outcome map shows verified output: what ended up on disk, and in what form. The two maps together reveal the gap.
+`EC-6`'s `Gemini` run reads as 29% pagination coverage, but doesn't map to a file; a content diff checker and MD5 checksum
+match confirmed it was all retrieval theater.
+
+Tests where pagination depth is high, but write outcomes are spotty - `BL-3`, `OP-1`,<br>`OP-4`, `SC-3`, are where the read-write
+asymmetry is most visible. `EC-3` is the only test with a clean success sweep, likely because the URL content didn't require
+chunking at all. While `EC-6` and `SC-4` appeared to produce accurate output, many runs included false completions and file reuse.
+
 {% raw %}
 <div id="raw-wo-root"></div>
 <style>
@@ -765,10 +770,6 @@ table.raw-wo td.raw-wo-row-label { font-size: 12px; text-align: left; padding-le
 })();
 </script>
 {% endraw %}
- 
-Comparing the two maps directly: tests where pagination depth is high but write outcomes are weak — `BL-3`, `SC-3`, `OP-1` — are where the read-write asymmetry is most visible. `EC-3` is the only test with a clean sweep of `P` across all agents, and it required no chunking at all. `SC-4` and `EC-6` are the only multi-chunk tests where pipeline-accepting agents consistently produced clean output.
- 
----
 
 ## Truncation Analysis
 
