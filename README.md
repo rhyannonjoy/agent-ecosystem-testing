@@ -20,10 +20,10 @@ document these details
 | -------- | ---- | ------- |
 | Anthropic Claude API | [web fetch](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool) | `claude-api/` |
 | Anysphere Cursor IDE | [`@Web` context attachment](https://cursor.com/docs/agent/prompting) | `cursor-web-fetch/` |
-| Cognition Windsurf Cascade IDE | `read_url_content`, [`@web` directive](https://docs.windsurf.com/windsurf/cascade/web-search) | `windsurf-cascade-web-search/` |
+| Cognition Windsurf<br>Cascade IDE | `read_url_content`,<br>[`@web` directive](https://docs.windsurf.com/windsurf/cascade/web-search) | `windsurf-cascade-web-search/` |
 | Google Gemini API | [URL context](https://ai.google.dev/gemini-api/docs/url-context) | `gemini-url-context/` |
-| Microsoft GitHub Copilot Extension | `fetch_webpage` and/or `curl` | `copilot-web-content-retrieval/` |
-| OpenAI Chat Completions API,<br> Responses API | [web search](https://developers.openai.com/api/docs/guides/tools-web-search) | `open-ai-web-search/` |
+| Microsoft GitHub<br>Copilot Extension | `fetch_webpage` | `copilot-web-content-retrieval/` |
+| OpenAI APIs<br>Chat Completions,<br>Responses | [web search](https://developers.openai.com/api/docs/guides/tools-web-search) | `open-ai-web-search/` |
 
 Each platform has two tracks:
 
@@ -38,7 +38,7 @@ Each platform has two tracks:
 > [Copilot Friction Note](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/microsoft-github-copilot/friction-note)
 > for methodology challenges unique to IDE-based testing_.
 >
-> _Cascade adds a third track: **Explicit** - identical to interpreted, but prefixed with `@web`; isolates whether the directive changes retrieval ceiling, tool chain, or chunking behavior_
+> _Cascade adds a third track: **Explicit** - identical to interpreted, but prefixed with `@web`; designed to test whether it changes retrieval ceiling, tool chain, or chunking behavior; [Cascade Friction: Explicit](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/cognition-windsurf-cascade/friction-note-explicit) analysis._
 
 ---
 
@@ -120,21 +120,21 @@ regardless of model - `insufficient_quota` is an account-level block, not a rate
 
 Like Copilot and Cursor, Cascade testing uses manual chat sessions in the Windsurf IDE.
 The framework generates prompts, but execution requires copy-paste into the Cascade chat
-panel. Cascade is the first platform in this collection with a user-invocable web directive —
-`@web` — making it the primary variable under test alongside the standard truncation questions.
+panel. Cascade is the first platform in this collection with a user-invocable web directive,
+`@web`, making it the primary variable under test alongside the standard truncation questions.
 All 11 URLs run across three tracks; interpreted and explicit track results are compared
 directly to isolate the `@web` effect.
 
 | Test Category | Question | What it tests |
 | --- | --- | --- |
-| Baseline | _What does Cascade retrieve by default? Does `@web` change the ceiling or output size on the same URL?_ | MongoDB docs ~20KB–256KB; HTML and Markdown URL variants |
+| Baseline | _What does Cascade retrieve by default? Does `@web` change the ceiling/output size on the same URL?_ | MongoDB docs ~20KB–256KB; HTML, Markdown URL variants |
 | Structured Content | _How does Cascade handle tables, code blocks, nested headings, and JavaScript-rendered pages?_ | Wikipedia, Anthropic API docs, Markdown Guide, Gemini docs |
-| Offset/Pagination | _Does `view_content_chunk` auto-paginate after truncation, or only when prompted?_ | 256KB MongoDB tutorial; fragment navigation via URL `#` identifier |
-| Edge Cases | _How does Cascade handle redirect chains, SPAs, raw Markdown files, and JSON endpoints?_ | 5-level redirect chain, Gemini landing page, GitHub raw `.md`, `httpbin.org` |
+| Offset/<br>Pagination | _Does `view_content_chunk` auto-paginate after truncation, or only when prompted?_ | 256KB MongoDB tutorial; fragment navigation via URL `#` identifier |
+| Edge<br>Cases | _How does Cascade handle redirect chains, SPAs, raw Markdown files, and JSON endpoints?_ | 5-hop redirect chain, Gemini landing page, GitHub raw `.md` |
 
-> _Cascade self-reported three tools during preliminary questioning: `read_url_content` for direct
-> URL fetch, `view_content_chunk` for paginating large documents via `DocumentId`, and `search_web`
-> for query-based lookup. `read_url_content` requires approval before execution —
+> _Cascade self-reported three tools: `read_url_content` for
+> URL fetch, `view_content_chunk` for paginating documents via `DocumentId`, and `search_web`
+> for query-based lookup. `read_url_content` requires approval before execution,
 > a behavior with no Copilot or Cursor equivalent._
 
 ---
