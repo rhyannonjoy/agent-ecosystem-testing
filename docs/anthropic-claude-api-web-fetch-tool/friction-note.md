@@ -8,23 +8,16 @@ permalink: /docs/anthropic-claude-api-web-fetch-tool/friction-note
 
 ---
 
-## Topic Guide
-
-- [Anthropic API Key](#anthropic-api-key)
-- [API not available on the free-tier](#api-not-available-on-the-free-tier)
-- [First Iteration: Interpreted Track Limitations](#first-iteration-interpreted-track-limitations)
-- [Second Iteration: Raw Extraction Approach](#second-iteration-raw-extraction-approach)
-
----
-
 ## Anthropic API Key
 
 The Claude docs AI assistant didn't return any results
 when asked how to obtain an API key to test the
-[web fetch tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool#how-to-use-web-fetch).
+[web fetch tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool#how-to-use-web-fetch):
 
 ```markdown
-I don't have information about how to obtain an API key in the available sources. The documentation shows examples using the web fetch tool with an API key, but doesn't explain the process for acquiring one.
+I don't have information about how to obtain an API key in the available sources.
+The documentation shows examples using the web fetch tool with an API key, but
+doesn't explain the process for acquiring one.
 
 Check out these potentially useful sources that might help: Web fetch tool
 
@@ -34,12 +27,12 @@ Would you like me to try to provide a general answer based on my knowledge inste
 **Instructions**:
 
 1. Go to [console.anthropic.com](https://platform.claude.com/dashboard) and sign up and/or log in
-2. Once you're in, look for "API Keys" in the left sidebar
-3. Click `Create Key`, give it a name like `web-fetch-testing`, and copy it immediately -
-you won't be able to see it again after you close that dialog
-4. Add key and value to the `.env` file
-5. Run `source .env`
-6. Run `python claude-api/web_fetch_test.py`
+2. Look for "API Keys" in the left sidebar
+3. Click `Create Key`, give it a name like `web-fetch-testing`
+4. Copy key immediately, won't be able to see it again after closing the dialog
+5. Add key, value to the `.env` file
+6. Run `source .env`
+7. Run `python claude-api/web_fetch_test.py`
 
 >_The name you give the key in the Claude console and your `.env` don't need to
 match. The name you gave it in the console - `"agent-ecosystem-testing-claude-web-fetch"` -
@@ -51,19 +44,20 @@ the correct secret._
 
 ---
 
-## API not available on the free-tier
+## API Not Free
 
-This API requires a paid credit balance as there isn't a free tier for API access - which is
-separate from the free tier on claude.ai. This API is pay-as-you-go, not a subscription. Add a
-small amount of credits at [console.anthropic.com](https://platform.claude.com/dashboard);
-otherwise run attempts will surface the following error:
+This API requires a paid credit balance as there isn't a free tier for API access, which is
+separate from the free tier on [claude.ai](https://claude.ai). This API is pay-as-you-go,
+not a subscription. Add a small amount of credits at
+[console.anthropic.com](https://platform.claude.com/dashboard); otherwise run attempts error:
 
 ```bash
 anthropic.BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_01...'}
 ```
+
 ---
 
-## First Iteration: Interpreted Track Limitations
+## Interpreted Track Limitations
 
 The first iteration of the Claude API test script asked Claude to describe what it
 received from each URL fetch in the form of character counts, truncation observations,
@@ -82,17 +76,17 @@ interpretation entirely. This didn't work: `fetch_content_length_chars` returned
 across all runs. The raw extraction path existed in the script but wasn't producing
 usable data.
 
-**Impact**: first-iteration results are useful for order-of-magnitude orientation —
-confirming truncation occurred, estimating retrieval rate against expected page size —
+**Impact**: first-iteration results are useful for order-of-magnitude orientation,
+confirming truncation occurred, estimating retrieval rate against expected page size,
 but not for precise cross-run comparison. The character count variance is an
 artifact of the measurement method, not a property of the fetch tool.
 
 ---
 
-## Second Iteration: Raw Extraction Approach
+## Raw Extraction Approach
 
 The second iteration strips Claude's interpretive role to the minimum required to
-trigger a fetch. The prompt is just `"Fetch this URL: {url}"` with `max_tokens=128` —
+trigger a fetch. The prompt is just `"Fetch this URL: {url}"` with `max_tokens=128` -
 Claude only needs to invoke the tool, not describe anything. This also substantially
 reduces cost per run.
 
@@ -106,7 +100,7 @@ colliding with first-iteration files from `web_fetch_test.py`.
 
 > _Raw content extraction depends on the `web_fetch_tool_result` block having a
 > specific structure. If the API response format differs from what the script expects,
-> `raw_content_chars` returns `None` — which is itself a finding worth documenting,
+> `raw_content_chars` returns `None` - which is itself a finding worth documenting,
 > as it indicates the extraction path assumption failed for that response._
 
 **Methodology Decision**: treat second-iteration raw track measurements as the
