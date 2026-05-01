@@ -220,10 +220,10 @@ is conditional, explicitly observable.
 
 | Category | Question | Track |
 | ---- | -------- | ----- |
-| Live<br>Data | _Does the tool always invoke for live data? Is citation count a reliable proxy for search depth?_ | Both |
-| Recent<br>Event | _How consistent are citation counts and source quality for a recent but stable fact?_ | Both |
-| Static<br>Fact | _Does the agent skip the tool for a static fact? Is that behavior consistent across runs?_ | Both |
-| Trivial<br>Math | _Is tool invocation skipped for a query that needs no retrieval whatsoever?_ | Raw |
+| Live Data | _Does the tool always invoke for live data? Is citation count a reliable proxy for search depth?_ | Both |
+| Recent Event | _How consistent are citation counts and source quality for a recent but stable fact?_ | Both |
+| Static Fact | _Does the agent skip the tool for a static fact? Is that behavior consistent across runs?_ | Both |
+| Trivial Math | _Is tool invocation skipped for a query that needs no retrieval whatsoever?_ | Raw |
 | Open-ended<br>Research | _Do internal search queries reflect the current date? Does `search_queries_issued` show stale date strings?_ | Both |
 | `search_context_size` Low | _What's the latency and source count at `low`?_ | Both |
 | `search_context_size` High | _Does `high` produce more sources or lower latency than `low`? Is the tradeoff consistent across runs?_ | Both |
