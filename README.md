@@ -225,10 +225,10 @@ is conditional, explicitly observable.
 | Static Fact | _Does the agent skip the tool for a static fact? Is that behavior consistent across runs?_ | Both |
 | Trivial Math | _Is tool invocation skipped for a query that needs no retrieval whatsoever?_ | Raw |
 | Open-ended<br>Research | _Do internal search queries reflect the current date? Does `search_queries_issued` show stale date strings?_ | Both |
-| `search_context_size` Low | _What's the latency and source count at `low`?_ | Both |
-| `search_context_size` High | _Does `high` produce more sources or lower latency than `low`? Is the tradeoff consistent across runs?_ | Both |
+| `search_context_size` | _What's the latency and source count at `low`?_ | Both |
+| `search_context_size` | _Does `high` produce more sources or lower latency than `low`? Is the tradeoff consistent across runs?_ | Both |
 | Domain Filter<br>Allow List | _Does `allowed_domains` actually constrain sources returned? Does it work on `web_search` vs `web_search_preview`?_ | Raw |
-| Domain filter<br>Block List | _Does `blocked_domains` work? What parameter name does the API accept?_ | Raw |
+| Domain Filter<br>Block List | _Does `blocked_domains` work? What parameter name does the API accept?_ | Raw |
 | Ambiguous<br>Query | _How does the agent resolve "Python release" - programming language, animal, or both? Is disambiguation stable?_ | Both |
 
 ---
