@@ -145,10 +145,10 @@ Both tracks test the same four URLs. The **Claude-interpreted track** asks the a
 describe what it received; the **raw track** extracts character counts, CSS indicators,
 and truncation signals programmatically from the `web_fetch_tool_result` block.
 
-| Scenario | Question | Source |
+| Category | Question | Source |
 | ---- | -------- | --------------- |
 | Short HTML, no token limit | _Does the API tool have the same CSS-eating-content problem Dachary found in Claude Code? What's the effective default token limit?_ | Short docs page with substantial inline CSS before content begins |
-| Same page, Markdown version | _Does the API tool request or prefer Markdown? How much smaller is the token footprint?_ | `.md` URL variant of Test 1 - compares `input_tokens` directly |
+| Same page, Markdown version | _Does the API tool request or prefer Markdown? How much smaller is the token footprint?_ | `.md` URL variant of first test, compares `input_tokens` directly |
 | Long page, no token limit | _At what point does content get truncated? Does the API tool behave differently than Claude Code, which truncated to ~100KB?_ | Long tabbed tutorial page, no `max_content_tokens` set |
 | Long page, explicit token limit | _Does `max_content_tokens=5000` work as documented? Is truncation clean or mid-sentence?_ | Same page as Test 3, with `max_content_tokens=5000` |
 
@@ -203,10 +203,10 @@ enums and `tool_use_prompt_token_count` directly from the response object.
 | Single HTML page | _Baseline: what does a single successful fetch look like? What's the `tool_use_prompt_token_count`?_ | Gemini docs |
 | Single PDF | _PDF is a documented supported type. Does it actually work?_ | W3C WCAG 2.1 |
 | 5 URLs | _Multi-URL baseline. Does `url_context_metadata` preserve request order?_ | Gemini API docs |
-| 20 URLs, at limit | _Does the tool handle the maximum documented URL count cleanly?_ | Gemini API docs |
-| 21 URLs, over limit | _Is the limit a hard API error or silent truncation/dropping?_ | Gemini API docs |
-| "Unsupported" URL | _YouTube documented as unsupported. Does the documented limitation match actual behavior?_ | YouTube music video |
-| "Unsupported" URL | _Google Workspace documented as unsupported. Does it fail at the API layer or the retrieval layer?_ | Google Docs edit URL |
+| 20 URLs,<br>at limit | _Does the tool handle the maximum documented URL count cleanly?_ | Gemini API docs |
+| 21 URLs,<br>over limit | _Is the limit a hard API error or silent truncation/dropping?_ | Gemini API docs |
+| "Unsupported" | _YouTube documented as unsupported. Does the documented limitation match actual behavior?_ | YouTube music video |
+| "Unsupported" | _Google Workspace documented as unsupported. Does it fail at the API layer or the retrieval layer?_ | Google Docs edit URL |
 | JSON API endpoint | _JSON is a documented supported type. Does it work for unauthenticated API endpoints?_ | GitHub API |
 
 ---
@@ -225,11 +225,11 @@ is conditional, explicitly observable.
 | Static Fact | _Does the agent skip the tool for a static fact? Is that behavior consistent across runs?_ | Both |
 | Trivial Math | _Is tool invocation skipped for a query that needs no retrieval whatsoever?_ | Raw |
 | Open-ended Research | _Do internal search queries reflect the current date? Does `search_queries_issued` show stale date strings?_ | Both |
-| `search_context_size`: low | _What's the latency and source count at `low`?_ | Both |
-| `search_context_size`: high | _Does `high` produce more sources or lower latency than `low`? Is the tradeoff consistent across runs?_ | Both |
-| Domain Filter, allow-list | _Does `allowed_domains` actually constrain sources returned? Does it work on `web_search` vs `web_search_preview`?_ | Raw |
-| Domain filter, block-list | _Does `blocked_domains` work? What parameter name does the API accept?_ | Raw |
-| Ambiguous Query | _How does the agent resolve "Python release" - programming language, animal, or both? Is disambiguation stable?_ | Both |
+| `search_context_size`: Low | _What's the latency and source count at `low`?_ | Both |
+| `search_context_size`: High | _Does `high` produce more sources or lower latency than `low`? Is the tradeoff consistent across runs?_ | Both |
+| Domain Filter,<br>Allow List | _Does `allowed_domains` actually constrain sources returned? Does it work on `web_search` vs `web_search_preview`?_ | Raw |
+| Domain filter,<br>Block List | _Does `blocked_domains` work? What parameter name does the API accept?_ | Raw |
+| Ambiguous<br>Query | _How does the agent resolve "Python release" - programming language, animal, or both? Is disambiguation stable?_ | Both |
 
 ---
 
