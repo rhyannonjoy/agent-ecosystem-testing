@@ -5,36 +5,24 @@ permalink: /docs/cognition-windsurf-cascade/cascade-test-findings-raw
 parent: Cognition Windsurf Cascade
 ---
 
-## Key Findings for Cascade's Web Search Behavior, Raw
+# Key Findings for Cascade's Web Search Behavior, Raw
 
 ---
 
-## Topic Guide
-
-- [Raw Test Workflow](#raw-test-workflow)
-- [Platform Limit Summary](#platform-limit-summary)
-- [Results Details](#results-details)
-- [Agentic Pagination Depth](#agentic-pagination-depth)
-- [Agentic Write Performance](#agentic-write-performance)
-- [Truncation Analysis](#truncation-analysis)
-- [Perception Gap](#perception-gap)
-
----
-
-## [Raw Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/windsurf-cascade-web-search/web_search_testing_framework.py)
+## [Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/windsurf-cascade-web-search/web_search_testing_framework.py)
 
 1. Run `python web_search_testing_framework.py --test {test ID} --track raw`
-2. Review the terminal output
-3. Copy the provided prompt instructing the agent to retrieve the URL and return
+2. Review terminal output
+3. Copy the provided prompt instructing agent to retrieve the URL and return
    content exactly as received, saving output to `results/raw/raw_output_{test_ID}.txt`
-4. Open a new Cascade session in Windsurf and paste the prompt into the chat window
+4. Open a new Cascade session in Windsurf, paste the prompt into the chat window
 5. Approve web fetch calls and terminal commands; cancel if any run loops hang
 6. Run the verification script against the saved file; capture path compliance,
    file size, checksum, and truncation indicators
 7. Log structured metadata as described in `framework-reference.md`
-8. Ensure log results are saved to `/results/cascade-raw/results.csv`
+8. Ensure log results saved to `/results/cascade-raw/results.csv`
 
-> _Raw output file presence, path compliance, and content fidelity are tracked. Claiming a save without writing a file, referencing another
+> _Raw output file presence, path compliance, and content fidelity tracked. Claiming a save without writing a file, referencing another
 > agent's file, or generating structurally accurate but semantically unmeaningful content all describe distinct failure modes;
 > analysis in [Friction: Raw](friction-note-raw.md)._
 
@@ -43,7 +31,7 @@ parent: Cognition Windsurf Cascade
 ## Platform Limit Summary
 
 | **Limit** | **Observed** |
-|---|---|
+| --- | --- |
 | **Hard Character Limit** | _None detected_: output sizes ranged from 275 to 56,256,891 chars;<br>ceilings agent-imposed and/or write-stage failures, not explicitly<br> platform-imposed byte limits |
 | **Hard<br>Token<br>Limit** | _None detected_: token counts ranged from 52 to 12,782,469;<br>`BL-3`'s `SWE` error message `model's generation exceeded the maximum output token limit` first to suggest a write ceiling |
 | **Write Strategy** | _Capability doesn't predict output quality, but agent reasoning_: <br>- pipeline acceptance runs cluster within narrow size band per URL <br>- deliberate elision - `Opus` only agent to ask questions mid-session<br>- `curl` bypass - files pass verification without prose<br>- silent failure - false completions, reuse, environment-degrading output |
@@ -60,17 +48,17 @@ parent: Cognition Windsurf Cascade
 ## Results Details
 
 | | |
-|---|---|
-| **Agent Selector** | Hybrid Arena — 5 slots per run;<br>`OP-1` includes two arena rounds |
+| --- | --- |
+| **Agent Selector** | Hybrid Arena - 5 slots per run;<br>`OP-1` includes two arena rounds |
 | **Agents Observed** | `Claude Opus 4.7`, `Claude Sonnet 4.6`, `Gemini 3.1`,<br>`GLM-5.1`, `GPT-5.3-Codex`, `GPT-5.4`, `GPT-5.5`,<br>`Kimi K2.6`, `Minimax M2.5`, `SWE-1.6`, `xAI Grok-3` |
 | **Total Runs** | 66 |
 | **Distinct URLs** | 11 |
-| **Input Size Range** | estimation, rendered: ~2 KB – 256 KB<br> pipeline output, depending on retrieval method: 275B – 56 MB|
+| **Input Size Range** | estimation, rendered: ~2 KB - 256 KB<br> pipeline output, depending on retrieval method: 275 B - 56 MB |
 | **Truncation Events** | explicitly reported 5 / 66 <br>chunked-architecture often acknowledged as lossy by design |
 | **Average Output Size** | 1,129,230 chars |
-| **Output Size Range** | 275 – 56,256,891 chars |
+| **Output Size Range** | 275 - 56,256,891 chars |
 | **Average Token Count** | 266,105 tokens |
-| **Token Count Range** | 52 – 12,782,469 tokens |
+| **Token Count Range** | 52 - 12,782,469 tokens |
 | **Approval-gated Fetch** | 56 / 66 runs prompted for approval |
 | **Auto-pagination** | 48 runs |
 | **Failures** | - `BL-1` `Gemini` task drift, token overflow<br>- `EC-6` `Gemini` retrieval theater<br>- `OP-1` most agents don't isolate target section<br>- `OP-4` retrieval success, but no clean output<br>- `SC-2` redirect halt |
@@ -85,12 +73,12 @@ how they strategize the write task. Chunks-analyzed remains a primary behavioral
 Full pagination appears more consistently throughout the raw track, suggesting the write task influences reason to retrieve
 each chunk. Document size and structure still have an impact, as `OP-1`, `OP-4`, and `SC-2` produce the widest variance.
 `SC-2` confirms abandonment is universal at 1,026 chunks regardless of agent family.
- 
+
 {% raw %}
 <div id="raw-hm-root"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
- 
+
 <style>
 .raw-hm-wrap { overflow-x: auto; }
 table.raw-hm { border-collapse: collapse; width: 100%; }
@@ -122,7 +110,7 @@ table.raw-hm td.raw-row-label { font-size: 12px; text-align: left; padding-left:
 .raw-close:hover { opacity: 1; }
 .raw-note { font-size: 12px; margin-top: 10px; line-height: 1.6; opacity: 0.7; }
 </style>
- 
+
 <script>
 (function() {
   var e = React.createElement;
@@ -418,7 +406,7 @@ table.raw-hm td.raw-row-label { font-size: 12px; text-align: left; padding-left:
 {% endraw %}
 
 ## Agentic Write Performance
- 
+
 While the [pagination depth map](#agentic-pagination-depth) shows claimed retrieval, what agents reported reading, the
 write outcome map shows verified output: what ended up on disk, and in what form. The two maps together reveal the gap.
 `EC-6`'s `Gemini` run reads as 29% pagination coverage, but doesn't map to a file; a content diff checker and MD5 checksum
@@ -430,6 +418,7 @@ chunking at all. While `EC-6` and `SC-4` appeared to produce accurate output, ma
 
 {% raw %}
 <div id="raw-wo-root"></div>
+
 <style>
 .raw-wo-wrap { overflow-x: auto; }
 table.raw-wo { border-collapse: collapse; width: 100%; }
@@ -461,7 +450,7 @@ table.raw-wo td.raw-wo-row-label { font-size: 12px; text-align: left; padding-le
 .raw-wo-close:hover { opacity: 1; }
 .raw-wo-note { font-size: 12px; margin-top: 10px; line-height: 1.6; opacity: 0.7; }
 </style>
- 
+
 <script>
 (function() {
   var e = React.createElement;
@@ -776,10 +765,10 @@ table.raw-wo td.raw-wo-row-label { font-size: 12px; text-align: left; padding-le
 | **#** | **Finding** | **Tests** | **Observed** | **Conclusion** |
 |---|---|---|---|---|
 | 1 | **No fixed character or token ceiling detected at retrieval stage** | All tests | Output sizes ranged from<br>275 B to 56 MB; no run hit a tool-imposed retriveal byte ceiling | **Ceilings self-imposed and/or write-stage failures: deliberate elision or environment degradation; retrieval pipeline has no confirmed upper bound** |
-| 2 | **Output token ceiling as a write-stage failure mechanism** | `BL-3` | `SWE` exceeded the model's output token limit explicitly mid-write, visible in the thought panel in real time; first direct observation of this ceiling across any Cascade track | **Ceiling real but write-related, not retrieval-related. Prior tracks inferred it; `BL-3` observed it directly** |
+| 2 | **Output token ceiling as a write-stage failure mechanism** | `BL-3` | `SWE` exceeded the agent's output token limit explicitly mid-write, visible in the thought panel in real time; first direct observation of this ceiling across any Cascade track | **Ceiling real but write-related, not retrieval-related. Prior tracks inferred it; `BL-3` observed it directly** |
 | 3 | **Read-write asymmetry as dominant structural finding** | `SC-3` `SC-4` `BL-3` `OP-4` | Most agents successfully retrieved all chunks in every test; write success was substantially lower across the same tests | **Retrieval via `view_content_chunk` reliable; obstacle is reassembling, persisting at scale** |
-| 4 | **Auto-pagination confirmed,<br>but doesn't predict output success** | All tests | 48 of 66 runs auto-paginated; 3 of 4 `BL-1` auto-paginating runs still failed to produce a valid output file | **`H5`-yes across the dataset; behavior robust; doesn't guarantee file persistence or<br>content fidelity** |
-| 5 | **Auto-pagination threshold<br>~1K chunks** | `SC-2` `BL-2` `EC-3` | Most agents fully-paginated at ≤ 50 chunks; no agent auto-paginated `SC-2`'s 1,026-chunk corpus | **Threshold exists, exact boundary is unconfirmed, but likely in 100 - 1K chunks range** |
+| 4 | **Auto-pagination confirmed,<br>but doesn't predict output success** | All tests | 48 of 66 runs auto-paginated; 3 of 4 `BL-1` auto-paginating runs still failed to produce a valid output file | **`H5`-yes across the dataset; behavior robust; doesn't guarantee file persistence or content fidelity** |
+| 5 | **Auto-pagination threshold<br>~1K chunks** | `SC-2` `BL-2` `EC-3` | Most agents fully paginated at ≤ 50 chunks; no agent auto-paginated `SC-2`'s 1,026-chunk corpus | **Threshold exists, exact boundary is unconfirmed, but likely in 100 - 1K<br>chunks range** |
 | 6 | **`curl` bypass produces semantically empty output** | `BL-1` `BL-3` `SC-2` `SC-3` `EC-1` `EC-6` | Agents that correctly diagnose the pipeline as returning processed Markdown switch to `curl`; resulting files contain raw HTML or JS skeletons, architecturally correct, textually less meaningful | **Pipeline abandonment is dominant response to fidelity instinct, produce files that pass verification while missing target content** |
 | 7 | **Cross-agent file reuse confirmed at checksum level** | `BL-2` `BL-3` `EC-6` `OP-1` | `Gemini`, `GLM` produced output files with identical MD5 checksum; `GLM` ran earlier, wrote first; `Gemini`'s thought panel narrated retrieval while making no corresponding tool calls | **Path compliance independent variable; file presence at correct path doesn't confirm independent retrieval** |
 | 8 | **False completion claims as a distinct failure mode** | `BL-1` `BL-3` `EC-6` `SC-3` `OP-1` | `Gemini`, `GPT-5.3-Codex`, `SWE` reported metrics, file paths for content that was never written | **Confident assertions without uncertainty signal structurally different from spirals, early stops, but all three failure modes produce same outcome: no valid output file** |
@@ -792,16 +781,16 @@ table.raw-wo td.raw-wo-row-label { font-size: 12px; text-align: left; padding-le
 
 ## Perception Gap
 
+> _The [write outcome map](#agentic-write-performance) is the only verified signal in this dataset. Agent self-report, output size, and path compliance are somewhat insufficient to distinguish genuine retrieval from `curl` bypass, deliberate elision, or retrieval theater without cross-agent checksum comparison and thought panel inspection._
+
 | **Test** | **Expected** | **Received** | **Delivery Ratio** | **Agent Characterization** |
-|---|---|---|---|---|
-| **`EC-6`<br>Raw Markdown** | ~60 KB | ~96 KB<br>3 agents, independent writes | ~100% | _"Complete — chunk assembly variation within ±858 chars; elision markers are source false positives"_ |
-| **`SC-4` Markdown Guide** | ~30 KB | `Sonnet`<br>30.44 KB<br>`Minimax` 32.33 KB | ~100% | _"Complete — breadcrumb heading injection at chunk boundaries inflates Minimax output; 6 elision markers present, but may be tool-layer assembly artifacts"_ |
-| **`EC-3` Redirect JSON** | ~2 KB | 366 B<br>identical output | ~100% | _"Complete — 5-hop redirect chain followed cleanly; unique `X-Amzn-Trace-Id` per run confirms independent live requests"_ |
+| --- | --- | --- | --- | --- |
+| **`EC-6`<br>Raw Markdown** | ~60 KB | ~96 KB<br>3 agents, independent writes | ~100% | _"Complete, chunk assembly variation within ±858 chars; elision markers are source false positives"_ |
+| **`SC-4` Markdown Guide** | ~30 KB | `Sonnet`<br>30.44 KB<br>`Minimax` 32.33 KB | ~100% | _"Complete, breadcrumb heading injection at chunk boundaries inflates Minimax output; 6 elision markers present, but may be tool-layer assembly artifacts"_ |
+| **`EC-3` Redirect JSON** | ~2 KB | 366 B<br>identical output | ~100% | _"Complete, 5-hop redirect chain followed cleanly; unique `X-Amzn-Trace-Id` per run confirms independent live requests"_ |
 | **`SC-1` Gemini API Docs** | ~40 KB | 38–44 KB chunk cluster<br> 10.25 KB via direct fetch | chunk ~97%<br>direct ~60% | _"Chunk cluster structurally identical across agents; direct fetch cleaner, but loses code blocks, navigation structure"_ |
 | **`SC-3` Wikipedia** | ~100 KB | `SWE`<br>69.5 KB pipeline<br>`GLM`/`Gemini`<br>275–774 KB via `curl` | pipeline ~68%; curl ~270–760% | _"Pipeline converts HTML tables to plain text lists, stripping column-row structure entirely; 255 table rows confirmed in raw HTML, 0 preserved in any Cascade-native output"_ |
-| **`EC-1` Gemini API SPA** | ~100 KB | `SWE`, `Opus` ~33–35 KB pipeline; `GPT`/`Gemini` ~118 KB<br>via `curl` | pipeline ~32–34%; curl ~115% | _"JavaScript SPA handled by Cascade pre-processing layer; `SWE`, `Opus` extracted semantic content, code blocks, model descriptions; `curl` returned raw HTML skeleton regardless of agent"_ |
+| **`EC-1` Gemini API SPA** | ~100 KB | `SWE`, `Opus` ~33–35 KB pipeline; `GPT`/`Gemini` ~118 KB<br>via `curl` | pipeline ~32–34%; curl ~115% | _"JavaScript SPA handled by Cascade pre-processing layer; `SWE`, `Opus` extracted semantic content, code blocks, agent descriptions; `curl` returned raw HTML skeleton regardless of agent"_ |
 | **`BL-1` MongoDB Docs** | ~85 KB | `Opus`<br>~8 KB<br>`GLM`<br>~32 KB | ~9–38% | _"Pipeline output is 8–32 KB of filtered Markdown; raw HTML is<br>508 KB; no tool produces<br>estimated size"_ |
 | **`BL-3` Tutorial** | ~250 KB | `Opus`<br>~7.4 KB<br> `GLM`<br>~468 KB | ~3% pipeline<br> ~180% via `curl` | _"Pipeline abandoned for `curl`; `curl` output Gatsby/React skeleton, no tutorial body content"_ |
 | **`SC-2` Anthropic Docs** | ~80 KB | `Kimi`<br>53.65 MB | Full docs corpus | _"Scale outlier; VS Code tokenization, highlighting, scroll disabled on open; file exists, environment degraded"_ |
-
-> _Implication: the [write outcome map](#agentic-write-performance) is the only verified signal in this dataset. Agent self-report, output size, and path compliance are somewhat insufficient to distinguish genuine retrieval from `curl` bypass, deliberate elision, or retrieval theater without cross-agent checksum comparison and thought panel inspection._
