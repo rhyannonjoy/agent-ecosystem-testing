@@ -6,23 +6,7 @@ permalink: /docs/anysphere-cursor/friction-note
 parent: Anysphere Cursor
 ---
 
->_Friction: this note describes roadblocks while refining testing methodology_
-
----
-
-## Topic Guide
-
-- [Agent as Unreliable Methodology Validator](#agent-as-unreliable-methodology-validator)
-- [Autonomous Cross-Track Data Reuse - Data Integrity Risk](#autonomous-cross-track-data-reuse---data-integrity-risk)
-- [Autonomous CSV Modification - Data Integrity Risk](#autonomous-csv-modification---data-integrity-risk)
-- [Autonomous Test Sequencing](#autonomous-test-sequencing)
-- [Autonomous Tool Substitution on Timeout](#autonomous-tool-substitution-on-timeout)
-- [File Sync Delays](#file-sync-delays)
-- [Model Default Undocumented](#model-default-undocumented)
-- [Pro Plan Required](#pro-plan-required)
-- [Test ID Numbering Gaps](#test-id-numbering-gaps)
-- [`@Web` Evolution From Manual Context to Automatic Agent Capability](#web-evolution-from-manual-context-to-automatic-agent-capability)
-- [`@Web` Undocumented, Requires Reverse-Engineering](#web-undocumented-requires-reverse-engineering)
+# Friction Note: Roadblocks While Refining Methodlogy
 
 ---
 
@@ -254,7 +238,7 @@ significantly in Cursor 2.0. While `@Web` doesn't get its own documentation page
 mentioned in [Prompting agents](https://cursor.com/docs/agent/prompting):
 
 ```shell
-Cursor 2.0 removed explicit items like @Web, @Git, @Definitions, @Linter Errors, and others from the
-context menu. Agent now self-gathers this context without manual attachment. For example, ask Agent
-to review changes on your branch instead of using @Git.
+Cursor 2.0 removed explicit items like @Web, @Git, @Definitions, @Linter Errors, and others 
+from the context menu. Agent now self-gathers this context without manual attachment. For
+example, ask Agent to review changes on your branch instead of using @Git.
 ```
