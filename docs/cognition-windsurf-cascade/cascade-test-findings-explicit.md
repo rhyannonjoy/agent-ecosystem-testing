@@ -494,7 +494,7 @@ without mentioning that in this context, calling it would produce no behavioral 
   <div class="web-card">
     <p class="web-card-agent">GPT-5.3-Codex</p>
     <span class="web-card-tag">Tool Mapping Only</span>
-    <p class="web-card-quote">"<code>@web</code> maps conceptually to web retrieval tooling — <code>read_url_content</code> under the hood."</p>
+    <p class="web-card-quote">"<code>@web</code> maps conceptually to web retrieval tooling - <code>read_url_content</code> under the hood."</p>
   </div>
   <div class="web-card">
     <p class="web-card-agent">Kimi K2.5</p>
@@ -504,7 +504,7 @@ without mentioning that in this context, calling it would produce no behavioral 
   <div class="web-card">
     <p class="web-card-agent">Claude Sonnet 4.6</p>
     <span class="web-card-tag">UI Awareness</span>
-    <p class="web-card-quote">"Not a distinct tool or named symbol — a user-facing shorthand in the Windsurf chat UI."</p>
+    <p class="web-card-quote">"Not a distinct tool or named symbol - a user-facing shorthand in the Windsurf chat UI."</p>
   </div>
   <div class="web-card">
     <p class="web-card-agent">Claude Opus 4.6-7</p>
@@ -529,7 +529,7 @@ without mentioning that in this context, calling it would produce no behavioral 
   <div class="web-card">
     <p class="web-card-agent">Gemini 3.1</p>
     <span class="web-card-tag">Implementation Detail</span>
-    <p class="web-card-quote">"A macro proxying to <code>read_url_content</code> — runs the page through a parsing service that breaks the document into an AST-like structure chunked by headings."</p>
+    <p class="web-card-quote">"A macro proxying to <code>read_url_content</code> - runs the page through a parsing service that breaks the document into an AST-like structure chunked by headings."</p>
   </div>
 </div>
 
