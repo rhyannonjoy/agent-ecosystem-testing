@@ -189,7 +189,7 @@ cd cursor-web-fetch
 
 ## Analyzing Results
 
-Review truncation analysis, method and track comparisons, hypothesis matching:
+Review hypotheses matching, tracking comparisons, and truncation analysis:
 
 ```bash
 # Generate full analysis report
