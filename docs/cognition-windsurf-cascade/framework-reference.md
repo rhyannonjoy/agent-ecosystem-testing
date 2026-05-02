@@ -5,7 +5,7 @@ permalink: /docs/cognition-windsurf-cascade/framework-reference
 parent: Cognition Windsurf Cascade
 ---
 
-## Cascade Framework Reference
+# Cascade Framework Reference
 
 >_This framework generates standardized test prompts and logs CSV results,
 >enabling consistent testing across cases, measurement tracking over time,
@@ -15,16 +15,8 @@ parent: Cognition Windsurf Cascade
 
 ---
 
-## Topic Guide
-
-- [Installation](#installation)
-- [Workflow](#workflow)
-- [Baseline Testing Path](#baseline-testing-path)
-- [Analyzing Results](#analyzing-results)
-
----
-
 ## Installation
+
 ```bash
 # Clone and/or navigate to `agent-ecosystem-testing` directory
 cd agent-ecosystem-testing
@@ -61,7 +53,7 @@ cd windsurf-cascade-web-search
    expected size reference:
 
    ```bash
-   # Cascade-interpreted track - ask model to report measurements; no @web
+   # Cascade-interpreted track - ask agent to report measurements; no @web
    python web_search_testing_framework.py --test BL-1 --track interpreted
 
    # Explicit track - identical to interpreted track, prefixed with @web
@@ -80,20 +72,20 @@ cd windsurf-cascade-web-search
 4. **Assess Hypotheses**
 
    Before logging test results, assess the run against each hypothesis based on
-   the model's self-reported metrics and tool visibility output:
+   the agent's self-reported metrics and tool visibility output:
 
    | **ID** | **Description** | **Question** |
    | --- | --- | --- |
    | `H1` | Character-based truncation<br>at fixed limit | _Is there a ceiling at ~10–100 KB?_ |
    | `H2` | Token-based truncation | _Is there a ceiling at ~2,000 tokens?_ |
    | `H3` | Structure-aware truncation | _Does truncation fall on Markdown boundaries rather than arbitrary<br>byte positions?_ |
-   | `H4` | `@web` directive changes retrieval ceiling, tool chain, or<br>chunking behavior | _Is Cascade's `@web` redundant<br>as Cursor's `@Web`?_ |
+   | `H4` | `@web` directive changes retrieval ceiling, tool chain, or chunking behavior | _Is Cascade's `@web` redundant<br>as Cursor's `@Web`?_ |
    | `H5` | `view_content_chunk` auto-paginates via `DocumentId` without explicit prompting | _Does the agent fetch with<br>auto-chunking, or only when reasoned into it?_ |
 
 5. **Log Results**
 
-   Run the interactive logger and follow the prompts. Fields are grouped by track: session fields first, then track-specific
-   output fields, then hypothesis and notes. Quotation marks not necessary; optional fields can be skipped with `Enter` -
+   Run the interactive logger and follow the prompts. Fields grouped by track: session fields first, then track-specific
+   output fields, then hypothesis and notes. Quotation marks not necessary; skip optional fields with `Enter` -
 
    ```bash
    # Call the logger
@@ -105,7 +97,7 @@ cd windsurf-cascade-web-search
 
    > _Verify key metrics before logging raw track runs:<br>`python web_search_verify_raw_results.py {test ID}`_
 
-   > _If a log command fails before completing, the CSV may be written without headers.
+   > _If a log command fails before completing, the CSV may write without headers.
    > Run `python web_search_add_csv_headers.py --track {track name}` to recover._
 
    **Framework fields logged per track**:
@@ -173,20 +165,19 @@ cd windsurf-cascade-web-search
 | --- | --- | --- |
 | `BL-1`<br>`BL-2` | Baseline truncation threshold<br>on small pages | _What is the interpreted vs explicit delta?_ |
 | `SC-2` | Code blocks,<br>HTML-to-Markdown conversion | _How does `read_url_content`<br> handle code structure?_ |
-| `OP-1` | Fragment identifier navigation | _Does Cascade jump to specific section via URL fragment?_ |
-| `OP-4` | Auto-pagination<br>hypothesis | _Does `view_content_chunk` invoke<br>automatically via `DocumentId`?_ |
+| `OP-1` | Fragment identifier<br>navigation | _Does Cascade jump to specific section<br>via URL fragment?_ |
+| `OP-4` | Auto-pagination | _Does `view_content_chunk` invoke<br>automatically via `DocumentId`?_ |
 | `BL-3` | Hard ceiling | _What is the absolute output limit<br>across `read_url_content` runs?_ |
 | `SC-1`<br>`SC-3`<br>`SC-4` | Structured content | _Does truncation respect<br>Markdown boundaries?_ |
 | `EC-1`<br>`EC-3`<br>`EC-6` | Edge cases | _What are the failure modes and<br>approval-gating edge behaviors?_ |
 
->_**Raw track only**: rename raw output files to capture variance;
->if results are consistent, remove files to prevent test contamination between runs_
+>_Rename raw output files to capture variance; if results are consistent, remove files to prevent test contamination between runs_
 
 ---
 
 ## Analyzing Results
 
-Examine truncation analysis, method and track comparison, hypothesis matching:
+Examine hypotheses matching, track comparison, and truncation analysis:
 
 ```bash
 # Single track — full analysis or summary
