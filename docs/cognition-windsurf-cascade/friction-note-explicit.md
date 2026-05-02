@@ -5,28 +5,18 @@ permalink: /docs/cognition-windsurf-cascade/friction-note-explicit
 parent: Cognition Windsurf Cascade
 ---
 
->_Friction: this note describes roadblocks while refining testing methodology_
-
----
-
-## Topic Guide - Explicit Track
-
-- [Agent as Unreliable Methodology Validator](#agent-as-unreliable-methodology-validator)
-- [Agent Self-Reporting Fidelity](#agent-self-reporting-fidelity)
-- [Agentic Inaction](#agentic-inaction)
-- [`SC-2` URL Redirect Behavior](#sc-2-url-redirect-behavior)
-- [`@web` Semantics: Prompt-Tool Misalignment](#web-semantics-prompt-tool-misalignment)
+# Friction Note: Roadblocks While Refining Methodology
 
 ---
 
 ## Agent as Unreliable Methodology Validator
 
-The explicit track's conflict: instructing agents to "use `@web`" while providing a specific URL for fetching —
+The explicit track's conflict: instructing agents to "use `@web`" while providing a specific URL for fetching -
 mirrors a failure mode documented during
 [Cursor testing](../anysphere-cursor/friction-note.md#agent-as-unreliable-methodology-validator), but with an
 important behavioral difference.
 
-During Cursor testing, `@Web` was invoked under the false premise that it triggered web fetching and content
+Cursor testing invoked `@Web` under the false premise that it triggered web fetching and content
 retrieval. Cursor never flagged the misuse. It executed tests, generated reports, and logged `@Web` in tool
 usage output, actively reinforcing the misconception rather than correcting it. The methodology was built on
 a misunderstanding of the mechanism being tested, and the agent's behavior made that misunderstanding invisible
@@ -41,7 +31,7 @@ distinction. `SWE-1.6`'s response is representative:
 > would have been used if you had asked something like 'find MongoDB documentation about
 > create events' without providing the URL."_
 
-The correction required a follow-up prompt. No agent flagged the conflict proactively during the initial test run —
+The correction required a follow-up prompt. No agent flagged the conflict proactively during the initial test run -
 they silently resolved it by tool-appropriateness reasoning and reported their behavior without noting the
 discrepancy with the prompt instruction. This is better than Cursor's behavior, which reinforced the misuse, but it
 still required human follow-up to identify the correction. A user who didn't ask would have received seemingly
@@ -54,14 +44,14 @@ with `SWE`, Cognition's own model, whose architectural knowledge is present, but
 
 ### Methodology Implication
 
-The follow-up probe — _"why aren't you using `@web` like the prompt requests?"_ — should be treated as a required
+Treat the follow-up probe _"why aren't you using `@web` like the prompt requests?"_ as a required
 methodology step for the explicit track, not an optional clarification. It surfaces correction behavior that the
 initial run conceals, and the variance in how agents explain the conflict is itself a data point about tool visibility
 across models.
 
 The broader implication from the Cursor parallel holds here: testing frameworks built with agents require external
 validation. An agent that silently resolves a directive-task conflict by choosing the correct tool looks identical,
-in its output, to an agent that followed the prompt correctly. Without the follow-up, the distinction is invisible —
+in its output, to an agent that followed the prompt correctly. Without the follow-up, the distinction is invisible -
 and the tool reporting from the initial run is unreliable as a record of what the prompt intended to measure.
 
 ---
@@ -73,7 +63,7 @@ different behavior: both were collapsing multiple chunks per call, up to 12 at a
 this in their output.
 
 `SWE` reported reading positions 0, 1, 500, and 1008. `Kimi` reported reading positions 0, 100, 500, 1000, and 1008.
-In both cases, the thought panel showed batch reads of up to 12 chunks being collapsed into single reported reads.
+In both cases, the thought panel showed batch reads of up to 12 chunks collapsing into single reported reads.
 Neither agent noted the discrepancy between stated and actual retrieval behavior.
 
 The inverse pattern appeared in `OP-4`. `GLM-5.1` retrieved 14 chunks nonlinearly across the index, all visible in the
@@ -82,8 +72,8 @@ chunk count or position list at all. In both cases the sampling pattern was only
 the output. These represent distinct fidelity failures operating in opposite directions:
 
 | | **`SC-2`** | **`OP-4`** | **`BL-3`** | **`SC-1`** | **`SC-4`** |
-|---|---|---|---|---|---|
-| **Direction** | Under-reporting | Partial reporting | Under-reporting | Execution opacity | Under-reporting |
+| --- | --- | --- | --- | --- | --- |
+| **Direction** | Under-reporting | Partial<br>reporting | Under-reporting | Execution opacity | Under-<br>reporting |
 | **What's Hidden** | Batch reads collapsed into single stated positions | Nonlinear position sequence, sometimes chunk count | Exact call count; `GLM` ~32% undercount | Parallel execution mechanism | Re-reads collapsed within named entries; true call count exceeds reported |
 | **Report Appearance** | Looks like minimal, precise sampling | Looks like complete tool visibility | Looks like accurate sequential sampling | Looks like sequential retrieval | Looks like complete full retrieval |
 
@@ -98,7 +88,7 @@ panel showed 19 passes, a ~32% undercount. `Kimi` again omitted chunk count and 
 consistent with its `OP-4` behavior. `Claude Sonnet 4.6` was the exception: its report accurately reflected 6 sampled
 chunks with explicit position labels and reasoning about the sampling strategy, matching thought panel behavior. Alongside
 `SWE`'s `OP-4` full call disclosure, these two accurate cases used opposite strategies: exhaustive retrieval and deliberate
-sparse sampling. What they share is that the sampling rationale was made explicit in output, and not left to the thought panel.
+sparse sampling. What they share is that the output made sampling rationale explicit, and not left to the thought panel.
 
 `SC-1` introduced parallel execution opacity. All runs showed named chunk labels collapsing into unlabeled passes mid-sequence
 in the thought panel, batching calls in a way that loses per-position granularity. `GPT-5.3-Codex` is the only agent to name the
@@ -108,9 +98,9 @@ unresolvable from output alone. `GPT`'s tendency to expose implementation detail
 signal. The same underlying operation may produce different levels of visibility depending on the agentic output's abstraction level.
 
 During `SC-4`, `o3`'s thought panel showed 33 `Analyzed content` entries consistent with its reported full retrieval of all 33 chunks.
-However, several of those entries contained collapsed multi-chunk reads — "2 chunks," "3 chunks," "4 chunks" — suggesting more reading.
-This differs from `SC-2`'s pattern, where the stated positions were clearly insufficient. Here the under-reporting is only visible
-because the collapsed entries suggest self-report repression of re-reads or re-analyses.
+However, several of those entries contained collapsed multi-chunk reads - _"2 chunks,"_ _"3 chunks,"_ _"4 chunks"_ - suggesting
+more reading. This differs from `SC-2`'s pattern, where the stated positions were clearly insufficient. Here the under-reporting
+is only visible because the collapsed entries suggest self-report repression of re-reads or re-analyses.
 
 ### Methodology Implication
 
@@ -146,11 +136,14 @@ _"the original page likely contains more sections and that content was either no
 used `search_web` in an attempt to verify. No agent noted that it was choosing not to verify.
 
 `GLM-5.1` during `SC-2` is the only explicit track agent to invoke `search_web`, and the result illustrates a boundary
-case for the tool's utility: the call returned near-empty results for the Anthropic docs, with summaries reading `"Loading... Loading..."`, consistent with `search_web` being unable to render JavaScript-heavy pages. The agent correctly identified
-this as a limitation rather than a content finding. This is useful negative data — `search_web` and `read_url_content` have non-overlapping failure modes, and `GLM` inadvertently demonstrated both in the same session; but it also means the one
-agent that called `search_web` as a verification tool _received nothing verifiable from it_. The tool was available, used,
-and still didn't close the uncertainty the agent had already flagged. The inaction finding from `BL-1` and `BL-2`
-holds: having access to `search_web` and calling `search_web` are not the same as getting useful output from it.
+case for the tool's utility: the call returned near-empty results for the Anthropic docs, with summaries reading
+`"Loading... Loading..."`, consistent with `search_web` being unable to render JavaScript-heavy pages. The agent correctly
+identified this as a limitation rather than a content finding. This is useful negative data - `search_web` and
+`read_url_content` have non-overlapping failure modes, and `GLM` inadvertently demonstrated both in the same session;
+but it also means the one agent that called `search_web` as a verification tool _received nothing verifiable from it_.
+The tool was available, used, and still didn't close the uncertainty the agent had already flagged. The inaction finding
+from `BL-1` and `BL-2` holds: having access to `search_web` and calling `search_web` aren't the same as getting useful
+output from it.
 
 ### Methodology Implication
 
@@ -171,11 +164,12 @@ Agents interpreted this as a tool-level bug, a type of requested path substituti
 output included constructed reasoning, but no hard error codes or instrumentation output:
 
 ```markdown
-`read_url_content` appears to have an internal URL rewriting issue that transforms `https://docs.anthropic.com/en/api/messages` into
+`read_url_content` appears to have an internal URL rewriting issue that transforms
+`https://docs.anthropic.com/en/api/messages` into
 `https://docs.anthropic.com/llms-full.txt`, which then redirects to a non-existent endpoint"
 ```
 
-The explicit track's runs reproduced the same behavior. No agent received the target content, all were redirected to `llms-full.txt`,
+The explicit track's runs reproduced the same behavior. No agent received the target content, all redirected to `llms-full.txt`,
 but there's reason to question the "rewriting" characterization. `llms-full.txt` is a format deliberately for LLM consumption. A
 server-side `301/302` redirect from `docs.anthropic.com/en/api/messages` to the LLM-optimized docs set is likely intentional design,
 not a bug. The agents received a redirect instruction from the error response and followed it; whether the redirect originated inside
@@ -183,20 +177,20 @@ not a bug. The agents received a redirect instruction from the error response an
 
 | | **Tool-layer Rewriting** | **Server-side Redirect** |
 |---|---|---|
-| **Origin** | `read_url_content` intercepts<br>before network call | Anthropic's server returns `301/302` |
-| **_Requested path fetched?_** | _No_ — substituted before<br>request is made | _No_ — redirect followed<br>as specified |
+| **Origin** | `read_url_content` intercepts<br>before network call | Anthropic's server<br>returns `301/302` |
+| **_Requested path fetched?_** | _No_, substituted before<br>request made | _No_, redirect followed<br>as specified |
 | **Implication** | Cascade bug | Intentional routing for<br>LLM-consumption |
 | **Affects** | Cascade only | Any automated fetch against `docs.anthropic.com` |
-| **Agent Diagnostic Source** | _No_ - error codes absent<br>or redirect metadata not visible in thought panel | Inferred from redirect<br>response text |
-| **_Resolvable by raw track?_** | Assumed | Assumed |
+| **Agent Diagnostic Source** | _No_, error codes absent<br>or redirect metadata not visible in thought panel | Inferred from redirect<br>response text |
+| **_Resolvable by<br>raw track?_** | Assumed | Assumed |
 
 ### Methodology Implication
 
 Treat the interpreted track's "URL rewriting" as an agent-generated hypothesis, not a confirmed finding. The raw track may resolve
-this if the prompts reveal any additional HTTP `GET` details. Until those tests are run, "redirect behavior" is the neutral
+this if the prompts reveal any additional HTTP `GET` details. Until those tests run, _"redirect behavior"_ is the neutral
 characterization in which the layer responsible remains a mystery.
 
-> _This failure mode is recharacterized in the [Friction: Raw content](friction-note-raw.md#read_url_content-redirect-halt-behavior)._
+> _The [Friction: Raw content](friction-note-raw.md#read_url_content-redirect-halt-behavior) recharacterizes this failure mode._
 
 ---
 
@@ -204,15 +198,15 @@ characterization in which the layer responsible remains a mystery.
 
 The explicit track exists to answer a specific question: does prefixing `@web` change retrieval behavior? Does this
 additional syntax have any impact on ceiling, tool chain, chunking? The first `BL-1` runs identified a question that
-must be resolved before that comparison is meaningful: what does `@web` actually map to?
+requires resolution before that comparison is meaningful: what does `@web` actually map to?
 
 According to [Windsurf's documentation](https://docs.windsurf.com/windsurf/cascade/web-search), `@web` is a
-directive to "force a docs search." The docs distinguish this explicitly from "reading pages," which describe
-`read_url_content` as a separate capability that "happens locally on the user's machine" and is unaffected by
-the "Enable Web Search" admin setting. These are architecturally distinct operations:
+directive to _"force a docs search."_ The docs distinguish this explicitly from _"reading pages,"_ which describe
+`read_url_content` as a separate capability that _"happens locally on the user's machine"_, unaffected by
+the _"Enable Web Search"_ admin setting. These are architecturally distinct operations:
 
-- `@web` / `search_web` — takes a query, returns a ranked list of URLs with snippets
-- `read_url_content` — takes a specific URL, fetches and chunks its content
+- `@web` / `search_web` - takes a query, returns a ranked list of URLs with snippets
+- `read_url_content` - takes a specific URL, fetches and chunks its content
 
 The original prompt instructs agents to "use the `@web` directive to fetch this URL directly." This is a contradictory
 instruction: `@web` is a search hint; the task is a URL fetch. Agents can't satisfy both simultaneously. Across `BL-1`
@@ -237,12 +231,12 @@ me to use, or is "@web" a directive that maps to one of these tools?
 
 Generally, the agents aren't wrong. Given a specific URL and a fetch task, `read_url_content` is the correct tool. The prompt
 created a conflict that agents resolved by prioritizing task appropriateness over instruction-following. This is behaviorally
-reasonable, but methodologically, it means the explicit track as currently designed doesn't test what it was designed to test.
+reasonable, but methodologically, it means the explicit track as currently designed doesn't test what it intended to test.
 Like the interpreted track, among 60+ tests, `search_web` was only called once as a type of fallback or additional verification
 tool. The explicit track prompt requires working-in _"what's your understanding of `@web`?"_ to test the intended hypothesis.
 The goal is to capture the interpretation data in the same response as the behavioral data without steering agents toward a
 forced-choice answer before they report what they actually did.
 
-The directive-task conflict is not an anomaly to suppress. Methodology refinement could include replacing the test URL with a
+The directive-task conflict isn't an anomaly to suppress. Methodology refinement could include replacing the test URL with a
 keyword query, but that would break cross-platform comparability with the interpreted track. Keeping the prompt mostly as-is can
 add a type of conflict-resolution dimension to the findings without losing the core behavioral comparison.
