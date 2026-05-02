@@ -41,10 +41,10 @@ CSS extraction failure, and self-reporting fidelity gaps. Extensions:
 ## Platform Limit Summary
 
 | **Limit** | **Observed** |
-|---|---|
+| --- | --- |
 | **Hard Character Limit** | _None detected_: `read_url_content` returns a chunked index, not raw content with a byte ceiling; output chars reflect agent chunk selection depth from a pipeline that has no full-page retrieval path |
 | **Hard Token Limit** | _None detected_: estimates ranged from ~91-85,000 tokens;<br>no run hit a fixed ceiling |
-| **Output Consistency** | _Agent-dependent, self-reported_: same URL and prompt produces ~365–350,000 chars depending on agent and chunk selection; figures without verification script cross-reference; some values are retrieved content, others are full-doc extrapolations |
+| **Output Consistency** | _Agent-dependent, self-reported_: same URL and prompt produces ~365–350,000 chars depending on agent and chunk selection; figures without verification script cross-reference; some values retrieved content, others full-doc extrapolations |
 | **Content Selection Behavior** | _Two-stage chunked retrieval_: `read_url_content` returns a positional index with summaries; content requires sequential `view_content_chunk`<br>calls per position |
 | **Truncation Pattern** | _Two independent truncation layers_: agent chunk selection, most large page content never fetched; per-chunk display ceiling variable by chunk, remainder hidden with a byte-count notice |
 | **Redirect Chains** | _Consistent_: tested 5-level redirect chain; returned inline<br>without triggering chunked pipeline |
@@ -419,7 +419,7 @@ content - as much as individual agent capability.
 
 ---
 
-## `@web`: Routing Hint, not Retrieval Modifier 
+## `@web`: Routing Hint, not Retrieval Modifier
 
 Across all runs, no agent said the obvious thing: `@web` is redundant with a URL. Agents exhibited a wide range
 of architectural understanding from non-recognition to mechanical familiarity of the underlying parsing service,
