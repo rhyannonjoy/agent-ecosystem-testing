@@ -10,10 +10,10 @@ permalink: /docs/anthropic-claude-api-web-fetch-tool/web-fetch-test-findings
 
 ## [Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/claude-api/web_fetch_test.py)
 
-    1. Call Claude's API with the web fetch tool enabled
-    2. Give Claude a URL, ask it to fetch the page, describe what it got
-    3. Claude fetches the page, then reports back what it received
-    4. Results saved to `claude-api/results/`
+1. Call Claude's API with the web fetch tool enabled
+2. Give Claude a URL, ask it to fetch the page, describe what it got
+3. Claude fetches the page, then reports back what it received
+4. Results saved to `claude-api/results/`
 
 ---
 

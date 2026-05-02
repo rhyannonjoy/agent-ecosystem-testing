@@ -12,16 +12,16 @@ parent: Anysphere Cursor
 
 ## [Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/cursor-web-fetch/web_fetch_testing_framework.py)
 
-    1. Run `python web_fetch_testing_framework.py --test {test ID} --track interpreted`
-    2. Review terminal output
-    3. Copy the provided prompt requesting agent report `@Web`* fetch results:
-       character count, token estimate, truncation status, content completeness,
-       Markdown formatting integrity
-    4. Open a new Cursor session, paste prompt into chat window
-    5. Capture agent's full text response, observations as the interpreted-finding;
-       gap between agent's self report and actual fetch behavior is a finding
-    6. Log structured metadata as described in `framework-reference.md`
-    7. Ensure log results saved to `/results/cursor-interpreted/results.csv`
+1. Run `python web_fetch_testing_framework.py --test {test ID} --track interpreted`
+2. Review terminal output
+3. Copy the provided prompt requesting agent report `@Web`* fetch results:
+   character count,<br>token estimate, truncation status, content completeness,
+   Markdown formatting integrity
+4. Open a new Cursor session, paste prompt into chat window
+5. Capture agent's full text response, observations as the interpreted-finding;
+   gap<br>between agent's self report and actual fetch behavior is a finding
+6. Log structured metadata as described in `framework-reference.md`
+7. Ensure log results saved to `/results/cursor-interpreted/results.csv`
 
 >_*Results logged as "Methods tested: `@Web`" reflect user-facing prompt syntax. Post-analysis revealed testing misused `@Web` as a
 >fetch command rather than a context attachment. Cursor may autonomously call backend mechanisms `WebFetch`, `mcp_web_fetch` regardless

@@ -18,7 +18,7 @@ parent: Cognition Windsurf Cascade
 4. Open a new Cascade session in Windsurf, paste the prompt into the chat window
 5. Approve web fetch calls and terminal commands; cancel if any run loops hang
 6. Run the verification script against the saved file; capture path compliance,
-   file size, checksum, and truncation indicators
+   file size,<br>checksum, and truncation indicators
 7. Log structured metadata as described in `framework-reference.md`
 8. Ensure log results saved to `/results/cascade-raw/results.csv`
 

@@ -12,14 +12,14 @@ parent: Anysphere Cursor
 
 ## [Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/cursor-web-fetch/web_fetch_testing_framework.py)
 
-    1. Run `python web_fetch_testing_framework.py --test {test ID} --track raw`
-    2. Review terminal output
-    3. Copy provided prompt requesting `@Web`* fetch the URL, save verbatim output
-    4. Open a new Cursor session in VS Code, paste prompt into the chat window
-    5. Examine saved `raw_output{test ID}.txt` file
-    6. Run `python3 web_fetch_verify_raw_results.py {test ID}` to calculate metrics
-    7. Log structured metadata with metrics as described in `framework-reference.md`
-    8. Ensure log results saved to `/results/raw/results.csv`
+1. Run `python web_fetch_testing_framework.py --test {test ID} --track raw`
+2. Review terminal output
+3. Copy provided prompt requesting `@Web`* fetch the URL, save verbatim output
+4. Open a new Cursor session in VS Code, paste prompt into the chat window
+5. Examine saved `raw_output{test ID}.txt` file
+6. Run `python3 web_fetch_verify_raw_results.py {test ID}` to calculate metrics
+7. Log structured metadata with metrics as described in `framework-reference.md`
+8. Ensure log results saved to `/results/raw/results.csv`
 
 >_*Results logged as "Methods tested: `@Web`" reflect user-facing, prompt syntax. Post-analysis revealed testing misuse of `@Web` as a
 >fetch command rather than a context attachment. Cursor may autonomously call backend mechanisms `WebFetch`, `mcp_web_fetch`

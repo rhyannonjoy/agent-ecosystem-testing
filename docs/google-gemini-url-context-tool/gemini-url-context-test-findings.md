@@ -12,32 +12,32 @@ parent: Google Gemini URL Context
 
 ## [Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/gemini-url-context/url_context_test.py)
 
-    1. Call the Gemini API with the URL context tool enabled
-    2. Give Gemini a detailed prompt asking it to describe what it retrieved:
-       content length, structure, completeness, any failures
-    3. Gemini fetches each URL via its pre-retrieval step, then generates a
-       response reflecting on what it received
-    4. Capture Gemini's full text response as the interpreted finding
-    5. Capture `url_context_metadata` and `usage_metadata` for
-       cross-referencing against the raw track
-    6. The gap between Gemini's self-report and the raw metadata is itself
-       a finding, and discrepancies belong in the spec
-    7. Results stored in `gemini-url-context/results/gemini-interpreted/`
+1. Call the Gemini API with the URL context tool enabled
+2. Give Gemini a detailed prompt asking it to describe what it retrieved:
+   <br>content length, structure, completeness, any failures
+3. Gemini fetches each URL via its pre-retrieval step, then generates a
+   response<br>reflecting on what it received
+4. Capture Gemini's full text response as the interpreted finding
+5. Capture `url_context_metadata` and `usage_metadata` for
+   cross-referencing<br>against the raw track
+6. The gap between Gemini's self-report and the raw metadata is itself
+   a finding,<br>and discrepancies belong in the spec
+7. Results stored in `gemini-url-context/results/gemini-interpreted/`
 
 ---
 
 ## Results Summary
 
-| Test | URLs Req | URLs OK | Tokens<br>r1/r2/r3 | Result |
-| ---- | -------: | ------: | -----------: | ----------: | ------ |
-| `test_1_single_html` | 1 | 1 | 3,142<br>3,151<br>3,141 | Consistent across runs |
-| `test_2_single_pdf` | 1 | 0 | 147<br>151<br>156 | `URL_RETRIEVAL_STATUS_ERROR` |
-| `test_3_multi_url_5` | 5 | 5 | 27,564<br>27,579<br>27,572 | Consistent across runs |
-| `test_4_multi_url_20` | 20 | 20 | 111,401<br>111,714<br>111,375 | Consistent across runs |
-| `test_5_multi_url_21` | 21 | 0 | _null_ | `400 INVALID_ARGUMENT` |
-| `test_6_unsupported_youtube` | 1 | 1 | 1,288<br>1,291<br>1,570 | Succeeded - docs say unsupported. Token variance in run 3 |
-| `test_7_unsupported_google_doc` | 1 | 0 | _null_ / 181<br>192 | `429` and `URL_RETRIEVAL_STATUS_ERROR` - r1 rate-limited, r2 & r3 confirm |
-| `test_8_json_content` | 1 | 0 | _null_<br>133<br>_null_ | `429` and r2: `URL_RETRIEVAL_STATUS_ERROR` - r1 & r3 daily quota exhausted  |
+| **Test** | **URLs Req** | **URLs OK** | **Tokens<br>R1/R2/R3** | **Result** |
+| ---- | ------- | ------ | ----------- | ---------- | ------ |
+| **`test_1_single_html`** | 1 | 1 | 3,142<br>3,151<br>3,141 | Consistent across runs |
+| **`test_2_single_pdf`** | 1 | 0 | 147<br>151<br>156 | `URL_RETRIEVAL_STATUS_ERROR` |
+| **`test_3_multi_url_5`** | 5 | 5 | 27,564<br>27,579<br>27,572 | Consistent across runs |
+| **`test_4_multi_url_20`** | 20 | 20 | 111,401<br>111,714<br>111,375 | Consistent across runs |
+| **`test_5_multi_url_21`** | 21 | 0 | _null_ | `400 INVALID_ARGUMENT` |
+| **`test_6_unsupported_youtube`** | 1 | 1 | 1,288<br>1,291<br>1,570 | Succeeded - docs say unsupported. Token variance in run 3 |
+| **`test_7_unsupported_google_doc`** | 1 | 0 | _null_<br>181<br>192 | `429` and `URL_RETRIEVAL_STATUS_ERROR`,<br>run 1 rate-limited, runs 2-3 confirm |
+| **`test_8_json_content`** | 1 | 0 | _null_<br>133<br>_null_ | `429` and r2: `URL_RETRIEVAL_STATUS_ERROR`,<br>run 1, 3 daily quota exhausted  |
 
 >`gemini-2.5-flash`, free tier daily cap 20 RPD reached after `test_7` run 3
 

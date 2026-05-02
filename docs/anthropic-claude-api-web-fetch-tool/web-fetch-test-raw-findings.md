@@ -10,14 +10,14 @@ permalink: /docs/anthropic-claude-api-web-fetch-tool/web-fetch-test-raw-findings
 
 ## [Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/claude-api/web_fetch_test_raw.py)
 
-    1. Call Claude's API with the web fetch tool enabled
-    2. Give Claude a minimal prompt, just enough to trigger the fetch
-    3. Claude fetches page, but not asked to interpret or describe it
-    4. Extract the raw content directly from the `web_fetch_tool_result`
-       block in the response object
-    5. Run analysis in Python: character counts, CSS indicator detection,
-       boilerplate estimation, truncation detection
-    6. Results saved to `claude-api/results/`
+1. Call Claude's API with the web fetch tool enabled
+2. Give Claude a minimal prompt, just enough to trigger the fetch
+3. Claude fetches page, but not asked to interpret or describe it
+4. Extract the raw content directly from the `web_fetch_tool_result`
+    block in the response object
+5. Run analysis in Python: character counts, CSS indicator detection,
+    boilerplate estimation,<br>truncation detection
+6. Results saved to `claude-api/results/`
 
 ---
 

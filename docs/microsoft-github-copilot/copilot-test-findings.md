@@ -11,17 +11,17 @@ parent: Microsoft GitHub Copilot
 
 ## [Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/copilot-web-content-retrieval/web_content_retrieval_testing_framework.py)
 
-    1. Run `python web_content_retrieval_testing_framework.py --test {test ID} --track interpreted`
-    2. Review the terminal output
-    3. Copy the provided prompt asking the model to report on fetch results:
-       character count, token estimate, truncation status, content completeness,
-       Markdown formatting integrity, and tool visibility
-    4. Open a new Copilot session in VS Code and paste the prompt into the chat window
-    5. Skip any tool call prompts for local scripts or code execution
-    6. Capture model's full text response and observations as the interpreted finding;
-       gap between the model's self-report and actual fetch behavior is a finding
-    7. Log structured metadata as described in `framework-reference.md`
-    8. Ensure log results are saved to `/results/copilot-interpreted/results.csv`*
+1. Run `python web_content_retrieval_testing_framework.py --test {test ID} --track interpreted`
+2. Review terminal output
+3. Copy the provided prompt asking the model to report on fetch results:
+   character count,<br>token estimate, truncation status, content completeness,
+   Markdown formatting integrity,<br>and tool visibility
+4. Open a new Copilot session in VS Code and paste the prompt into the chat window
+5. Skip any tool call prompts for local scripts or code execution
+6. Capture model's full text response and observations as the interpreted finding;
+  <br>gap between the model's self-report and actual fetch behavior is a finding
+7. Log structured metadata as described in `framework-reference.md`
+8. Ensure esults saved to `/results/copilot-interpreted/results.csv`*
 
 >*_Results logged as "Methods tested: `vscode-chat`" reflect manual process in which prompts are copy-pasted into the Copilot
 >chat window. Copilot has no publicly documented backend web content retrieval mechanism; tool logs identified `fetch_webpage`; read

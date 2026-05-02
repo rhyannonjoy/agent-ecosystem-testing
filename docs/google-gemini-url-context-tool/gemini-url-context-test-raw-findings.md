@@ -15,16 +15,16 @@ parent: Google Gemini URL Context
 1. Call the Gemini API with the URL context tool enabled
 2. Give Gemini a minimal prompt - just enough to trigger URL retrieval
 3. Gemini fetches each URL via its pre-retrieval step, but isn't asked
-   to interpret, describe, or reflect on what it received
+   to<br>interpret, describe, or reflect on what it received
 4. Extract raw retrieval outcomes directly from `url_context_metadata`
-   in the response object -`retrieved_url` and `url_retrieval_status`
+   in the<br>response object -`retrieved_url` and `url_retrieval_status`
    per URL
 5. Extract token accounting from `usage_metadata` —
-   `tool_use_prompt_token_count`, URL content tokens, and
+   `tool_use_prompt_token_count`,<br>URL content tokens, and
    `prompt_token_count`, text prompt tokensm, recorded separately
 6. Run all analysis in Python: URL counts, status enum enumeration,
-   success/failure rates, token breakdowns
-7. Results stored in `google-gemini-url-context/results/raw/`
+   success/failure<br>rates, token breakdowns
+7. Ensure results saved in `google-gemini-url-context/results/raw/`
 
 ---
 

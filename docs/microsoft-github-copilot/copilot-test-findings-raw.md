@@ -11,18 +11,18 @@ parent: Microsoft GitHub Copilot
 
 ## [Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/copilot-web-content-retrieval/web_content_retrieval_testing_framework.py)
 
-    1. Run `python web_content_retrieval_testing_framework.py --test {test ID} --track raw`
-    2. Review terminal output
-    3. Copy the provided prompt asking Copilot to retrieve the URL, save the content
-       exactly as received, report file size, MD5 checksum, character/line/word/token
-       counts, code blocks, table rows, headers, hexdump of last 256 bytes, and any
-       visible tool/server identifiers
-    4. Open a new Copilot session in VS Code, paste the prompt into the chat window
-    5. Allow terminal tool calls; skip any requests for local script runs
-    6. Run the verifier: `python web_content_retrieval_verify_raw_results.py {test ID}`
-    7. Log both Copilot-reported, verifier-measured values as separate fields;
-       the delta between them is the finding
-    8. Ensure log results saved to `/results/raw/results.csv`
+1. Run `python web_content_retrieval_testing_framework.py --test {test ID} --track raw`
+2. Review terminal output
+3. Copy the provided prompt asking Copilot to retrieve the URL, save the content<br>
+   exactly as received, report file size, MD5 checksum, character/line/word/token<br>
+   counts, code blocks, table rows, headers, hexdump of last 256 bytes, and any<br>
+   visible tool/server identifiers
+4. Open a new Copilot session in VS Code, paste the prompt into the chat window
+5. Allow terminal tool calls; skip any requests for local script runs
+6. Run the verifier: `python web_content_retrieval_verify_raw_results.py {test ID}`
+7. Log both Copilot-reported, verifier-measured values as separate fields;
+   <br>the delta between them is the finding
+8. Ensure log results saved to `/results/raw/results.csv`
 
 >*_Results logged as "Methods tested: `vscode-chat`" reflect a manually operated testing process in which prompts are copy-pasted into the Copilot
 >chat window. The raw track captures the actual saved file independently of Copilot's self-report, enabling direct comparison; read [Friction Note](friction-note.md) for methodology complications._

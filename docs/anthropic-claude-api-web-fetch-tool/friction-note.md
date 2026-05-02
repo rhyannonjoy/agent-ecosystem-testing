@@ -14,15 +14,9 @@ The Claude docs AI assistant didn't return any results
 when asked how to obtain an API key to test the
 [web fetch tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool#how-to-use-web-fetch):
 
-```markdown
-I don't have information about how to obtain an API key in the available sources.
-The documentation shows examples using the web fetch tool with an API key, but
-doesn't explain the process for acquiring one.
-
-Check out these potentially useful sources that might help: Web fetch tool
-
-Would you like me to try to provide a general answer based on my knowledge instead?
-```
+>_"I don't have information about how to obtain an API key in the available sources. The documentation shows examples using the web fetch tool with an API key, but
+>doesn't explain the process for acquiring one. Check out these potentially useful sources that might help: Web fetch tool
+>Would you like me to try to provide a general answer based on my knowledge instead?"_
 
 **Instructions**:
 
