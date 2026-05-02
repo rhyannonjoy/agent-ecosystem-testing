@@ -4,7 +4,7 @@ title: "Friction Note"
 permalink: /docs/anthropic-claude-api-web-fetch-tool/friction-note
 ---
 
->_Friction: this note describes roadblocks while refining testing methodology_
+# Friction Note: Roadblocks While Refining Methodology
 
 ---
 
