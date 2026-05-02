@@ -5,30 +5,7 @@ permalink: /docs/microsoft-github-copilot/friction-note
 parent: Microsoft GitHub Copilot
 ---
 
->_Friction: this note describes roadblocks while refining testing methodology_
-
----
-
-## Topic Guide
-
-- [Agentic Metric Computation - Raw Track](#agentic-metric-computation---raw-track)
-- [Agentic Over-Delivery, Headers Generation - Raw Track](#agentic-over-delivery-headers-generation---raw-track)
-- [Agentic Over-Delivery, Unsolicited Cross-Run Analysis - Raw Track](#agentic-over-delivery-unsolicited-cross-run-analysis---raw-track)
-- [Agent's Choice: Truncation vs Architectural Excerpting](#agents-choice-truncation-vs-architectural-excerpting)
-- [Autonomous Tool Substitution - Interpreted Track](#autonomous-tool-substitution---interpreted-track)
-- [`Auto`'s Multi-Model Routing Instability](#autos-multi-model-routing-instability)
-- [Explicit Tool Substitution Reasoning - Raw Track](#explicit-tool-substitution-reasoning---raw-track)
-- [Extension Version Upgrade Mid-Testing](#extension-version-upgrade-mid-testing)
-- [`fetch_webpage` Intra-Value Truncation and Silent Reconstruction](#fetch_webpage-intra-value-truncation-and-silent-reconstruction)
-- [`fetch_webpage` Not Consistently Invoked](#fetch_webpage-not-consistently-invoked)
-- [`fetch_webpage` Undocumented](#fetch_webpage-undocumented)
-- [Free Plan Quota Exhausted Mid-Testing](#free-plan-quota-exhausted-mid-testing)
-- [Metric Definition Underspecification - Raw Track](#metric-definition-underspecification---raw-track)
-- [Metric Precision - Interpreted Track](#metric-precision---interpreted-track)
-- [Output Integrity: Duplicated Response Sections](#output-integrity-duplicated-response-sections)
-- [Prompt Format Affects Output Structure](#prompt-format-affects-output-structure)
-- [Prompt Refinement Can't Suppress Retrieval-Layer Transformation](#prompt-refinement-cant-suppress-retrieval-layer-transformation)
-- [Truncation Taxonomy](#truncation-taxonomy)
+# Friction Note: Roadblocks While Refining Methodology
 
 ---
 
@@ -275,10 +252,8 @@ volume or specific model routing.
 Part of probing whether `fetch_webpage`'s output represents hard-cutoff truncation or a designed
 architectural behavior included a direct question to Copilot:
 
-```markdown
-"Please describe what web content truncation means to you. Is this an architecturally designed
-component of `fetch_webpage`?"
-```
+>_"Please describe what web content truncation means to you. Is this an architecturally designed
+>component of `fetch_webpage`?"_
 
 Before answering, the agent searched the workspace: reviewing `results.csv`,
 `web_content_retrieval_testing_framework.py`, and `framework-reference.md` - and grounded its
@@ -423,11 +398,11 @@ representation of which web content retrieval it's actually using.
 Beyond routing instability, `BL-3` data on the interpreted track surfaced two behaviorally distinct
 model-family clusters that persist across runs:
 
-| **Behavior** | **GPT-family** - `GPT-5.3-Codex`, `GPT-5.4` | **Claude-family** - `Claude Haiku 4.5` |
+| **Behavior** | `GPT-5.3-Codex`<br>`GPT-5.4` | `Claude Haiku 4.5` |
 | --- | --- | --- |
-| **Fetch Invocations** | 2–3 per run; self-diagnoses first result as insufficient and re-fetches | 1 per run; no self-diagnosis or re-fetch |
+| **Fetch Invocations** | 2–3 per run; self-diagnoses first result as insufficient and re-fetches | 1 per run;<br>no self-diagnosis or re-fetch |
 | **Output Size Range** | ~15,000–33,000 chars across 4 runs | ~42,850–87,000 chars across 2 runs |
-| **Within-model Variance** | Moderate | High, ~2x difference - 87,000 vs 42,850 on identical prompts, same model, same sampling parameter; no observable explanation |
+| **Within-model Variance** | _Moderate_ | _High_ ~2x difference - 87,000 vs 42,850 on identical prompts, same model, same sampling parameter; no observable explanation |
 
 The behavioral split between model families is notable, but the within-model variance for
 `Claude Haiku 4.5` limits how much weight the output size difference can carry; a ~2x spread
@@ -463,17 +438,14 @@ variance and don't average character counts across mixed-model runs for the same
 
 ---
 
-### Explicit Tool Substitution Reasoning - Raw Track
+## Explicit Tool Substitution Reasoning - Raw Track
 
 `SC-4` run 4 selected `GPT-5.3-Codex` to produce the first instance of explicit tool substitution
 reasoning in the dataset. Prior `curl` substitution runs completed via `curl` without explanation.
 Run 4 stated the reasoning directly:
 
-```markdown
-"The fetch tool only returns a condensed 'relevant context' view with omissions, so to
-satisfy your 'exactly as received' requirement I'm now capturing the URL response bytes
-directly via terminal."
-```
+>_"The fetch tool only returns a condensed 'relevant context' view with omissions, so to satisfy your 'exactly as received' requirement I'm now capturing the URL response bytes
+>directly via terminal."_
 
 The agent correctly diagnosed `fetch_webpage`'s architectural behavior - relevance-ranked
 excerpts rather than raw bytes - and deliberately switched to `curl` to satisfy the
@@ -533,10 +505,7 @@ consistent with the `model_observed` split applied to `Auto` routing.
 `fetch_webpage` eliding content inside a single JSON field value rather than between content chunks. The agent's
 tool visibility report flagged:
 
-```markdown
-"Apparent truncation marker: `...` appeared mid-User-Agent string in tool output,
-indicating the tool truncated content internally"
-```
+>_"Apparent truncation marker: `...` appeared mid-User-Agent string in tool output, indicating the tool truncated content internally"_
 
 The `...` appeared inside the User-Agent header value in `fetch_webpage`'s tool response payload, a single string
 field, not a boundary between excerpted sections. The saved `raw_output_EC-3.txt` file contains the complete
@@ -582,12 +551,8 @@ When asked to describe its default model and web fetch and/or web content retrie
 `Raptor mini (Preview)` described its fetch capability in general terms, but characterized it relative to workspace
 context rather than as a native tool:
 
-```markdown
-"In this repo context, fetch is usually done via provider-specific modules:
-`web_fetch_testing_framework.py`, `web_fetch_test.py`, `web_search_test.py`
-...Under the hood, these scripts call external APIs (e.g., cursor, Anthropic Claude,
-OpenAI search) rather than raw `requests.get` in a generic common tool."
-```
+>_"In this repo context, fetch is usually done via provider-specific modules: `web_fetch_testing_framework.py`, `web_fetch_test.py`, `web_search_test.py`
+>...Under the hood, these scripts call external APIs (Cursor, Anthropic Claude, OpenAI search) rather than raw `requests.get` in a generic common tool."_
 
 This suggests `Raptor mini` may conflate workspace scripts with its own fetch capability - it didn't identify
 `fetch_webpage` as a native tool when asked directly, despite having used it in `BL-1` runs. Combined with the
@@ -615,9 +580,7 @@ Unlike previous platform testing, Copilot doesn't have its default web content r
 After the first successful `BL-1` run, the agent reported using a tool called `fetch_webpage` - but this tool has
 no public docs. Asking Copilot directly returns a deflection:
 
-```markdown
-"Sorry, I'm unable to answer that question. Check that you selected the correct GitHub version or try a different question."
-```
+>_"Sorry, I'm unable to answer that question. Check that you selected the correct GitHub version or try a different question."_
 
 This is consistent with the `@Web` evolution pattern documented in
 [Cursor's Friction Note](/docs/anysphere-cursor/friction-note.md#web-undocumented-requires-reverse-engineering);
@@ -628,9 +591,7 @@ behavior observed across all interpreted-track runs. The agent explicitly stated
 HTTP retrieval, but returns relevance-ranked semantic excerpts based on the query string provided, with `...` markers
 between contextually selected chunks. The tool response preamble visible in the output confirmed this directly:
 
-```markdown
-"Here is some relevant context from the web page [url]:"
-```
+>_"Here is some relevant context from the web page [url]:"_
 
 This preamble, not a raw payload header, indicates a retrieval model that samples and ranks content rather than fetching
 it sequentially. The full ~250 KB page was never delivered; no contiguous truncation boundary exists because the content
@@ -669,10 +630,7 @@ internally.
 Free GitHub Copilot accounts have a monthly chat message quota that may exhaust
 mid-session. During `SC-2` run 3 on the interpreted track, Copilot returned:
 
-```markdown
-"You've reached your monthly chat messages quota. Upgrade to Copilot Pro
-(30-day free trial) or wait for your allowance to renew."
-```
+>_"You've reached your monthly chat messages quota. Upgrade to Copilot Pro (30-day free trial) or wait for your allowance to renew."_
 
 This interrupted testing after 12 total runs across `BL-1`, `BL-2`, and `SC-2` -
 short of the full baseline path defined in the framework.
@@ -769,7 +727,7 @@ in a few ways:
 
 - **Inflated Character Counts**: if the agent is also estimating character counts from its
 own output rather than from the raw tool response, duplicated sections silently inflate the
-reported figure, making truncation appear less severe than it is
+reported figure, making truncation appear less severe than it may be
 - **Undetectable Without Careful Reading**: the duplication doesn't produce an error or
 warning; a researcher logging results from a quick scan could record the wrong metrics
 - **Ambiguous Cause**: it's unclear whether the duplication originated in the `fetch_webpage`
@@ -789,12 +747,18 @@ URL before treating character counts as comparable data points
 ## Prompt Format Affects Output Structure
 
 During `OP-4` run 3 on the interpreted track, the numbered list was accidentally omitted from the request.
-The agent returned results in a Markdown table rather than the prose sections produced by runs 1 and 2. The underlying fetch behavior and findings were consistent with prior runs, the prompt format difference affected response structure only, not the fetch mechanism or metric values.
+The agent returned results in a Markdown table rather than the prose sections produced by runs 1 and 2.
+The underlying fetch behavior and findings were consistent with prior runs, the prompt format difference
+affected response structure only, not the fetch mechanism or metric values.
 
-This is a prompt compliance risk: if output structure varies with prompt formatting, manual result logging becomes harder to scan consistently, and fields like the last 50 characters verbatim are easier to misread
-in a table than in a labeled prose section. It also raises the question of whether output structure differences could mask metric differences. A table that truncates cell content, for instance, would silently drop characters that a prose response would include.
+This is a prompt compliance risk: if output structure varies with prompt formatting, manual result logging
+becomes harder to scan consistently, and fields like the last 50 characters verbatim are easier to misread
+in a table than in a labeled prose section. It also raises the question of whether output structure
+differences could mask metric differences. A table that truncates cell content, for instance, would silently
+drop characters that a prose response would include.
 
-**Fix**: verify the numbered prompt format is intact before submitting each run. Consider adding a format check to the framework's `generate_interpreted_prompt` output so the structure is always explicit.
+**Fix**: verify the numbered prompt format is intact before submitting each run. Consider adding a format
+check to the framework's `generate_interpreted_prompt` output so the structure is always explicit.
 
 ---
 
@@ -821,11 +785,9 @@ has already processed and transformed the page. Telling the model not to summari
 When asked directly about its retrieval behavior, `GPT-5.3-Codex` confirmed this architecture while simultaneously
 mischaracterizing it as suppressible:
 
-```markdown
-"If you ask for raw or near-raw retrieval, I can avoid summarization-focused rewriting and return the fetched content with minimal transformation."
+>_"If you ask for raw or near-raw retrieval, I can avoid summarization-focused rewriting and return the fetched content with minimal transformation."_
 
-"Practical note: some minimal handling may still occur for readability or tool-output shaping."
-```
+>_"Practical note: some minimal handling may still occur for readability or tool-output shaping."_
 
 The agent frames retrieval-layer transformation as a stylistic choice it can dial back on request, while simultaneously
 acknowledging that some transformation is unavoidable. The framing obscures the distinction between two separate processes: the
@@ -856,11 +818,11 @@ similar-looking outcomes: less content than the page contains, or the agent repo
 the content is incomplete or unusable; but they have different causes, different locations in the
 pipeline, and different implications for what the saved file and the verification script can confirm.
 
-| **Phenomenon** | **Retrieval complete?** | **Agent reports truncation?** | **Verification detects?** |
+| **Phenomenon** | **Retrieval complete?** | **Agent reports truncation?** | **Verification<br>detects?** |
 | --- | --- | --- | --- |
-| **Retrieval-layer architectural excerpting** | No, file reflects excerpted content | No, agent sees<br>what `fetch_webpage` delivered | Indirectly with truncation indicators and size vs expected |
+| **Retrieval-layer architectural<br>excerpting** | No, file reflects excerpted content | No, agent sees<br>what `fetch_webpage` delivered | Indirectly with truncation indicators and size vs expected |
 | **Complete retrieval, format-driven unreadability** | Yes, full bytes transferred | No, file complete, agent confirms it | No, verification script confirms integrity, not usability |
-| **Chat rendering truncation** | Yes, full bytes transferred<br>and saved | No, file complete | No, requires comparing chat output to<br> verified file |
+| **Chat rendering truncation** | Yes, full bytes transferred<br>and saved | No, file complete | No, requires comparing chat output to verified file |
 
 1. **`fetch_webpage` - retrieval-layer architectural excerpting**
 

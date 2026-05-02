@@ -5,19 +5,7 @@ permalink: /docs/cognition-windsurf-cascade/friction-note-raw
 parent: Cognition Windsurf Cascade
 ---
 
->_Friction: this note describes roadblocks while refining testing methodology_
-
----
-
-## Topic Guide - Raw Track
-
-- [Agentic Task Drift, Token Overflow](#agent-task-drift-token-overflow)
-- [Context Window Reporting, Compaction Artifacts](#context-window-reporting-compaction-artifacts)
-- [Cross-Agent File Reuse, Verification Limits](#cross-agent-file-reuse-verification-limits)
-- [File Persistence Failures](#file-persistence-failures)
-- [`read_url_content` Redirect Halt Behavior](#read_url_content-redirect-halt-behavior)
-- [URL Fragment Targeting](#url-fragment-targeting)
-- [Write Ceiling, Output Fidelity](#write-ceiling-output-fidelity)
+# Friction Note: Roadblocks While Refining Methodology
 
 ---
 
@@ -31,11 +19,11 @@ to reconcile the size discrepancy. Alongside the size mismatch, the thought pane
 index with empty summaries, suggesting that the absence of navigational signal also contributed to this overcorrection*.
 Having exhausted tool-based solutions, the agent treated adjacent codebase artifacts as methodology documentation, a
 reasonable inference in a research project, but also, incorrect here. The Copilot framework's raw output files
-are just that: outputs, not specifications. The sequence below is reconstructed from thought panel snapshots, but the
+are just that: outputs, not specifications. The sequence below reconstructs thought panel snapshots, but the
 loop count is unknown; steps likely repeated:
 
 | **Step** | **Behavior** | **Detail** |
-|------|----------|--------|
+| ------ | ---------- | -------- |
 | **1** | **Successful Retrieval** | Reads all 54 chunks via `read_url_content`, `view_content_chunk`; summaries empty |
 | **2** | **Diagnoses Correctly** | Recognizes pipeline returns processed Markdown, not raw HTML; switches to `curl` |
 | **3** | **Acknowledges Size Mismatch** | `curl` returns 508 KB; prompt ~85KB; no available tool<br>produces expected size |
@@ -75,10 +63,10 @@ This matters most for any effort-to-outcome analysis. `EC-6`'s `Gemini 3.1` run 
 and `SC-3`'s `Claude Opus 4.7` run at 98% context with a 1.05 KB stub would be striking side by side, but only if both
 percentages reflect the same denominator. The compaction behavior means they may not.
 
-The data is retained in `results.csv` and the pattern is visible in the pagination and write outcome maps without requiring
+`results.csv` retains the data and the pattern is visible in the pagination and write outcome maps without requiring
 the percentages directly. A standalone effort-to-outcome visualization would require either a Windsurf update that stabilizes
 context window tracking, or instrumentation that captures token spend independently of what the agent reports. Until then,
-context window percentage is treated as directionally _suggestive_ rather than analytically reliable, and is noted per
+treat context window percentage as directionally _suggestive_ rather than analytically reliable, and noted per
 run rather than aggregated.
 
 ### Methodology Implication
@@ -91,13 +79,13 @@ resolution to those stories, not change them.
 
 ## Cross-Agent File Reuse, Verification Limits
 
-The verification script defines the raw track. If an agent claims to have retrieved and analyzed content, this script is
-designed to check path compliance, file size, checksum, and truncation indicators against what's actually on disk, but
+The verification script defines the raw track. If an agent claims to have retrieved and analyzed content, this script
+intends to check path compliance, file size, checksum, and truncation indicators against what's actually on disk, but
 this only works if agents write files.
 
 While agents never directly admit it, three of five `BL-3` runs reference an existing file rather than writing a new one.
-Once a somewhat-plausible file exists at a similar path, whether or not it's in the prompt-specified directory with the
-prompt-specified name doesn't seem to matter - subsequent agents satisfy the persistence requirement with chat paths described
+Once a somewhat-plausible file exists at a similar path, if it's in the prompt-specified directory with the
+prompt-specified name doesn't seem to matter, subsequent agents satisfy the persistence requirement with chat paths described
 as newly generated files, but point to artifacts of earlier runs. The script then verifies an earlier agent's file, not the
 current agent's retrieval. The agent can then claim another agent's calculations as their own, draining their own analysis of
 meaning. But when agents do write raw output files, they tend to produce content that passes path and size verification while
@@ -107,7 +95,7 @@ that the file accurately represents the agent's retrieval behavior in that run.
 _Is there any value in agent metrics or self-reported methodology if it’s not based on genuine calculations and analysis?_
 
 This consistent failure to persist raw output files is unique to Cascade, possibly due to the Hybrid Arena setting,
-which allows for five agents to run sequentially and/or simultaneously. While Cascade claims session isolation, it is less
+which allows for five agents to run sequentially and/or simultaneously. While Cascade claims session isolation, it's less
 plausible with each test run. The lack of output files reframes what this track is testing. Cascade's chunking pipeline
 processes the response before the agents sees it without a direct path to raw HTML. Agents often recognize this and use over-half
 of their context window exploring alternatives, use `curl`, which then only returns a Gatsby and/or React skeleton rather than
@@ -115,10 +103,10 @@ any tutorial text. `BL-3` functions less as a retrieval benchmark and more as ne
 inputs and observing what agents do when success is structurally unavailable. This behavioral data in which agents disclose
 limitations, possibly fabricate completion, and silently reuse existing files is the finding, not the raw output files or metrics.
 
-`EC-6` provides the sharpest confirmation of cross-agent file reuse in the dataset. `Gemini 3.1` and `GLM-5.1` produced output 
-files with an identical MD5 checksum and a spotless content diff, not similar assembly, but the same file. `Gemini` used only 3% 
-of its context window, invoked approximately 12 terminal commands, and had a thought panel that narrated chunk-by-chunk 
-retrieval while showing no corresponding tool calls. `GLM` ran earlier in the same arena session and wrote the file first via 
+`EC-6` provides the sharpest confirmation of cross-agent file reuse in the dataset. `Gemini 3.1` and `GLM-5.1` produced output
+files with an identical MD5 checksum and a spotless content diff, not similar assembly, but the same file. `Gemini` used only 3%
+of its context window, invoked approximately 12 terminal commands, and had a thought panel that narrated chunk-by-chunk
+retrieval while showing no corresponding tool calls. `GLM` ran earlier in the same arena session and wrote the file first via
 `curl` bypass. `Gemini` likely located the existing file in the workspace, referenced it as its own output, and performed retrieval
 theater rather than disclosing what it had found.
 
@@ -153,12 +141,12 @@ or grew to sizes that degraded the development environment itself. `Kimi`'s outp
 at 53.65 MB caused VS Code to disable tokenization, syntax highlighting, and scroll features for the file. The file existed,
 but was effectively unworkable as a project artifact.
 
-A file being present at the correct path isn't sufficient evidence of a successful retrieval. `GLM`'s `SC-2` output was
+A file being present at the correct path isn't sufficient evidence of a successful retrieval. `GLM`'s `SC-2`'s output included
 structured agent analysis rather than raw content; `Claude Sonnet 4.6`'s was a chunk index with a single header. Both passed
 path verification while containing no target page content.
 
 | **Agent** | **`BL-2`** | **`SC-2`** | **Results** |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `Gemini` | _Chat only_ | _Chat only_ | `curl` output; manual copy required both runs |
 | `GLM` | _Yes_ | _Yes_ | Saved; content: agent analysis, chunk index,<br>not entirely raw retrieval |
 | `Grok` | _Yes_ | N/A | `BL-2` only; wrote file, only captured<br>2 of 3 chunks |
@@ -178,8 +166,8 @@ The prompt directs agents to save output to `raw/`, which does't exist; `cascade
 it tests whether agents reason about directory structure or resolve path instructions literally. `GLM` responded correctly
 by creating `raw/` as a new directory. Later agents diverged; some wrote into `cascade-raw/` treating it as equivalent, others
 failed to persist a file at all. Cross-agent file reuse, `SWE` pointing to `Gemini`'s output, suggests that once a plausible
-file exists in the workspace, some agents will satisfy the persistence requirement by reference rather than by writing. The
-prompt ambiguity is retained as a test variable for subsequent runs for observing path compliance and content fidelity.
+file exists in the workspace, some agents will satisfy the persistence requirement by reference rather than by writing.
+Retain the prompt ambiguity as a test variable for subsequent runs for observing path compliance and content fidelity.
 
 > _`SC-3` file persistence failures discussed in [Write Ceiling, Output Fidelity](#write-ceiling-output-fidelity)_
 
@@ -188,19 +176,20 @@ prompt ambiguity is retained as a test variable for subsequent runs for observin
 ## `read_url_content` Redirect Halt Behavior
 
 The [interpreted track](friction-note-interpreted.md#read_url_content-internal-url-rewriting) and
-[explicit track](friction-note-explicit.md#sc-2-url-redirect-behavior) both documented that no agent received the target content 
-from `https://docs.anthropic.com/en/api/messages`, and left open whether the cause was tool-layer URL rewriting or a server-side redirect. `SC-2` runs on the raw track provide additional perspective.
+[explicit track](friction-note-explicit.md#sc-2-url-redirect-behavior) both documented that no agent received the target content
+from `https://docs.anthropic.com/en/api/messages`, and left open whether the cause was tool-layer URL rewriting or a server-side redirect.
+`SC-2` runs on the raw track provide additional perspective.
 
-Across six raw track agents, the redirect destination `https://platform.claude.com/docs/llms-full.txt` appeared consistently in the 
-error payload with enough fidelity that three agents, `GLM-5.1`, `Kimi K2.6`, and `Claude Sonnet 4.6` successfully called 
-`read_url_content` a second time against the redirect target and received valid chunked responses. This pattern is inconsistent 
-with silent pre-network URL substitution: if the tool were rewriting before the request was made, the redirect destination wouldn't 
-be actionable through a follow-up call. The more consistent explanation is that `read_url_content` makes the network call, receives 
+Across six raw track agents, the redirect destination `https://platform.claude.com/docs/llms-full.txt` appeared consistently in the
+error payload with enough fidelity that three agents, `GLM-5.1`, `Kimi K2.6`, and `Claude Sonnet 4.6` successfully called
+`read_url_content` a second time against the redirect target and received valid chunked responses. This pattern is inconsistent
+with silent pre-network URL substitution: if the tool were rewriting before the request formed, the redirect destination wouldn't
+be actionable through a follow-up call. The more consistent explanation is that `read_url_content` makes the network call, receives
 a server-side redirect, identifies the destination in the error response, and halts rather than following automatically. Agent
 interpretation of this information diverged:
 
 | **Agent** | **Response** |
-|---|---|
+| --- | --- |
 | `Gemini` | Bypassed pipeline entirely via `curl` |
 | `GLM` | Followed redirect via second `read_url_content` call;<br>spent most time trying to find original target |
 | `Kimi` | Followed redirect, then bypassed via `curl` for full corpus |
@@ -225,7 +214,7 @@ suggesting fragment-targeting is behavioral rather than architectural. In the ra
 to full-document retrieval and didn't acknowledge the target section:
 
 | **Agent** | **Chunks<br>Analyzed** | **Context<br>Window** | **Fragment<br>Targeted?** | **File<br>Created?** |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `Gemini` | 54 | ~1%<br>15K/1M | _No_ | _No_ |
 | `GLM` | 92 | ~61%<br>123K/200K | _No_| _Yes_, chunk index,<br>HTML shell only |
 | `GPT` | ~10 | ~9%<br>38K/400K | _No_ | _No_, terminal error |
@@ -235,7 +224,7 @@ to full-document retrieval and didn't acknowledge the target section:
 In the second arena run, two agents produces output files with the targeted section:
 
 | **Agent** | **Chunks<br>Analyzed** | **Context<br>Window** | **Fragment<br>Targeted?** | **File<br>Created?** |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | `GPT`| 77 | ~78%<br>213K/272K | _No_| _Yes_, chunk index,<br>metadata only  |
 | `Grok` | 2 | ~17%<br>22K/131K | _Yes_ | _Yes_, extracted<br>`#History` content |
 | `Kimi` | `curl`<br>bypass | ~9%<br>23K/262K | _No_ | _No_ - claimed,<br>not persisted |
@@ -247,32 +236,31 @@ to write chunk content to the output file in segments; none of those six rewrite
 `Gemini 3.1` completed without user permission, and when facing uncertainty about whether "exactly as received" referred to chunked
 pipeline output or raw HTML, began exploring `curl` as an alternative, the same spiral documented in
 [Agentic Task Drift, Token Overflow](#agentic-task-drift-token-overflow). `SWE-1.6` read all of the chunks, but closed the run in chat
-with a list of headings, ignoring most of the prompt. `GPT-5.3-Codex` read approximately ten chunks before a terminal error halted execution. 
-`Claude Opus 4.7` retrieved all of the chunks and attempted to write concatenated output in multiple steps, but the terminal command errored before 
-any file persisted. `Claude Sonnet 4.6` analyzed and re-analyzed all 92 chunks in parallel batches and remained in a refetching loop to edit 
-their output file, consuming most of its context window before auto-opting out. `GPT-5.4` paused mid-run to ask whether the user wanted Cascade 
-pipeline output or a direct raw fetch, then successfully created a file after spending most of its context window on append errors, but the file 
-contained chunk metadata rather than meaningful prose. `Kimi K2.6` started without user permission, bypassed the Cascade pipeline with `curl`, 
-claimed to have created a raw output file but didn't, and constructed retroactive consent from tool output rather than pausing for explicit 
+with a list of headings, ignoring most of the prompt. `GPT-5.3-Codex` read approximately ten chunks before a terminal error halted execution.
+`Claude Opus 4.7` retrieved all of the chunks and attempted to write concatenated output in multiple steps, but the terminal command errored before
+any file persisted. `Claude Sonnet 4.6` analyzed and re-analyzed all 92 chunks in parallel batches and remained in a refetching loop to edit
+their output file, consuming most of its context window before auto-opting out. `GPT-5.4` paused mid-run to ask whether the user wanted Cascade
+pipeline output or a direct raw fetch, then successfully created a file after spending most of its context window on append errors, but the file
+contained chunk metadata rather than meaningful prose. `Kimi K2.6` started without user permission, bypassed the Cascade pipeline with `curl`,
+claimed to have created a raw output file but didn't, and constructed retroactive consent from tool output rather than pausing for explicit
 permission:
 
 ```markdown
-Actually, I should note that the read_url_content tool description says
-"The actual fetch will NOT execute until the user approves it." But it
-seems to have already executed and returned chunk metadata. So maybe the
-user already approved it?
+Actually, I should note that the read_url_content tool description says "The actual fetch will NOT
+execute until the user approves it." But it seems to have already executed and returned chunk
+metadata. So maybe the user already approved it?
 ```
 
-`Minimax M2.5` and `xAI Grok-3` also started without user permission, but `Grok` was the only agent across both rounds to have produced an 
+`Minimax M2.5` and `xAI Grok-3` also started without user permission, but `Grok` was the only agent across both rounds to have produced an
 intentionally targeted output. `Minimax` sampled chunks that just happened to include the target section.
 
 ### Methodology Implication
 
-While the chunk index offers navigational structure, agents don't consult it for fragment resolution by default. The prompt's request to 
+While the chunk index offers navigational structure, agents don't consult it for fragment resolution by default. The prompt's request to
 return content exactly as received may work against fragment-targeting, influencing agents to priortize output fidelity over a smaller
 retrieval scope. The 8-of-10 miss rate suggests the behavior is uncommon, but not rare enough to treat as a fluke. `Minimax`'s incidental
-hit is a separate finding: small-chunk sampling can accidentally recover the target section, which may inflate success metrics if output content
-is verified without examining the agent's navigational reasoning.
+hit is a separate finding: small-chunk sampling can accidentally recover the target section, which may inflate success metrics if output
+content passes other verification without examining the agent's navigational reasoning.
 
 ---
 
@@ -285,7 +273,7 @@ then encountered on the write side: shell heredocs with special characters, `\n`
 volume that caused terminal commands to hang, Python scripts to loop, and file writes to produce partial or empty output:
 
 | **Agent** | **Strategy** | **Outcome** |
-|---|---|---|
+| --- | --- | --- |
 | `Gemini` | Wandered through project files,<br>tried `npx`, `curl`, Python | 3 different artifacts,<br>276 KB partial HTML/JSON |
 | `GLM` | Heredoc failure,<br>switched to `curl` | 774 KB raw HTML,<br>not Cascade output |
 | `GPT` | Claimed `curl` bypass;<br>file never saved | Metrics reported, referenced<br>without verification path |
@@ -301,7 +289,7 @@ by abandoning the Cascade pipeline. `GLM-5.1` and `Gemini 3.1` saved raw HTML vi
 didn't request; the verification script can't meaningfully evaluate non-Cascade-specific behavior. `GPT-5.3-Codex` claimed to save
 a file and didn't. `SWE` and `Opus` produced stubs too small to verify.
 
-Agents ruminated on the prompt language "EXACTLY as you received it" - _does that mean Cascade's chunk index with metadata
+Agents ruminated on the prompt language _"EXACTLY as you received it"_ - _does that mean Cascade's chunk index with metadata
 wrappers, already processed, or something pre-processed?_ `Opus` attempted to clarify mid-task and asked questions while others choose
 interpretation and process-spin, similar to the silent-resolution pattern described in
 [Agent as Unreliable Methodology Validator](friction-note-explicit.md#agent-as-unreliable-methodology-validator).
@@ -318,7 +306,7 @@ actions, and produced confident-looking output without naming the obstacle as a 
 
 The read-write asymmetry is a restriction only the raw track could uncover. It reflects a structural mismatch between what Cascade's
 `view_content_chunk` produces at scale and what shell tooling can write back out. A writing ceiling introduces new layers to question
-path compliance and self-reporting fidelity. While agents claim to have received all 60 chunks, verification can't be completed by the
-chat output alone. Prompts specifying a target format may produce different results, but this testing framework is about capturing default
+path compliance and self-reporting fidelity. While agents claim to have received all 60 chunks, chat output alone can't complete
+verification. Prompts specifying a target format may produce different results, but this testing framework is about capturing default
 web fetch behavior. Eventhough the output variety make for difficult hypotheses assessment and pokes holes in the verification script
 metrics, the variety is the finding, speaking to the challenges of combining qualitative and quantitative testing approaches.

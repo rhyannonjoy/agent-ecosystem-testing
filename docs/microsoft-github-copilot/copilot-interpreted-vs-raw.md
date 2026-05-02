@@ -5,16 +5,7 @@ permalink: /docs/microsoft-github-copilot/copilot-interpreted-vs-raw
 parent: Microsoft GitHub Copilot
 ---
 
-## Copilot-interpreted vs Raw
-
----
-
-## Topic Guide
-
-- [Two Mechanisms, Two Failure Modes](#two-mechanisms-two-failure-modes)
-- [Track Design](#track-design)
-- [Key Observations](#key-observations)
-- [Implications for Agent Developers](#implications-for-agent-developers)
+# Copilot-interpreted vs Raw
 
 ---
 
@@ -32,8 +23,6 @@ mechanism from retrieval quality.
 
 ## Track Design
 
-Two test tracks measure the same Copilot web fetch behaviors:
-
 **Copilot-interpreted** track captures what the model _believes_ it retrieved: how much
 content it saw, whether the fetch was complete, how it characterizes truncation. This is
 the model's self-report.
@@ -47,7 +36,7 @@ in chat but the raw data shows a relevance-ranked excerpt, that discrepancy belo
 spec. If Copilot reports "no truncation" and the raw data confirms a complete file,
 but the file is raw HTML with no readable content, that's a different kind of discrepancy.
 
-| | Interpreted Track | Raw Track |
+| | **Interpreted** | **Raw** |
 | - | ---------------------- | -------------------------- |
 | **Measures** | Model's interpretation of what it fetched | Filesystem measurements<br>of saved output |
 | **Character Counts** | Model estimates; range-reported or heuristic | `wc -c` on disk -<br>exact, reproducible |
@@ -138,7 +127,7 @@ but the file is raw HTML with no readable content, that's a different kind of di
 
 ---
 
-## Implications for Agent Developers
+## Implications for Agent Developers, Docs Teams
 
 The tool used matters more than the prompt, model, or URL. `fetch_webpage` and `curl` produce outputs
 so different in character that runs using different mechanisms aren't replicates of the same condition -
@@ -147,13 +136,16 @@ checking the saved file and `tools_used` field. The interpreted track can't; the
 the only signal, and it isn't reliable. Cross-referencing both tracks is the only way to separate what
 Copilot retrieved from what it understood about what it retrieved.
 
-| **Use Case** | **Interpreted Track** | **Raw Track** |
+When evaluating or designing testing frameworks or workflows that include agentic web fetch behavior,
+consider what each approach can and can’t confirm:
+
+| **Use Case** | **Interpreted** | **Raw** |
 | --- | --- | --- |
-| **Retrieval Mechanism Identification** | ✗ Mechanism not<br>reliably surfaced | ✓ `tools_used` field and headers files identify `fetch_webpage` <br>vs `curl` |
+| **Retrieval Mechanism Identification** | ✗ Mechanism not<br>reliably surfaced | ✓ `tools_used` field and headers files identify `fetch_webpage` vs `curl` |
 | **File Integrity Verification** | ✗ No saved file;<br>model estimates only | ✓ MD5 checksums, byte counts, hexdump tail analysis |
 | **Format<br>Classification** | _Partial_ - model describes output format in prose | ✓ Verification script detects HTML vs Markdown vs JSON from saved file |
 | **Ground Truth Baselines** | ✗ Self-report only | ✓ What Copilot actually saved vs what the model claims |
-| **Model<br>Perception Gaps** | ✓ Reveals misreporting of completeness and cause | _Partial_ - verifier confirms file integrity but<br>not model's interpretation |
+| **Model<br>Perception Gaps** | ✓ Reveals misreporting of completeness and cause | _Partial_ - verifier confirms file integrity but not model's interpretation |
 | **`fetch_webpage` Behavior Characterization** | ✓ Relevance-ranking, elision patterns, non-linear reassembly visible in chat | _Partial_ - file reflects tool output but internal query parameters not surfaced |
 | **Tool Substitution Detection** | ✓ Model reasoning sometimes reveals `curl` preference explicitly | ✓ `tools_used` field confirms mechanism; headers files corroborate |
-| **User-facing Experience** | ✓ Reflects what a developer interacting with Copilot actually sees | ✗ Saved file diverges from chat display <br>on over-delivery runs |
+| **User-facing Experience** | ✓ Reflects what a developer interacting with Copilot actually sees | ✗ Saved file diverges from chat display on over-delivery runs |

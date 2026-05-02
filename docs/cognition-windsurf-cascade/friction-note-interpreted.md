@@ -5,25 +5,7 @@ permalink: /docs/cognition-windsurf-cascade/friction-note-interpreted
 parent: Cognition Windsurf Cascade
 ---
 
->_Friction: this note describes roadblocks while refining testing methodology_
-
----
-
-## Topic Guide - Interpreted Track
-
----
-
-- [Arena Mode: Unit of Observation](#arena-mode-unit-of-observation)
-- [Mixed-Format Source Misidentified](#mixed-format-source-misidentified)
-- [Prompt Injection Suspicion](#prompt-injection-suspicion)
-- [`read_url_content` — Fetch Architecture and Parsing Limits](#read_url_content--fetch-architecture-and-parsing-limits)
-- [`read_url_content` Internal URL Rewriting](#read_url_content-internal-url-rewriting)
-- [Retrieval Collapse, Indexing Masking Absence, Truncation Cacophany](#retrieval-collapse-indexing-masking-absence-truncation-cacophany)
-- [SPA Extraction: Duplication, Code Block Fidelity](#spa-extraction-duplication-code-block-fidelity)
-- [Test Objective Unreachability](#test-objective-unreachability)
-- [Truncation Taxonomy](#truncation-taxonomy)
-- [Unverified Size as Truncation Signal](#unverified-size-as-truncation-signal)
-- [URL Fragment Targeting](#url-fragment-targeting)
+# Friction Note: Roadblocks While Refining Methodology
 
 ---
 
@@ -35,15 +17,15 @@ Each slot executes the prompt in a separate session with its own worktree, provi
 test isolation. While arena mode is designed for parallel execution, the user may control
 whether slots run in parallel or sequentially. Because Cascade requests permission to use
 `read_url_content` before completing the prompt tasks in each slot, the user can approve
-all slots at once or one at a time. During `BL-1` interpreted track runs, slots were approved
+all slots at once or one at a time. During `BL-1` interpreted track runs, slots approved
 and completed one at a time by user choice, not by Cascade automation.
 
 _Worktree isolation offers to close the workspace-artifact-accumulation confounder_. If each
 slot runs in its own worktree, later slots can't read artifacts written by earlier slots
 regardless of approval order. The session ordering confounder documented in
-[Copilot's unsolicited cross-run analysis](../microsoft-github-copilot/friction-note.md#agentic-over-delivery-unsolicited-cross-run-analysis---raw-track) —
-where later runs incorporated prior run artifacts autonomously — doesn't apply here by design.
-Testing results suggest that Cascade's per-slot worktree isolation does hold under sequential approval
+[Copilot's unsolicited cross-run analysis](../microsoft-github-copilot/friction-note.md#agentic-over-delivery-unsolicited-cross-run-analysis---raw-track) -
+where later runs incorporated prior run artifacts autonomously - doesn't apply here by design.
+Testing results suggest that Cascade's per-slot worktree isolation does hold under sequential
 approval in practice, as later slots didn't appear to incorporate artifacts from earlier slots. It's
 more likely that Cascade reads from the workspace across all slots for common context, without
 constituting a type of cross-slot state contamination. For example, in `EC-6`, `Claude Sonnet 4.6`
@@ -51,16 +33,16 @@ flagged the prompt as suspicious and refused to proceed while the other agents c
 with no issues. 
 
 _`read_url_content` requires explicit user approval before each fetch executes_. When
-asked directly, Cascade confirmed: it invokes `read_url_content` when a URL is provided,
+asked directly, Cascade confirmed: it invokes `read_url_content` when a prompt includes a URL,
 and the function requires explicit approval before the fetch executes. Each slot issued its
 own fetch independently, confirmed by a distinct permission prompt per slot. Output variance
-across slots reflects the full pipeline — retrieval through post-processing — not
+across slots reflects the full pipeline, retrieval through post-processing, not
 post-retrieval processing differences from a shared fetch result.
 
 ### Methodology Decision
 
-Log all five slots as distinct rows under the same test ID. `Auto Execution` is disabled throughout testin
-to maximize observable detail; slots are approved sequentially by user choice. Worktree isolation means slot
+Log all five slots as distinct rows under the same test ID. `Auto Execution` turned off throughout testing
+to maximize observable detail; slots approved sequentially by user choice. Worktree isolation means slot
 position isn't expected to be an ordering variable.
 
 > _Windsurf `v1.9600.38` introduced the [`Adaptive` model router](https://windsurf.com/changelog) that dynamically
@@ -72,16 +54,16 @@ position isn't expected to be an ordering variable.
 ## Mixed-Format Source Misidentified
 
 The `BL-2` [source document](https://www.mongodb.com/docs/manual/reference/change-events/create.md)
-is a mixed-format file: the page structure and prose are written in Markdown, but the field description
-table is written in raw HTML. Across all five `BL-2` runs, agents read the mixed format as evidence of
-parsing failure, toolchain corruption, or incomplete retrieval rather than as a stable source. Throughout
-runs, agents consistently diagnosed this as a retrieval issue:
+is a mixed-format file: the page structure and prose are Markdown, but the field description
+table is raw HTML. Across all five `BL-2` runs, agents read the mixed format as evidence of
+parsing failure, toolchain corruption, or incomplete retrieval rather than as a stable source.
+Throughout runs, agents consistently diagnosed this as a retrieval issue:
 
 | **Artifact** | **Agent Attribution** | **Possible Cause** |
-|---|---|---|
-| HTML table in `.md` source | Toolchain failed to convert page to Markdown | Table is authored in HTML in the source; no conversion occurred or was expected |
-| `nsType` enum values absent | Stripped during<br>HTML-to-text conversion | Values absent in the `.md` source; CMS-injected at rendering |
-| `ce-create##` prefix | Toolchain metadata injection or parsing anomaly | Present verbatim in the source as a CMS publishing artifact |
+| --- | --- | --- |
+| HTML table in `.md` source | Toolchain failed to convert page to Markdown | Table authored in HTML in the source; no conversion occurred or expected |
+| `nsType` enum values absent | Stripped during<br>HTML-to-text conversion | Values absent in the `.md` source;<br>CMS-injected at rendering |
+| `ce-create##` prefix | Toolchain metadata injection or parsing anomaly | Present verbatim in the source as<br>a CMS publishing artifact |
 
 The [truncation taxonomy](#truncation-taxonomy) captures cases where retrieval delivers
 less than the source contains. This phenomenon is different in kind: retrieval delivers the source faithfully,
@@ -97,8 +79,8 @@ against the raw source is necessary to distinguish these cases.
 ### Methodology Implication
 
 The interpreted track captures agent self-reporting as-is. An agent attributing the HTML table or absent enum values
-to toolchain failure is a valid interpreted track data point, not a logging error. The agentic analytical layer is
-where source inspection is needed.
+to toolchain failure is a valid interpreted track data point, not a logging error. The agentic analytical layer requires
+source inspection.
 
 Before treating a formatting-based truncation attribution as evidence for or against a retrieval hypothesis, check
 whether the flagged anomaly is a property of the source document. For `BL-2`, direct inspection of the `.md` source
@@ -139,7 +121,7 @@ four suspicion signals:
 - [Source URL](https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md) flagged by repository
 name as potential _prompt injection payload_
 - Framing `"don't proceed to other tests"` as _social engineering pattern_
-- Test metadata: ID, file size, empirical findings — as _false legitimacy signals_
+- Test metadata: ID, file size, empirical findings - as _false legitimacy signals_
 
 The URL flag is new. `OP-4` triggered on prompt content alone; `EC-6` triggered on the fetch target itself. According to the
 agent, a URL that accurately describes the testing project is indistinguishable from one constructed to manipulate behavior
@@ -157,12 +139,12 @@ prompts, which are user-visible regardless of agent reporting, is a more reliabl
 description the prompt used, that `read_url_content` returns chunk metadata rather than page body, that character counts from
 the index response aren't meaningful, and that exact counts are unavailable due to tool limitations, by reasoning from the tool
 response itself, not from prompt-supplied framing. The knowledge `Sonnet` flagged as suspicious in the prompt is recoverable
-from the tool output by a different agent's analysis - this knowledge isn't injected, but derivable. Agentic analysis may 
+from the tool output by a different agent's analysis - this knowledge isn't injected, but derivable. Agentic analysis may
 match the prompt, because the prompt uses accurate terminology.
 
 ---
 
-## `read_url_content` — Fetch Architecture and Parsing Limits
+## `read_url_content` - Fetch Architecture, Parsing Limits
 
 [Windsurf's documentation](https://docs.windsurf.com/windsurf/cascade/web-search#reading-pages)
 describes `read_url_content`'s retrieval behavior as intentionally selective:
@@ -178,7 +160,7 @@ skips the rest. It's reasonable design for long pages where a full retrieval wou
 The gap between intent and observed behavior is the chunk index quality. Targeted skimming requires
 navigational signal: a human skimming a page uses headers, section titles, and visual hierarchy to
 locate the relevant section. `read_url_content` provides a chunk index to serve this role, but across
-all five `OP-4` runs the index returned empty summaries — `" "` or `""` for all 53 positions. Without
+all five `OP-4` runs the index returned empty summaries `" "` or `""` for all 53 positions. Without
 populated summaries, chunk selection is blind. The tool's skimming is structurally identical to
 random sampling: any chunk is as likely to contain CSS as tutorial prose, and there's no metadata to
 distinguish them before fetching. The docs acknowledges this directly:
@@ -202,9 +184,9 @@ guarantee testability, it doesn't invalidate the test design.
 
 In the case of empty summaries, the architecture gets the cost savings of selective retrieval without delivering
 the navigational benefit that would justify it: agent doesn't read the whole page and can't target what it does
-read. If populated summaries are required to satisfy the "human skim" behavior documented, then empty summaries
+read. If populated summaries are required to satisfy the _"human skim"_ behavior documented, then empty summaries
 return blind sampling that's invisible to the user and, based on `OP-4` runs, sometimes invisible to the agents
-themselves. An agent that sampled 2 of 53 chunks didn't report reading 4% of the page — it reported on what it
+themselves. An agent that sampled 2 of 53 chunks didn't report reading 4% of the page, it reported on what it
 found. There's no externally visible signal distinguishing "answered from retrieved content" from "answered from
 priors, fetch call in the log for grounding." Logging which URLs produce readable content verses empty summaries
 is useful data, characterizing the tool's current parsing envelope and tracking whether its improves across
@@ -223,12 +205,12 @@ target content because no agent was ever issued a request for it. `read_url_cont
 before the network call was made, making most of the hypotheses untestable. The five agents' error output meaningfully diverged -
 
 | **Session** | **Agent** | **Tools Called**| **Fallback Behavior** | **Output** |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | **1** | `Codex` | `read_url_content` ×2 | Followed redirect, <br>reported error verbatim | 164 chars |
 | **2** | `Sonnet` | `read_url_content` ×2 | Acknowledged failure explicitly | 0 chars |
 | **3** | `GPT` | `read_url_content` ×2 | Surfaced `CORTEX_STEP_TYPE_READ_URL_CONTENT` | 0 chars |
-| **4** | `Opus` | `read_url_content` ×3 | Third attempt `platform.claude.com`; received `404` HTML | ~35–40 KB |
-| **5** | `SWE` | `read_url_content` ×3 <br>`search_web` ×1 | Unique `search_web` call;<br>identified URL rewriting as root cause | 0 chars |
+| **4** | `Opus` | `read_url_content` ×3 | Third attempt `platform.claude.com`;<br>received `404` HTML | ~35–40 KB |
+| **5** | `SWE` | `read_url_content` ×3 <br>`search_web`<br>×1 | Unique `search_web` call;<br>identified URL rewriting as root cause | 0 chars |
 
 `SWE-1.6` is the only agent across 61 interpreted track runs to call `search_web`. After two failed fetch attempts, the output
 included reasoning that led to an alt-retrieval strategy rather than stopping. While Cognition's agents have consistently
@@ -243,13 +225,13 @@ content, but a complete `404` error page rendered as `Next.js` HTML. While not u
 confirm that `read_url_content` can return substantial payloads under this error condition, and that the tool's ceiling
 wasn't reached at this size.
 
-`GPT-4.5` surfaced Cascade's undocumented `CORTEX_STEP_TYPE_READ_URL_CONTENT` - which suggests that result metadata is passed through
+`GPT-4.5` named Cascade's undocumented `CORTEX_STEP_TYPE_READ_URL_CONTENT`, which suggests that result metadata passes through
 to the agent context without sanitization in at least some error conditions.
 
 `SC-2` doesn't require a source URL change. A rerun after a Windsurf update or anti-redirect prompt may yield different
 results. Treat the rewriting behavior as a testable tool property, not a permanent URL constraint.
 
-> _This failure mode is recharacterized in the [Friction: Explicit content](friction-note-explicit.md#sc-2-url-redirect-behavior)._
+> _The [Friction: Explicit content](friction-note-explicit.md#sc-2-url-redirect-behavior) recharacterizes this failure mode._
 
 ---
 
@@ -269,7 +251,8 @@ each returning a processed, transformed representation of one chunk. According t
 
 1. `read_url_content` → chunk index: structural metadata, no body content
 2. Agent reasons over index → selects chunks to retrieve
-3. `view_content_chunk` × N → processed text per chunk: HTML stripped, code flattened, tables may be absent
+3. `view_content_chunk` × N → processed text per chunk: HTML stripped,<br>code flattened,
+   tables may be absent
 4. Agent aggregates retrieved chunks → forms completeness assessment
 5. Agent reports on retrieval fidelity
 
@@ -277,45 +260,47 @@ A collapse often happens between steps 1 and 4. An agent that receives a complet
 populated, is in an epistemically comfortable position. When it then retrieves all chunks and finds no mid-sentence cutoffs, the
 comfort extends: nothing _looks_ truncated. The content transformation that occurred at the tool layer, any stripping or flattening
 or replacing is often invisible, because the agent has no unprocessed baseline to compare against. It may not be able to distinguish
-"this table was stripped during chunking" from "this page never had a table here." This is a structurally cognitive limitation: the
+_"chunking stripped this table"_ from _"this page never had a table here."_ This is a structurally cognitive limitation: the
 agent sees what the tool delivered, but has _no access to what the tool discarded_. Three factors interact to produce a cross-agent
 disagreement observed in `SC-4`:
 
 | **Factor** | **Mechanism** | **Report Impact** |
-|---|---|---|
-| **Chunk Selection Depth** | Agent samples positions 0, 20, 32<br>never encounters truncation notices<br>at 13, 17, 18, 25 | `"No truncation"` may be locally accurate for chunks seen, not globally accurate for the document |
-| **Truncation Notice Interpretation** | `view_content_chunk` surfaces explicit byte-count notices within individual chunk retrieval responses; agents differ on whether this constitutes truncation | Same notice produces `"truncated at position N"` in one agent and no flag in another; both defensible |
-| **Content Transformation Visibility** | Tool pipeline strips HTML, flattens code, removes tables before delivery; agent has no unprocessed baseline | Losses undetectable without knowledge of source structure; agent reports what was received<br>as what exists |
+| --- | --- | --- |
+| **Chunk Selection Depth** | Agent samples positions 0, 20, 32<br>never encounters truncation notices<br>at 13, 17, 18, 25 | _`"No truncation"` may be locally accurate for chunks seen, not globally accurate for the document_ |
+| **Truncation Notice Interpretation** | `view_content_chunk` surfaces explicit byte-count notices within individual chunk retrieval responses; agents differ on whether this constitutes truncation | _Same notice produces `"truncated at position N"` in one agent and no flag in another; both defensible_ |
+| **Content Transformation Visibility** | Tool pipeline strips HTML, flattens code, removes tables before delivery; agent has no unprocessed baseline | _Losses undetectable without knowledge of source structure; agent reports received as what exists_ |
 
 The self-report truncation field conflates at least three distinct assessments:
 
 | **Assessment** | **Measurement** |
-|---|---|
+| --- | --- |
 | _Initial fetch truncated?_ | Whether `read_url_content` returned partial index |
-| _Any individual<br>chunk truncated?_ | Whether `view_content_chunk` surfaced<br>byte-count notices |
+| _Any individual<br>chunk truncated?_ | Whether `view_content_chunk` returned <br>byte-count notices |
 | _Full content delivered?_ | Whether pipeline preserved source fidelity |
 
 An agent `"no"` may be accurate on all three, accurate on one and wrong on two, or accurately describing a transformed-but-complete
 delivery, while missing that transformation _is_ a form of content loss. `Claude Opus 4.6`'s `SC-4` formulation:
 _"substantially complete, but not byte-for-byte faithful"_ is the most precise observed, because it separates structural coverage
 from content fidelity, but it's also the exception. This isn't a logging limitation or prompt ambiguity, but the signal that
-the interpreted track is designed to capture. The raw track is where the self-reports become accountable.
+the interpreted track intends to capture. The raw track is where the self-reports become accountable.
 
 ---
 
 ## SPA Extraction: Duplication, Code Block Fidelity
 
-`EC-1` used a single page application and surfaced two content fidelity issues not observed on static pages.
+`EC-1` used an SPA and revealed content fidelity issues not observed on static pages:
 
 | **Issue** | **Mechanism** | **Agent-recoverable?** |
-|---|---|---|
-| **Code Block Stripping** | Triple-backtick fences preserved but<br>language identifiers dropped: `python` becomes **```**<br>output is syntactically valid Markdown with no<br>truncation notice surfaced | _No_ — nothing distinguishes stripped identifier from absent one |
-| **Responsive DOM Duplication** | Nav elements rendered per breakpoint - desktop, mobile, sidebar - extracted as text; not de-duplicated before delivery; repeated nav blocks and code blocks appearing in both pre-render and post-render form | _No_ — no de-duplication signal in chunk output |
-| **Selective Semantic Processing** | Tool applies semantic transformation to prose: stripping HTML to Markdown, summarizing chunk content in index, but passes page structure through verbatim; processing boundary falls at article body: content is transformed, shell appears extracted raw | _No_ — agents can't comment on processing boundary |
+| --- | --- | --- |
+| **Code Block Stripping** | Triple-backtick fences preserved but<br>language identifiers dropped: `python` becomes **```**<br>output is syntactically valid Markdown with no<br>truncation notice surfaced | _No_, nothing distinguishes stripped identifier from absent one |
+| **Responsive DOM Duplication** | Nav elements rendered per breakpoint - desktop, mobile, sidebar - extracted as text; not de-duplicated before delivery; repeated nav blocks and code blocks appearing in both pre-render and post-render form | _No_, no de-duplication signal in chunk output |
+| **Selective Semantic Processing** | Tool applies semantic transformation to prose: stripping HTML to Markdown, summarizing chunk content in index, but passes page structure through verbatim; processing boundary falls at article body: content is transformed, shell appears extracted raw | _No_, agents can't comment on processing boundary |
 
 All issues are invisible to agents without a raw source baseline to compare against, and produced the sharpest Markdown quality
-assessment disagreement in the dataset: `Claude Sonnet 4.6`, `GPT-5.3-Codex`, and `SWE-1.6` reported clean, complete Markdown; `Claude Opus 4.6`
-and `Kimi K2.5` flagged duplication on identical chunk content. For SPAs, Markdown formatting assessment seems unreliable as a retrieval fidelity signal. Disagreement across agents on the same content may reflect whether an agent cross-referenced chunks rather than assessed each in isolation. This is the type of gap that the raw track is designed to close.
+assessment disagreement in the dataset: `Claude Sonnet 4.6`, `GPT-5.3-Codex`, and `SWE-1.6` reported clean, complete Markdown;
+`Claude Opus 4.6` and `Kimi K2.5` flagged duplication on identical chunk content. For SPAs, Markdown formatting assessment seems
+unreliable as a retrieval fidelity signal. Disagreement across agents on the same content may reflect whether an agent
+cross-referenced chunks rather than assessed each in isolation. This is the type of gap that the raw track intends to close.
 
 ---
 
@@ -325,17 +310,17 @@ and `Kimi K2.5` flagged duplication on identical chunk content. For SPAs, Markdo
 chunk positions 3–13. Across all five runs, no agent fetched any chunk within that range. All five runs defaulted to endpoint sampling -
 positions 0 and 58, or 0, 30, and 58 - leaving the test objective untested in every run.
 
-The chunk index summaries were populated and correctly identified the table content's position range. `SWE-1.6` mapped positions 3–13
+The chunk index summaries returned populated and correctly identified the table content's position range. `SWE-1.6` mapped positions 3–13
 as `"main article content (Method, Sovereign states table)"` from the index alone. Navigational signal was present; no agent acted on
 it for targeting purposes.
 
 This distinguishes `SC-3` from `OP-4` and `BL-3`, where empty summaries made targeted retrieval impossible by design. On `SC-3`, targeted
 retrieval was architecturally viable, but behaviorally absent. The hypothesis isn't untestable in principle, it's untestable under current
 default sampling behavior on pages with 50+ chunks. A prompt explicitly directing agents to retrieve the table-containing chunks may resolve
-this, but would also change what's being measured.
+this, but would also change measurement.
 
 The interpreted track documents default agent behavior under realistic conditions: what agents do when given a URL and a reporting
-task. `SC-3`'s essentially-null result isn't a test design failure, but confirms that on pages exceeding ~50 chunks, default sampling behavior
+task. `SC-3`'s essentially _null_ result isn't a test design failure, but confirms that on pages exceeding ~50 chunks, default sampling behavior
 doesn't reach interior content even when the chunk index provides sufficient signal to do so. That's itself a finding about the
 architecture's practical ceiling for content targeting: the tool supports it, the agents don't tend to use it at this scale.
 
@@ -348,17 +333,17 @@ architecture's practical ceiling for content targeting: the tool supports it, th
 `read_url_content`'s chunked index architecture requires redefining what truncation means
 in the Cascade testing context. Across
 [Copilot testing](../microsoft-github-copilot/friction-note.md#truncation-taxonomy),
-truncation described three distinct phenomena that produced similar-looking outcomes — less content than the page contained —
+truncation described three distinct phenomena that produced similar-looking outcomes, less content than the page contained,
 but had different causes and different implications for what the verification script could confirm. Cascade introduces new
 phenomena that don't map cleanly onto any of the three Copilot cases.
 
-| **Phenomenon** | **Retrieval complete?** | **Agent reports truncation?** | **Verification detects?** |
+| **Phenomenon** | **Retrieval<br>complete?** | **Agent reports truncation?** | **Verification detects?** |
 | --- | --- | --- | --- |
 | **Chat rendering<br>truncation** | _Yes_, full bytes transferred<br>and saved | _No_, file complete | _No_, requires comparing chat<br>output to<br>verified file |
-| **Chunked index,<br>partial chunk<br>retrieval** | _No_, index returned;<br>most chunks<br>never fetched | _No_, agent reports what it sampled | _Indirectly_ via<br>output size<br>vs expected |
-| **Chunked index,<br>full chunk retrieval with per-chunk display truncation** | _Structurally yes_, but middle of most chunks hidden | _Yes_ — agent surfaces truncation<br>notices per chunk | _No_, hidden bytes aren't in any<br>saved artifact |
+| **Chunked index,<br>partial chunk<br>retrieval** | _No_, index returned;<br>most chunks<br>never fetched | _No_, agent reports<br>what it sampled | _Indirectly_ via<br>output size<br>vs expected |
+| **Chunked index,<br>full chunk retrieval with per-chunk display truncation** | _Structurally yes_, but middle of most chunks hidden | _Yes_ , agent surfaces truncation notices per chunk | _No_, hidden bytes aren't in any saved artifact |
 | **Chunked index,<br>full chunk retrieval,<br>incorrect<br>self-report** | _Structurally yes_, per-chunk display truncated | _No_, CSS completeness mistaken for content completeness | _No_, no metadata to<br>cross-reference against |
-| **Chunked index,<br>empty summaries,<br>blind sampling** | _No_, index<br>complete but<br>summaries uninformative | _No_, agent reports what it sampled | _No_, no metadata to<br>cross-reference against |
+| **Chunked index,<br>empty summaries,<br>blind sampling** | _No_, index<br>complete but<br>summaries uninformative | _No_, agent reports<br>what it sampled | _No_, no metadata to<br>cross-reference against |
 | **Retrieval-layer architectural<br>excerpting*** | _No_, content filtered before delivery | _No_, agent sees what<br>the tool delivered | _Indirectly_ via truncation indicators,<br>size vs expected |
 
 > *_Explicit track's `EC-1` results reinforced this pattern: ~100 KB page returned ~20,000-35,000 chars with no agent-reported
@@ -368,7 +353,7 @@ phenomena that don't map cleanly onto any of the three Copilot cases.
 
 `read_url_content` doesn't return a page body, but an index of chunk positions. Each chunk must be retrieved
 separately via `view_content_chunk`. For the `BL-1` URL, the index contained 54 positions, 0–53. `BL-1` runs
-1 and 2 retrieved chunks only from the first and last positions — sampling endpoints rather than iterating
+1 and 2 retrieved chunks only from the first and last positions - sampling endpoints rather than iterating
 sequentially. 52 of 54 chunks were never fetched.
 
 This is the dominant truncation mode in Cascade testing and it differs dramatically from Copilot's `fetch_webpage`
@@ -377,10 +362,10 @@ transformation happens before the agent receives anything. `read_url_content` de
 selection up to interpretation. What the agent retrieves is a behavioral variable, not a retrieval-layer constant.
 The content gap is agent-authored rather than tool-imposed.
 
-The agent doesn't report this as truncation because from its perspective the index was complete — it received all
+The agent doesn't report this as truncation because from its perspective the index was complete - it received all
 54 positions. Whether it fetched 2 or 54 of them is a _retrieval decision, not a retrieval failure_. The prompt's
 truncation question, _"was any content truncated?"_, doesn't capture this distinction. A response of
-_"yes — by design via chunking"_ is accurate, but doesn't quantify how much content was skipped, and a response of
+_"yes - by design via chunking"_ is accurate, but doesn't quantify how much content Cascade skips, and a response of
 _"no"_ is locally defensible but globally misleading.
 
 Character counts logged for interpreted track runs reflect only the chunks the agent actually retrieved, not the full
@@ -389,10 +374,10 @@ _The figure is not a truncation ceiling, but a sampling artifact_. Cross-run var
 chunk selection decisions rather than retrieval-layer variance.
 
 | **Hypothesis** | **Verdict** | **Defense** |
-|---|---|---|
+| --- | --- | --- |
 | `H1` | _Indeterminate_ | Char ceiling not tool-imposed; determined by<br>agent chunk selection |
-| `H2` | _Indeterminate_ | Same reason as `H1` — token ceiling unobservable<br>under chunked architecture |
-| `H5` | _No_ | `BL-1` r1, r2 only called `view_content_chunk` at<br>positions 0, 53; no sequential, auto-pagination |
+| `H2` | _Indeterminate_ | Same reason as `H1` - token ceiling unobservable<br>under chunked architecture |
+| `H5` | _No_ | `BL-1` run 1-2 only called `view_content_chunk` at<br>positions 0, 53; no sequential, auto-pagination |
 
 ### Chunked Index, Full Chunk Retrieval with Per-Chunk Truncation
 
@@ -402,20 +387,20 @@ visible in partial retrieval runs: `view_content_chunk` internally truncates the
 only the beginning and end of its content with a notice between them:
 
 ```Markdown
-"Note that N bytes in this tool's output were truncated — consider making different
+"Note that N bytes in this tool's output were truncated - consider making different
 tool calls to output fewer bytes if you wish to see the untruncated output"
 ```
 
 First, the prompt doesn't request that any specific tool be used, just that tools-used reported. Second, 51 of 54
 chunks were affected, with hidden content ranging from 208 bytes of chunk 0 to 20,540 bytes of chunk 15. Only chunks
 48, 49, and 50 were delivered without internal truncation. The total hidden content across all chunks was approximately
-132 KB. The actual fetched content was ~220–240 KB — far exceeding the expected ~85 KB — because
+132 KB. The actual fetched content was ~220–240 KB, far exceeding the expected ~85 KB, because
 `read_url_content` retrieved the full rendered page including inline CSS and navigation chrome duplicated three times:
 desktop, mobile, and sidebar. _This isn't a document size measurement but a rendering artifact_.
 
 Each `view_content_chunk` result included three components: a `text` field with the chunk content, beginning and end
 only, the truncation notice with byte count, and structured metadata for chunks 49–53 including
-`type:MARKDOWN_NODE_TYPE_HEADER_1` and `type:MARKDOWN_NODE_TYPE_HEADER_2` fields — suggesting the tool has structural
+`type:MARKDOWN_NODE_TYPE_HEADER_1` and `type:MARKDOWN_NODE_TYPE_HEADER_2` fields, suggesting the tool has structural
 awareness of content type that isn't consistently surfaced across all chunks. This creates a retrieval architecture
 with two distinct truncation layers operating independently:
 
@@ -423,23 +408,23 @@ with two distinct truncation layers operating independently:
 - **Layer 2** `view_content_chunk`: fetched chunk display-truncated, hiding middle portion
 
 The agent never sees the complete content of most chunks even when all chunks are fetched. Full chunk retrieval confirms
-the document's structural completeness — the final chunks in `BL-1` run 3 contained the expected footer navigation, but
+the document's structural completeness, the final chunks in `BL-1` run 3 contained the expected footer navigation, but
 can't confirm that no mid-chunk content was lost, because the hidden bytes aren't recoverable from any artifact the agent
 produces. The verification script has no mechanism to detect **Layer 2** truncation; it isn't visible in saved output files
 and the agent can't report what it never received.
 
 The behavioral difference across `BL-1` runs is itself a finding. `Claude Sonnet 4.6` and `GPT-5.3-Codex` both sampled
 endpoints, chunks 0 and 53, without attempting full retrieval. `Kimi K2.5` sampled six chunks: positions 0, 1, 50, 51, 52,
-and 53 — the first two and last four, a strategy that retrieved more tail context than `Sonnet` or `GPT` while stopping well
+and 53, the first two and last four, a strategy that retrieved more tail context than `Sonnet` or `GPT` while stopping well
 short of full retrieval. `Claude Opus 4.6` retrieved all 54 chunks in parallel. Three distinct chunk selection
 strategies across four runs on the same URL and prompt suggest _chunk selection is agent-dependent rather than prompt-driven_.
 Whether this reflects agent capability, context window size, or prompt interpretation differences isn't resolvable from the
 `BL-1` data alone, but the divergence means `H5` results aren't uniform across agents on identical URLs and prompts.
 
-### Chunked Index, Empty Summaries — Blind Sampling
+### Chunked Index, Empty Summaries, Blind Sampling
 
 `OP-4` run 4 used `Claude Opus 4.6` and `read_url_content` returned an index of 53 chunk positions, but all chunk summaries
-were empty, `" "` or `""`. The response is structurally complete — all positions are present, but not helpful. an agent attempting
+were empty, `" "` or `""`. The response is structurally complete, all positions are present, but not helpful. an agent attempting
 to retrieve only article body content has no metadata to select against.
 
 This collapses the available retrieval strategies to two: sample blind, accepting that any chunk may contain CSS or navigation
@@ -452,10 +437,10 @@ truncation issue, and likely not agent behavior that a prompt can correct. Archi
 different ways:
 
 | **Hypothesis** | **Verdict** | **Defense** |
-|---|---|---|
+| --- | --- | --- |
 | `H1` Character Ceiling |  _No_ | ~220–240 KB actual content far exceeds any plausible fixed ceiling; apparent size variance is a rendering artifact, not a tool limit |
 | `H2` Token Ceiling | _No_ | ~55,000–65,000 tokens across all 54 chunks rules out a ~2,000 token ceiling |
-| `H3` Structure-aware Truncation | _Indeterminate_ | Chunks can show `MARKDOWN_NODE_TYPE_HEADER` metadata suggesting partial structure-awareness, but bulk content raw CSS/nav HTML, boundary behavior can't be assessed |
+| `H3` Structure-aware Truncation | _Indeterminate_ | Chunks can show `MARKDOWN_NODE_TYPE_HEADER` metadata suggesting partial structure-awareness, but bulk content raw CSS/nav HTML, boundary behavior not assessed |
 | `H5` Auto-pagination | _Partial_ | Confirmed for `Opus` only; not observed for `Sonnet` or `GPT-Codex` on identical prompt/URL |
 
 > _Interpreted track captures self-report variance; while `H1` and `H2` verdicts can be read as document-level, `view_content_chunk`
@@ -469,7 +454,7 @@ different ways:
 as currently framed doesn't capture the full behavioral range observed -
 
 | **Depth** | **Agent** | **Chunks Fetched** |
-|---|---|---|
+| --- | --- | --- |
 | **None** | `Claude Sonnet 4.6` | 0, index only |
 | **Endpoint Sampling** | `GPT-5.3-Codex` | 2 |
 | **Distributed Sampling** | `Kimi K2.5` | ~11 |
@@ -486,28 +471,28 @@ chunk selection.
 
 ---
 
-## Unverified Size as Truncation Signal
+## Unverified Size, Truncation Signal
 
-`SWE-1.6` reported receiving "~4.8 KB, 24% of expected ~20 KB" and flagged this as evidence that the fetch was
-incomplete. The ~20 KB expectation wasn't derived from a measurement — `search_web` wasn't invoked and no external
+`SWE-1.6` reported receiving _"~4.8 KB, 24% of expected ~20 KB"_ and flagged this as evidence that the fetch was
+incomplete. The ~20 KB expectation wasn't derived from a measurement, `search_web` wasn't invoked and no external
 size reference was retrieved. `BL-2`'s prompt ~20 KB figure likely originates from earlier testing of the same URL
-on different platforms — Cursor or Copilot runs where `fetch_webpage` retrieved the fully rendered page including
+on different platforms, Cursor, or Copilot runs where `fetch_webpage` retrieved the fully rendered page including
 navigation, sidebar, and inline CSS. That figure was a real measurement, but of a different artifact than what
 `read_url_content` delivers. Alternatively, the source `.md` file may have changed in size between testing sessions.
 It's possible that the original estimate was miscalculated. In either case, neither `SWE-1.6` nor `GPT-5.4` verified
 the size expectation before using it as a truncation signal.
 
 It's a metacognitive failure: the agent doesn't recognize that the size expectation is an uncertain input that should
-be verified before being promoted to a diagnostic measurement — and it has a tool available to do exactly that. The
-irony is structural: the test is designed to observe retrieval fidelity, the agent responds to apparent retrieval
+be verified before being promoted to a diagnostic measurement, and it has a tool available to do exactly that. The
+irony is structural: the test intends to observe retrieval fidelity, the agent responds to apparent retrieval
 incompleteness by _not retrieving_. `search_web` was available in all four `BL-2` runs and unused in all four. If an
 agent is uncertain enough about expected content to flag a 76% shortfall, that uncertainty is exactly the condition
 under which a verification fetch would be warranted.
 
-When an agent reports a specific size expectation, log whether it was derived from a retrieval in the current run or
-carried in from elsewhere. Regardless of the source, if the agent uses an unverified size estimate as a truncation
-signal, flag it as a diagnostic error. The behavior of interest isn't whether the agent reached the right answer,
-but whether it recognized the difference between a verified measurement and an unverified estimate.
+When an agent reports a specific size expectation, log whether it as current run retrieval or carried in from elsewhere.
+Regardless of the source, if the agent uses an unverified size estimate as a truncation signal, flag it as a diagnostic
+error. The behavior of interest isn't whether the agent reached the right answer, but whether it recognized the difference
+between a verified measurement and an unverified estimate.
 
 ---
 
@@ -535,4 +520,4 @@ navigational structure is there, and at least one agent used it. That makes the 
 _behavioral finding rather than an architectural limitation_. The chunk index supports fragment-targeting; most agents
 just don't attempt it by default.
 
-> _This failure mode is also discussed in the [Friction: Raw content](friction-note-raw.md#url-fragment-targeting)._
+> _The [Friction: Raw content](friction-note-raw.md#url-fragment-targeting) also discusses this failure mode._

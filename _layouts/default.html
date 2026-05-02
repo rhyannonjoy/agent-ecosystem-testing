@@ -4,9 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% if page.title %}{{ page.title }} | {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/open-sauce-one">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -21,7 +19,9 @@
       --active-bg: rgba(92, 74, 30, 0.06);
       --max-width: 740px;
       --sidebar-width: 240px;
-      --font: 'Roboto Mono', monospace;
+      --toc-width: 200px;
+      --font: 'Open Sauce One', sans-serif;
+      --font-weight-base: 400;
     }
 
     main img {
@@ -32,7 +32,6 @@
       object-fit: cover;
     }
 
-    /* Light mode explicit override */
     [data-theme="light"] {
       --text: #2c2c2c;
       --muted: #7a7060;
@@ -44,7 +43,6 @@
       --active-bg: rgba(92, 74, 30, 0.06);
     }
 
-    /* Dark mode — system preference, unless overridden */
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
         --text: #d0cfd8;
@@ -58,7 +56,6 @@
       }
     }
 
-    /* Dark mode — explicit toggle */
     [data-theme="dark"] {
       --text: #d0cfd8;
       --muted: #70707a;
@@ -79,6 +76,7 @@
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      font-weight: 300;
     }
 
     /* Header */
@@ -90,7 +88,7 @@
     }
 
     header .header-content {
-      max-width: calc(var(--max-width) + var(--sidebar-width) + 3rem);
+      max-width: calc(var(--max-width) + var(--sidebar-width) + var(--toc-width) + 6rem);
       margin: 0 auto;
       display: flex;
       justify-content: space-between;
@@ -100,7 +98,7 @@
     header .site-title {
       display: flex;
       align-items: center;
-      gap: 1px; /* adjust this to taste — try 4px–8px */
+      gap: 1px;
       font-size: 0.85rem;
       font-weight: 400;
       letter-spacing: 0.04em;
@@ -111,7 +109,6 @@
 
     header .site-title:hover { color: var(--link-hover); }
 
-    /* Theme toggle button */
     .theme-toggle {
       background: none;
       border: none;
@@ -162,7 +159,6 @@
       border-bottom: none;
     }
 
-    /* Top-level single link (no children) */
     .sidebar-link-top {
       display: block;
       padding: 0.75rem 1.25rem;
@@ -187,7 +183,6 @@
       background: var(--active-bg);
     }
 
-    /* Collapsible group */
     .sidebar-group {}
 
     .sidebar-group-toggle {
@@ -209,11 +204,8 @@
       transition: color 0.15s ease;
     }
 
-    .sidebar-group-toggle:hover {
-      color: var(--link-hover);
-    }
+    .sidebar-group-toggle:hover { color: var(--link-hover); }
 
-    /* Label span — allow wrapping */
     .sidebar-group-toggle > span:first-child {
       min-width: 0;
       overflow-wrap: break-word;
@@ -227,7 +219,7 @@
       gap: 0.5rem;
       flex-shrink: 0;
       margin-left: 0.5rem;
-      padding-top: 0.15rem; /* optical alignment with first line of label */
+      padding-top: 0.15rem;
     }
 
     .sidebar-status {
@@ -245,9 +237,7 @@
       display: inline-block;
     }
 
-    .sidebar-group.open .sidebar-chevron {
-      transform: rotate(90deg);
-    }
+    .sidebar-group.open .sidebar-chevron { transform: rotate(90deg); }
 
     .sidebar-group-items {
       overflow: hidden;
@@ -255,9 +245,7 @@
       transition: max-height 0.25s ease;
     }
 
-    .sidebar-group.open .sidebar-group-items {
-      max-height: 400px;
-    }
+    .sidebar-group.open .sidebar-group-items { max-height: 400px; }
 
     .sidebar-link {
       display: block;
@@ -282,18 +270,111 @@
       background: var(--active-bg);
     }
 
-    /* Bottom padding inside open group */
-    .sidebar-group-items-inner {
-      padding-bottom: 0.75rem;
+    .sidebar-group-items-inner { padding-bottom: 0.75rem; }
+
+    /* Content + TOC wrapper */
+    .content-wrapper {
+      display: flex;
+      flex: 1;
+      min-width: 0;
     }
 
     /* Main content */
     main {
       flex: 1;
       padding: 2rem 1.5rem;
-      max-width: calc(var(--max-width) + 3rem);
-      margin: 0 auto;
+      max-width: var(--max-width);
+      min-width: 0;
       width: 100%;
+    }
+
+    /* TOC panel */
+    .toc-panel {
+      width: var(--toc-width);
+      flex-shrink: 0;
+      padding: 2rem 0 2rem 1rem;
+      position: sticky;
+      top: 80px;
+      max-height: calc(100vh - 80px);
+      overflow-y: auto;
+      align-self: flex-start;
+    }
+
+    .toc-panel .toc-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+      font-weight: 400;
+    }
+
+    .toc-panel ol {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      border-left: 1px solid var(--border);
+    }
+
+    .toc-panel ol li {
+      margin: 0;
+    }
+
+    .toc-panel ol li a {
+      display: block;
+      padding: 0.3rem 0 0.3rem 0.85rem;
+      font-size: 0.75rem;
+      line-height: 1.4;
+      color: var(--muted);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      margin-left: -1px;
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .toc-panel ol li a:hover {
+      color: var(--link-hover);
+    }
+
+    .toc-panel ol li a.toc-active {
+      color: var(--link);
+      border-left-color: var(--link);
+      font-weight: 500;
+    }
+
+    /* Mobile TOC — inline above content */
+    .toc-mobile {
+      display: none;
+      margin-bottom: 1.75rem;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1rem 1.25rem;
+    }
+
+    .toc-mobile .toc-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+    }
+
+    .toc-mobile ol {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .toc-mobile ol li a {
+      display: block;
+      padding: 0.2rem 0;
+      font-size: 0.8rem;
+      color: var(--link);
+      text-decoration: none;
+    }
+
+    .toc-mobile ol li a:hover {
+      color: var(--link-hover);
     }
 
     /* Breadcrumbs */
@@ -407,21 +488,22 @@
     }
 
     footer .footer-content {
-      max-width: calc(var(--max-width) + var(--sidebar-width) + 3rem);
+      max-width: calc(var(--max-width) + var(--sidebar-width) + var(--toc-width) + 6rem);
       margin: 0 auto;
       display: flex;
       justify-content: space-between;
       align-items: baseline;
     }
 
-    footer a {
-      color: var(--muted);
-      text-decoration: none;
-    }
-
+    footer a { color: var(--muted); text-decoration: none; }
     footer a:hover { color: var(--link-hover); }
 
     /* Responsive */
+    @media (max-width: 1100px) {
+      .toc-panel { display: none; }
+      .toc-mobile { display: block; }
+    }
+
     @media (max-width: 900px) {
       :root { --sidebar-width: 180px; }
       aside.sidebar { width: var(--sidebar-width); }
@@ -450,7 +532,6 @@
         align-items: center;
       }
     }
-
   </style>
 </head>
 <body>
@@ -458,11 +539,11 @@
   <header>
     <div class="header-content">
       <a class="site-title" href="{{ '/' | relative_url }}">
-      <img src="{{ '/static/assets/AET-logo.png' | relative_url }}" 
-           alt="{{ site.title }} logo" 
-           class="site-logo">
-      {{ site.title }}
-    </a>
+        <img src="{{ '/static/assets/AET-logo.png' | relative_url }}"
+             alt="{{ site.title }} logo"
+             class="site-logo">
+        {{ site.title }}
+      </a>
       <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">[ light ]</button>
     </div>
   </header>
@@ -472,14 +553,12 @@
     <aside class="sidebar">
       {% for nav_item in site.navigation %}
         {% if nav_item.url %}
-          <!-- Top-level single link, no children -->
           <div class="sidebar-section">
             <a class="sidebar-link-top {% if page.url == nav_item.url %}active{% endif %}" href="{{ nav_item.url | relative_url }}">
               {{ nav_item.title }}
             </a>
           </div>
         {% else %}
-          <!-- Collapsible group with child links -->
           {% assign group_has_active = false %}
           {% for section in nav_item.sections %}
             {% if page.url == section.url %}
@@ -511,23 +590,42 @@
     </aside>
     {% endif %}
 
-    <main>
-      {% if page.breadcrumbs %}
-      <nav class="breadcrumbs">
-        <a href="{{ '/' | relative_url }}">Home</a>
-        {% for crumb in page.breadcrumbs %}
-          <span>/</span>
-          {% if crumb.url %}
-            <a href="{{ crumb.url | relative_url }}">{{ crumb.title }}</a>
-          {% else %}
-            <span>{{ crumb.title }}</span>
-          {% endif %}
-        {% endfor %}
-      </nav>
-      {% endif %}
+    <div class="content-wrapper">
+      <main>
+        {% if page.breadcrumbs %}
+        <nav class="breadcrumbs">
+          <a href="{{ '/' | relative_url }}">Home</a>
+          {% for crumb in page.breadcrumbs %}
+            <span>/</span>
+            {% if crumb.url %}
+              <a href="{{ crumb.url | relative_url }}">{{ crumb.title }}</a>
+            {% else %}
+              <span>{{ crumb.title }}</span>
+            {% endif %}
+          {% endfor %}
+        </nav>
+        {% endif %}
 
-      {{ content }}
-    </main>
+        {% unless page.toc == false %}
+        <!-- Mobile TOC: inline above content, hidden on desktop -->
+        <nav class="toc-mobile" id="toc-mobile" aria-label="Topic Guide">
+          <div class="toc-label">Topic Guide</div>
+          <ol id="toc-mobile-list"></ol>
+        </nav>
+        {% endunless %}
+
+        {{ content }}
+      </main>
+
+      {% unless page.toc == false %}
+      <!-- Desktop TOC: sticky right panel, hidden on small screens -->
+      <nav class="toc-panel" id="toc-panel" aria-label="Topic Guide">
+        <div class="toc-label">Topic Guide</div>
+        <ol id="toc-list"></ol>
+      </nav>
+      {% endunless %}
+    </div>
+
   </div>
 
   <footer>
@@ -551,7 +649,6 @@
       btn.textContent = theme === 'dark' ? '[ light ]' : '[ dark ]';
     }
 
-    // On load: use saved preference, else follow system
     const saved = localStorage.getItem('theme');
     applyTheme(saved || getSystemTheme());
 
@@ -571,6 +668,76 @@
         this.setAttribute('aria-expanded', String(!isOpen));
       });
     });
+
+    // --- TOC builder + scroll spy ---
+    (function() {
+      var tocList      = document.getElementById('toc-list');
+      var tocMobile    = document.getElementById('toc-mobile-list');
+      var tocPanel     = document.getElementById('toc-panel');
+      var tocMobileEl  = document.getElementById('toc-mobile');
+
+      // Only run if TOC elements exist on this page
+      if (!tocList && !tocMobile) return;
+
+      // Collect all h2s in main content
+      var headings = Array.from(document.querySelectorAll('main h2'));
+
+      // If no headings, hide both TOC containers and bail
+      if (headings.length === 0) {
+        if (tocPanel)    tocPanel.style.display    = 'none';
+        if (tocMobileEl) tocMobileEl.style.display = 'none';
+        return;
+      }
+
+      // Ensure each heading has an id for anchor linking
+      headings.forEach(function(h, i) {
+        if (!h.id) {
+          h.id = 'toc-heading-' + i;
+        }
+      });
+
+      // Build TOC list items for both desktop and mobile
+      function buildList(listEl) {
+        if (!listEl) return;
+        headings.forEach(function(h) {
+          var li = document.createElement('li');
+          var a  = document.createElement('a');
+          a.href        = '#' + h.id;
+          a.textContent = h.textContent;
+          a.dataset.id  = h.id;
+          li.appendChild(a);
+          listEl.appendChild(li);
+        });
+      }
+
+      buildList(tocList);
+      buildList(tocMobile);
+
+      // Scroll spy — highlight the active heading
+      var allLinks = Array.from(document.querySelectorAll('#toc-list a, #toc-mobile-list a'));
+
+      function setActive(id) {
+        allLinks.forEach(function(a) {
+          a.classList.toggle('toc-active', a.dataset.id === id);
+        });
+      }
+
+      var observer = new IntersectionObserver(function(entries) {
+        // Find the topmost heading that is intersecting
+        var visible = entries
+          .filter(function(e) { return e.isIntersecting; })
+          .sort(function(a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+
+        if (visible.length > 0) {
+          setActive(visible[0].target.id);
+        }
+      }, {
+        rootMargin: '0px 0px -60% 0px',
+        threshold: 0
+      });
+
+      headings.forEach(function(h) { observer.observe(h); });
+    })();
   </script>
 
 </body>

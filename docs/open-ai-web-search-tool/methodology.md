@@ -6,16 +6,20 @@ permalink: /docs/open-ai-web-search-tool/methodology
 parent: OpenAI Web Search
 ---
 
-## Methodology
+# Methodology
+
+---
+
+## Track Design
 
 Empirical testing of the [OpenAI web search tool](https://platform.openai.com/docs/guides/tools-web-search)
 across two tracks that expose different layers of the same behavior. See
 [ChatGPT-interpreted vs Raw](chatgpt-interpreted-vs-raw.md) for a full comparison of what each
 track measures and where the two diverge.
 
-The **ChatGPT-interpreted track** uses the Chat Completions API with `gpt-4o-mini-search-preview` -
+The **ChatGPT-interpreted track** uses the Chat Completions API with `gpt-4o-mini-search-preview`,
 search is always implicit, no tool plumbing exposed to the caller. The **raw track** uses the
-Responses API with `gpt-4o` + `web_search_preview` - tool invocation is conditional and explicitly
+Responses API with `gpt-4o` + `web_search_preview` in which tool invocation is conditional and explicitly
 observable via `web_search_call` items in `response.output`.
 
 ---

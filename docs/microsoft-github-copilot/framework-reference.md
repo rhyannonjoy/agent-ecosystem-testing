@@ -5,21 +5,12 @@ permalink: /docs/microsoft-github-copilot/framework-reference
 parent: Microsoft GitHub Copilot
 ---
 
-## Copilot Framework Reference
+# Copilot Framework Reference
 
 >_This framework generates standardized test prompts and logs CSV results,
 >enabling consistent testing across cases, measurement tracking over time,
 >truncation pattern identification, and web content retrieval method comparisons_<br>
 >_**Requirements**: Python 3.8+, [VS Code GitHub Copilot Extension](https://code.visualstudio.com/docs/copilot/overview)_
-
----
-
-## Topic Guide
-
-- [Installation](#installation)
-- [Workflow](#workflow)
-- [Baseline Testing Path](#baseline-testing-path)
-- [Analyzing Results](#analyzing-results)
 
 ---
 
@@ -44,7 +35,7 @@ cd copilot-web-content-retrieval
 ```
 
 >_For whatever reason, such as incompatible Python versions or some accidental corruption,
->use `rm -rf venv` to remove the `venv` and start over_
+><br>use `rm -rf venv` to remove the `venv` and start over_
 
 ## Workflow
 
@@ -223,7 +214,7 @@ cd copilot-web-content-retrieval
 
 ## Analyzing Results
 
-Examine truncation analysis, method and track comparison, hypothesis matching:
+Examine hypotheses matching, track comparison, and truncation analysis -
 
 ```bash
 # Generate full analysis report
@@ -241,4 +232,4 @@ python web_content_retrieval_results_analyzer.py \
 ```
 
 >_Provide full relative path, including subdirectory:
->`results/copilot-interpreted/results.csv` or `results/raw/results.csv`_
+>`results/copilot-interpreted/results.csv`<br>or `results/raw/results.csv`_

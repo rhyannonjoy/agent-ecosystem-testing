@@ -6,20 +6,11 @@ permalink: /docs/open-ai-web-search-tool/chatgpt-interpreted-vs-raw
 parent: OpenAI Web Search
 ---
 
-## ChatGPT-interpreted vs Raw
-
----
-
-## Topic Guide
-
-- [Track Design](#track-design)
-- [Agent Docs Spec - Known Platform Limits](#agent-docs-spec---known-platform-limits)
+# ChatGPT-interpreted vs Raw
 
 ---
 
 ## Track Design
-
-Two Python scripts test the same web search behaviors:
 
 **ChatGPT-interpreted** captures what `gpt-4o-mini-search-preview` _believes_ it retrieved:
 how many sources it consulted, whether results felt current, how it characterizes search depth.
@@ -33,21 +24,21 @@ distinct sources" but the raw `source_count` is 1, that discrepancy belongs in t
 
 | | `web_search_test.py` | `web_search_test_raw.py` |
 | - | ---------------------- | -------------------------- |
-| API | Chat Completions API | Responses API |
-| Measures | Model's interpretation of what it retrieved | Raw metadata extracted directly from response object |
-| Search invocation | Implicit - model always searches, no visibility | Explicit `web_search_call` item in `response.output` |
-| Source counts | Model self-report - frequently overstates | Python `len()` on `web_search_call.action.sources` - exact |
-| Citation counts | `url_citation` annotations in `message.annotations` | Not applicable, raw track doesn't count inline citations |
-| Internal query | Not exposed | `action.query` string from `web_search_call` item - exact |
-| `max_output_tokens` | Not set - model writes full assessments | Set to `256` - minimal output, metadata is the signal |
-| Token cost per run | Higher - model writes long self-assessments | Lower - minimal prompt, capped output |
-| Domain filtering | Not available - Chat Completions API only | Available on `web_search` tool, non-functional as tested |
-| Sources list | Not available, Chat Completions API only | Available via `include=["web_search_call.action.sources"]` |
-| Best used for | Understanding what the model perceives it retrieved | Citable measurements for the spec |
+| **API** | Chat Completions | Responses |
+| **Measures** | Model's interpretation of<br>what it retrieved | Raw metadata extracted directly<br>from response object |
+| **Search Invocation** | Implicit - model always searches<br>no visibility | Explicit `web_search_call`<br>item in `response.output` |
+| **Source Counts** | Model self-report<br>frequently overstates | Python `len()` on `web_search_call.action.sources` |
+| **Citation Counts** | `url_citation` annotations in `message.annotations` | Not applicable, raw track doesn't<br>count inline citations |
+| **Internal Query** | _Not exposed_ | `action.query` string from `web_search_call` item - exact |
+| **`max_output_tokens`** | _Not set_, model writes full assessments | Set to `256` - minimal output,<br>metadata is the signal |
+| **Token Cost per Run** | _Higher_, model writes long self-assessments | _Lower_, minimal prompt,<br>capped output |
+| **Domain Filtering** | _Not available_<br>Chat Completions API only | Available on `web_search` tool,<br>non-functional as tested |
+| **Sources List** | _Not available_<br>Chat Completions API only | Available via `include=["web_search_call.action.sources"]` |
+| **Best For** | Understanding what the model perceives it retrieved | Citable measurements<br>for the spec |
 
-## Agent Docs Spec - Known Platform Limits
+## Agent-Friendly Docs Spec
 
-Both tracks agree on the following and are the citable findings for the spec:
+The following are appropriate additions to the spec's Known Platform Limits table:
 
 ### Tool Invocation
 
@@ -62,8 +53,8 @@ Both tracks agree on the following and are the citable findings for the spec:
 
 - Citation counts in the interpreted track are **highly non-deterministic**: `test_8_multi_hop`
   ranged 8–20 across 3 runs; no test produced identical counts across all runs.
-- Self-reported source counts are **unreliable**: `test_6` r2 claimed "10 sources" but produced
-  1 inline citation; `test_4` r3 claimed "12 distinct sources" but produced 1 citation.
+- Self-reported source counts are **unreliable**: `test_6` run 2 claimed _"10 sources"_ but produced
+  1 inline citation; `test_4` run 3 claimed _"12 distinct sources"_ but produced 1 citation.
 - Raw source counts were **stable at 12** across all invoked tests and all context sizes - the
   only exception being domain filter tests, which errored, and no-search tests, 0 sources.
 
@@ -84,17 +75,17 @@ Both tracks agree on the following and are the citable findings for the spec:
 
 ### Domain Filtering
 
-- **Allow-list filtering** - `allowed_domains` worked once on `web_search_preview`, r2,
-  `filter_respected: true`, 2 "apnews.com" sources. After switching to `web_search` per
+- **Allow-list filtering** - `allowed_domains` worked once on `web_search_preview`, run 2,
+  `filter_respected: true`, 2 _"apnews.com"_ sources. After switching to `web_search` per
   docs guidance, both allow-list and block-list filtering returned
   `"Unsupported parameter 'filters'"` on every subsequent run across `gpt-4o` and `gpt-5`.
 - **Block-list filtering** never succeeded in any configuration across 6 runs, 2 tool types,
   and 2 models. Attempted three parameter names - `exclude_domains`, `excluded_domains`,
-  `blocked_domains` - all `400`.
-- **The contradiction**: docs state filtering requires `web_search`; empirically it worked once
-  on `web_search_preview` and never on `web_search`. Domain filtering is documented but
+  `blocked_domains`, all `400`.
+- **Contradiction**: docs state filtering requires `web_search`; empirically it worked once
+  on `web_search_preview` and never on `web_search`. Domain filtering documented, but
   non-functional via the Python SDK as tested.
-- Domain filtering **isn't available in the interpreted track** - Chat Completions API only.
+- Domain filtering **isn't available in the interpreted track**, but Chat Completions API only.
 
 ### Disambiguation
 

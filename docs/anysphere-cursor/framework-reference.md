@@ -5,21 +5,12 @@ permalink: /docs/anysphere-cursor/framework-reference
 parent: Anysphere Cursor
 ---
 
-## Cursor Framework Reference
+# Cursor Framework Reference
 
 >_This framework generates standardized test prompts and logs CSV results,
 >enabling consistent testing across cases, measurement tracking over time,
 >truncation pattern identification, and fetch method comparisons_<br>
 >_**Requirements**: Python 3.8+, [Cursor IDE](https://cursor.com/download)_
-
----
-
-## Topic Guide
-
-- [Installation](#installation)
-- [Workflow](#workflow)
-- [Baseline Testing Path](#baseline-testing-path)
-- [Analyzing Results](#analyzing-results)
 
 ---
 
@@ -44,7 +35,7 @@ cd cursor-web-fetch
 ```
 
 >_For whatever reason, such as incompatible Python versions or some accidental corruption,
->use `rm -rf venv` to remove the `venv` and start over_
+><br>use `rm -rf venv` to remove the `venv` and start over_
 
 ## Workflow
 
@@ -87,14 +78,13 @@ cd cursor-web-fetch
    | `H4`* | `@Web` invocation | _Does `@Web` impact web fetch behavior?_ |
    | `H5` | Agentic auto-chunking | _Does the agent fetch chunks automatically,<br>or only when reasoned into it?_ |
 
-   >*_`@Web` may route to `mcp_web_fetch` internally; mechanism is agent's choice and
-   >not user-controllable; `H4` not testable through `@Web` alone, visit the
-   >[Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool)_
+   >*_`@Web` may route to `mcp_web_fetch`; mechanism is agent's choice,
+   >not user-controllable; `H4` not testable through `@Web` alone, visit
+   >[Friction Note](friction-note.md#web-is-a-context-mention-not-a-tool) for analysis._
 
 5. **Log Results**
 
-   Depending on the track, store results in
-   `cursor-web-fetch/results/{track}/results.csv` with the following fields:
+   Store results in `cursor-web-fetch/results/{track}/results.csv` with the following fields:
 
    | Column | Description | Example |
    | --- | --- | --- |
@@ -121,8 +111,8 @@ cd cursor-web-fetch
    | `table_rows`** | Table row count | `87` |
    | `headers`** | Header count | `63` |
 
-   >_*`@Web` is a Cursor UI composer feature, but the underlying mechanisms are `WebFetch` and/or `mcp_web_fetch` -
-   > more info in the [Friction Note](friction-note.md#web-evolution-from-manual-context-to-automatic-agent-capability)_<br>
+   >_*`@Web` is a Cursor UI composer feature, the underlying mechanisms are `WebFetch` and/or `mcp_web_fetch`,
+   > more in [Friction Note](friction-note.md#web-evolution-from-manual-context-to-automatic-agent-capability)_<br>
    <br>
    >_**Optional field, measurement for raw track results only_<br>
    <br>
@@ -167,10 +157,10 @@ cd cursor-web-fetch
    --notes "@Web returns converted..."
    ```
 
-   >_Ensure to provide all required flags: `--method`, `--model`, `--cursor-version`,
-   ><br>`--output-chars`, `--truncated`, `--tokens`, `--hypothesis`_<br>
+   >_Provide all required flags: `--method`, `--model`, `--cursor-version`,
+   >`--output-chars`, `--truncated`,<br>`--tokens`, `--hypothesis`_<br>
    <br>
-   >_**Raw track only**: rename raw output files to capture variance;
+   >_Rename raw output files to capture variance;
    >if results are consistent, remove files to prevent test contamination between runs_
 
 ---
@@ -191,15 +181,15 @@ cd cursor-web-fetch
 | `SC-1`<br>`SC-3`<br>`SC-4` | Structured content | _Does truncation respect<br>Markdown boundaries?_ |
 | `EC-1`<br>`EC-3`<br>`EC-6` | Edge cases | _What are the failure modes and<br>approval-gating edge behaviors?_ |
 
->*_**OP-3** not executable as designed; `@Web` may route to `mcp_web_fetch`;
+>*_**`OP-3`** not executable as designed; `@Web` may route to `mcp_web_fetch`;
 >the two "sides" of the comparison aren't separable through `@Web` alone;
->see [Friction Note](friction-note.md#web-evolution-from-manual-context-to-automatic-agent-capability)_
+>read more in [Friction Note](friction-note.md#web-evolution-from-manual-context-to-automatic-agent-capability)._
 
 ---
 
 ## Analyzing Results
 
-Review truncation analysis, method and track comparisons, hypothesis matching:
+Review hypotheses matching, tracking comparisons, and truncation analysis:
 
 ```bash
 # Generate full analysis report

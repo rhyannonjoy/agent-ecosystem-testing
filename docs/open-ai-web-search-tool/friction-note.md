@@ -6,16 +6,7 @@ permalink: /docs/open-ai-web-search-tool/friction-note
 parent: OpenAI Web Search
 ---
 
->_Friction: this note describes roadblocks while refining testing methodology_
-
----
-
-## Topic Guide
-
-- [Block-list Filtering Undocumented, Non-functional](#block-list-filtering-undocumented-non-functional)
-- [Credits Required](#credits-required)
-- [Domain Filtering Schema Discrepancies](#domain-filtering-schema-discrepancies)
-- [OpenAI API Key](#openai-api-key)
+# Friction Note: Roadblocks While Refining Methodology
 
 ---
 
@@ -68,7 +59,7 @@ When implementing domain filtering for the raw track - `web_search_test_raw.py`,
 the [web search tool docs](https://platform.openai.com/docs/guides/tools-web-search)
 describe a `filters` object with a `type` field - this returns a `400` on every call:
 
-```shell
+```bash
 "Unknown parameter: 'tools[0].filters.type'"
 ```
 
@@ -90,8 +81,6 @@ include=["web_search_call.action.sources"]
 parameters
 
 ---
-
-
 
 ## OpenAI API Key
 
