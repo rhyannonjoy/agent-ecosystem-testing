@@ -7,7 +7,7 @@
 
 title: Agent Ecosystem Testing
 description: empirical testing of agentic docs consumption
-author: Rhyannon Rodriguez, March 2026
+author: Rhyannon Rodriguez, 2026
 
 header_pages: []
 
@@ -23,7 +23,7 @@ exclude:
 - .vale.ini
 
 navigation:
-  - title: "TESTING INDEX"
+  - title: "Testing Index"
     url: "/"
 
   - title: "Blogs"
@@ -105,8 +105,10 @@ navigation:
         url: "/docs/microsoft-github-copilot/copilot-test-findings-raw"
       - title: "Framework Reference"
         url: "/docs/microsoft-github-copilot/framework-reference"
-      - title: "Friction Note"
-        url: "/docs/microsoft-github-copilot/friction-note"
+      - title: "Friction: Interpreted"
+        url: "/docs/microsoft-github-copilot/friction-note-interpreted"
+      - title: "Friction: Raw"
+        url: "/docs/microsoft-github-copilot/friction-note-raw"  
     
   - title: "OpenAI Web Search"
     sections:
