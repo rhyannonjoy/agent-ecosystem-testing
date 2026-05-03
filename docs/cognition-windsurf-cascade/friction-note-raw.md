@@ -20,7 +20,7 @@ index with empty summaries, suggesting that the absence of navigational signal a
 Having exhausted tool-based solutions, the agent treated adjacent codebase artifacts as methodology documentation, a
 reasonable inference in a research project, but also, incorrect here. The Copilot framework's raw output files
 are just that: outputs, not specifications. The sequence below reconstructs thought panel snapshots, but the
-loop count is unknown; steps likely repeated:
+loop count is unknown, and steps likely repeated:
 
 | **Step** | **Behavior** | **Detail** |
 | ------ | ---------- | -------- |

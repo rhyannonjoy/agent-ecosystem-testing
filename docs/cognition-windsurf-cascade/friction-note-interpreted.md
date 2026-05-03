@@ -23,7 +23,7 @@ and completed one at a time by user choice, not by Cascade automation.
 _Worktree isolation offers to close the workspace-artifact-accumulation confounder_. If each
 slot runs in its own worktree, later slots can't read artifacts written by earlier slots
 regardless of approval order. The session ordering confounder documented in
-[Copilot's unsolicited cross-run analysis](../microsoft-github-copilot/friction-note.md#agentic-over-delivery-unsolicited-cross-run-analysis---raw-track) -
+[Copilot's unsolicited cross-run analysis](../microsoft-github-copilot/friction-note-raw.md#agentic-over-delivery-unsolicited-cross-run-analysis) -
 where later runs incorporated prior run artifacts autonomously - doesn't apply here by design.
 Testing results suggest that Cascade's per-slot worktree isolation does hold under sequential
 approval in practice, as later slots didn't appear to incorporate artifacts from earlier slots. It's
@@ -332,7 +332,7 @@ architecture's practical ceiling for content targeting: the tool supports it, th
 
 `read_url_content`'s chunked index architecture requires redefining what truncation means
 in the Cascade testing context. Across
-[Copilot testing](../microsoft-github-copilot/friction-note.md#truncation-taxonomy),
+[Copilot testing](../microsoft-github-copilot/friction-note-interpreted.md#truncation-taxonomy),
 truncation described three distinct phenomena that produced similar-looking outcomes, less content than the page contained,
 but had different causes and different implications for what the verification script could confirm. Cascade introduces new
 phenomena that don't map cleanly onto any of the three Copilot cases.
