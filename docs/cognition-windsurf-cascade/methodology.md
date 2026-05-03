@@ -32,11 +32,11 @@ is the central methodological question Cascade testing inherits from the two pri
 three-track design below exists specifically to isolate `@web` as a variable, rather than assume its
 effect in either direction.
 
-| **Platform** | **User-Facing Syntax** | **What Testing Revealed** |
+| **Platform** | **Syntax** | **Testing Reveal** |
 | ------------ | ---------------------- | ------------------------- |
-| **Cursor** | `@Web` context attachment | Direct invocation was _unnecessary_ as capability had become autonomous by the time testing began; backend mechanisms `WebFetch`, `mcp_web_fetch` invoke regardless of `@Web` syntax |
-| **Copilot** | _None documented_ | No user-invocable syntax exists; testing _surfaced_ the undocumented `fetch_webpage` tool from agent output |
-| **Cascade** | `@web` directive, documented | _Does invoking `@web` change retrieval behavior,<br>ceiling, tool chain, chunking?_ |
+| **Cursor** | `@Web` context attachment, undocumented | Inclusion unnecessary as capability autonomous<br>when testing began; `WebFetch`, `mcp_web_fetch` called regardless of `@Web` syntax |
+| **Copilot** | _None documented_ | No user-invocable syntax exists; testing identified<br>`fetch_webpage` in agent output |
+| **Cascade** | `@web` directive,<br>partially documented | _Does invoking `@web` change retrieval behavior,<br>ceiling, tool chain, chunking?_ |
 
 ## Architecture Comparison
 
