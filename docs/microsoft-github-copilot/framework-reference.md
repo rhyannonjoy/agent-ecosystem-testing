@@ -78,7 +78,7 @@ cd copilot-web-content-retrieval
    | `H4`* | MCP servers impact* | _Do MCP servers override native `vscode-chat` limits?_ |
    | `H5` | Agentic auto-chunking | _Does the agent fetch chunks automatically,<br>or only when reasoned into it?_ |
 
-   >*_`H4` not testable through `vscode-chat` alone; analysis in the [Friction Note](friction-note.md)_
+   >*_`H4` not testable through `vscode-chat` alone, read [Friction: Interpreted](friction-note-interpreted.md) for analysis._
 
 5. **Log Results**
 
@@ -128,7 +128,7 @@ cd copilot-web-content-retrieval
 
    > _\*`vscode-chat` describes an intentionally manual process: user copy-pastes prompts into the
    > Copilot chat window; Copilot has no documented backend web content retrieval mechanism; analysis in the
-   > [Friction Note](friction-note.md#fetch_webpage-undocumented)_
+   > [Friction Note](friction-note-interpreted.md#fetch_webpage-not-consistently-invoked)._
 
    > _\*\*Optional field, raw track only. `copilot_reported` fields may reflect execution tool output or payload estimates;
    > `web_content_retrieval_verify_raw_results.py` script calculates values against saved `raw_output_{test_id}.txt` files._
@@ -192,8 +192,7 @@ cd copilot-web-content-retrieval
    >_Ensure to provide all required flags: `--method`, `--model`, `--copilot-version`,
    ><br>`--output-chars`, `--truncated`, `--tokens`, `--hypothesis`_<br>
    ><br>
-   >_**Raw track only**: rename raw output files to capture variance;
-   >if results are consistent, remove files to prevent test contamination between runs_
+   >_Rename raw output files to capture variance; if results are consistent,<br>remove files to prevent test contamination between runs_
 
 ---
 

@@ -12,15 +12,15 @@ parent: Microsoft GitHub Copilot
 ## Agentic Metric Computation
 
 The raw track prompt asks Copilot to retrieve content, save it to a file, and self-report
-some metrics. The design intent is that Copilot reports these figures, the verification
-script measures the same figures from the saved file, and any discrepancies are worth documenting.
+some metrics. The plan: Copilot reports these figures, the verification
+script measures the same figures from the saved file, and document any discrepancies.
 In early raw track runs, Copilot's response to this prompt was noticeably more verbose and
 process-heavy than Cursor's. Where Cursor retrieved content and reported metrics with minimal
 visible orchestration, Copilot consistently requested permission to use execution tools,
 `pylanceRunCodeSnippet`, `zsh` shell commands, or both, to calculate the metrics rather than
 estimating-reporting from the retrieval output directly. The initial instinct was to skip
 these tool requests, consistent with the interpreted track approach of suppressing script
-execution to keep the method consistent, but _this instinct is wrong for the raw track_.
+execution to keep the method consistent, but this instinct is wrong for the raw track.
 
 The tool selection behavior Copilot exhibits when asked to report metrics isn't noise, but
 the mechanism under observation. Skipping every tool request would have produced an uncomplicated
@@ -30,21 +30,21 @@ retrieval payload, they're meaningfully different execution paths with different
 
 | **Aspect** | **Cursor** | **Copilot** |
 | --- | --- | --- |
-| **Tool Visibility** | Opaque - tools not surfaced in chat | Verbose - tool calls visible<br>and prompt-able |
-| **Metric Computation** | Reported directly; method not observable | Requests use of execution tools |
+| **Tool<br>Visibility** | _Opaque_, tools not<br>named in chat | _Verbose_, tool calls visible<br>and prompt-able |
+| **Metric Computation** | Reported directly,<br>method not observable | Requests use of<br>execution tools |
 | **Distinguishability** | Possibly doesn't separate direct count from estimate | Execution path observable, though blocked tools may still produce fabricated values |
-| **Raw Track Measurements** | Output<br>fidelity | Output fidelity and tool<br>orchestration behavior |
+| **Raw Track Measurements** | Output fidelity | Output fidelity, tool<br>orchestration behavior |
 
 `SC-4` run 3 used `Claude Sonnet 4.6` and `fetch_webpage` to produce the sharpest metric discrepancy
-in the raw track dataset. Copilot reported two separate code block counts in the same response -
+in the dataset. Copilot reported two separate code block counts in the same response -
 `fenced code block delimiter lines: 48` and `code blocks (pairs): 24` without reconciling them or flagging
 the inconsistency. The verification script measured 25, consistent with the pairs count but not the delimiter count.
 The delimiter count likely reflects the agent counting opening and closing fence markers as individual lines
 rather than as matched pairs, a counting methodology difference that the prompt doesn't specify. Copilot also
-omitted table rows entirely from its report despite the prompt requesting them; the verification script measured 111.
-The character count delta - Copilot: 29,984 vs verification script: 29,949, a difference of 35 - Copilot output explains
+omitted table rows entirely from its report despite the prompt requesting them. The verification script measured 111.
+The character count delta - Copilot: 29,984 vs verification script: 29,949, a difference of 35, Copilot output explains
 that `wc -c` counts bytes rather than Unicode code points, with the gap representing multi-byte `UTF-8`
-characters including emojis. File size, word count, and header count matched exactly. The pattern suggests
+characters, including emojis. File size, word count, and header count matched exactly. The pattern suggests
 metric precision varies by field type: size and word counts are reliable, character counts require encoding
 disambiguation, and structural counts like code blocks and table rows are methodology-dependent and currently
 not specified in the prompt.
@@ -53,20 +53,19 @@ not specified in the prompt.
 violations. Expand the data schema from the Cursor-derived baseline and include log tool invocations,
 blocks, skips, and execution attempts while Copilot produces a result. Distinguish Copilot's self-reported
 values from independently measured values produced by the verification script because the delta between them
-is _the_ finding.
+is the finding.
 
 ---
 
 ## Agentic Over-Delivery, Headers Generation
 
-Across 15 raw track runs of the baseline tests, Copilot non-deterministically created a second file alongside
-the requested raw output artifact: `raw_output_{test_id}.headers.txt` containing the HTTP response headers
-from the fetch operation. The prompt never requests this file. No run explicitly asked Copilot to capture headers.
+Across baseline tests Copilot nondeterministically created a second file alongside the requested raw output artifact:
+_`raw_output_{test_id}.headers.txt`_ containing the HTTP response headers. The prompt never requests this file.
 This behavior is agent-initiated. Copilot deciding autonomously that capturing response metadata would be
-useful, and it occurs inconsistently, making it uncontrollable as a variable and unverifiable as a complete dataset.
+useful, inconsistently, makes it uncontrollable as a variable and unverifiable as a complete dataset.
 
-This is agentic over-delivery. The agent doesn't just complete the task; it expands the task boundary based on its
-own assessment of what would be useful, producing artifacts the researcher didn't ask for and may not notice. In this
+This is agentic over-delivery. The agent doesn't just complete the task, it expands the task boundary based on its
+own assessment of what would be useful, producing artifacts unprompted and if unchecked, no one may notice. In this
 case the headers files are harmless and informative, but the same behavior pattern is what drives tool substitution -
 the agent deciding `curl` is a better fetch mechanism than whatever's requested, and preamble injection - the agent
 deciding to frame the output with context. The headers file is the benign end of the same behavioral spectrum.
@@ -90,7 +89,7 @@ filtering but because of partial HTTP retrieval.
 
 The raw track data rules this out. If `fetch_webpage` used byte-range requests, the saved files would be sequential
 from the document's beginning, the first 7 KB of the HTML, the first 18 KB, etc. Instead, the saved content is non-sequential:
-the `BL-3` run 5 file contains content from throughout the page - intro, middle sections, footer, TOC - with `...` ellipsis
+the `BL-3` run 5 file contains content from throughout the page - intro, middle sections, footer, TOC - with **`. . .`** ellipsis
 markers between chunks, in a reading order that doesn't match the page's top-to-bottom structure. The intro paragraph appears
 near the bottom of the saved file despite being first on the rendered page. Byte-range retrieval can't produce non-sequential
 content. `fetch_webpage` is performing full-document retrieval followed by internal transformation, not partial HTTP retrieval.
@@ -105,12 +104,11 @@ between runs, the origin response may differ slightly from the cached response. 
 **Impact**: the `accept-ranges` finding closes the byte-range retrieval hypothesis. The size ceiling on `fetch_webpage` output
 isn't an artifact of HTTP partial content requests. It reflects tool-internal transformation behavior: full retrieval followed
 by chunk extraction, structural conversion, and relevance-based assembly. Though never requested, the header files provide
-evidence that rule out an alternative explanation that the raw output text files can't support alone.
-
->_Open Question: the nondeterministic appearance of headers files means the dataset is incomplete; some runs have headers,
->most don't. The current data can't determine whether the headers vary across runs for the same URL, indicating CDN cache state
->changes, or remain stable, indicating a consistent upstream response. A controlled run set that explicitly captures headers every
->time would close this gap, but would require prompt and test condition modification_.
+evidence that rule out an alternative explanation that the raw output text files can't support alone. The nondeterministic appearance
+of headers files means the dataset is incomplete. Some runs have headers, most don't. The current data can't determine whether the
+headers vary across runs for the same URL, indicating CDN cache state changes, or remain stable, indicating a consistent upstream
+response. A controlled run set that explicitly captures headers every time would close this gap, but would require prompt and test
+condition modification.
 
 ### Headers Generation: Two Distinct Trigger Paths
 
@@ -136,7 +134,7 @@ implications. A headers file from a `fetch_webpage` run is incidental agent beha
 a `curl` run is evidence of tool substitution, and the headers themselves reflect different infrastructure:
 direct origin or CDN response rather than whatever `fetch_webpage`'s internal retrieval layer contacts.
 
-The `SC-3` run 5 headers are the most complete in the dataset and directly informative on the size question:
+The `SC-3` run 5 headers are the most complete and include size details:
 
 ```bash
 content-length: 793987
@@ -176,22 +174,20 @@ of agentic over-delivery, confirm which retrieval mechanism produced it. `fetch_
 `curl` headers files both appear as `.headers.txt` artifacts but represent different agent behaviors with
 different methodological implications. The log `notes` field should distinguish these cases. The 3-in-30
 approximate rate of headers file appearance across all runs may be a compound of both trigger paths rather
-than a single nondeterministic behavior.
-
->_Open Question: it isn't established whether `curl` substitution always produces a headers file, or
->only sometimes, and whether `fetch_webpage`'s headers-generation is query-dependent, URL-dependent, or
->genuinely nondeterministic. A controlled run set that logs retrieval mechanism alongside headers file
->presence for every run would separate the two populations and establish whether the 4/32 rate holds
->within each mechanism or possibly driven by one of them. A second open question follows from the inverse
->failure mode finding: whether any prompt condition, model, or tool configuration exists within Copilot's
->current surface that produces both complete retrieval and useful plain-language output in the same run.
->The dataset has no confirmed instance of this_.
+than a single nondeterministic behavior. It isn't established whether `curl` substitution always produces a
+headers file, or only sometimes, and whether `fetch_webpage`'s headers-generation is query-dependent,
+URL-dependent, or genuinely nondeterministic. A controlled run set that logs retrieval mechanism alongside
+headers file presence for every run would separate the two populations and establish whether the 4/32 rate holds
+within each mechanism or possibly driven by one of them. A second open question follows from the inverse
+failure mode finding: whether any prompt condition, model, or configuration exists within Copilot's
+current tooling that produces both complete retrieval and useful plain-language output in the same run.
+The dataset has no confirmed instance of this.
 
 ---
 
-## Agentic Over-Delivery, Unsolicited Cross-Run Analysis - Raw Track
+## Agentic Over-Delivery, Unsolicited Cross-Run Analysis
 
-Across `SC`-series raw track runs, `GPT-5.3-Codex` and `Claude Sonnet 4.6` intermittently
+Across `SC`-series runs `GPT-5.3-Codex` and `Claude Sonnet 4.6` intermittently
 produced unsolicited cross-run comparison tables after completing the requested test. The
 prompt asks only for retrieval, file saving, and metric reporting for the current run. No
 run requested comparison with prior runs, historical analysis, or trend summaries. The agent
@@ -266,27 +262,27 @@ context of a web content retrieval test _implies readable content_; the agent in
 it as byte fidelity. Both interpretations are defensible, and the prompt doesn't disambiguate them.
 
 Throughout the raw track runs, the agent demonstrated cross-run workspace awareness explicitly in
-its reasoning chain: it checked for an existing `raw_output_SC-4.txt` before proceeding, found none,
+its reasoning chain: it checked for an existing _`raw_output_SC-4.txt`_ before proceeding, found none,
 and cited this as justification for writing a new file. The agent is reading prior run artifacts to
 avoid overwriting, demonstrating prompt-compliant behavior, but the same workspace reading that
 produced correct file-management behavior didn't produce correct metric computation behavior. Terminal
 execution errors occurred intermittently during metric collection despite the agent having correctly
 reasoned about the fetch step. Workspace awareness and execution reliability appear to be
-independent: _the agent can read and reason about prior artifacts without that reasoning carrying over
-into reliable shell execution_.
+independent: the agent can read and reason about prior artifacts without that reasoning carrying over
+into reliable shell execution.
 
 **Impact**: explicit tool substitution reasoning is a more observable failure mode than silent substitution,
 but it **isn't a more controllable one**. The agent's diagnosis of `fetch_webpage`'s limitations is correct;
 its solution produces the inverse failure mode documented across the `SC` series. A prompt that disambiguates
-"exactly as received" - specifying whether this means byte fidelity or readable content - might produce different
+_"exactly as received"_, specifying whether this means byte fidelity or readable content, might produce different
 tool selection, but given the architectural constraint that `fetch_webpage` can't satisfy both simultaneously,
 any clarification forces a choice between the two halves of the requirement.
 
 ---
 
-## Metric Definition Underspecification
+## Metric Underspecification
 
-`SC-4` run 4 surfaced a metric counting ambiguity that raw HTML output exposes but
+`SC-4` run 4 identified a metric counting ambiguity that raw HTML output exposes, but
 processed Markdown output conceals. Copilot reported 24 code blocks and 35 table rows
 from the raw HTML file; the verification script reported 0 code blocks and 0 table rows from the
 same file. Both counts are correct within their respective methodologies:
@@ -328,22 +324,23 @@ arrived.
 ## Prompt Refinement Can't Suppress Retrieval-Layer Transformation
 
 A direct test of whether prompt engineering can override `fetch_webpage`'s internal transformation behavior produced
-a negative result: no prompt wording, however explicit, recovers full sequential page content from `fetch_webpage`
+a negative result: no wording, however explicit, recovers full sequential page content from `fetch_webpage`
 because the transformation occurs before the model receives the payload.
 
 The original raw track prompt instructs Copilot to retrieve a URL and return content exactly as received. After
-observing output filtered for "relevance" that results in non-linear, accordion-like, and structurally
+observing output filtered for _"relevance"_ that results in non-linear, accordion-like, and structurally
 reassembled rather than sequential, Copilot revised the prompt to better suppress this behavior. The revised prompt
 was significantly more verbose and explicit, adding structured delimiters `BEGIN_RAW_CONTENT` / `END_RAW_CONTENT`,
 explicit metadata fields, conditional flags - `TRANSFORMED_BY_RETRIEVAL_LAYER:YES`, `TRUNCATION_DETECTED:YES`, and
-a direct instruction to report `RAW_BYTE_IDENTICAL_UNSUPPORTED` if byte-identical transfer isn't possible. _Both prompts
-produced the same output: the same non-sequential, ellipsis-compressed, structurally reassembled content from the same URL_.
+a direct instruction to report `RAW_BYTE_IDENTICAL_UNSUPPORTED` if byte-identical transfer isn't possible. **Both prompts
+produced the same output for the same URL: non-sequential, ellipsis-compressed, structurally reassembled content**.
 
 This result is consistent with the `fetch_webpage` architectural characterization documented in
-[`fetch_webpage` Undocumented](#fetch_webpage-undocumented). The model-authored prompt revision is better in format, in that
-it produces more parseable metadata and gives the agent an explicit compliance exit ramp via `RAW_BYTE_IDENTICAL_UNSUPPORTED` -
-but it doesn't and can't produce different retrieval content, because the instructions reach the model after `fetch_webpage`
-has already processed and transformed the page. Telling the model not to summarize is downstream of the summarization.
+[`fetch_webpage` Undocumented](friction-note-interpreted.md#fetch_webpage-undocumented). The agent-authored prompt revision
+is better in format, in that it produces more parseable metadata and provides an explicit compliance exit ramp via
+`RAW_BYTE_IDENTICAL_UNSUPPORTED`, but it doesn't and can't produce different retrieval content, because the instructions
+reach the model after `fetch_webpage` has already processed and transformed the page. Telling the agent not to summarize is
+downstream of the summarization.
 
 When asked directly about its retrieval behavior, `GPT-5.3-Codex` confirmed this architecture while simultaneously
 mischaracterizing it as suppressible:
@@ -355,20 +352,19 @@ mischaracterizing it as suppressible:
 The agent frames retrieval-layer transformation as a stylistic choice it can dial back on request, while simultaneously
 acknowledging that some transformation is unavoidable. The framing obscures the distinction between two separate processes: the
 model's post-retrieval rewriting, which prompt instructions can suppress, and `fetch_webpage`'s internal relevance-ranking and
-excerpt assembly, which they can't. A user following the agent's own instructions, "just ask for raw output," would receive the
-same transformed content with more **confident framing around it**, with no indication that the transformation was architectural
-rather than stylistic.
+excerpt assembly, which they can't. A user following the agent's own instructions, _"just ask for raw output,"_ would receive the
+same transformed content with more **confident framing around it**, with no indication that the transformation is just architectural.
 
 **Impact**: prompt refinement is the wrong tool for this problem. The revised Copilot prompt is more useful than the original for
 metadata parsing and for giving the agent explicit language to signal when byte-identical retrieval isn't supported, but neither
-prompt recovers content that `fetch_webpage` didn't return. Characterizing Copilot's output as "summarized" or "filtered by the model"
+prompt recovers content that `fetch_webpage` didn't return. Characterizing Copilot's output as _"summarized"_ or _"filtered by the model"_
 is also imprecise. The more accurate characterization, consistent across multiple run observations, is that `fetch_webpage` performs
-relevance-ranked excerpt assembly and the model receives a pre-transformed payload. Models layer post-retrieval behavior on top of
+relevance-ranked excerpt assembly and the agent receives a pre-transformed payload. Agents layer post-retrieval behavior on top of
 that and is the only layer prompt instructions reach.
 
 >_Open Question: Copilot's self-report suggests the query parameter is agent-authored per invocation and not exposed in chat output.
 >If the query string drives excerpt selection, variance in output content across identical runs may reflect query string variance rather
->than retrieval-layer nondeterminism. This parameter isn't currently loggable from the interpreted or raw track without access to tool
+>than retrieval-layer nondeterminism. This parameter isn't currently loggable without access to tool
 >call internals. A controlled test passing a fixed, explicit query string, if the tool surface allows it, would isolate whether query
 >variance is a meaningful source of output variance_.
 
