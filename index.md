@@ -18,6 +18,7 @@ data for the [Agent-Friendly Documentation Spec](https://agentdocsspec.com/).
 | **Post** | **Focus** |
 | -------- | --------- |
 | **[Field Notes from a Yelper: Guerrilla Testing Agents](/blogs/field-notes-from-yelper.md)** | Methodology evolution: what broke,<br>what changed, and letting data lead |
+| **[Wrongness is a Virtue: Negative Testing Agents](/blogs/wrongness-is-a-virtue.md)** | Methodology evolution: what broke,<br>what changed, and letting data lead |
 
 ## Documentation Structure
 

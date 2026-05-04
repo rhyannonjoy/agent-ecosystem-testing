@@ -30,6 +30,8 @@ navigation:
     sections:
       - title: "Field Notes from a Yelper"
         url: "/blogs/field-notes-from-a-yelper"
+      - title: "Wrongness is a Virtue"
+        url: "/blogs/wrongness-is-a-virtue"
     
   - title: "Anthropic Claude API"
     sections:
