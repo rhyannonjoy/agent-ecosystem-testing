@@ -31,6 +31,8 @@ data for the [Agent-Friendly Documentation Spec](https://agentdocsspec.com/).
 
 ## Results Summary
 
+> More information in [Platform Findings](/docs/platform-findings.md)
+
 | **Platform** | **Key Finding** | **Focus** |
 | ---------- | ------------- | ---------- |
 | **[Anthropic Claude API](/docs/anthropic-claude-api-web-fetch-tool/methodology.md)** | Char-based truncation at ~**100 KB** of rendered content | Baseline reference;<br>establishing two-track methodology |

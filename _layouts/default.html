@@ -17,7 +17,7 @@
       --bg: #f7f3ec;
       --code-bg: #ede8de;
       --active-bg: rgba(92, 74, 30, 0.06);
-      --max-width: 740px;
+      --max-width: 900px;
       --sidebar-width: 240px;
       --toc-width: 200px;
       --font: 'Open Sauce One', sans-serif;
@@ -284,6 +284,25 @@
       min-width: 0;
       width: 100%;
     }
+
+    .table-architecture {
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    .table-architecture th:nth-child(1) { width: 12%; }
+    .table-architecture th:nth-child(2) { width: 20%; }
+    .table-architecture th:nth-child(3) { width: 30%; }
+    .table-architecture th:nth-child(4) { width: 38%; }
+
+    .table-truncation {
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    .table-truncation th:nth-child(1) { width: 15%; }
+    .table-truncation th:nth-child(2) { width: 25%; }
+    .table-truncation th:nth-child(3) { width: 60%; }
 
     /* TOC panel */
     .toc-panel {

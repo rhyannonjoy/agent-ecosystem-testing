@@ -47,7 +47,7 @@ This two-track approach identifies gaps between agent perception and API reality
 | - | --------------------- | --------------------- |
 | **Measures** | Claude's interpretation of<br>fetched content | Raw content extracted directly<br>from response object |
 | **Character<br>Counts** | Claude estimates,<br>vary between runs | Python `len()` on raw string,<br>exact, reproducible |
-| **Boilerplate Detection** | Claude's subjective<br>assessment | CSS indicator strings counted<br>programmatically |
-| **Truncation Detection** | Claude reports what<br>it perceives | Exact char position, end character, clean/unclean flag |
+| **Boilerplate<br>Detection** | Claude's subjective<br>assessment | CSS indicator strings counted<br>programmatically |
+| **Truncation<br>Detection** | Claude reports what<br>it perceives | Exact char position, end character,<br>clean/unclean flag |
 | **Tokens** | _Higher_ - Claude writes<br>long assessments | _Lower_ - minimal prompt,<br>`max_tokens=128` |
-| **Best For** | Understanding agent perception | Citable measurements for<br>the spec |
+| **Best For** | Understanding agent<br>perception | Citable measurements for<br>the spec |
