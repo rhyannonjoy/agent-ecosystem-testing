@@ -31,11 +31,13 @@ data for the [Agent-Friendly Documentation Spec](https://agentdocsspec.com/).
 
 ## Results Summary
 
+>_More analysis in [Platform Findings](/docs/platform-findings.md). Platform links lead to testing methodology_.
+
 | **Platform** | **Key Finding** | **Focus** |
 | ---------- | ------------- | ---------- |
-| **[Anthropic Claude API](/docs/anthropic-claude-api-web-fetch-tool/methodology.md)** | Char-based truncation at ~**100 KB** of rendered content | Baseline reference;<br>establishing two-track methodology |
-| **[Anysphere Cursor](/docs/anysphere-cursor/methodology.md)** | Agent-routed fetch with undocumented truncation<br>**28 KB–240 KB+**; high cross-session variance | Reverse-engineering opaque, closed<br>consumer tools |
-| **[Cognition Windsurf Cascade](/docs/cognition-windsurf-cascade/methodology.md)** | Two-stage chunking-pipeline, no fixed ceiling; retrieval completeness agent, source size-dependent; read-write asymmetry confirmed; `@web` redundant with a URL | Three-track design;<br> truncation testing<br>partially documented<br>lossy architecture |
+| **[Anthropic Claude API](/docs/anthropic-claude-api-web-fetch-tool/methodology.md)** | Char-based truncation at ~**100 KB** of rendered content | Baseline reference; establishing two-track methodology |
+| **[Anysphere Cursor](/docs/anysphere-cursor/methodology.md)** | Agent-routed fetch with undocumented truncation **28 KB–240 KB+**;<br>high cross-session variance | Reverse-engineering opaque, closed consumer tools |
+| **[Cognition Windsurf Cascade](/docs/cognition-windsurf-cascade/methodology.md)** | Two-stage chunking-pipeline, no fixed ceiling; retrieval completeness agent and source size-dependent; read-write asymmetry; `@web` redundant with a URL | Three-track design; truncation testing partially documented lossy architecture |
 | **[Google Gemini API](/docs/google-gemini-url-context-tool/methodology.md)** | Hard limit: **20 URLs** per request; supports PDF and JSON | Identifying architectural constraints, format support |
-| **[Microsoft GitHub Copilot](/docs/microsoft-github-copilot/methodology.md)** | Agent-routed `fetch_webpage`&rarr;relevance-ranked excerpts, no fixed ceiling detected vs `curl` byte-perfect full retrieval | Separating retrieval mechanism from retrieval quality through<br>toolchain visibility |
-| **[OpenAI Web Search](/docs/open-ai-web-search-tool/methodology.md)** | Tool invocation **conditional**, agent-dependent;<br>differs by API surface | Comparing behavior across different APIs |
+| **[Microsoft GitHub Copilot](/docs/microsoft-github-copilot/methodology.md)** | Agent-routed `fetch_webpage`&rarr;relevance-ranked excerpts, no fixed ceiling detected vs `curl` byte-perfect full retrieval | Separating retrieval mechanism from retrieval quality through toolchain visibility |
+| **[OpenAI Web Search](/docs/open-ai-web-search-tool/methodology.md)** | Tool invocation **conditional**, agent-dependent; differs by API surface | Comparing behavior across different APIs |

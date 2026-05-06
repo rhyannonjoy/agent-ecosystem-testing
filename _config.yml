@@ -9,6 +9,9 @@ title: Agent Ecosystem Testing
 description: empirical testing of agentic docs consumption
 author: Rhyannon Rodriguez, 2026
 
+markdown: kramdown
+permalink: /:path:output_ext
+
 header_pages: []
 
 plugins:
@@ -25,6 +28,9 @@ exclude:
 navigation:
   - title: "Testing Index"
     url: "/"
+  
+  - title: "Platform Findings"
+    url: "/docs/platform-findings"
 
   - title: "Blogs"
     sections:
