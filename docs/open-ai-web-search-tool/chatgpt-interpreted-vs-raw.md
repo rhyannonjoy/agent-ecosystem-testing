@@ -51,7 +51,7 @@ The following are appropriate additions to the spec's Known Platform Limits tabl
 
 ### Citation and Source Counts
 
-- Citation counts in the interpreted track are **highly non-deterministic**: `test_8_multi_hop`
+- Citation counts in the interpreted track are **highly nondeterministic**: `test_8_multi_hop`
   ranged 8–20 across 3 runs; no test produced identical counts across all runs.
 - Self-reported source counts are **unreliable**: `test_6` run 2 claimed _"10 sources"_ but produced
   1 inline citation; `test_4` run 3 claimed _"12 distinct sources"_ but produced 1 citation.
