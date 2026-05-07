@@ -9,7 +9,7 @@ permalink: /docs/platform-comparisons/
 | **Section** | **Description** |
 | ----------- | ------------------ |
 | **[Retrieval](#retrieval)** | How and when an agent fetches content |
-| **[Summarization](#summarization)** | What happens to content before the orchestrator receives it |
+| **[Summarization](#summarization)** | What happens to content between retrieval and generation |
 | **[Truncation](#truncation)** | What gets lost and whether agents report it |
 
 ## Retrieval
