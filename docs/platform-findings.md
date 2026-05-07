@@ -4,11 +4,11 @@ title: Platform Findings
 permalink: /docs/platform-findings/
 ---
 
-# Platform Findings
+# Platform Comparisons
 
 ---
 
-## Architecture Comparison
+## Retrieval
 
 >_The web fetch gap isn't in retrieval, but between retrieval and utilization, suggesting that the bottleneck
 >is how agents attend to various content types during generation, whether that's context window handling or
@@ -26,7 +26,24 @@ permalink: /docs/platform-findings/
 | **[Windsurf Cascade](https://docs.windsurf.com/windsurf/cascade/web-search)** | Web and docs search partially documented, `@web` directive redundant with URL, agents don't correct misuse | _Mid-generation deterministic_: autonomous two-stage pipeline designed to emulate human browsing and skimming, documentation acknowledges not all pages parseable | _Visibility medium_: `read_url_content` returns chunk index with summaries, metadata and requires sequential `view_content_chunk` calls; `curl` substitution for CSS-heavy pages, SPAs return ~20–35% of expected size, little or no prose; agents used `@web`'s `web_search` as verification once every ~60 turns; presentation transparent about using crawler-scaper, but underdelivers, `User-Agent`: [Colly](https://github.com/gocolly/colly) |
 {: .table-architecture}
 
-## Truncation Analysis
+## Summarization
+
+> _Processing layer behavior is inferred from observable outputs as orchestrator-subagent
+> relationships are abstracted away in agent chat interfaces and not directly testable
+> without instrumented access to internal tool calls._
+
+---
+
+| **Platform** | **Processing Layer** | **Evidence** |
+| ---------- | -------------------- | ------------ |
+| **[Claude API web fetch](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool)** | None detected | Tool result returned directly in API response; only platform where full retrieval output is directly inspectable. |
+| **[Cursor](https://cursor.com/docs)** | Inferred — undocumented | Backend routing to `WebFetch MCP`, `urllib`, or `curl` suggests a middleware layer making fetch and filtering decisions. Structure-aware content filtering observed empirically but mechanism not documented. |
+| **[GitHub Copilot](https://docs.github.com/en/copilot)** | Confirmed — `fetch_webpage` relevance-ranking | `fetch_webpage` performs relevance-ranked excerpting with elision markers before the primary model receives content. Primary LLM never sees discarded content. Clearest example of orchestrator-subagent processing in this comparison. |
+| **[Windsurf Cascade](https://docs.windsurf.com/windsurf/cascade/web-search)** | Confirmed — documented two-stage pipeline | `read_url_content` returns a chunk index with summaries; primary model receives processed output, not raw retrieval. Subagent architecture explicitly documented. |
+| **[Gemini API URL context](https://ai.google.dev/gemini-api/docs/url-context)** | Inferred — API-layer orchestration | Pre-generation injection suggests processing occurs at the API layer before the model is invoked. Doesn't fit the orchestrator-subagent pattern cleanly — orchestration and generation are the same model. |
+| **[OpenAI web search](https://developers.openai.com/api/docs/guides/tools-web-search)** | Inferred — undocumented | Search and processing occur pre-generation; intermediary layer not surfaced in API response. Behavior differs by API surface, suggesting different orchestration paths in Chat Completions vs Responses API. |
+
+## Truncation
 
 >_Pipelines are lossy by design in attempt to balance token cost, speed, and access to fresh content.
 > Agents intermittently acknowledge architectural constraints, misattribute truncation causes, or self-report complete
