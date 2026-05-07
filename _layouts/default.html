@@ -199,9 +199,22 @@
       align-items: flex-start;
       text-align: left;
       transition: color 0.15s ease;
+      -webkit-appearance: none;
+      appearance: none;
     }
 
     .sidebar-group-toggle:hover { color: var(--link-hover); }
+
+    .sidebar-group-toggle .sidebar-chevron {
+      color: var(--muted);
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .sidebar-group-toggle:focus .sidebar-chevron,
+    .sidebar-group-toggle:active .sidebar-chevron {
+      color: var(--muted);
+    }
 
     .sidebar-group-toggle > span:first-child {
       min-width: 0;
