@@ -241,13 +241,19 @@
     }
 
     .sidebar-chevron {
-      font-size: 0.65rem;
-      transition: transform 0.2s ease;
-      color: var(--muted);
       display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-right: 1.5px solid var(--muted);
+      border-bottom: 1.5px solid var(--muted);
+      transform: rotate(-45deg);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
     }
 
-    .sidebar-group.open .sidebar-chevron { transform: rotate(90deg); }
+   .sidebar-group.open .sidebar-chevron {
+      transform: rotate(45deg);
+    }
 
     .sidebar-group-items {
       overflow: hidden;
@@ -607,7 +613,7 @@
                 <span>{{ nav_item.title }}</span>
                 <span class="toggle-right">
                   {% if nav_item.status %}<span class="sidebar-status">{{ nav_item.status }}</span>{% endif %}
-                  <span class="sidebar-chevron">▶</span>
+                  <span class="sidebar-chevron"></span>
                 </span>
               </button>
               <div class="sidebar-group-items">
