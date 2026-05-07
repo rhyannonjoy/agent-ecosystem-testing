@@ -114,8 +114,19 @@ navigation:
       - title: "Friction: Interpreted"
         url: "/docs/microsoft-github-copilot/friction-note-interpreted"
       - title: "Friction: Raw"
-        url: "/docs/microsoft-github-copilot/friction-note-raw"  
-    
+        url: "/docs/microsoft-github-copilot/friction-note-raw"
+  
+  - title: "OpenAI Codex"
+    sections:
+      - title: "Methodology"
+        url: "/docs/open-ai-codex/methodology"
+      - title: "Findings: Interpreted"
+        url: "/docs/open-ai-codex/codex-test-findings"
+      - title: "Framework Reference"
+        url: "/docs/open-ai-codex/framework-reference"
+      - title: "Friction Note"
+        url: "/docs/open-ai-codex/friction-note-interpreted"
+
   - title: "OpenAI Web Search"
     sections:
       - title: "Methodology"
