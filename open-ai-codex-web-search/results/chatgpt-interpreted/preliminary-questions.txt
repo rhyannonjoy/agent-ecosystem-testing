@@ -1,0 +1,64 @@
+Codex URL Fetching Notes
+Date: 2026-05-07
+
+---
+
+Question: What methods does Codex use to read URLs? Is it web search or something else?
+
+Answer:
+Codex can read URLs a few different ways, depending on what kind of URL and task it is:
+1. Web search / web open
+For public internet pages, Codex has a web tool that can:
+- search the web,
+- open a specific URL,
+- inspect page text,
+- follow links,
+- cite sources.
+So if you give me `https://example.com`, I can usually open it directly rather than searching first. Search is mainly for finding pages or verifying current info.
+2. In-app browser / browser automation
+For local apps, visual inspection, clicking around, screenshots, and interactive pages, Codex can use the Browser Use plugin. That is closer to "drive a browser" than "read fetched text." It is especially useful for:
+- `localhost` / `127.0.0.1`
+- file URLs
+- testing frontend changes
+- inspecting rendered UI
+3. Command-line tools
+In a code workspace, Codex can sometimes use shell commands like `curl`, package managers, test runners, etc. Network access may be restricted, so external fetches can require approval.
+4. Model knowledge
+If no URL is opened, I may answer from built-in knowledge, but for anything current, source-specific, or user-provided by URL, I should actually fetch/open it.
+So: it is not only web search. Search is one route; direct URL open and browser automation are separate routes, and I choose based on whether you need text/content, current facts, or rendered/interactable behavior.
+
+---
+
+Question: Does Codex use an orchestrator-subagent architectural pattern. Any built-in subagents triggered when asked to fetch a URL?
+
+Answer:
+Yes-ish, but not in the hidden "always-on swarm" sense.
+In this Codex environment, the main model acts as the orchestrator: it decides whether to answer directly, call tools, inspect files, use the browser, run shell commands, or delegate. There is a subagent mechanism available, but it is not automatically used for ordinary URL fetching.
+For URLs specifically:
+- No built-in subagent is automatically triggered just because you ask me to fetch/read a URL.
+- I usually call a URL-reading tool directly, such as web open/search, browser automation, or sometimes a shell command like `curl`.
+- Subagents are available for explicit delegation or parallel work, but the current instructions say to spawn them only when the user explicitly asks for subagents, delegation, or parallel agent work.
+- Browser automation is a tool/plugin path, not necessarily a separate agent. It can drive a browser, inspect local pages, click, screenshot, etc.
+So the pattern is: orchestrator + tools, with optional subagents when requested or appropriate under the rules. URL fetches are normally tool calls, not subagent dispatches.
+---
+
+Question: What about if I ask the orchestrator, the main model to fetch a URL and calculate some metrics about it? Is there a linear pipeline or will the main model ask subagents to complete specific tasks separately?
+
+Answer:
+In this Codex setup, that would normally be a linear main-model pipeline, not automatic subagent fan-out.
+A typical flow would be:
+1. Main model decides what "fetch URL + metrics" requires.
+2. It uses a tool to retrieve the URL:
+   - web open/search for public pages,
+   - browser automation for rendered or interactive pages,
+   - shell/network fetch if appropriate and permitted.
+3. It extracts or inspects the relevant content.
+4. It computes the metrics itself, or uses local code/shell if the calculation is precise or large.
+5. It reports the result.
+It would not automatically ask subagents to split the job, even if there are multiple subtasks like "fetch page," "parse headings," "count links," "summarize text," "check performance." In this environment, subagents are only spawned when the user explicitly asks for subagents, delegation, or parallel agent work.
+So if you say:
+> Fetch this URL and calculate word count, link count, and reading time.
+I'd probably do it directly with tools/code.
+If you say:
+> Use subagents to fetch this URL, independently analyze SEO, accessibility, and performance, then synthesize.
+Then the main model may act more explicitly as an orchestrator: delegate those bounded subtasks, wait for outputs as needed, and integrate them.
