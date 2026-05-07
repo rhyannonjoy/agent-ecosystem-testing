@@ -29,8 +29,8 @@ navigation:
   - title: "Testing Index"
     url: "/"
   
-  - title: "Platform Findings"
-    url: "/docs/platform-findings"
+  - title: "Platform Comparisons"
+    url: "/docs/platform-comparisons"
 
   - title: "Blogs"
     sections:
