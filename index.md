@@ -31,7 +31,7 @@ data for the [Agent-Friendly Documentation Spec](https://agentdocsspec.com/).
 
 ## Results Summary
 
->_More analysis in [Platform Findings](/docs/platform-findings.md). Platform links lead to testing methodology_.
+>_More analysis in [Platform Comparisons](/docs/platform-comparisons.md). Platform links lead to testing methodologies_.
 
 | **Platform** | **Key Finding** | **Focus** |
 | ---------- | ------------- | ---------- |
