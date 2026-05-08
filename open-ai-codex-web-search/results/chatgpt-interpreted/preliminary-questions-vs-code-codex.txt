@@ -1,0 +1,71 @@
+Codex URL Reading and Subagent Behavior
+
+1. What methods does Codex use to read URLs? Is it web search or something else?
+
+Codex can read URLs in a few different ways, depending on the environment and the task:
+
+1. Web search / web browsing tool
+   - If you ask me to look something up online, verify current info, open a public webpage, or cite sources, I use the web tool.
+   - That includes search queries, opening URLs, reading pages, and sometimes PDFs or current data.
+   - This is not the same as me "knowing" the page already; it is an external browsing/search capability.
+
+2. Browser plugin / in-app browser
+   - For local web apps, localhost, file URLs, UI testing, screenshots, clicking around, etc., Codex can use the Browser plugin.
+   - This is more like controlling a browser session than doing search.
+   - Example: opening http://localhost:3000, testing a UI, taking screenshots.
+
+3. Shell commands, sometimes
+   - In a coding workspace, Codex may use terminal tools like curl, package managers, test runners, or docs installed locally.
+   - Network access is often restricted, so fetching a URL from the shell may require approval or may fail unless allowed.
+   - For local files, repo docs, generated HTML, etc., shell access is usually enough.
+
+So: for public internet URLs, Codex usually uses web browsing/search tools, not its base model memory. For local URLs or interactive page testing, it uses a browser automation tool. For repo-local content, it reads files directly from the filesystem.
+
+
+2. Does Codex use an orchestrator-subagent architectural pattern? Any built-in subagents triggered when asked to fetch a URL?
+
+From what I can observe in this Codex session: not automatically for URL fetching.
+
+Codex can have an orchestrator/subagent pattern available, but it is not necessarily used for every task. In this environment, I have access to explicit subagent tools such as spawn_agent, send_input, and wait_agent. Those let me delegate work to explorer/worker agents, but only under specific conditions. In particular, I am instructed to use subagents only when the user explicitly asks for delegation, subagents, or parallel agent work.
+
+For fetching a URL, there is no visible "built-in subagent" that automatically wakes up just because you ask me to read a URL. Instead, Codex typically uses one of these direct mechanisms:
+
+- web tool for public web search/opening URLs.
+- Browser plugin for local/browser-interactive targets like localhost, screenshots, clicking, UI testing.
+- Shell tools like curl only if appropriate and permitted by sandbox/network rules.
+- Filesystem reads for local repo files.
+
+So the practical answer is:
+
+Codex may support subagents as an orchestration capability, but URL reading is normally handled by tools, not by an automatic hidden fetcher subagent.
+
+There may be implementation details inside OpenAI's hosted system that are not exposed to me, so I would frame this carefully in your notes as "from the observable Codex tool interface," not as a claim about all private internal architecture.
+
+
+3. What about if I ask the orchestrator, the main model to fetch a URL and calculate some metrics about it? Is there a linear pipeline or will the main model ask subagents to complete specific tasks separately?
+
+In this observable Codex environment, that would normally be a linear main-model/tool pipeline, not automatic subagent delegation.
+
+A typical flow would be:
+
+1. The main model decides what information is needed.
+2. It calls a URL-reading tool, such as web.open, browser automation, or sometimes shell/network tooling.
+3. It receives the page/tool output.
+4. It computes or derives the requested metrics itself.
+5. If needed, it calls more tools to fetch supporting pages, inspect files, run scripts, or verify results.
+
+Subagents are available as an explicit orchestration feature, but they are not automatically triggered just because the task includes "fetch this URL and calculate metrics." In my current instructions, I should only spawn subagents when the user explicitly asks for subagents, delegation, or parallel agent work.
+
+So if you ask:
+
+"Fetch this URL and calculate word count, headings, links, and sentiment."
+
+I would usually do that directly: fetch/read the page, parse or summarize the content, calculate the metrics, and report back.
+
+If you instead ask:
+
+"Use subagents to fetch this URL, analyze links, and calculate content metrics in parallel."
+
+Then I may act as an orchestrator and delegate separate subtasks, for example one agent for link extraction and another for content metrics, while I coordinate the result.
+
+One caveat: this is based on the visible Codex tool interface and active runtime instructions. It does not prove there are no private internal systems doing additional routing behind the scenes. But from the level Codex exposes to me, URL metric tasks are main-model-led unless subagent work is explicitly requested.
