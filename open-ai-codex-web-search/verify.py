@@ -13,16 +13,16 @@ for the same test ID and are stored in a shared results/raw/ directory.
 
 Usage:
     # From the codex-web-search/ directory
-    python codex_web_search_verify_raw_results.py BL-1
-    python codex_web_search_verify_raw_results.py BL-1 SC-2 EC-1  # Multiple tests
-    python codex_web_search_verify_raw_results.py --all           # All raw output files
+    python verify.py BL-1
+    python verify.py BL-1 SC-2 EC-1  # Multiple tests
+    python verify.py --all           # All raw output files
 
     # Surface-specific
-    python codex_web_search_verify_raw_results.py BL-1 --surface codex
-    python codex_web_search_verify_raw_results.py BL-1 --surface vscode
+    python verify.py BL-1 --surface codex
+    python verify.py BL-1 --surface vscode
 
     # Direct path to a specific file
-    python codex_web_search_verify_raw_results.py --path results/raw/raw_output_BL-1_codex.txt
+    python verify.py --path results/raw/raw_output_BL-1_codex.txt
 """
 
 import argparse
@@ -287,19 +287,19 @@ File naming convention:
 
 Examples:
   # Run from codex-web-search/ directory
-  python codex_web_search_verify_raw_results.py BL-1
-  python codex_web_search_verify_raw_results.py BL-1 SC-2 EC-1
-  python codex_web_search_verify_raw_results.py --all
+  python verify.py BL-1
+  python verify.py BL-1 SC-2 EC-1
+  python verify.py --all
 
   # Surface-specific (default: both)
-  python codex_web_search_verify_raw_results.py BL-1 --surface codex
-  python codex_web_search_verify_raw_results.py BL-1 --surface vscode
+  python verify.py BL-1 --surface codex
+  python verify.py BL-1 --surface vscode
 
   # Custom results directory
-  python codex_web_search_verify_raw_results.py BL-1 --results-dir /path/to/results/raw
+  python verify.py BL-1 --results-dir /path/to/results/raw
 
   # Direct path to a specific file
-  python codex_web_search_verify_raw_results.py --path results/raw/raw_output_BL-1_codex.txt
+  python verify.py --path results/raw/raw_output_BL-1_codex.txt
         """,
     )
 

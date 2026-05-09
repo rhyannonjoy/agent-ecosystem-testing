@@ -24,15 +24,15 @@ Usage:
     # From project directory
 
     # Single track
-    python codex_web_search_results_analyzer.py --csv results/codex-t1_codex_interpreted/results.csv --summary
-    python codex_web_search_results_analyzer.py --csv results/codex-t3_codex_raw/results.csv --full
+    python analyze.py --csv results/codex-t1_codex_interpreted/results.csv --summary
+    python analyze.py --csv results/codex-t3_codex_raw/results.csv --full
 
     # Cross-track comparison (two to four CSVs)
-    python codex_web_search_results_analyzer.py \\
+    python analyze.py \\
         --csv results/codex-t1_codex_interpreted/results.csv \\
                results/codex-t2_vscode_interpreted/results.csv --full
 
-    python codex_web_search_results_analyzer.py \\
+    python analyze.py \\
         --csv results/codex-t1_codex_interpreted/results.csv \\
                results/codex-t2_vscode_interpreted/results.csv \\
                results/codex-t3_codex_raw/results.csv \\
@@ -791,17 +791,17 @@ Track reference:
   t4_vscode_raw          Raw verbatim output, VS Code-Codex
 
 Examples:
-  python codex_web_search_results_analyzer.py \\
+  python analyze.py \\
       --csv results/codex-t1_codex_interpreted/results.csv --summary
 
-  python codex_web_search_results_analyzer.py \\
+  python analyze.py \\
       --csv results/codex-t3_codex_raw/results.csv --full
 
-  python codex_web_search_results_analyzer.py \\
+  python analyze.py \\
       --csv results/codex-t1_codex_interpreted/results.csv \\
              results/codex-t2_vscode_interpreted/results.csv --full
 
-  python codex_web_search_results_analyzer.py \\
+  python analyze.py \\
       --csv results/codex-t1_codex_interpreted/results.csv \\
              results/codex-t2_vscode_interpreted/results.csv \\
              results/codex-t3_codex_raw/results.csv \\

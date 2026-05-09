@@ -2,8 +2,9 @@
 Codex Web Search Testing Framework
 Generates standardized test prompts and logs results to CSV
 
-This framework extends the Cascade testing framework that isolates deployment surface
-as an additional variable. Codex isolates the Codex IDE versus VS Code-Codex extension surface.
+This framework extends the Cascade testing framework (three tracks) to a four-track
+design that isolates deployment surface as an additional variable. Where Cascade isolated
+the @web directive, Codex isolates the Codex IDE versus VS Code-Codex extension surface.
 
 Key design decisions:
 1. URLs are the same proven test cases used across Claude API, Gemini, Copilot, Cursor,
@@ -30,10 +31,10 @@ This allows direct comparison:
 
 Usage:
     # From project directory
-    python codex_web_search_testing_framework.py --list-tests
-    python codex_web_search_testing_framework.py --test {test ID} --track t1_codex_interpreted
-    python codex_web_search_testing_framework.py --test {test ID} --track t3_codex_raw
-    python codex_web_search_testing_framework.py --test {test ID} --track t4_vscode_raw
+    python framework.py --list-tests
+    python framework.py --test {test ID} --track t1_codex_interpreted
+    python framework.py --test {test ID} --track t3_codex_raw
+    python framework.py --test {test ID} --track t4_vscode_raw
 """
 
 import csv
@@ -111,12 +112,12 @@ TEST_URLS = {
         "note": "Tests if Codex jumps to specific section via URL fragment",
     },
     "OP-4": {
-    "name": "Large single-page spec (auto-chunking above BL-3 ceiling)",
-    "url": "https://spec.commonmark.org/0.31.2/",
-    "expected_size_kb": 500,
-    "category": "offset_pagination",
-    "note": "CommonMark spec; versioned stable URL; tests auto-chunking above BL-3 ceiling; structured with headings and code blocks throughout",
-},
+        "name": "Large document - agent auto-chunking test",
+        "url": "https://www.mongodb.com/docs/atlas/atlas-search/tutorial/",
+        "expected_size_kb": 250,
+        "category": "offset_pagination",
+        "note": "Same as BL-3; tests if Codex auto-paginates after truncation",
+    },
 
     # --- EDGE CASE TESTS, EC ---
     # Stress test unusual conditions and error handling
@@ -654,13 +655,13 @@ Track reference:
   t4_vscode_raw          Raw verbatim output, VS Code-Codex
 
 Examples:
-  python codex_web_search_testing_framework.py --list-tests
-  python codex_web_search_testing_framework.py --list-tracks
-  python codex_web_search_testing_framework.py --test BL-1 --track t1_codex_interpreted
-  python codex_web_search_testing_framework.py --test BL-1 --track t3_codex_raw
+  python framework.py --list-tests
+  python framework.py --list-tracks
+  python framework.py --test BL-1 --track t1_codex_interpreted
+  python framework.py --test BL-1 --track t3_codex_raw
 
   # Log interpreted track result (T1 or T2)
-  python codex_web_search_testing_framework.py --log BL-1 \\
+  python framework.py --log BL-1 \\
     --track t1_codex_interpreted \\
     --model_selector "o4-mini" \\
     --model_observed "o4-mini" \\
@@ -675,7 +676,7 @@ Examples:
     --notes "Full content returned; agent reported web tool"
 
   # Log raw track result (T3 or T4)
-  python codex_web_search_testing_framework.py --log BL-1 \\
+  python framework.py --log BL-1 \\
     --track t3_codex_raw \\
     --model_selector "o4-mini" \\
     --model_observed "o4-mini" \\

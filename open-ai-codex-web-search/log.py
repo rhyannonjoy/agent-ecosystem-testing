@@ -5,11 +5,11 @@ Prompts for required and optional fields based on track, then logs
 the result directly to the appropriate results CSV.
 
 Usage:
-    python codex_web_search_log_results.py
+    python log.py
 """
 
 import sys
-from codex_web_search_testing_framework import CodexTestingFramework, TEST_URLS, TRACKS
+from framework import CodexTestingFramework, TEST_URLS, TRACKS
 
 # --- Helpers ---
 
