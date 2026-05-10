@@ -8,10 +8,10 @@ Codex Web Search Testing Results Analyzer
 - Matches findings to hypotheses H1-H5
 
 Four tracks:
-  t1_codex_interpreted   GPT-interpreted, Codex IDE (no workspace)
-  t2_vscode_interpreted  GPT-interpreted, VS Code-Codex (workspace present)
-  t3_codex_raw           Raw verbatim output, Codex IDE
-  t4_vscode_raw          Raw verbatim output, VS Code-Codex
+  codex-interpreted   GPT-interpreted, Codex IDE (no workspace)
+  vscode-codex-interpreted  GPT-interpreted, VS Code-Codex (workspace present)
+  codex-raw           Raw verbatim output, Codex IDE
+  vscode-codex-raw          Raw verbatim output, VS Code-Codex
 
 Cross-track comparisons of interest:
   T1 vs T2: Does workspace context change self-reported measurements or tool selection?
@@ -24,19 +24,19 @@ Usage:
     # From project directory
 
     # Single track
-    python analyze.py --csv results/codex-t1_codex_interpreted/results.csv --summary
-    python analyze.py --csv results/codex-t3_codex_raw/results.csv --full
+    python analyze.py --csv results/codex-interpreted/results.csv --summary
+    python analyze.py --csv results/codex-raw/results.csv --full
 
     # Cross-track comparison (two to four CSVs)
     python analyze.py \\
-        --csv results/codex-t1_codex_interpreted/results.csv \\
-               results/codex-t2_vscode_interpreted/results.csv --full
+        --csv results/codex-interpreted/results.csv \\
+               results/vscode-codex-interpreted/results.csv --full
 
     python analyze.py \\
-        --csv results/codex-t1_codex_interpreted/results.csv \\
-               results/codex-t2_vscode_interpreted/results.csv \\
-               results/codex-t3_codex_raw/results.csv \\
-               results/codex-t4_vscode_raw/results.csv --full
+        --csv results/codex-interpreted/results.csv \\
+               results/vscode-codex-interpreted/results.csv \\
+               results/codex-raw/results.csv \\
+               results/vscode-codex-raw/results.csv --full
 """
 
 import csv
@@ -47,25 +47,25 @@ import argparse
 
 # Track metadata for display and inference
 TRACK_META = {
-    "t1_codex_interpreted": {
+    "codex-interpreted": {
         "label": "T1 — GPT-interpreted, Codex IDE",
         "surface": "codex",
         "method": "gpt-interpreted",
         "workspace": False,
     },
-    "t2_vscode_interpreted": {
+    "vscode-codex-interpreted": {
         "label": "T2 — GPT-interpreted, VS Code-Codex",
         "surface": "vscode_codex",
         "method": "gpt-interpreted",
         "workspace": True,
     },
-    "t3_codex_raw": {
+    "codex-raw": {
         "label": "T3 — Raw, Codex IDE",
         "surface": "codex",
         "method": "raw",
         "workspace": False,
     },
-    "t4_vscode_raw": {
+    "vscode-codex-raw": {
         "label": "T4 — Raw, VS Code-Codex",
         "surface": "vscode_codex",
         "method": "raw",
@@ -75,13 +75,13 @@ TRACK_META = {
 
 # Pairing definitions for the four primary cross-track comparisons
 COMPARISONS = [
-    ("t1_codex_interpreted", "t2_vscode_interpreted",
+    ("codex-interpreted", "vscode-codex-interpreted",
      "T1 vs T2 — workspace effect on interpreted output"),
-    ("t3_codex_raw", "t4_vscode_raw",
+    ("codex-raw", "vscode-codex-raw",
      "T3 vs T4 — workspace effect on raw retrieval ceiling"),
-    ("t1_codex_interpreted", "t3_codex_raw",
+    ("codex-interpreted", "codex-raw",
      "T1 vs T3 — Codex IDE perception gap (interpreted vs raw)"),
-    ("t2_vscode_interpreted", "t4_vscode_raw",
+    ("vscode-codex-interpreted", "vscode-codex-raw",
      "T2 vs T4 — VS Code-Codex perception gap (interpreted vs raw)"),
 ]
 
@@ -135,13 +135,13 @@ class CodexResultsAnalyzer:
                 return track_id
         # Fallback: surface + method heuristics
         if "t1" in path_str:
-            return "t1_codex_interpreted"
+            return "codex-interpreted"
         if "t2" in path_str:
-            return "t2_vscode_interpreted"
+            return "vscode-codex-interpreted"
         if "t3" in path_str:
-            return "t3_codex_raw"
+            return "codex-raw"
         if "t4" in path_str:
-            return "t4_vscode_raw"
+            return "vscode-codex-raw"
         return "unknown"
 
     def _normalize_row(self, row: dict, inferred_track: str) -> dict:
@@ -165,7 +165,7 @@ class CodexResultsAnalyzer:
         normalized["input_est_chars"] = self._parse_optional_int(row.get("input_est_chars")) or 0
 
         # Core output fields — resolve from track-appropriate sources
-        is_raw = track in ("t3_codex_raw", "t4_vscode_raw")
+        is_raw = track in ("codex-raw", "vscode-codex-raw")
 
         if is_raw:
             normalized["output_chars"] = (
@@ -321,16 +321,16 @@ class CodexResultsAnalyzer:
 
         # Interpreted pair: T1 vs T2
         self._compare_track_pair(
-            "t1_codex_interpreted",
-            "t2_vscode_interpreted",
+            "codex-interpreted",
+            "vscode-codex-interpreted",
             "Interpreted tracks — T1 (Codex IDE) vs T2 (VS Code-Codex)",
             "surface-interpreted",
         )
 
         # Raw pair: T3 vs T4
         self._compare_track_pair(
-            "t3_codex_raw",
-            "t4_vscode_raw",
+            "codex-raw",
+            "vscode-codex-raw",
             "Raw tracks — T3 (Codex IDE) vs T4 (VS Code-Codex)",
             "surface-raw",
         )
@@ -348,16 +348,16 @@ class CodexResultsAnalyzer:
 
         # Codex IDE: T1 vs T3
         self._compare_track_pair(
-            "t1_codex_interpreted",
-            "t3_codex_raw",
+            "codex-interpreted",
+            "codex-raw",
             "Codex IDE — T1 (interpreted) vs T3 (raw)",
             "perception-codex",
         )
 
         # VS Code-Codex: T2 vs T4
         self._compare_track_pair(
-            "t2_vscode_interpreted",
-            "t4_vscode_raw",
+            "vscode-codex-interpreted",
+            "vscode-codex-raw",
             "VS Code-Codex — T2 (interpreted) vs T4 (raw)",
             "perception-vscode",
         )
@@ -462,8 +462,8 @@ class CodexResultsAnalyzer:
                 continue
 
             print(f"{test_id}:")
-            for track in ("t1_codex_interpreted", "t2_vscode_interpreted",
-                          "t3_codex_raw", "t4_vscode_raw"):
+            for track in ("codex-interpreted", "vscode-codex-interpreted",
+                          "codex-raw", "vscode-codex-raw"):
                 if track in by_track:
                     r = by_track[track]
                     short_label = track.replace("_codex_interpreted", " interp")  \
@@ -477,21 +477,21 @@ class CodexResultsAnalyzer:
                           f"ws_sub: {ws_sub}")
 
             # Flag perception gaps (interpreted vs raw per surface)
-            if "t1_codex_interpreted" in by_track and "t3_codex_raw" in by_track:
-                if by_track["t1_codex_interpreted"].get("truncated") != by_track["t3_codex_raw"].get("truncated"):
+            if "codex-interpreted" in by_track and "codex-raw" in by_track:
+                if by_track["codex-interpreted"].get("truncated") != by_track["codex-raw"].get("truncated"):
                     print(f"  ⚠️  Perception gap — Codex IDE (T1 vs T3 truncation mismatch)")
 
-            if "t2_vscode_interpreted" in by_track and "t4_vscode_raw" in by_track:
-                if by_track["t2_vscode_interpreted"].get("truncated") != by_track["t4_vscode_raw"].get("truncated"):
+            if "vscode-codex-interpreted" in by_track and "vscode-codex-raw" in by_track:
+                if by_track["vscode-codex-interpreted"].get("truncated") != by_track["vscode-codex-raw"].get("truncated"):
                     print(f"  ⚠️  Perception gap — VS Code-Codex (T2 vs T4 truncation mismatch)")
 
             # Flag surface divergences (same method, different surface)
-            if "t1_codex_interpreted" in by_track and "t2_vscode_interpreted" in by_track:
-                if by_track["t1_codex_interpreted"].get("truncated") != by_track["t2_vscode_interpreted"].get("truncated"):
+            if "codex-interpreted" in by_track and "vscode-codex-interpreted" in by_track:
+                if by_track["codex-interpreted"].get("truncated") != by_track["vscode-codex-interpreted"].get("truncated"):
                     print(f"  ⚠️  Surface divergence — interpreted tracks (T1 vs T2 truncation mismatch)")
 
-            if "t3_codex_raw" in by_track and "t4_vscode_raw" in by_track:
-                if by_track["t3_codex_raw"].get("truncated") != by_track["t4_vscode_raw"].get("truncated"):
+            if "codex-raw" in by_track and "vscode-codex-raw" in by_track:
+                if by_track["codex-raw"].get("truncated") != by_track["vscode-codex-raw"].get("truncated"):
                     print(f"  ⚠️  Surface divergence — raw tracks (T3 vs T4 truncation mismatch)")
 
             print()
@@ -522,8 +522,8 @@ class CodexResultsAnalyzer:
 
         # Break down by track — substitution should only be possible on T2/T4
         print("\nWorkspace substitution by track:")
-        for track in ("t1_codex_interpreted", "t2_vscode_interpreted",
-                      "t3_codex_raw", "t4_vscode_raw"):
+        for track in ("codex-interpreted", "vscode-codex-interpreted",
+                      "codex-raw", "vscode-codex-raw"):
             track_results = self.filter_by_track(track)
             if not track_results:
                 continue
@@ -535,7 +535,7 @@ class CodexResultsAnalyzer:
             print(f"  {label}: {counts_str}")
 
         # Flag T1/T3 substitution — should be impossible without a workspace
-        isolation_tracks = self.filter_by_track("t1_codex_interpreted") + self.filter_by_track("t3_codex_raw")
+        isolation_tracks = self.filter_by_track("codex-interpreted") + self.filter_by_track("codex-raw")
         unexpected = [r for r in isolation_tracks if r.get("workspace_substitution") == "yes"]
         if unexpected:
             print(f"\n⚠️  Unexpected substitution on T1/T3 (no workspace expected): "
@@ -544,7 +544,7 @@ class CodexResultsAnalyzer:
         else:
             print(f"\n✓ No substitution on T1/T3 — workspace isolation holding")
 
-        workspace_tracks = self.filter_by_track("t2_vscode_interpreted") + self.filter_by_track("t4_vscode_raw")
+        workspace_tracks = self.filter_by_track("vscode-codex-interpreted") + self.filter_by_track("vscode-codex-raw")
         substituted = [r for r in workspace_tracks if r.get("workspace_substitution") == "yes"]
         if substituted:
             print(f"⚠️  Substitution confirmed on T2/T4: {[r['test_id'] for r in substituted]}")
@@ -566,8 +566,8 @@ class CodexResultsAnalyzer:
         print("=" * 80 + "\n")
 
         print("Tools named by track:\n")
-        for track in ("t1_codex_interpreted", "t2_vscode_interpreted",
-                      "t3_codex_raw", "t4_vscode_raw"):
+        for track in ("codex-interpreted", "vscode-codex-interpreted",
+                      "codex-raw", "vscode-codex-raw"):
             track_results = self.filter_by_track(track)
             if not track_results:
                 continue
@@ -585,8 +585,8 @@ class CodexResultsAnalyzer:
             print()
 
         # Flag tool name differences across same-method tracks (surface effect on toolchain)
-        t1_tools = {r.get("tools_named", "") for r in self.filter_by_track("t1_codex_interpreted")}
-        t2_tools = {r.get("tools_named", "") for r in self.filter_by_track("t2_vscode_interpreted")}
+        t1_tools = {r.get("tools_named", "") for r in self.filter_by_track("codex-interpreted")}
+        t2_tools = {r.get("tools_named", "") for r in self.filter_by_track("vscode-codex-interpreted")}
         if t1_tools and t2_tools and t1_tools != t2_tools:
             print(f"⚠️  Tool names differ between T1 and T2 — surface may change toolchain")
             print(f"   T1 (Codex IDE):       {t1_tools}")
@@ -594,8 +594,8 @@ class CodexResultsAnalyzer:
         elif t1_tools and t2_tools:
             print(f"✓ Tool names consistent between T1 and T2 — surface does not change toolchain")
 
-        t3_tools = {r.get("tools_used", "") for r in self.filter_by_track("t3_codex_raw")}
-        t4_tools = {r.get("tools_used", "") for r in self.filter_by_track("t4_vscode_raw")}
+        t3_tools = {r.get("tools_used", "") for r in self.filter_by_track("codex-raw")}
+        t4_tools = {r.get("tools_used", "") for r in self.filter_by_track("vscode-codex-raw")}
         if t3_tools and t4_tools and t3_tools != t4_tools:
             print(f"⚠️  Tool chains differ between T3 and T4 — surface may change raw retrieval toolchain")
             print(f"   T3 (Codex IDE):       {t3_tools}")
@@ -617,7 +617,7 @@ class CodexResultsAnalyzer:
         print("=" * 80 + "\n")
 
         raw_results = (
-            self.filter_by_track("t3_codex_raw") + self.filter_by_track("t4_vscode_raw")
+            self.filter_by_track("codex-raw") + self.filter_by_track("vscode-codex-raw")
         )
         if not raw_results:
             print("No raw track results available.\n")
@@ -667,7 +667,7 @@ class CodexResultsAnalyzer:
 
         # Chars-per-token ratio from raw tracks — distinguishes H1 vs H2
         raw_results = (
-            self.filter_by_track("t3_codex_raw") + self.filter_by_track("t4_vscode_raw")
+            self.filter_by_track("codex-raw") + self.filter_by_track("vscode-codex-raw")
         )
         ratios = [
             r["output_chars"] / r["tokens_est"]
@@ -725,8 +725,8 @@ class CodexResultsAnalyzer:
         for r in self.results:
             tracks_present[r.get("track", "unknown")] += 1
         print("Runs by track:")
-        for track in ("t1_codex_interpreted", "t2_vscode_interpreted",
-                      "t3_codex_raw", "t4_vscode_raw", "unknown"):
+        for track in ("codex-interpreted", "vscode-codex-interpreted",
+                      "codex-raw", "vscode-codex-raw", "unknown"):
             if track in tracks_present:
                 label = TRACK_META.get(track, {}).get("label", track)
                 print(f"  {label}: {tracks_present[track]}")
@@ -766,7 +766,7 @@ class CodexResultsAnalyzer:
         # OP-4 CommonMark spec / auto-chunking result
         op4_results = self.filter_by_test_id("OP-4")
         if op4_results:
-            raw_op4 = [r for r in op4_results if r.get("track") in ("t3_codex_raw", "t4_vscode_raw")]
+            raw_op4 = [r for r in op4_results if r.get("track") in ("codex-raw", "vscode-codex-raw")]
             multi_step = [r for r in raw_op4 if "->" in (r.get("tools_used") or "")]
             print(f"OP-4 (CommonMark spec ~500KB, auto-chunking): {len(op4_results)} run(s) logged")
             if multi_step:
@@ -785,27 +785,27 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Track reference:
-  t1_codex_interpreted   GPT-interpreted, Codex IDE (no workspace)
-  t2_vscode_interpreted  GPT-interpreted, VS Code-Codex (workspace present)
-  t3_codex_raw           Raw verbatim output, Codex IDE
-  t4_vscode_raw          Raw verbatim output, VS Code-Codex
+  codex-interpreted   GPT-interpreted, Codex IDE (no workspace)
+  vscode-codex-interpreted  GPT-interpreted, VS Code-Codex (workspace present)
+  codex-raw           Raw verbatim output, Codex IDE
+  vscode-codex-raw          Raw verbatim output, VS Code-Codex
 
 Examples:
   python analyze.py \\
-      --csv results/codex-t1_codex_interpreted/results.csv --summary
+      --csv results/codex-interpreted/results.csv --summary
 
   python analyze.py \\
-      --csv results/codex-t3_codex_raw/results.csv --full
+      --csv results/codex-raw/results.csv --full
 
   python analyze.py \\
-      --csv results/codex-t1_codex_interpreted/results.csv \\
-             results/codex-t2_vscode_interpreted/results.csv --full
+      --csv results/codex-interpreted/results.csv \\
+             results/vscode-codex-interpreted/results.csv --full
 
   python analyze.py \\
-      --csv results/codex-t1_codex_interpreted/results.csv \\
-             results/codex-t2_vscode_interpreted/results.csv \\
-             results/codex-t3_codex_raw/results.csv \\
-             results/codex-t4_vscode_raw/results.csv --full
+      --csv results/codex-interpreted/results.csv \\
+             results/vscode-codex-interpreted/results.csv \\
+             results/codex-raw/results.csv \\
+             results/vscode-codex-raw/results.csv --full
         """,
     )
 

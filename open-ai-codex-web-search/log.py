@@ -97,7 +97,7 @@ def collect_session_fields() -> dict:
 
     track = prompt("Track", choices=list(TRACKS.keys()))
 
-    model_selector = prompt("Model selector (e.g. o4-mini, o3)")
+    permission_level = prompt("Permission level", choices=["default", "auto-review", "full-access"], default="default")
     model_observed = prompt("Model observed (LLM reported in output, if any)")
     model_intelligence_level = prompt(
         "Intelligence level",
@@ -118,7 +118,7 @@ def collect_session_fields() -> dict:
     return {
         "test_id": test_id,
         "track": track,
-        "model_selector": model_selector,
+        "permission_level": permission_level,
         "model_observed": model_observed,
         "model_intelligence_level": model_intelligence_level,
         "codex_version": codex_version,
@@ -247,7 +247,7 @@ def main():
         framework = CodexTestingFramework(track=track)
         framework.log_result(
             test_id=session["test_id"],
-            model_selector=session["model_selector"],
+            permission_level=session["permission_level"],
             model_observed=session["model_observed"],
             model_intelligence_level=session["model_intelligence_level"],
             codex_version=session["codex_version"],

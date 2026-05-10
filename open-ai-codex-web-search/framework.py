@@ -14,10 +14,10 @@ Key design decisions:
 4. Offset/pagination tests, OP - test chunking, fragment navigation, and auto-pagination
 5. Edge case tests, EC - target specific truncation/rendering challenges
 6. Four-track measurement:
-   - t1_codex_interpreted:    GPT-interpreted, Codex IDE (no local workspace)
-   - t2_vscode_interpreted:   GPT-interpreted, VS Code-Codex extension (workspace present)
-   - t3_codex_raw:            Raw verbatim output, Codex IDE
-   - t4_vscode_raw:           Raw verbatim output, VS Code-Codex extension
+   - codex-interpreted:    GPT-interpreted, Codex IDE (no local workspace)
+   - vscode-codex-interpreted:   GPT-interpreted, VS Code-Codex extension (workspace present)
+   - codex-raw:            Raw verbatim output, Codex IDE
+   - vscode-codex-raw:           Raw verbatim output, VS Code-Codex extension
 
 Track design rationale:
   T1 vs T2: Does workspace context change self-reported measurements or tool selection?
@@ -32,9 +32,9 @@ This allows direct comparison:
 Usage:
     # From project directory
     python framework.py --list-tests
-    python framework.py --test {test ID} --track t1_codex_interpreted
-    python framework.py --test {test ID} --track t3_codex_raw
-    python framework.py --test {test ID} --track t4_vscode_raw
+    python framework.py --test {test ID} --track codex-interpreted
+    python framework.py --test {test ID} --track codex-raw
+    python framework.py --test {test ID} --track vscode-codex-raw
 """
 
 import csv
@@ -146,28 +146,28 @@ TEST_URLS = {
 
 # Track definitions
 TRACKS = {
-    "t1_codex_interpreted": {
+    "codex-interpreted": {
         "label": "T1 — GPT-interpreted, Codex IDE",
         "surface": "codex",
         "method": "gpt-interpreted",
         "workspace": False,
         "description": "Codex IDE in isolation; no local workspace; agent reports measurements",
     },
-    "t2_vscode_interpreted": {
+    "vscode-codex-interpreted": {
         "label": "T2 — GPT-interpreted, VS Code-Codex",
         "surface": "vscode_codex",
         "method": "gpt-interpreted",
         "workspace": True,
         "description": "VS Code-Codex extension with workspace present; agent reports measurements",
     },
-    "t3_codex_raw": {
+    "codex-raw": {
         "label": "T3 — Raw, Codex IDE",
         "surface": "codex",
         "method": "raw",
         "workspace": False,
         "description": "Codex IDE in isolation; verbatim output returned; verification script measures",
     },
-    "t4_vscode_raw": {
+    "vscode-codex-raw": {
         "label": "T4 — Raw, VS Code-Codex",
         "surface": "vscode_codex",
         "method": "raw",
@@ -207,11 +207,11 @@ class TestResult:
     timestamp: str
     date: str
     url: str
-    track: str                       # t1_codex_interpreted | t2_vscode_interpreted | t3_codex_raw | t4_vscode_raw
+    track: str                       # codex-interpreted | vscode-codex-interpreted | codex-raw | vscode-codex-raw
     surface: str                     # codex | vscode_codex
     method: str                      # gpt-interpreted | raw
     workspace_present: bool          # False for T1/T3, True for T2/T4
-    model_selector: str              # e.g., "o3", "o4-mini"
+    permission_level: str             # default | auto-review | full-access
     model_observed: str              # LLM observed in output, if reported
     model_intelligence_level: str    # e.g., "low", "medium", "high", "auto"
     input_est_chars: int
@@ -270,7 +270,7 @@ class TestResult:
 class CodexTestingFramework:
     """Manage Codex web search testing across four tracks."""
 
-    def __init__(self, results_dir: str = None, track: str = "t1_codex_interpreted"):
+    def __init__(self, results_dir: str = None, track: str = "codex-interpreted"):
         if track not in TRACKS:
             raise ValueError(
                 f"Unknown track: {track}. Must be one of: {', '.join(TRACKS.keys())}"
@@ -280,7 +280,13 @@ class CodexTestingFramework:
         self.track_info = TRACKS[track]
 
         if results_dir is None:
-            results_dir = f"results/codex-{track}"
+            _dir_map = {
+                "codex-interpreted": "results/codex-interpreted",
+                "vscode-codex-interpreted": "results/vscode-codex-interpreted",
+                "codex-raw":          "results/codex-raw",
+                "vscode-codex-raw":         "results/vscode-codex-raw",
+            }
+            results_dir = _dir_map[track]
 
         self.results_dir = Path(results_dir)
         self.results_dir.mkdir(parents=True, exist_ok=True)
@@ -499,7 +505,7 @@ Note: this is the raw HTML/Markdown source. The agent typically converts and fil
     def log_result(
         self,
         test_id: str,
-        model_selector: str,
+        permission_level: str,
         model_observed: str,
         model_intelligence_level: str,
         codex_version: str,
@@ -560,7 +566,7 @@ Note: this is the raw HTML/Markdown source. The agent typically converts and fil
             surface=track_info["surface"],
             method=track_info["method"],
             workspace_present=track_info["workspace"],
-            model_selector=model_selector,
+            permission_level=permission_level,
             model_observed=model_observed,
             model_intelligence_level=model_intelligence_level,
             input_est_chars=test["expected_size_kb"] * 1024,
@@ -649,21 +655,21 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Track reference:
-  t1_codex_interpreted   GPT-interpreted, Codex IDE (no workspace)
-  t2_vscode_interpreted  GPT-interpreted, VS Code-Codex (workspace present)
-  t3_codex_raw           Raw verbatim output, Codex IDE
-  t4_vscode_raw          Raw verbatim output, VS Code-Codex
+  codex-interpreted   GPT-interpreted, Codex IDE (no workspace)
+  vscode-codex-interpreted  GPT-interpreted, VS Code-Codex (workspace present)
+  codex-raw           Raw verbatim output, Codex IDE
+  vscode-codex-raw          Raw verbatim output, VS Code-Codex
 
 Examples:
   python framework.py --list-tests
   python framework.py --list-tracks
-  python framework.py --test BL-1 --track t1_codex_interpreted
-  python framework.py --test BL-1 --track t3_codex_raw
+  python framework.py --test BL-1 --track codex-interpreted
+  python framework.py --test BL-1 --track codex-raw
 
   # Log interpreted track result (T1 or T2)
   python framework.py --log BL-1 \\
-    --track t1_codex_interpreted \\
-    --model_selector "o4-mini" \\
+    --track codex-interpreted \\
+    --permission_level "default" \\
     --model_observed "o4-mini" \\
     --model_intelligence_level "medium" \\
     --codex_version "1.0.0" \\
@@ -677,8 +683,8 @@ Examples:
 
   # Log raw track result (T3 or T4)
   python framework.py --log BL-1 \\
-    --track t3_codex_raw \\
-    --model_selector "o4-mini" \\
+    --track codex-raw \\
+    --permission_level "default" \\
     --model_observed "o4-mini" \\
     --model_intelligence_level "high" \\
     --codex_version "1.0.0" \\
@@ -717,13 +723,13 @@ Examples:
         "--track",
         type=str,
         choices=list(TRACKS.keys()),
-        default="t1_codex_interpreted",
-        help="Test track (default: t1_codex_interpreted)",
+        default="codex-interpreted",
+        help="Test track (default: codex-interpreted)",
     )
     parser.add_argument("--log", type=str, help="Log result for test ID")
 
     # Session metadata
-    parser.add_argument("--model_selector", type=str, help="Model selector used (e.g., o4-mini)")
+    parser.add_argument("--permission_level", type=str, choices=["default", "auto-review", "full-access"], help="Agent permission level")
     parser.add_argument("--model_observed", type=str, help="LLM observed in output")
     parser.add_argument("--model_intelligence_level", type=str, help="Intelligence level setting (e.g., medium, high)")
     parser.add_argument("--codex_version", type=str, help="Codex version string")
@@ -790,17 +796,17 @@ Examples:
 
     elif args.log:
         framework = CodexTestingFramework(track=args.track)
-        required = [args.model_selector, args.model_observed, args.model_intelligence_level,
+        required = [args.permission_level, args.model_observed, args.model_intelligence_level,
                     args.codex_version, args.hypothesis]
         if not all(required):
             parser.error(
-                "--log requires: --model_selector, --model_observed, --model_intelligence_level, "
+                "--log requires: --permission_level, --model_observed, --model_intelligence_level, "
                 "--codex_version, --hypothesis"
             )
 
         framework.log_result(
             test_id=args.log,
-            model_selector=args.model_selector,
+            permission_level=args.permission_level,
             model_observed=args.model_observed,
             model_intelligence_level=args.model_intelligence_level,
             codex_version=args.codex_version,

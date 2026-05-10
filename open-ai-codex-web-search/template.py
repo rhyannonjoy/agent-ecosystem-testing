@@ -14,18 +14,21 @@ Everything analytical — verdict reasoning, emergent findings prose, agent
 notes, log labels — is left as a TODO placeholder for human completion.
 
 Usage:
-    python template.py --test BL-1 --track t3_codex_raw
-    python template.py --test SC-2 --track t1_codex_interpreted
-    python template.py --test OP-1 --track t4_vscode_raw
+    python template.py --test BL-1 --track codex-raw
+    python template.py --test SC-2 --track codex-interpreted
+    python template.py --test OP-1 --track vscode-codex-raw
 
     # Generate templates for all tracks of a single test
     python template.py --test BL-1 --all-tracks
 
     # Generate templates for all tests on a single track
-    python template.py --track t3_codex_raw --all-tests
+    python template.py --track codex-raw --all-tests
 
 Output:
-    summaries/{track}/{test_id}_summary.md
+    summaries/codex-interpreted/{test_id}_summary.md        (t1)
+    summaries/vscode-codex-interpreted/{test_id}_summary.md (t2)
+    summaries/codex-raw/{test_id}_summary.md                (t3)
+    summaries/vscode-codex-raw/{test_id}_summary.md         (t4)
 """
 
 import argparse
@@ -255,10 +258,16 @@ def generate_template(test_id: str, track: str) -> str:
 # Output
 # ---------------------------------------------------------------------------
 
+_SUMMARY_DIR = {
+    "codex-interpreted": "codex-interpreted",
+    "vscode-codex-interpreted": "vscode-codex-interpreted",
+    "codex-raw":          "codex-raw",
+    "vscode-codex-raw":         "vscode-codex-raw",
+}
+
 def write_template(test_id: str, track: str, output_dir: Path, overwrite: bool = False) -> Path:
     """Write the template to disk and return the output path."""
-    track_slug = track.replace("_", "-")
-    subdir = output_dir / track_slug
+    subdir = output_dir / _SUMMARY_DIR.get(track, track.replace("_", "-"))
     subdir.mkdir(parents=True, exist_ok=True)
 
     filepath = subdir / f"{test_id}_summary.md"
@@ -283,14 +292,17 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python template.py --test BL-1 --track t3_codex_raw
-  python template.py --test SC-2 --track t1_codex_interpreted
+  python template.py --test BL-1 --track codex-raw
+  python template.py --test SC-2 --track codex-interpreted
   python template.py --test OP-1 --all-tracks
-  python template.py --track t3_codex_raw --all-tests
+  python template.py --track codex-raw --all-tests
   python template.py --all-tests --all-tracks
 
 Output directory (default: summaries/):
-  summaries/{track}/{test_id}_summary.md
+  summaries/codex-interpreted/        (codex-interpreted)
+  summaries/vscode-codex-interpreted/ (vscode-codex-interpreted)
+  summaries/codex-raw/                (codex-raw)
+  summaries/vscode-codex-raw/         (vscode-codex-raw)
         """,
     )
 
@@ -299,7 +311,7 @@ Output directory (default: summaries/):
         "--track",
         type=str,
         choices=list(TRACKS.keys()),
-        help="Track ID (e.g. t3_codex_raw)",
+        help="Track ID (e.g. codex-raw)",
     )
     parser.add_argument(
         "--all-tracks",
