@@ -199,7 +199,7 @@ class TestResult:
       read_url_content, view_content_chunk, search_web)
     - workspace_substitution: did agent use local code execution instead of web fetch?
     - codex_version replaces windsurf_version
-    - model_intelligence_level: logs GPT intelligence setting (e.g., low, medium, high)
+    - model_intelligence_level: logs GPT intelligence setting (e.g., Low, Medium, High, Extra High)
     """
 
     # --- Session metadata (all tracks) ---
@@ -213,7 +213,7 @@ class TestResult:
     workspace_present: bool          # False for T1/T3, True for T2/T4
     permission_level: str             # default | auto-review | full-access
     model_observed: str              # LLM observed in output, if reported
-    model_intelligence_level: str    # e.g., "low", "medium", "high", "auto"
+    model_intelligence_level: str    # e.g., "Low", "Medium", "High", "Extra High"
     input_est_chars: int
     hypothesis_match: str
     codex_version: str

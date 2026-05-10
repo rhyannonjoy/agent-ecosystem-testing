@@ -101,8 +101,8 @@ def collect_session_fields() -> dict:
     model_observed = prompt("Model observed (LLM reported in output, if any)")
     model_intelligence_level = prompt(
         "Intelligence level",
-        choices=["low", "medium", "high", "auto"],
-        default="medium",
+        choices=["Low", "Medium", "High", "Extra High"],
+        default="Medium",
     )
     codex_version = prompt("Codex version (e.g. 1.0.0)")
     tools_named = prompt(
