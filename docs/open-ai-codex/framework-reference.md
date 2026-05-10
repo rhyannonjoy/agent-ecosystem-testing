@@ -7,13 +7,12 @@ parent: OpenAI Codex
 
 # Codex Framework Reference
 
->_This framework generates standardized test prompts and logs CSV results,
->enabling consistent testing across cases, measurement tracking over time,
->truncation pattern identification, and web retrieval behavior comparisons
->across four tracks: T1 (Codex IDE interpreted), T2 (VS Code-Codex interpreted),
->T3 (Codex IDE raw), and T4 (VS Code-Codex raw)_<br>
->_**Requirements**: Python 3.8+, [OpenAI Codex](https://openai.com/codex/) or
->[Codex in VS Code](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot)_
+>_This framework generates standardized test prompts and logs CSV results, enabling consistent testing
+>across cases, measurement tracking over time, truncation pattern identification, and retrieval behavior
+>comparisons across tracks: Codex IDE and VS Code-Codex interpreted, Codex IDE and VS Code-Codex raw_.
+><br>
+>_**Requirements**: Python 3.8+, [OpenAI Codex](https://openai.com/codex/), and
+>[VS Code Codex extension](https://marketplace.visualstudio.com/items?itemName=openai.chatgpt)_
 
 ---
 
@@ -58,16 +57,16 @@ cd codex-web-search
    expected size reference:
 
    ```bash
-   # T1 — GPT-interpreted, Codex IDE (no workspace)
+   # T1: GPT-interpreted, Codex IDE (no workspace)
    python framework.py --test BL-1 --track t1_codex_interpreted
 
-   # T2 — GPT-interpreted, VS Code-Codex (workspace present)
+   # T2: GPT-interpreted, VS Code-Codex (workspace present)
    python framework.py --test BL-1 --track t2_vscode_interpreted
 
-   # T3 — Raw verbatim output, Codex IDE
+   # T3: Raw verbatim output, Codex IDE
    python framework.py --test BL-1 --track t3_codex_raw
 
-   # T4 — Raw verbatim output, VS Code-Codex
+   # T4: Raw verbatim output, VS Code-Codex
    python framework.py --test BL-1 --track t4_vscode_raw
    ```
 
@@ -84,17 +83,17 @@ cd codex-web-search
 
    | **ID** | **Description** | **Question** |
    | --- | --- | --- |
-   | `H1` | Character-based truncation<br>at fixed limit | _Is there a ceiling at ~10–100 KB?_ |
+   | `H1` | Character-based truncation at fixed limit | _Is there a ceiling at ~10–100 KB?_ |
    | `H2` | Token-based truncation | _Is there a ceiling at ~2,000 tokens?_ |
-   | `H3` | Structure-aware truncation | _Does truncation fall on Markdown boundaries rather than arbitrary byte positions?_ |
-   | `H4` | Surface context changes retrieval ceiling, tool chain, or chunking behavior | _Does the Codex IDE vs VS Code-Codex surface produce different retrieval behavior?_ |
-   | `H5` | Agent auto-chunks above the truncation ceiling | _Does the agent fetch with multi-step tool chains, or only when reasoned into it?_ |
+   | `H3` | Structure-aware truncation | _Does truncation fall on Markdown boundaries rather than<br>arbitrary byte positions?_ |
+   | `H4` | Surface impact on retrieval behavior | _Does the Codex IDE versus VS Code-Codex surface<br>produce different retrieval behavior?_ |
+   | `H5` | Auto-chunking and/or pagination | _Does the agent fetch with multi-step tool chains, or<br>only when reasoned into it?_ |
 
 5. **Log Results**
 
-   Run the interactive logger and follow the prompts. Fields are grouped by track:
+   Run the interactive logger and follow the prompts. Fields grouped by track:
    session fields first, then track-specific output fields, then hypothesis and notes.
-   Quotation marks are not necessary; skip optional fields with `Enter`:
+   Quotation marks not necessary; skip optional fields with `Enter`:
 
    ```bash
    # Call the logger
@@ -104,12 +103,8 @@ cd codex-web-search
    ✓ Result logged to results/codex-{track}/results.csv
    ```
 
-   > _Verify key metrics before logging T3 or T4 raw track runs:_
-   > ```bash
-   > python verify.py BL-1               # both surfaces
-   > python verify.py BL-1 --surface codex
-   > python verify.py BL-1 --surface vscode
-   > ```
+   > _Verify key metrics before logging raw track runs `python verify.py BL-1 --surface codex` or
+   > <br>`python verify.py BL-1 --surface vscode`_
 
    **Framework fields logged per track**:
 
@@ -123,55 +118,54 @@ cd codex-web-search
    | `surface` | Deployment surface | `codex`, `vscode_codex` |
    | `method` | Retrieval method | `gpt-interpreted`, `raw` |
    | `workspace_present` | Workspace available to agent? | `true`/`false` |
-   | `model_selector` | Model selector setting | `o4-mini`, `o3` |
-   | `model_observed` | LLM reported in output | `o4-mini`, `o3` |
-   | `model_intelligence_level` | Intelligence level setting | `low`, `medium`, `high`, `auto` |
+   | `permission_level` | Agent permission setting | `default`, `auto-review`, `full-access` |
+   | `model_observed` | LLM reported in output | `GPT-5.5` |
+   | `model_intelligence_level` | LLM intelligence setting | `low`, `medium`, `high`, `extra high` |
    | `input_est_chars` | Expected input size in characters | `87040` |
    | `hypothesis_match` | Hypothesis success/failure | `H1-no`, `H2-yes`, `H4-untested` |
    | `codex_version` | Codex version string | `1.0.0` |
-   | `notes` | Observations | `web tool invoked; no workspace substitution` |
+   | `notes` | Observations | `web tool invoked` |
    | `tools_named` | Tool names reported in agent output | `web`, `web.open`, `curl` |
-   | `workspace_substitution` | Agent used local execution instead of web fetch? | `yes`/`no`/`unknown` |
-   | `output_chars` | T1/T2: agent-measured output length | `27890` |
-   | `truncated` | T1/T2: truncation detected | `yes`/`no` |
-   | `truncation_char_num` | T1/T2: character position if truncated | `5857` |
-   | `tokens_est` | T1/T2: estimated token count | `16890` |
-   | `tools_used`* | T3/T4: observed tool chain | `web -> web.open` |
-   | `tools_blocked`* | T3/T4: tools requested but blocked/skipped | `curl` |
-   | `execution_attempts`* | T3/T4: total tool calls including fallbacks | `3` |
-   | `agent_reported_output_chars`* | T3/T4: agent-measured output character count | `9876` |
-   | `agent_reported_truncated`* | T3/T4: agent-measured truncation status | `yes`/`no` |
-   | `agent_reported_truncation_point`* | T3/T4: agent-measured truncation position | `9876` |
-   | `agent_reported_tokens_est`* | T3/T4: agent-estimated token count | `2469` |
-   | `agent_reported_file_size_bytes`* | T3/T4: agent-measured file size in bytes | `4817` |
-   | `agent_reported_md5_checksum`* | T3/T4: agent-measured MD5 checksum | `abc123...` |
-   | `agent_reported_lines`* | T3/T4: agent-measured line count | `143` |
-   | `agent_reported_words`* | T3/T4: agent-measured word count | `564` |
-   | `agent_reported_code_blocks`* | T3/T4: agent-measured code block count | `2` |
-   | `agent_reported_table_rows`* | T3/T4: agent-measured table row count | `57` |
-   | `agent_reported_headers`* | T3/T4: agent-measured header count | `4` |
-   | `verified_file_size_bytes`* | T3/T4: verifier-measured file size in bytes | `4817` |
-   | `verified_md5_checksum`* | T3/T4: verifier-measured MD5 checksum | `d6ad8451d3778bf3544574...` |
-   | `verified_total_lines`* | T3/T4: verifier-measured line count | `143` |
-   | `verified_total_words`* | T3/T4: verifier-measured word count | `564` |
-   | `verified_tokens`* | T3/T4: verifier-measured token count | `197` |
-   | `verified_chars_per_token`* | T3/T4: verifier-measured chars/token ratio | `4.43` |
-   | `verified_code_blocks`* | T3/T4: verifier-measured code block count | `2` |
-   | `verified_table_rows`* | T3/T4: verifier-measured table row count | `57` |
-   | `verified_headers`* | T3/T4: verifier-measured header count | `4` |
+   | `workspace_substitution` | _Local execution instead of web fetch?_ | `yes`/`no`/`unknown` |
+   | `output_chars` | `T1`/`T2`: agent-measured output length | `27890` |
+   | `truncated` | `T1`/`T2`: truncation detected | `yes`/`no` |
+   | `truncation_char_num` | `T1`/`T2`: character position if truncated | `5857` |
+   | `tokens_est` | `T1`/`T2`: estimated token count | `16890` |
+   | `tools_used`* | `T3`/`T4`: observed tool chain | `web -> web.open` |
+   | `tools_blocked`* | `T3`/`T4`: tools requested, but skipped | `curl` |
+   | `execution_attempts`* | `T3`/`T4`: total tool calls, fallbacks | `3` |
+   | `agent_reported_output_chars`* | `T3`/`T4`: agent-measured char count | `9876` |
+   | `agent_reported_truncated`* | `T3`/`T4`: agent-measured truncation | `yes`/`no` |
+   | `agent_reported_truncation_point`* | `T3`/`T4`: agent-measured truncation spot | `9876` |
+   | `agent_reported_tokens_est`* | `T3`/`T4`: agent-estimated token count | `2469` |
+   | `agent_reported_file_size_bytes`* | `T3`/`T4`: agent-measured file size: bytes | `4817` |
+   | `agent_reported_md5_checksum`* | `T3`/`T4`: agent-measured MD5 | `abc123...` |
+   | `agent_reported_lines`* | `T3`/`T4`: agent-measured line count | `143` |
+   | `agent_reported_words`* | `T3`/`T4`: agent-measured word count | `564` |
+   | `agent_reported_code_blocks`* | `T3`/`T4`: agent-measured<br>code block count | `2` |
+   | `agent_reported_table_rows`* | `T3`/`T4`: agent-measured<br>table row count | `57` |
+   | `agent_reported_headers`* | `T3`/`T4`: agent-measured<br>header count | `4` |
+   | `verified_file_size_bytes`* | `T3`/`T4`: verifier-measured<br>file size: bytes | `4817` |
+   | `verified_md5_checksum`* | `T3`/`T4`: verifier-measured MD5 | `d6ad8451d3778bf3544574...` |
+   | `verified_total_lines`* | `T3`/`T4`: verifier-measured line count | `143` |
+   | `verified_total_words`* | `T3`/`T4`: verifier-measured word count | `564` |
+   | `verified_tokens`* | `T3`/`T4`: verifier-measured token count | `197` |
+   | `verified_chars_per_token`* | `T3`/`T4`: verifier-measured<br>chars/token ratio | `4.43` |
+   | `verified_code_blocks`* | `T3`/`T4`: verifier-measured<br>code block count | `2` |
+   | `verified_table_rows`* | `T3`/`T4`: verifier-measured<br>table row count | `57` |
+   | `verified_headers`* | `T3`/`T4`: verifier-measured<br>header count | `4` |
 
-   > _*Optional field, T3/T4 raw tracks only. `agent_reported_*` fields reflect the agent's
-   > own measurements from its output; `verify.py` calculates `verified_*` values against
-   > `raw_output_{test_id}_codex.txt` or `raw_output_{test_id}_vscode.txt` files._
+   > _*Optional field, raw tracks only. `agent_reported_*` fields may reflect tool output or payload estimates
+   > `verify.py` calculates `verified_*` values against `raw_output_{test_id}.txt` files._
 
 ---
 
 ## Baseline Testing Path
 
-1. Run **T1** (Codex IDE interpreted) to establish surface-isolated behavioral baseline
-2. Run **T2** (VS Code-Codex interpreted) to isolate workspace effect against T1
-3. Run **T3** (Codex IDE raw) for ground truth retrieval measurements, verify T1
-4. Run **T4** (VS Code-Codex raw) to isolate surface effect on raw retrieval, verify T2
+1. Run `T1` to establish surface-isolated behavioral baseline
+2. Run `T2` to isolate workspace effect against `T1`
+3. Run `T3` for ground truth retrieval measurements, verify `T1`
+4. Run `T4` to isolate surface effect on raw retrieval, verify `T2`
 5. Run each test a minimum of 5 times per track to capture variance
 
 | **Test IDs** | **Purpose** | **Key Question** |
@@ -179,7 +173,7 @@ cd codex-web-search
 | `BL-1`<br>`BL-2` | Baseline truncation threshold<br>on small pages | _What is the T1 vs T2 surface delta?_ |
 | `SC-2` | Code blocks,<br>API documentation | _How does the web toolchain handle code structure?_ |
 | `OP-1` | Fragment identifier<br>navigation | _Does Codex jump to a specific section via URL fragment?_ |
-| `OP-4` | Auto-chunking above<br>the BL-3 ceiling | _Does the agent fetch above the truncation ceiling with multi-step tool chains?_ |
+| `OP-4` | Auto-chunking above<br>the `BL-3` ceiling | _Does the agent fetch with multi-step tool chains?_ |
 | `BL-3` | Hard ceiling | _What is the absolute output limit across retrieval runs?_ |
 | `SC-1`<br>`SC-3`<br>`SC-4` | Structured content | _Does truncation respect Markdown boundaries?_ |
 | `EC-1`<br>`EC-3`<br>`EC-6` | Edge cases | _What are the failure modes and workspace substitution edge behaviors?_ |
@@ -191,36 +185,35 @@ cd codex-web-search
 
 ## Analyzing Results
 
-Examine hypothesis matching, surface and workspace effects, perception gap, and truncation analysis:
+Examine hypothesis matching, surface-workspace effects, perception gap, and truncation analysis:
 
 ```bash
-# Single track — full analysis or summary
-python analyze.py --csv results/codex-t1_codex_interpreted/results.csv --summary
-python analyze.py --csv results/codex-t3_codex_raw/results.csv --full
+# Single track: full analysis or summary
+python analyze.py --csv results/codex_interpreted/results.csv --summary
+python analyze.py --csv results/codex_raw/results.csv --full
 
 # Filter by track
-python analyze.py --csv results/codex-t1_codex_interpreted/results.csv --track t1_codex_interpreted
+python analyze.py --csv results/codex_interpreted/results.csv --track t1_codex_interpreted
 
-# Compare interpreted tracks (T1 vs T2) — isolates workspace effect
+# Compare interpreted tracks, T1 vs T2, isolates workspace effect
 python analyze.py \
-   --csv results/codex-t1_codex_interpreted/results.csv \
-         results/codex-t2_vscode_interpreted/results.csv --full
+   --csv results/codex_interpreted/results.csv \
+         results/vscode_codex_interpreted/results.csv --full
 
-# Compare raw tracks (T3 vs T4) — isolates surface effect on retrieval ceiling
+# Compare raw tracks, T3 vs T4, isolates surface effect on retrieval ceiling
 python analyze.py \
-   --csv results/codex-t3_codex_raw/results.csv \
-         results/codex-t4_vscode_raw/results.csv --full
+   --csv results/codex_raw/results.csv \
+         results/vscode_codex_raw/results.csv --full
 
 # Compare all four tracks
 python analyze.py \
-   --csv results/codex-t1_codex_interpreted/results.csv \
-         results/codex-t2_vscode_interpreted/results.csv \
-         results/codex-t3_codex_raw/results.csv \
-         results/codex-t4_vscode_raw/results.csv --full
+   --csv results/codex_interpreted/results.csv \
+         results/vscode_codex_interpreted/results.csv \
+         results/codex_raw/results.csv \
+         results/vscode_codex_raw/results.csv --full
 ```
 
->_Provide the full relative path including subdirectory, e.g.
->`results/codex-t1_codex_interpreted/results.csv`_
+>_Provide the full relative path including subdirectory - `results/codex_interpreted/results.csv`_
 
 ---
 
@@ -230,26 +223,26 @@ Generate pre-structured Markdown summary templates to fill in after each test se
 
 ```bash
 # Single test, single track
-python template.py --test BL-1 --track t3_codex_raw
+python template.py --test BL-1 --track codex_raw
 
 # All four tracks for a single test
 python template.py --test BL-1 --all-tracks
 
 # All tests for a single track
-python template.py --track t3_codex_raw --all-tests
+python template.py --track codex_raw --all-tests
 
 # All 48 combinations
 python template.py --all-tests --all-tracks
 
+# Regenerate a template after changes to `TEST_URLS` or `TRACKS`
+python template.py --test BL-1 --track codex_raw --overwrite
+
 # Preview without writing a file
-python template.py --test BL-1 --track t3_codex_raw --preview
+python template.py --test BL-1 --track codex_raw --preview
 ```
 
-Templates are written to `summaries/{track}/{test_id}_summary.md`. Each template
+Templates written to `summaries/{track}/{test_id}_summary.md`. Each template
 pre-populates the test conditions table, run results table with track-appropriate
-columns, H1–H5 hypothesis sections with verdict placeholders, an emergent findings
+columns, `H1`–`H5` hypothesis sections with verdict placeholders, an emergent findings
 scaffold, and a log label summary table. Verdict reasoning, emergent findings prose,
-and log labels are left as `<!-- TODO -->` placeholders for human completion.
-
->_Use `--overwrite` to regenerate a template after changes to `TEST_URLS` or `TRACKS`
->in `framework.py`_
+and log labels left as `<!-- TODO -->` placeholders for human completion.
