@@ -33,7 +33,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Navigate to the Codex testing directory
-cd codex-web-search
+cd open-ai-codex-web-search
 ```
 
 >_For whatever reason, such as incompatible Python versions or some accidental corruption,
@@ -57,17 +57,17 @@ cd codex-web-search
    expected size reference:
 
    ```bash
-   # T1: GPT-interpreted, Codex IDE (no workspace)
-   python framework.py --test BL-1 --track t1_codex_interpreted
+   # T1: GPT-interpreted, Codex IDE
+   python framework.py --test BL-1 --track codex-interpreted
 
-   # T2: GPT-interpreted, VS Code-Codex (workspace present)
-   python framework.py --test BL-1 --track t2_vscode_interpreted
+   # T2: GPT-interpreted, VS Code-Codex
+   python framework.py --test BL-1 --track vscode_interpreted
 
    # T3: Raw verbatim output, Codex IDE
-   python framework.py --test BL-1 --track t3_codex_raw
+   python framework.py --test BL-1 --track codex_raw
 
    # T4: Raw verbatim output, VS Code-Codex
-   python framework.py --test BL-1 --track t4_vscode_raw
+   python framework.py --test BL-1 --track vscode_raw
    ```
 
 3. **Copy Prompt → Run in Codex**
