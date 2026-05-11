@@ -244,7 +244,7 @@ class TestResult:
     # Values reported by the agent in its output; may differ from verified measurements
     agent_reported_output_chars: Optional[int] = None
     agent_reported_truncated: Optional[str] = None
-    agent_reported_truncation_point: Optional[int] = None
+    agent_reported_truncation_point: Optional[str] = None
     agent_reported_tokens_est: Optional[int] = None
     agent_reported_file_size_bytes: Optional[int] = None
     agent_reported_md5_checksum: Optional[str] = None
@@ -514,7 +514,7 @@ Note: this is the raw HTML/Markdown source. The agent typically converts and fil
         # Agent self-reported fields (T3, T4)
         agent_reported_output_chars: Optional[int] = None,
         agent_reported_truncated: Optional[str] = None,
-        agent_reported_truncation_point: Optional[int] = None,
+        agent_reported_truncation_point: Optional[str] = None,
         agent_reported_tokens_est: Optional[int] = None,
         agent_reported_file_size_bytes: Optional[int] = None,
         agent_reported_md5_checksum: Optional[str] = None,
@@ -680,7 +680,7 @@ Examples:
     --execution_attempts 2 \\
     --agent_reported_output_chars 9876 \\
     --agent_reported_truncated yes \\
-    --agent_reported_truncation_point 9876 \\
+    --agent_reported_truncation_point L477 \\
     --agent_reported_tokens_est 2469 \\
     --agent_reported_file_size_bytes 4817 \\
     --agent_reported_md5_checksum abc123 \\
@@ -735,7 +735,7 @@ Examples:
     # Interpreted track output fields (T1, T2)
     parser.add_argument("--output_chars", type=int, help="[T1/T2] Output character count")
     parser.add_argument("--truncated", type=str, choices=["yes", "no"], help="Was content truncated?")
-    parser.add_argument("--truncation_point", type=int, help="Character position where truncation occurred")
+    parser.add_argument("--truncation_point", type=str, help="Character position where truncation occurred")
     parser.add_argument("--tokens", type=int, help="Estimated token count")
 
     # Tool behavior fields (T3, T4)
@@ -746,7 +746,7 @@ Examples:
     # Agent self-reported fields (T3, T4)
     parser.add_argument("--agent_reported_output_chars", type=int)
     parser.add_argument("--agent_reported_truncated", type=str, choices=["yes", "no"])
-    parser.add_argument("--agent_reported_truncation_point", type=int)
+    parser.add_argument("--agent_reported_truncation_point", type=str)
     parser.add_argument("--agent_reported_tokens_est", type=int)
     parser.add_argument("--agent_reported_file_size_bytes", type=int)
     parser.add_argument("--agent_reported_md5_checksum", type=str)
