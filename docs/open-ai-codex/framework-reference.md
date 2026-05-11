@@ -129,14 +129,13 @@ cd open-ai-codex-web-search
    | `workspace_substitution` | _Local execution instead of web fetch?_ | `yes`/`no`/`unknown` |
    | `output_chars` | `T1`/`T2`: agent-measured output length | `27890` |
    | `truncated` | `T1`/`T2`: truncation detected | `yes`/`no` |
-   | `truncation_char_num` | `T1`/`T2`: character position if truncated | `5857` |
+   | `truncation_point` | `T1`/`T2`: section/line truncation spot | `L477` |
    | `tokens_est` | `T1`/`T2`: estimated token count | `16890` |
    | `tools_used`* | `T3`/`T4`: observed tool chain | `web -> web.open` |
    | `tools_blocked`* | `T3`/`T4`: tools requested, but skipped | `curl` |
    | `execution_attempts`* | `T3`/`T4`: total tool calls, fallbacks | `3` |
    | `agent_reported_output_chars`* | `T3`/`T4`: agent-measured char count | `9876` |
    | `agent_reported_truncated`* | `T3`/`T4`: agent-measured truncation | `yes`/`no` |
-   | `agent_reported_truncation_point`* | `T3`/`T4`: agent-measured truncation spot | `9876` |
    | `agent_reported_tokens_est`* | `T3`/`T4`: agent-estimated token count | `2469` |
    | `agent_reported_file_size_bytes`* | `T3`/`T4`: agent-measured file size: bytes | `4817` |
    | `agent_reported_md5_checksum`* | `T3`/`T4`: agent-measured MD5 | `abc123...` |
