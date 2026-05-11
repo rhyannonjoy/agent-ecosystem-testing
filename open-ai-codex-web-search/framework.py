@@ -199,7 +199,7 @@ class TestResult:
       read_url_content, view_content_chunk, search_web)
     - workspace_substitution: did agent use local code execution instead of web fetch?
     - codex_version replaces windsurf_version
-    - model_intelligence_level: logs GPT intelligence setting (e.g., low, medium, high)
+    - model_intelligence_level: logs GPT intelligence setting (e.g., Low, Medium, High, Extra High)
     """
 
     # --- Session metadata (all tracks) ---
@@ -213,7 +213,7 @@ class TestResult:
     workspace_present: bool          # False for T1/T3, True for T2/T4
     permission_level: str             # default | auto-review | full-access
     model_observed: str              # LLM observed in output, if reported
-    model_intelligence_level: str    # e.g., "low", "medium", "high", "auto"
+    model_intelligence_level: str    # e.g., "Low", "Medium", "High", "Extra High"
     input_est_chars: int
     hypothesis_match: str
     codex_version: str
@@ -304,19 +304,15 @@ class CodexTestingFramework:
         test = TEST_URLS[test_id]
         url = test["url"]
 
-        surface_note = (
-            "Note: You are running in the Codex IDE with no local workspace."
-            if surface == "codex"
-            else "Note: You are running in VS Code-Codex with a local workspace present."
+        contamination_warning = (
+            "\nTo prevent testing methodology contamination, only run this test and don't proceed to any other tests.\n"
+            if surface != "codex"
+            else "\n"
         )
 
         prompt = f"""I'm testing Codex's web retrieval capabilities for the Agent Ecosystem Testing project.
-
-To prevent testing methodology contamination, only run this test and don't proceed to any other tests.
-Please don't run any local scripts. Fetch this URL directly:
+{contamination_warning}Fetch this URL directly:
 {url}
-
-{surface_note}
 
 Then report back:
 1. **Total character count** of the response you received
@@ -343,22 +339,13 @@ This is for empirical documentation of retrieval behavior across deployment surf
         test = TEST_URLS[test_id]
         url = test["url"]
 
-        surface_note = (
-            "Note: You are running in the Codex IDE with no local workspace."
-            if surface == "codex"
-            else "Note: You are running in VS Code-Codex with a local workspace present."
-        )
-
         # File suffix differs by track to avoid cross-surface collisions
         track_suffix = "codex" if surface == "codex" else "vscode"
 
         prompt = f"""I'm testing Codex's web retrieval capabilities for the Agent Ecosystem Testing project - raw track.
 
 To prevent testing methodology contamination, only run this test and don't proceed to any other tests.
-Please complete the steps below without using any local Python scripts from this codebase.
 Retrieve the content from this URL and return it EXACTLY as you received it: {url}
-
-{surface_note}
 
 1. Save the content to raw_output_{test_id}_{track_suffix}.txt
 2. Save raw_output_{test_id}_{track_suffix}.txt to codex-web-search/results/raw/

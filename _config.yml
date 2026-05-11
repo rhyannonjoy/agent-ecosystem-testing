@@ -124,7 +124,7 @@ navigation:
         url: "/docs/open-ai-codex/codex-test-findings"
       - title: "Framework Reference"
         url: "/docs/open-ai-codex/framework-reference"
-      - title: "Friction Note"
+      - title: "Friction: Interpreted"
         url: "/docs/open-ai-codex/friction-note-interpreted"
 
   - title: "OpenAI Web Search"
