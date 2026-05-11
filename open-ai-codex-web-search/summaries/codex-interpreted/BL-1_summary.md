@@ -7,7 +7,7 @@
 | URL             | `https://www.mongodb.com/docs/manual/reference/change-events/create/` |
 | Expected size   | ~85KB                                                                 |
 | Surface         | Codex IDE                                                             |
-| Workspace       | No workspace (session-scoped sandbox only)                            |
+| Workspace       | No workspace, session-scoped sandbox only                             |
 | Track           | `T1` GPT-interpreted, Codex IDE                                       |
 | Method          | GPT-interpreted                                                       |
 | Runs            | 20                                                                    |
@@ -17,34 +17,37 @@
 
 ### Run Results
 
-| Agent                  | Output chars         | Tokens est.   | Truncated             | Last 50 chars                                              | Tools named                                          | Workspace sub. | Notes                                                              |
-| ---------------------- | -------------------- | ------------- | --------------------- | ---------------------------------------------------------- | ---------------------------------------------------- | -------------- | ------------------------------------------------------------------ |
-| GPT-5.4-mini Low       | ~19,000              | ~4,500        | Yes (mid-page)        | `* Summary\n * Description\n * Example`                   | web, web.open                                        | Unknown        | Single fetch; line-windowed excerpt                                |
-| GPT-5.4-mini Medium    | ~85,000              | ~20,000       | Yes (tool display)    | `* Summary\n * Description\n * Example`                   | web, web.open                                        | Unknown        | Multiple view IDs; identical tail to Low                           |
-| GPT-5.4-mini High      | ~85,000              | ~21,000       | Yes (tool display)    | `* Summary\n * Description\n * Example`                   | web, web.open                                        | Unknown        | Fewer tool calls than Medium despite higher level                  |
-| GPT-5.4-mini Extra High| ~85,000              | ~20,000       | Yes (tool display)    | `* Summary\n * Description\n * Example`                   | web, web.open                                        | Unknown        | 3-part fetch strategy; 85s runtime; same yield as Medium/High     |
-| GPT-5.2 Low            | ~1,600 (wordlim)     | ~250–450      | Yes (wordlim: 200)    | `when the change stream uses \n\n`                         | web, web.open                                        | Yes (empty)    | First explicit cap mechanism surfaced; cuts mid-page              |
-| GPT-5.2 Medium         | ~24,500              | ~2,000–6,000  | Yes (L477/542)        | `New in version 6.0.\n\n`                                  | web, web.open                                        | Yes (empty)    | L477 cutoff; agent aware of 65 missing lines, no pagination        |
-| GPT-5.2 High           | 505,339 (curl)       | ~126,000      | No (curl); Yes (web.open) | `slice-end id="_gatsby-scripts-1" --></body></html>`   | web, web.open, curl, wc, tail, perl, python3         | Yes (/private/tmp) | First curl escalation; wordlim: 200 confirmed on web.open      |
-| GPT-5.2 Extra High     | 505,339 (curl)       | ~126,335      | No (curl); Yes (web.open) | `slice-end id="_gatsby-scripts-1" --></body></html>`   | web, web.open, curl, wc, tail, perl, python3         | Yes (/private/tmp) | 18 web searches; no permission prompt; web.open starts at L39 or L216 |
-| GPT-5.3-Codex Low      | ~28,000–35,000       | ~7,000–9,000  | Yes (~L140)           | `page\n * Summary\n * Description\n * Example`            | web, web.open, web.find                              | Yes (sandbox)  | Default open→find two-step pattern                                 |
-| GPT-5.3-Codex Medium   | ~24,500              | ~6,100        | Yes (~L140)           | `page\n * Summary\n * Description\n * Example`            | web, web.open (lineno=520)                           | Yes (sandbox)  | L140 cut identical to Low; lineno=520 tail fetch; Medium < Low     |
-| GPT-5.3-Codex High     | ~60,000              | ~15,000       | Yes (L477)            | `L539: * Summary\nL540: * Description\nL541: * Example`   | web, web.open (lineno variants)                      | Yes (sandbox)  | 7 fetches; meta-reasons about ~85KB ceiling; L477 reappears       |
-| GPT-5.3-Codex Extra High| ~61,000             | ~15,000       | Yes (L477)            | `events .】\nL475: \nL476: New in version 6.0.\nL477:`    | web, web.open, web.run, Node REPL                    | Yes (sandbox)  | Node REPL for tail calc; 28% context used; line numbers in output contaminate char count |
-| GPT-5.4 Low            | 505,339 (curl)       | ~126,000      | No (curl); Yes (terminal display ~116K tokens truncated) | `slice-end id="_gatsby-scripts-1" --></body></html>` | web, web.open, curl, python3/urllib                  | Yes (/private/tmp) | Three truncation layers disambiguated; curl escalation at Low    |
-| GPT-5.4 Medium         | 505,339 (curl)       | ~126,000      | No (curl); Yes (terminal display) | `slice-end id="_gatsby-scripts-1" --></body></html>` | web, web.open, curl, python3/urllib              | Yes (/private/tmp) | Near-identical to Low; curl escalation stable across levels       |
-| GPT-5.4 High           | 505,339 (curl)       | ~126,000      | No (curl); Yes (terminal display) | `slice-end id="_gatsby-scripts-1" --></body></html>` | web, web.open, curl, python3                     | Yes (/private/tmp) | DNS sandbox failure on first curl; self-corrected with network escalation |
-| GPT-5.4 Extra High     | 505,339 (curl)       | ~126,000      | No (curl); Yes (terminal display) | `slice-end id="_gatsby-scripts-1" --></body></html>` | web, web.open, curl, python3                     | Yes (/private/tmp) | Session contamination confirmed; 42s runtime from strategy reuse  |
-| GPT-5.5 Low            | 505,339 (curl)       | ~126,335      | No (curl); Yes (terminal display) | `slice-end id="_gatsby-scripts-1" --></body></html>` | curl, wc, tail, file, grep (no web/web.open)     | Yes (/private/tmp) | First run to skip web.open entirely; curl as primary default      |
-| GPT-5.5 Medium         | 505,339 (curl)       | ~126,335      | No (curl); Yes (terminal display) | `slice-end id="_gatsby-scripts-1" --></body></html>` | curl, wc, tail, grep, file (no web/web.open)     | Yes (/private/tmp) | Saves to temp file before measuring; session contamination likely  |
-| GPT-5.5 High           | 505,339 (curl)       | ~126,335      | No (curl); Yes (terminal display) | `slice-end id="_gatsby-scripts-1" --></body></html>` | curl, wc, tail, grep, file (no web/web.open)     | Yes (/private/tmp) | "Fresh fetch" claim contradicted by filename and 20s runtime; contaminated |
-| GPT-5.5 Extra High     | 505,339 (curl)       | ~126,335      | No (curl); Yes (terminal display) | `slice-end id="_gatsby-scripts-1" --></body></html>` | curl, multi_tool_use.parallel, wc, tail, grep, file | Yes (/private/tmp) | Parallel tool execution first observed; context 40K; all 5.5 runs contaminated |
+| Agent | Output chars | Tokens est. | Truncated | Last 50 chars | Tools named | Workspace sub. | Notes |
+| ----- | ------------ | ------------ | ------------ | ------------ | ------------ | -------------- | ------------ |
+| `GPT-5.4-mini Low` | ~19,000 | ~4,500 | Yes mid-page | `* Summary\n * Description\n * Example` | `web`, `web.open` | Unknown | Single fetch; line-windowed excerpt |
+| `GPT-5.4-mini Medium` | ~85,000 | ~20,000 | Yes tool display | `* Summary\n * Description\n * Example` | `web`, `web.open` | Unknown | Multiple view IDs; identical tail to Low |
+| `GPT-5.4-mini High` | ~85,000 | ~21,000 | Yes tool display | `* Summary\n * Description\n * Example` | `web`,`web.open` | Unknown | Fewer tool calls than Medium despite higher level |
+| `GPT-5.4-mini Extra High` | ~85,000 | ~20,000 | Yes tool display | `* Summary\n * Description\n * Example` | `web`,`web.open` | Unknown | 3-part fetch strategy; 85 s runtime; same yield as Medium/High |
+| `GPT-5.2 Low` | ~1,600 `wordlim` | ~250–450 | Yes `wordlim: 200` | `when the change stream uses \n\n` | `web`,`web.open` | Yes empty | First explicit cap mechanism surfaced; cuts mid-page |
+| `GPT-5.2 Medium` | ~24,500 | ~2,000–6,000 | Yes (L477/542) | `New in version 6.0.\n\n` | `web`,`web.open` | Yes, empty | L477 cutoff; agent aware of 65 missing lines, no pagination |
+| `GPT-5.2 High` | 505,339 `curl` | ~126,000 | No `curl`; Yes `web.open` | `slice-end id="_gatsby-scripts-1" --></body></html>` | `web`, `web.open`, `curl`, `wc`, `tail`, `perl`, `python3` | Yes `/private/tmp` | First `curl` escalation; `wordlim: 200` confirmed on `web.open` |
+| `GPT-5.2 Extra High` | 505,339 `curl` | ~126,335 | No (curl); Yes (web.open) | `slice-end id="_gatsby-scripts-1" --></body></html>` | web, web.open, curl, wc, tail, perl, python3 | Yes (/private/tmp) | 18 web searches; no permission prompt; web.open starts at L39 or L216 |
+| `GPT-5.3-Codex Low` | ~28,000–35,000 | ~7,000–9,000 | Yes (~L140) | `page\n * Summary\n * Description\n * Example` | web, web.open, web.find | Yes (sandbox) | Default open→find two-step pattern |
+| `GPT-5.3-Codex Medium` | ~24,500 | ~6,100 | Yes (~L140) | `page\n * Summary\n * Description\n * Example` | web, web.open (lineno=520) | Yes (sandbox) | L140 cut identical to Low; lineno=520 tail fetch; Medium < Low |
+| `GPT-5.3-Codex High` | ~60,000 | ~15,000 | Yes (L477) | `L539: * Summary\nL540: * Description\nL541: * Example` | web, web.open (lineno variants) | Yes (sandbox) | 7 fetches; meta-reasons about ~85KB ceiling; L477 reappears |
+| `GPT-5.3-Codex Extra High` | ~61,000 | ~15,000 | Yes (L477) | `events .】\nL475: \nL476: New in version 6.0.\nL477:` | web, web.open, web.run, Node REPL | Yes (sandbox) | Node REPL for tail calc; 28% context used; line numbers in output contaminate char count |
+| `GPT-5.4 Low` | 505,339 (curl) | ~126,000 | No (curl); Yes (terminal display ~116K tokens truncated) | `slice-end id="_gatsby-scripts-1" --></body></html>` | web, web.open, curl, python3/urllib | Yes (/private/tmp) | Three truncation layers disambiguated; curl escalation at Low |
+| `GPT-5.4 Medium` | 505,339 (curl) | ~126,000 | No (curl); Yes (terminal display) | `slice-end id="_gatsby-scripts-1" --></body></html>` | web, web.open, curl, python3/urllib | Yes (/private/tmp) | Near-identical to Low; curl escalation stable across levels |
+| `GPT-5.4 High` | 505,339 (curl) | ~126,000 | No (curl); Yes (terminal display) | `slice-end id="_gatsby-scripts-1" --></body></html>` | web, web.open, curl, python3 | Yes (/private/tmp) | DNS sandbox failure on first curl; self-corrected with network escalation |
+| `GPT-5.4 Extra High` | 505,339 (curl) | ~126,000 | No (curl); Yes (terminal display) | `slice-end id="_gatsby-scripts-1" --></body></html>` | web, web.open, curl, python3 | Yes (/private/tmp) | Session contamination confirmed; 42 s runtime from strategy reuse |
+| `GPT-5.5 Low` | 505,339 (curl) | ~126,335 | No (curl); Yes (terminal display) | `slice-end id="_gatsby-scripts-1" --></body></html>` | curl, wc, tail, file, grep (no web/web.open) | Yes (/private/tmp) | First run to skip web.open entirely; curl as primary default |
+| `GPT-5.5 Medium` | 505,339 (curl) | ~126,335 | No (curl); Yes (terminal display) | `slice-end id="_gatsby-scripts-1" --></body></html>` | curl, wc, tail, grep, file (no web/web.open) | Yes (/private/tmp) | Saves to temp file before measuring; session contamination likely |
+| `GPT-5.5 High` | 505,339 (curl) | ~126,335 | No (curl); Yes (terminal display) | `slice-end id="_gatsby-scripts-1" --></body></html>` | curl, wc, tail, grep, file (no web/web.open) | Yes (/private/tmp) | "Fresh fetch" claim contradicted by filename and 20 s runtime; contaminated |
+| `GPT-5.5 Extra High` | 505,339 (curl) | ~126,335 | No (curl); Yes (terminal display) | `slice-end id="_gatsby-scripts-1" --></body></html>` | curl, multi_tool_use.parallel, wc, tail, grep, file | Yes (/private/tmp) | Parallel tool execution first observed; context 40K; all 5.5 runs contaminated |
 
 ---
 
 ### `H1`: Character-based truncation at a fixed ceiling
 
-**Partially supported, model-stratified.** Output sizes varied significantly by model and intelligence level rather than converging on a single fixed ceiling. `web.open` imposed a tool-layer ceiling (not infrastructure): ~19K chars for GPT-5.4-mini Low, ~85K for GPT-5.4-mini Medium/High/Extra High, ~1,600 for GPT-5.2 Low (wordlim: 200), ~24.5K for GPT-5.2 Medium, ~28–35K for GPT-5.3-Codex Low, ~60–61K for GPT-5.3-Codex High/Extra High. Models capable of `curl` escalation (GPT-5.2 High+, GPT-5.4 all levels, GPT-5.5 all levels) retrieved 505,339 chars consistently, confirming the true page size and that `web.open` ceilings are tool constraints, not server limits.
+**Partially supported, model-stratified.** Output sizes varied significantly by model and intelligence level rather than converging on a single fixed ceiling. `web.open`
+imposed a tool-layer ceiling not infrastructure: ~19K chars for `GPT-5.4-mini` Low, ~85K for `GPT-5.4-mini` Medium/High/Extra High, ~1,600 for `GPT-5.2 Low` `wordlim: 200`,
+~24.5K for `GPT-5.2` Medium, ~28–35K for `GPT-5.3-Codex` Low, ~60–61K for `GPT-5.3-Codex` High/Extra High. Models capable of `curl` escalation, `GPT-5.2` High+, `GPT-5.4`
+all levels, `GPT-5.5` all levels retrieved 505,339 chars consistently, confirming the true page size and that `web.open` ceilings are tool constraints, not server limits.
 
 **Combined verdict: `H1` partially supported. A ceiling exists within `web.open` but is model- and level-dependent, not a fixed universal limit. `curl` bypasses it entirely.**
 
