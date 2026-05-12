@@ -139,7 +139,7 @@ def collect_interpreted_fields() -> dict:
     return {
         "output_chars": to_int(output_chars),
         "truncated": truncated,
-        "truncation_char_num": to_int(truncation_point),
+        "truncation_point": truncation_point,
         "tokens_est": to_int(tokens),
     }
 

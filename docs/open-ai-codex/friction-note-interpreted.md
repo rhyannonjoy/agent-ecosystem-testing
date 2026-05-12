@@ -47,6 +47,40 @@ contrast pair. `Low` reflects default or minimal reasoning behavior while `High`
 
 ---
 
+## Mixed-Format Source Misidentification, Tool Selection Driver
+
+`BL-2`'s URL leads to a mixed-format file with Markdown text and HTML tags. This pattern was previously observed in
+[Cascade-interpreted track testing](../cognition-windsurf-cascade/friction-note-interpreted.md#mixed-format-source-misidentified),
+where it produced reporting errors as agents flagged format anomalies in their completeness assessments.
+Codex's response to `BL-2` uncovered that misidentification didn't just corrupt the report, it actively drove
+tool selection with measurable cost consequences.
+
+The clearest instance was `GPT-5.4-Mini` `Extra High`, which attempted `Browser use` after determining the
+content was _"buried inside a large HTML document."_ The agent read the embedded HTML table tags as evidence
+that it needed a browser rendering pass to extract the real content, which led to `net::ERR_BLOCKED_BY_CLIENT`.
+The run then fell back to `curl`, which retrieved the same 6,024-char plain-text Markdown body that most runs
+returned, in under a minute, at a fraction of the cost. The `Browser use` attempt consumed 63K context tokens.
+The misidentification added no retrieval value and introduced a tool failure that didn't need to happen.
+
+A subtler version appeared in `GPT-5.4` `Low`, which reported truncation while simultaneously confirming clean
+code fence closure and the correct character count. The sole evidence for truncation was the ~20 KB size expectation
+vs the 6,024-char actual. That expectation was itself inflated by the mixed format: an agent encountering HTML
+table markup inside a `.md` file may model the source as a rendered page with nav chrome rather than a compact raw
+document, producing a larger prior on document size and a lower threshold for declaring the retrieval incomplete.
+
+Across runs, the `ce-create## Summary` heading artifact and the embedded HTML table agents flagged as toolchain
+corruption, parsing failure, or CMS injection. No agent identified these as stable source properties. Without access
+to the raw source for cross-reference, the misidentification isn't recoverable from agent output alone.
+
+### Methodology Decision
+
+Cross-reference agent truncation and formatting assessments against the known source structure before logging. A false
+positive truncation report driven by format mismatch is a distinct finding from a true retrieval ceiling. Where
+misidentification produces tool escalation, not just a bad report, log the escalation path and its context cost as a
+direct consequence of the source format property.
+
+---
+
 ## Session Contamination
 
 Running each intelligence level with an LLM sequentially in the same Codex session in `BL-1` introduced a contamination vector.
@@ -67,6 +101,12 @@ This rules out any possibility of treating intelligence level as an independent 
 gains at higher levels may reflect strategy reuse rather than superior reasoning. The convergence observed across all<br>`GPT-5.4`
 levels - identical character counts, token counts, tools, and last-50 characters, is consistent with both genuine LLM stability
 and session memory flattening real variance. The data itself can't distinguish these from within the session.
+
+`BL-2` results suggested wider contamination as session folders created on the same date, with artifact files present in
+non-sequential sessions: `web-2`, `web-3`, `web-4`, `web-7`, `web-10`, `web-12`, `web-13` and empty folders for
+`web-5`, `web-6`, `web-8`, `web-9`, and `web-11`. The gap pattern doesn't correspond to intelligence level order, ruling
+out sequential contamination as the sole mechanism. Run 14 also reported a workspace path from session `i-m-testing-codex-s-web-11`
+during what should have been a fresh `-web-14` session.
 
 ### Methodology Decision
 
@@ -138,6 +178,43 @@ This suggests that `web.open`-only runs may not be retrieving a truncated versio
 rendered text view optimized for readability rather than byte-faithful retrieval. The `~85 KB` ceiling observed in
 <br>`GPT-5.4-mini Medium/High/Extra High` may reflect the approximate size of that readable content layer rather than an infrastructure retrieval
 limit. Subsequent test cycles may determine whether this holds across other URLs and page types.
+
+---
+
+## Workspace Artifact Nondeterminism
+
+`BL-2` agents produced artifacts unprompted, inconsistently. About half wrote files to the local workspace or `/private/tmp`.
+Agentic naming was also unstable across sessions and LLM versions:
+
+- `GPT-5.2` `Medium`: `BL-2_create.md.html`
+- `GPT-5.2`, `GPT-5.3-Codex` - `High`: `BL-2_create.md`
+- `GPT-5.2` `Extra High`: `bl-2-create.md`
+- `GPT-5.4`, `GPT-5.5` - `High`: `bl2_create.md`
+- `GPT-5.4` `Extra High`: `bl2_mongodb_create.md`
+- `GPT-5.4-Mini` `Medium`: `mongo_create.md`
+- `GPT-5.4 Extra High`: `bl2_headers.txt` with`.md` artifact
+
+The format also shifted across runs: `GPT-5.2` `Medium` saved an HTML extraction while subsequent runs saved Markdown.
+`GPT-5.4` `Extra High` uniquely saved a separate headers file alongside the content artifact. No run produced the same
+filename as another run in the same LLM family without evidence of workspace contamination. Format shifted among the
+output as well in which agents produced reports in half-Markdown, some with syntax highlighting, most of it not.
+
+Artifact presence in the chat output was equally inconsistent. Some runs identified the saved file as a clickable attachment
+in the Codex response panel, but most didn't, even when the shell log confirmed a successful write. The path disclosed in
+surface awareness reports didn't always match the session number - run 14 reported path `i-m-testing-codex-s-web-11` which
+should have been `-web-14`.
+
+This nondeterminism makes artifact presence an unreliable signal for distinguishing fresh retrieval from workspace reads.
+A run that skips `web.open` and goes directly to file operations may reflect a trained tool preference, session contamination,
+or silent reuse of a prior artifact. Whatever the cause, they produced nearly identical report metrics and observations.
+
+### Methodology Decision
+
+Check `/private/tmp` and the session workspace path at run start before any fetch operations. A non-empty workspace at the start
+of a purportedly fresh run is a contamination indicator and log as such. Record artifact filename and format as a contamination
+signal for subsequent runs in the same session. Don't treat artifact absence as evidence that no retrieval occurred. The unprompted
+write behavior is too inconsistent to use as a retrieval proxy. This is exactly the type of complexity the raw track is intended
+to test.
 
 ---
 
