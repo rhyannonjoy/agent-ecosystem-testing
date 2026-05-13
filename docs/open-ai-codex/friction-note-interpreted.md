@@ -55,11 +55,11 @@ where it produced reporting errors as agents flagged format anomalies in their c
 Codex's response to `BL-2` uncovered that misidentification didn't just corrupt the report, it actively drove
 tool selection with measurable cost consequences.
 
-The clearest instance was `GPT-5.4-Mini` `Extra High`, which attempted `Browser use` after determining the
+The clearest instance was `GPT-5.4-Mini` `Extra High`, which attempted `Browser Use` after determining the
 content was _"buried inside a large HTML document."_ The agent read the embedded HTML table tags as evidence
 that it needed a browser rendering pass to extract the real content, which led to `net::ERR_BLOCKED_BY_CLIENT`.
 The run then fell back to `curl`, which retrieved the same 6,024-char plain-text Markdown body that most runs
-returned, in under a minute, at a fraction of the cost. The `Browser use` attempt consumed 63K context tokens.
+returned, in under a minute, at a fraction of the cost. The `Browser Use` attempt consumed 63K context tokens.
 The misidentification added no retrieval value and introduced a tool failure that didn't need to happen.
 
 A subtler version appeared in `GPT-5.4` `Low`, which reported truncation while simultaneously confirming clean
@@ -78,6 +78,56 @@ Cross-reference agent truncation and formatting assessments against the known so
 positive truncation report driven by format mismatch is a distinct finding from a true retrieval ceiling. Where
 misidentification produces tool escalation, not just a bad report, log the escalation path and its context cost as a
 direct consequence of the source format property.
+
+---
+
+## `SC-2` Cross-Ecosystem Divergence
+
+SC-2 targets [a live Anthropic endpoint](https://docs.anthropic.com/en/api/messages) that issues a redirect. The
+destination serves a Next.js client-rendered app shell with nonce-gated scripts and
+`cache-control: no-cache, no-store, must-revalidate`. No agent received the Messages API reference body. The shell
+contained nav scaffolding, inline scripts, and JSON bundles, but no readable documentation text.
+
+Most `GPT`-series agents handled this redirect cleanly and consistently. Most runs that attempted `curl` or `web.open`
+acknowledged the `301` and named the destination correctly. No agent characterized the redirect as failure attributable to
+its own toolchain. Agents treated the redirect as a server property, noted, and incorporated into the two-path fetch strategy
+most runs adopted by `Medium` intelligence level or higher.
+
+[Cascade agents handling the same URL produced a materially different pattern](../cognition-windsurf-cascade/friction-note-interpreted.md#read_url_content-internal-url-rewriting). 
+Agents cited divergent redirect destinations, characterized the behavior as a `read_url_content` internal URL rewriting bug,
+and in the clearest case, `SWE-1.6` identified the mechanism as tool-layer path substitution pre-network call rather than a `301`.
+
+The `GPT` data doesn't entirely resolve that question either, but it does narrow it. `GPT` agents received redirect metadata in their
+tool output and acted on it correctly, which is consistent with `read_url_content` making the network call, receiving the redirect,
+and naming the destination. That pattern fits server-side redirect behavior more cleanly than silent pre-network URL substitution.
+The Cascade characterization may reflect a difference in how `read_url_content` reports redirect information to different agent
+contexts rather than a difference in the underlying network behavior.
+
+### Truncation Consensus
+
+`SC-2`'s URL is a stress test for size, as it
+[led Cascade agents to Anthropic's full docs corpus](../cognition-windsurf-cascade/friction-note-interpreted.md#read_url_content-internal-url-rewriting).
+The outcome instead produced a cross-ecosystem finding about `GPT` truncation reporting consistency.
+
+`GPT` agents converged on the same characterization: `curl` returns a structurally complete HTML shell,
+`web.open` returns a fixed 142-line extraction window that ends at the footer boundary. Different LLM variations
+at different intelligence levels agreed on this framing with very little difference.
+
+[Cascade agents across testing cycles reported truncation very differently](../cognition-windsurf-cascade/friction-note-interpreted.md#truncation-taxonomy) -
+different truncation states, different redirect paths, and characterized failure modes differently across sessions.
+The cross-agent consensus in `GPT` runs versus the cross-agent disagreement in Cascade runs is a meaningful signal
+about how each ecosystem identify tool output to agent context. `GPT` agents may receive more consistent, structured
+tool metadata, including redirect status and response size, enabling convergent self-reporting even when the underlying
+content is identical. Cascade agents may simply fail louder. <br>`SC-2` testing anticipated hard error codes and Codex's
+much more opaque thought panel reasoning may obscure those.
+
+### Methodology Decision
+
+Log the `docs.anthropic.com` → `platform.claude.com` redirect as a confirmed server-side `301` based on `GPT`-track header
+evidence from run 8, which captured the full HTTP response chain. Treat Cascade's tool-layer rewriting characterization as
+an agent hypothesis, not a confirmed finding, consistent with the existing redirect section's framing. Where future runs
+against this URL produce divergent redirect descriptions across agents or ecosystems, treat the divergence as a signal about
+tool output consistency or failure recovery, rather than a signal about the URL's behavior.
 
 ---
 
@@ -108,10 +158,21 @@ non-sequential sessions: `web-2`, `web-3`, `web-4`, `web-7`, `web-10`, `web-12`,
 out sequential contamination as the sole mechanism. Run 14 also reported a workspace path from session `i-m-testing-codex-s-web-11`
 during what should have been a fresh `-web-14` session.
 
+`SC-2` agents read local directories like the `codex-browser-use` expecting skill content that no prior run had populated.
+No agent flagged the empty read or attempted an alternative escalation path. Artifact reuse produces false efficiency, a later run
+may find a prior run's file and skip the fetch. The empty skill read produces false preparation, an agent performs a setup step,
+receives nothing, and continues as if the setup succeeded. `SC-2` runs with a `web.open`-only result with no `curl` escalation
+may reflect the missing browser skill context rather than a deliberate strategic choice.
+
+The pattern suggests that skill directory reads function as a retrieval signal: when the directory contains content, the agent
+incorporates it into its strategy. When the directory is empty, the agent defaults to its base behavior. Neither run documented the
+empty read as a signal or adjusted its approach in response.
+
 ### Methodology Decision
 
 Run each intelligence level in a fresh Codex session. Where session isolation is impractical, run levels in ascending order to
 ensure at least the `Low` run's uncontaminated, and flag all subsequent runs in the same session with a contamination qualifier.
+Log empty skill directory reads as a contamination-adjacent event distinct from artifact reuse and flag affected runs accordingly.
 Don't interpret runtime compression or strategy convergence at higher levels as evidence of capability without ruling out context
 inheritance. Filenames written to the sandbox by earlier runs are a particularly reliable contamination signal: if a later run
 references a file it didn't create in its own tool call log, the session likely contaminated.
@@ -174,10 +235,25 @@ for every measurement in the interpreted track:
 > partially normalized page view (`Total lines: 542`) centered on readable content,
 > while a direct terminal fetch returned the full HTML."_
 
-This suggests that `web.open`-only runs may not be retrieving a truncated version of the page so much as a different artifact entirely, a
-rendered text view optimized for readability rather than byte-faithful retrieval. The `~85 KB` ceiling observed in
-<br>`GPT-5.4-mini Medium/High/Extra High` may reflect the approximate size of that readable content layer rather than an infrastructure retrieval
-limit. Subsequent test cycles may determine whether this holds across other URLs and page types.
+This suggests that `web.open`-only runs may not be retrieving a truncated version of the page so much as a different artifact entirely,
+a rendered text view optimized for readability rather than byte-faithful retrieval. The `~85 KB` ceiling observed in
+<br>`GPT-5.4-Mini Medium/High/Extra High` may reflect the approximate size of that readable content layer rather than an infrastructure
+retrieval limit. `SC-2` produced a precise internal structure map of a `web.open` 142-line extraction window:
+
+| **Zone** | **Lines** | **Content** |
+| --- | --- | --- |
+| **Nav Header** | L0–L22 | Site navigation, search, login, API reference label |
+| **`Loading...` Placeholder Block** | L23–L84 | Repeated `Loading...` entries, no content |
+| **Footer, Nav Links** | L85–L141 | Solutions, Partners, Company, Terms and policies, Usage policy |
+
+Run 16 mapped the `Loading...` block to L28–L84. Run 20 confirmed `Loading...` starts at L23. The terminal boundary across all runs was
+`Terms and policies → Usage policy`, which multiple agents named explicitly as the last visible content. No agent observed a mid-line cut or
+an arbitrary byte boundary within this window.
+
+This structure identifies the 142-line ceiling as a fixed extraction window property rather than a content-driven truncation event. The window
+captures a pre-hydration snapshot of the page: the content that exists in the raw HTML before client-side JavaScript executes. The nonce-based
+CSP confirmed in run 8's headers file suggests that each script tag carries a per-request nonce that the extractor doesn't hold authorization
+to run. The `Loading...` placeholders may not be a retrieval failure, but represent the page's own loading state at the moment of extraction.
 
 ---
 
