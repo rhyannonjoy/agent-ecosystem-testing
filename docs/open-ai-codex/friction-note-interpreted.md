@@ -196,7 +196,12 @@ self-reports. `GPT-5.4 Low` was the first run to cleanly separate all three: sep
 from the terminal display truncation from the actual HTTP body, and correctly identified the body as complete while
 reporting truncation in the other layers.
 
-The three-layer LLM has a practical implication for hypothesis assessment. `H1` and `H2` character and token ceilings
+`OP-1` run 16 introduced a type of pagination-completion false negative. The agent successfully paginated `web.open` output
+to L1863 and reported no truncation, reasoning that the full document was accessible. Technically accurate on one level, but
+misleading as a truncation assessment. `OP-1` `web.open` calls only returned a windowed slice, never retrieving the document
+as a contiguous payload.
+
+Three-layer truncation has a practical implications for hypothesis assessment. `H1` and `H2` character and token ceilings
 are only testable against the HTTP response body layer. Assessments made against `web.open` output measure the viewer window,
 not the retrieval ceiling. Runs that didn't escalate to `curl` can't meaningfully contribute to `H1` or `H2` verdicts
 with the same confidence as runs that did.
@@ -210,7 +215,7 @@ distinction is already recoverable from the tools named column without additiona
 
 ---
 
-## `web.open` Line-Indexed Viewer, Not Raw Fetch
+## `web.open` Line-Indexed Viewer
 
 `web.open` doesn't return a raw HTTP response body. It returns a line-indexed, rendered text extraction: a processed view of the page
 with line numbers injected, HTML stripped, and a viewer window applied that doesn't necessarily start at line 0. The distinction matters
@@ -254,6 +259,13 @@ This structure identifies the 142-line ceiling as a fixed extraction window prop
 captures a pre-hydration snapshot of the page: the content that exists in the raw HTML before client-side JavaScript executes. The nonce-based
 CSP confirmed in run 8's headers file suggests that each script tag carries a per-request nonce that the extractor doesn't hold authorization
 to run. The `Loading...` placeholders may not be a retrieval failure, but represent the page's own loading state at the moment of extraction.
+
+`OP-1` confirmed a second document-specific window boundary. The `web.open` extraction consistently terminated at L552 across
+runs 7, 8, 11, 12, 15, 18, and 20, spanning `GPT-5.3-Codex` through `GPT-5.5`. The content landmark at this boundary was stable: the Data
+compression section ending on mark for `"general intelligence".[24][25][26]`. The `wordlim: 200` parameter visible in tool metadata across runs
+is the likely control variable, with L305 and L552 representing consecutive 200-line window positions from the rendered document. The
+[URL fragment #History](https://en.wikipedia.org/wiki/Machine_learning#History) was silently stripped by `web.open` on every run, with the tool
+returning the full page from L0 regardless of the fragment target.
 
 ---
 
