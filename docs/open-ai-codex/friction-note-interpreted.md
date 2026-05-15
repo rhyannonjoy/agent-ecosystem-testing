@@ -158,15 +158,12 @@ non-sequential sessions: `web-2`, `web-3`, `web-4`, `web-7`, `web-10`, `web-12`,
 out sequential contamination as the sole mechanism. Run 14 also reported a workspace path from session `i-m-testing-codex-s-web-11`
 during what should have been a fresh `-web-14` session.
 
-`SC-2` agents read local directories like the `codex-browser-use` expecting skill content that no prior run had populated.
-No agent flagged the empty read or attempted an alternative escalation path. Artifact reuse produces false efficiency, a later run
-may find a prior run's file and skip the fetch. The empty skill read produces false preparation, an agent performs a setup step,
-receives nothing, and continues as if the setup succeeded. `SC-2` runs with a `web.open`-only result with no `curl` escalation
-may reflect the missing browser skill context rather than a deliberate strategic choice.
-
-The pattern suggests that skill directory reads function as a retrieval signal: when the directory contains content, the agent
-incorporates it into its strategy. When the directory is empty, the agent defaults to its base behavior. Neither run documented the
-empty read as a signal or adjusted its approach in response.
+`SC-2` agents report access to `private/tmp` and appear to read `/codex-browser-use`, possibly expecting skill content that no prior
+run had populated. It's more likely that these aren't agent-initiated reads. `/tmp/codex-browser-use` is the Codex Desktop app's
+IPC, inter-process communication socket path for its `Browser Use` backend, initialized at launch regardless of whether the prompt
+includes `@Browser`. The app touches this directory, not the agent. Attributing the empty read to agent preparation behavior
+misidentifies infrastructure activity as agentic intent. Affected runs should be re-examined for whether the missing browser skill
+context hypothesis holds if the agent never issued the read.
 
 ### Methodology Decision
 
@@ -332,8 +329,11 @@ from learned behavior, session memory, or finding a prior run's cached file.
 
 ### Methodology Decision
 
-Log workspace disclosure as a surface characteristic, not a test anomaly. Distinguish passive disclosure from active artifact creation
-in the tool visibility field. For runs where measurements derive from sandbox artifacts rather than direct tool output, document it in
-the notes column, as the measurement methodology differs from `web.open`-only runs and the two aren't directly comparable. For fresh-session
-verification, check whether `/private/tmp` is empty at run start; a non-empty `/private/tmp` at the beginning of a purportedly fresh run is
-a contamination indicator.
+Log workspace disclosure as a surface characteristic, not a test anomaly. Distinguish passive disclosure from active artifact
+creation in the tool visibility field. For runs where measurements derive from sandbox artifacts rather than direct tool output,
+document it in the notes column, as the measurement methodology differs from `web.open`-only runs and the two aren't directly
+comparable. For fresh-session verification, check whether `/private/tmp` is empty at run start. While a non-empty `/private/tmp` at
+the beginning of a purportedly fresh run is a contamination indicator, exclude `codex-browser-use` from the assessment. Its presence
+reflects desktop initialization, not a prior agent run's artifact. A non-empty `codex-browser-use` at run start identifies the
+deployment surface, but isn't a contamination signal. It's passive evidence of normal app initialization for that run, which is
+consistent with genuine fresh session behavior rather than retrieval theater.
