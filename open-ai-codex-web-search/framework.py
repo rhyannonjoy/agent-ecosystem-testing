@@ -111,12 +111,19 @@ TEST_URLS = {
         "category": "offset_pagination",
         "note": "Tests if Codex jumps to specific section via URL fragment",
     },
-    "OP-4": {
-        "name": "Large document - agent auto-chunking test",
-        "url": "https://www.mongodb.com/docs/atlas/atlas-search/tutorial/",
-        "expected_size_kb": 250,
+    "OP-2": {
+        "name": "Medium structured reference page (normal chunking range)",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array",
+        "expected_size_kb": 120,
         "category": "offset_pagination",
-        "note": "Same as BL-3; tests if Codex auto-paginates after truncation",
+        "note": "MDN Array reference of midrange size; structured with headings and code blocks throughout",
+   },
+    "OP-4": {
+        "name": "Large single-page spec (auto-chunking above BL-3 ceiling)",
+        "url": "https://spec.commonmark.org/0.31.2/",
+        "expected_size_kb": 500,
+        "category": "offset_pagination",
+        "note": "CommonMark spec; versioned stable URL; above BL-3 ceiling; structured with headings and code blocks throughout",
     },
 
     # --- EDGE CASE TESTS, EC ---
