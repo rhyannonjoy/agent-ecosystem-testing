@@ -1,0 +1,18 @@
+Agent: GPT-5.2 Low
+Version: Codex 26.513.20950 (2816)
+
+Prompt: Explain @Browser to me please, is it required to read pages on the web?
+
+Output:
+
+`@Browser` is the in-app browser automation plugin for Codex.
+It lets me *interact with a live web page* (or `http://localhost` apps) the way a user would: open a URL,
+click links/buttons, type into fields, scroll, inspect what’s on the page, and take screenshots.
+
+It’s **not required** to “read pages on the web” in general:
+- If you just want information from the public internet, I can use the `web` tool (search/open/click) to fetch
+  page text and cite sources.
+- Use `@Browser` when you need *real browsing behavior* (dynamic/JS-rendered content, forms, logins, UI flows,
+  verifying how a page looks/behaves, or testing a local site like `http://localhost:3000`).
+
+So: `@Browser` is optional, and it’s mainly for interactive, visual, or dynamic web tasks—not for every web read.
