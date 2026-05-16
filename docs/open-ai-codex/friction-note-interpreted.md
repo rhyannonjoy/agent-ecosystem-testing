@@ -264,6 +264,19 @@ is the likely control variable, with L305 and L552 representing consecutive 200-
 [URL fragment #History](https://en.wikipedia.org/wiki/Machine_learning#History) was silently stripped by `web.open` on every run, with the tool
 returning the full page from L0 regardless of the fragment target.
 
+`OP-2` results offered more architectural precision. Codex's `web.open` is a single-view tool with optional manual pagination. The agent receives
+a windowed excerpt and must infer incompleteness from metadata visible in the tool output, primarily the gap between `Total lines: 1269` and lines
+actually received. Whether it issues a `lineno` offset call to advance the window depends entirely on whether it notices and acts on that gap.
+Pagination is an emergent reasoning behavior, but not an architectural guarantee.
+
+For comparison, [Cascade's retrieval architecture](../cognition-windsurf-cascade/friction-note-interpreted.md#read_url_content---fetch-architecture-parsing-limits)
+separates the decision layer from the read layer: a first fetch returns a chunk index with summaries, and the agent decides whether individual chunks
+are worth reading based on document size and signal-to-noise. The decision to paginate is structural rather than inferred.
+
+The practical consequence is that Codex pagination is reactive and intelligence-level-sensitive. Runs that paginated did so because the agent reasoned
+past the default view. Runs that didn't, didn't notice, or escalated to `curl` instead. The `curl` escape produces a complete retrieval but bypasses
+the `web.open` layer entirely, meaning full-document access in Codex is either a reasoning success or a tool substitution, never a default outcome.
+
 ---
 
 ## Workspace Artifact Nondeterminism
