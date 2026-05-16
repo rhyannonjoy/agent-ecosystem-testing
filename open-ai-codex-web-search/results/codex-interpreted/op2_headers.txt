@@ -1,0 +1,33 @@
+15th run GPT.5.4 High
+
+HTTP/2 200 
+x-goog-generation: 1778894459445561
+cache-control: public, max-age=3600
+expires: Sat, 16 May 2026 05:15:35 GMT
+content-security-policy: default-src 'self'; script-src 'report-sample' 'self' 'wasm-unsafe-eval' assets.codepen.io production-assets.codepen.io https://js.stripe.com transcend-cdn.com 'sha256-XNBp89FG76amD8BqrJzyflxOF9PaWPqPqvJfKZPCv7M=' 'sha256-YCNoU9DNiinACbd8n6UPyB/8vj0kXvhkOni9/06SuYw=' 'sha256-PZjP7OR6mBEtnvXIZfCZ5PuOlxoDF1LDZL8aj8c42rw='; script-src-elem 'report-sample' 'self' 'wasm-unsafe-eval' assets.codepen.io production-assets.codepen.io https://js.stripe.com transcend-cdn.com 'sha256-XNBp89FG76amD8BqrJzyflxOF9PaWPqPqvJfKZPCv7M=' 'sha256-YCNoU9DNiinACbd8n6UPyB/8vj0kXvhkOni9/06SuYw=' 'sha256-PZjP7OR6mBEtnvXIZfCZ5PuOlxoDF1LDZL8aj8c42rw='; style-src 'report-sample' 'self' 'unsafe-inline' transcend-cdn.com; object-src 'none'; base-uri 'self'; connect-src 'self' developer.allizom.org bcd.developer.allizom.org bcd.developer.mozilla.org updates.developer.allizom.org updates.developer.mozilla.org https://incoming.telemetry.mozilla.org https://observatory-api.mdn.allizom.net https://observatory-api.mdn.mozilla.net telemetry.transcend.io telemetry.us.transcend.io transcend-cdn.com https://api.github.com/search/issues https://api.stripe.com; font-src 'self'; frame-src 'self' mdn.github.io *.mdnplay.dev *.mdnyalp.dev *.play.test.mdn.allizom.net https://v2.scrimba.com https://scrimba.com jsfiddle.net www.youtube-nocookie.com codepen.io survey.alchemer.com https://js.stripe.com; img-src 'self' data: *.githubusercontent.com *.gravatar.com mozillausercontent.com firefoxusercontent.com profile.stage.mozaws.net profile.accounts.firefox.com developer.mozilla.org mdn.dev wikipedia.org upload.wikimedia.org https://mdn.github.io/shared-assets/ https://mdn.dev/; manifest-src 'self'; media-src 'self' archive.org videos.cdn.mozilla.net https://mdn.github.io/shared-assets/; child-src 'self'; worker-src 'self';
+etag: "af79a5ecae6b1ea33a9040a754632174"
+last-modified: Sat, 16 May 2026 01:20:59 GMT
+x-goog-meta-goog-reserved-file-mtime: 1778893706
+x-goog-hash: crc32c=HNJ1ug==, md5=r3ml7K5rHqM6kECnVGMhdA==
+x-frame-options: DENY
+x-goog-stored-content-encoding: identity
+x-guploader-uploadid: AAVLpEigbbDSkAVHmJI4tZFULTtoMHVOaoFFRFIZeH0lsjv6KTUAIZH0RwYJPisdKR8A2rgjB49qwTI
+x-content-type-options: nosniff
+server: Google Frontend
+content-type: text/html
+via: 1.1 google, 1.1 varnish, 1.1 varnish
+x-goog-metageneration: 1
+x-goog-storage-class: STANDARD
+x-cloud-trace-context: 582628537fc0ef3da4afdecf5569e93c
+x-goog-stored-content-length: 240508
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=63072000
+accept-ranges: bytes
+date: Sat, 16 May 2026 04:20:05 GMT
+age: 270
+x-served-by: cache-bfi-kbfi7400077-BFI, cache-bfi-kbfi7400077-BFI, cache-bfi-krnt7300036-BFI
+x-cache: MISS, HIT
+x-cache-hits: 0, 1
+x-timer: S1778905206.665391,VS0,VE2
+vary: Accept-Encoding
+content-length: 240508

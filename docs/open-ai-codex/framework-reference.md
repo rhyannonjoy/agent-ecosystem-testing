@@ -170,12 +170,13 @@ cd open-ai-codex-web-search
 | **Test IDs** | **Purpose** | **Key Question** |
 | --- | --- | --- |
 | `BL-1`<br>`BL-2` | Baseline truncation threshold<br>on small pages | _What is the T1 vs T2 surface delta?_ |
-| `SC-2` | Code blocks,<br>API documentation | _How does the web toolchain handle code structure?_ |
-| `OP-1` | Fragment identifier<br>navigation | _Does Codex jump to a specific section via URL fragment?_ |
-| `OP-4` | Auto-chunking above<br>the `BL-3` ceiling | _Does the agent fetch with multi-step tool chains?_ |
+| `SC-2` | API docs - code blocks | _How does the web toolchain handle code structure?_ |
+| `OP-1` | Fragment identifier navigation | _Does Codex jump to a specific section via URL fragment?_ |
+| `OP-2` | Midrange reference - <br>headings, code blocks | _Does behavior change at midrange size with structured content?_ |
+| `OP-4` | Auto-chunking above<br> `BL-3` ceiling | _Does the agent fetch with multi-step tool chains?_ |
 | `BL-3` | Hard ceiling | _What is the absolute output limit across retrieval runs?_ |
-| `SC-1`<br>`SC-3`<br>`SC-4` | Structured content | _Does truncation respect Markdown boundaries?_ |
-| `EC-1`<br>`EC-3`<br>`EC-6` | Edge cases | _What are the failure modes and workspace substitution edge behaviors?_ |
+| `SC-1`<br>`SC-3`<br>`SC-4` | Structured content -<br>API docs, table-heavy,<br>nested headings | _Does truncation respect Markdown boundaries?_ |
+| `EC-1`<br>`EC-3`<br>`EC-6` | Edge cases - Markdown<br>line-wrapping, JSON redirect,<br>SPA | _What are the failure modes and workspace substitution edge behaviors?_ |
 
 >_Rename raw output files to capture variance across runs; if results are
 >consistent, remove files to prevent test contamination between runs_
