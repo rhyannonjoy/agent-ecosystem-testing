@@ -273,9 +273,14 @@ For comparison, [Cascade's retrieval architecture](../cognition-windsurf-cascade
 separates the decision layer from the read layer: a first fetch returns a chunk index with summaries, and the agent decides whether individual chunks
 are worth reading based on document size and signal-to-noise. The decision to paginate is structural rather than inferred.
 
-The practical consequence is that Codex pagination is reactive and intelligence-level-sensitive. Runs that paginated did so because the agent reasoned
-past the default view. Runs that didn't, didn't notice, or escalated to `curl` instead. The `curl` escape produces a complete retrieval but bypasses
-the `web.open` layer entirely, meaning full-document access in Codex is either a reasoning success or a tool substitution, never a default outcome.
+The metric requests in the prompt likely accelerate `curl` escalation. When the agent is asked for character and token counts, `curl` becomes the more
+direct path to accurate answers than paginating through rendered text windows. The measurement task may actively displace reading behavior: agents become
+more concerned with metric accuracy than content coverage, and `curl` satisfies both requirements in a single fetch. Pagination is most likely to occur
+when the agent has no easier path to the numbers.
+
+The practical consequence is that full-document access in Codex is either a reasoning success or a tool substitution, never a default outcome. `web.open`
+pagination requires the agent to notice the gap between `Total lines` reported and lines received, and to treat that gap as worth resolving. `curl` requires
+only that the agent decides measurement accuracy matters more than the tool it started with.
 
 ---
 
