@@ -268,7 +268,7 @@ returning the full page from `L0` regardless of the fragment target.
 
 `OP-4` added new cutpoints for the [CommonMark Spec](https://spec.commonmark.org/0.31.2/): `L237` as the dominant first-fetch boundary across
 `GPT-5.2` through `GPT-5.4`, and `L616` appearing at `GPT-5.5 Extra High` and `GPT-5.4-Mini Extra High`; suggesting the cutpoint as
-document-correlated and version-correlated rather than fixed; illustrating a type of version axis with lower cutpoints on older LLM versions and
+document and version-correlated rather than fixed; illustrating a type of version axis with lower cutpoints on older LLM versions and
 higher on newer.
 
 `OP-2` results offered more architectural precision. Codex's `web.open` is a single-view tool with optional manual pagination. The agent receives
