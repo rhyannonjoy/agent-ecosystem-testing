@@ -1,5 +1,5 @@
 17th run GPT-5.5 Low
-Didn't add .txt
+Originally called "mdn_array_op2.headers" (no file type added)
 
 HTTP/2 200 
 x-goog-storage-class: STANDARD
