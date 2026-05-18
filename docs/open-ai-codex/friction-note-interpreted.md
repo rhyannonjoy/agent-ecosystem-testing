@@ -12,14 +12,14 @@ parent: OpenAI Codex
 ## LLM × Intelligence Matrix
 
 Codex exposes a two-dimensional agent configuration space unique among the platforms tested: five LLM variants
-<br>`GPT-5.2`, `GPT-5.3-Codex`, `GPT-5.4-mini`, `GPT-5.4`, and `GPT-5.5` each available at four intelligence levels `Low`,
+<br>`GPT-5.2`, `GPT-5.3-Codex`, `GPT-5.4-Mini`, `GPT-5.4`, and `GPT-5.5` each available at four intelligence levels `Low`,
 `Medium`, `High`, and `Extra High`. Coverage of the matrix produces 20 runs per test ID compared to this
 collection's standard five.
 
 The combinatorial cost produces more overhead, but collapsing the matrix introduces a different problem. Intelligence
 level isn't a passive configuration, but materially changes retrieval strategy, tool selection, runtime, and in some
 cases output quality. `GPT-5.2` required `High` intelligence to escalate to `curl` while `GPT-5.4` did so at `Low`.
-`GPT-5.4-mini Extra High` spent 85 seconds on a three-part fetch strategy that produced the same yield as a 24-second
+`GPT-5.4-Mini Extra High` spent 85 seconds on a three-part fetch strategy that produced the same yield as a 24-second
 single-fetch at `Medium`. Sampling one or two levels per LLM would have missed these divergences entirely.
 
 [Codex's documentation](https://developers.openai.com/api/docs/guides/latest-model) offers a relevant caution about
@@ -30,7 +30,7 @@ intelligence levels, stated for `GPT-5.5` but applicable generally:
 > to overthinking, unnecessary searching, or output quality regressions. Increase effort
 > only when evals show a measurable quality gain."_
 
-`BL-1` data confirms this empirically. `Extra High` produced cost/yield regressions in both `GPT-5.4-mini` and
+`BL-1` data confirms this empirically. `Extra High` produced cost/yield regressions in both `GPT-5.4-Mini` and
 `GPT-5.3-Codex`: more tool calls, longer runtimes, and identical or lower output quality compared to `Medium` or `High`.
 The retrieval task has weak stopping criteria by design. The prompt asks for measurements, not a specific content target.
 `web` provides open-ended tool access with no built-in completion signal, risking LLM overthinking.
@@ -83,7 +83,7 @@ direct consequence of the source format property.
 
 ## `SC-2` Cross-Ecosystem Divergence
 
-SC-2 targets [a live Anthropic endpoint](https://docs.anthropic.com/en/api/messages) that issues a redirect. The
+`SC-2` targets [a live Anthropic endpoint](https://docs.anthropic.com/en/api/messages) that issues a redirect. The
 destination serves a Next.js client-rendered app shell with nonce-gated scripts and
 `cache-control: no-cache, no-store, must-revalidate`. No agent received the Messages API reference body. The shell
 contained nav scaffolding, inline scripts, and JSON bundles, but no readable documentation text.
@@ -93,7 +93,7 @@ acknowledged the `301` and named the destination correctly. No agent characteriz
 its own toolchain. Agents treated the redirect as a server property, noted, and incorporated into the two-path fetch strategy
 most runs adopted by `Medium` intelligence level or higher.
 
-[Cascade agents handling the same URL produced a materially different pattern](../cognition-windsurf-cascade/friction-note-interpreted.md#read_url_content-internal-url-rewriting). 
+[Cascade agents handling the same URL produced a materially different pattern](../cognition-windsurf-cascade/friction-note-interpreted.md#read_url_content-internal-url-rewriting).
 Agents cited divergent redirect destinations, characterized the behavior as a `read_url_content` internal URL rewriting bug,
 and in the clearest case, `SWE-1.6` identified the mechanism as tool-layer path substitution pre-network call rather than a `301`.
 
@@ -191,10 +191,12 @@ before any truncation assessment logging:
 Early `web.open`-only runs conflated all three layers into a single truncation field, producing unreliable
 self-reports. `GPT-5.4 Low` was the first run to cleanly separate all three: separating the `web.open` viewer window
 from the terminal display truncation from the actual HTTP body, and correctly identified the body as complete while
-reporting truncation in the other layers.
+reporting truncation in the other layers. At least one later run confirmed the terminal display truncation layer as observable:
+`OP-4`'s `GPT-5.4 Extra High` produced an explicit `…124,675 tokens truncated…` marker in tool output mid-stream, with
+the saved file confirmed complete.
 
 `OP-1` run 16 introduced a type of pagination-completion false negative. The agent successfully paginated `web.open` output
-to L1863 and reported no truncation, reasoning that the full document was accessible. Technically accurate on one level, but
+to `L1863` and reported no truncation, reasoning that the full document was accessible. Technically accurate on one level, but
 misleading as a truncation assessment. `OP-1` `web.open` calls only returned a windowed slice, never retrieving the document
 as a contiguous payload.
 
@@ -244,11 +246,11 @@ retrieval limit. `SC-2` produced a precise internal structure map of a `web.open
 
 | **Zone** | **Lines** | **Content** |
 | --- | --- | --- |
-| **Nav Header** | L0–L22 | Site navigation, search, login, API reference label |
-| **`Loading...` Placeholder Block** | L23–L84 | Repeated `Loading...` entries, no content |
-| **Footer, Nav Links** | L85–L141 | Solutions, Partners, Company, Terms and policies, Usage policy |
+| **Nav Header** | `L0–L22` | Site navigation, search, login, API reference label |
+| **`Loading...` Placeholder Block** | `L23–L84` | Repeated `Loading...` entries, no content |
+| **Footer, Nav Links** | `L85–L141` | Solutions, Partners, Company, Terms and policies, Usage policy |
 
-Run 16 mapped the `Loading...` block to L28–L84. Run 20 confirmed `Loading...` starts at L23. The terminal boundary across all runs was
+Run 16 mapped the `Loading...` block to `L28–L84`. Run 20 confirmed `Loading...` starts at `L23`. The terminal boundary across all runs was
 `Terms and policies → Usage policy`, which multiple agents named explicitly as the last visible content. No agent observed a mid-line cut or
 an arbitrary byte boundary within this window.
 
@@ -257,12 +259,17 @@ captures a pre-hydration snapshot of the page: the content that exists in the ra
 CSP confirmed in run 8's headers file suggests that each script tag carries a per-request nonce that the extractor doesn't hold authorization
 to run. The `Loading...` placeholders may not be a retrieval failure, but represent the page's own loading state at the moment of extraction.
 
-`OP-1` confirmed a second document-specific window boundary. The `web.open` extraction consistently terminated at L552 across
+`OP-1` confirmed a second document-specific window boundary. The `web.open` extraction consistently terminated at `L552` across
 runs 7, 8, 11, 12, 15, 18, and 20, spanning `GPT-5.3-Codex` through `GPT-5.5`. The content landmark at this boundary was stable: the Data
 compression section ending on mark for `"general intelligence".[24][25][26]`. The `wordlim: 200` parameter visible in tool metadata across runs
-is the likely control variable, with L305 and L552 representing consecutive 200-line window positions from the rendered document. The
+is the likely control variable, with `L305` and `L552` representing consecutive 200-line window positions from the rendered document. The
 [URL fragment #History](https://en.wikipedia.org/wiki/Machine_learning#History) was silently stripped by `web.open` on every run, with the tool
-returning the full page from L0 regardless of the fragment target.
+returning the full page from `L0` regardless of the fragment target.
+
+`OP-4` added new cutpoints for the [CommonMark Spec](https://spec.commonmark.org/0.31.2/): `L237` as the dominant first-fetch boundary across
+`GPT-5.2` through `GPT-5.4`, and `L616` appearing at `GPT-5.5 Extra High` and `GPT-5.4-Mini Extra High`; suggesting the cutpoint as
+document and version-correlated rather than fixed; illustrating a type of version axis with lower cutpoints on older LLM versions and
+higher on newer.
 
 `OP-2` results offered more architectural precision. Codex's `web.open` is a single-view tool with optional manual pagination. The agent receives
 a windowed excerpt and must infer incompleteness from metadata visible in the tool output, primarily the gap between `Total lines: 1269` and lines
@@ -273,7 +280,7 @@ For comparison, [Cascade's retrieval architecture](../cognition-windsurf-cascade
 separates the decision layer from the read layer: a first fetch returns a chunk index with summaries, and the agent decides whether individual chunks
 are worth reading based on document size and signal-to-noise. The decision to paginate is structural rather than inferred.
 
-The metric requests in the prompt likely accelerate `curl` escalation. When the agent is asked for character and token counts, `curl` becomes the more
+The metric requests likely accelerate `curl` escalation. When prompts ask the agent for character and token counts, `curl` becomes the more
 direct path to accurate answers than paginating through rendered text windows. The measurement task may actively displace reading behavior: agents become
 more concerned with metric accuracy than content coverage, and `curl` satisfies both requirements in a single fetch. Pagination is most likely to occur
 when the agent has no easier path to the numbers.
@@ -286,8 +293,8 @@ only that the agent decides measurement accuracy matters more than the tool it s
 
 ## Workspace Artifact Nondeterminism
 
-`BL-2` agents produced artifacts unprompted, inconsistently. About half wrote files to the local workspace or `/private/tmp`.
-Agentic naming was also unstable across sessions and LLM versions:
+`BL-2` agents produced artifacts unprompted, inconsistently. About half wrote files to the local workspace or `/private/tmp`, which
+only stores artifacts for a day at a time. Agentic naming was also unstable across sessions and LLM versions:
 
 - `GPT-5.2` `Medium`: `BL-2_create.md.html`
 - `GPT-5.2`, `GPT-5.3-Codex` - `High`: `BL-2_create.md`
@@ -297,8 +304,8 @@ Agentic naming was also unstable across sessions and LLM versions:
 - `GPT-5.4-Mini` `Medium`: `mongo_create.md`
 - `GPT-5.4 Extra High`: `bl2_headers.txt` with`.md` artifact
 
-The format also shifted across runs: `GPT-5.2` `Medium` saved an HTML extraction while subsequent runs saved Markdown.
-`GPT-5.4` `Extra High` uniquely saved a separate headers file alongside the content artifact. No run produced the same
+The format also shifted across runs: `GPT-5.2 Medium` saved an HTML extraction while subsequent runs saved Markdown.
+`GPT-5.4 Extra High` uniquely saved a separate headers file alongside the content artifact. No run produced the same
 filename as another run in the same LLM family without evidence of workspace contamination. Format shifted among the
 output as well in which agents produced reports in half-Markdown, some with syntax highlighting, most of it not.
 
@@ -306,6 +313,9 @@ Artifact presence in the chat output was equally inconsistent. Some runs identif
 in the Codex response panel, but most didn't, even when the shell log confirmed a successful write. The path disclosed in
 surface awareness reports didn't always match the session number - run 14 reported path `i-m-testing-codex-s-web-11` which
 should have been `-web-14`.
+
+`OP-4` produced the clearest collision in the dataset: `commonmark-0.31.2.html` used by `GPT-5.4 High` and all `GPT-5.5` runs
+across consecutive sessions. Whether each run wrote a fresh file or read a prior artifact is unresolvable on the interpreted track.
 
 This nondeterminism makes artifact presence an unreliable signal for distinguishing fresh retrieval from workspace reads.
 A run that skips `web.open` and goes directly to file operations may reflect a trained tool preference, session contamination,
@@ -316,7 +326,7 @@ or silent reuse of a prior artifact. Whatever the cause, they produced nearly id
 Check `/private/tmp` and the session workspace path at run start before any fetch operations. A non-empty workspace at the start
 of a purportedly fresh run is a contamination indicator and log as such. Record artifact filename and format as a contamination
 signal for subsequent runs in the same session. Don't treat artifact absence as evidence that no retrieval occurred. The unprompted
-write behavior is too inconsistent to use as a retrieval proxy. This is exactly the type of complexity the raw track is intended
+write behavior is too inconsistent to use as a retrieval proxy. This is exactly the type of complexity the raw track intends
 to test.
 
 ---
@@ -340,8 +350,8 @@ pattern. The artifact-then-measure approach produces more accurate character cou
 also means later runs in the same session may find artifacts from earlier runs in the sandbox, compounding
 [the session contamination problem](#session-contamination).
 
-A subtler form appeared in the `GPT-5.5` runs: the agents executed no `web` or `web.open` calls at all, going directly to `curl`
-and local file operations. The data alone can't determine whether this reflects `GPT-5.5`'s trained preferences, session-inherited
+`GPT-5.5` agents executed no `web` calls at all, going directly to `curl` and local file operations, suggesting that agents may not
+be discovering issues fresh. The data alone can't determine whether this reflects `GPT-5.5`'s trained preferences, session-inherited
 strategy, or awareness of prior artifacts in the sandbox. The outcome, correct retrieval with terminal tools, is indistinguishable
 from learned behavior, session memory, or finding a prior run's cached file.
 
