@@ -168,20 +168,20 @@ the `GPT-5.4` family for this test.
 | `GPT-5.2 Low` | Partial | `PARTIAL - web_open_only + L237_ceiling + no_curl_attempted` |
 | `GPT-5.2 Medium` | Partial | `PARTIAL - web_open_only + lineno_tail_probe + no_curl` |
 | `GPT-5.2 High` | Partial | `PARTIAL - web_open_loop + L237_ceiling + 14m24s + 45pct_context` |
-| `GPT-5.2 Extra High` | Pass | `PASS - curl_complete + curl_to_file + asked_permission_twice` |
-| `GPT-5.3-Codex Extra High` | Pass | `PASS - curl_complete + lineno_pagination_noted + explicit_window_description` |
-| `GPT-5.3-Codex Medium` | Pass | `PASS - curl_complete + web_open_bypassed + 40s` |
+| `GPT-5.2 Extra High` | Pass | `PASS - curl_complete + curl_to_file + asked_permission_twice + CONTAM_RISK: commonmark_0.31.2.html` |
+| `GPT-5.3-Codex Extra High` | Pass | `PASS - curl_complete + lineno_pagination_noted + explicit_window_description + CONTAM_RISK: commonmark_0312.html` |
+| `GPT-5.3-Codex Medium` | Pass | `PASS - curl_complete + web_open_bypassed + 40s + CONTAM_RISK: op4_commonmark_0312.html` |
 | `GPT-5.3-Codex Low` | Partial | `PARTIAL - web_open_only + L237_ceiling + no_curl + 8s` |
 | `GPT-5.2 High - Run 6` | Pass | `PASS - curl_complete + 7x_permission_requests + granular_sub_steps` |
 | `GPT-5.4-Mini Low` | Partial | `PARTIAL - web_open_two_calls + curl_dns_fail + tail_reached_L7422` |
 | `GPT-5.4-Mini Medium` | Pass | `PASS - curl_complete + explicit_windowed_vs_underlying_distinction + 1m31s` |
 | `GPT-5.4-Mini High` | Pass | `PASS - curl_complete + urllib_request + self_corrected_bytes_vs_chars` |
-| `GPT-5.4-Mini Extra High` | Pass | `PASS - curl_complete + pre_code_balance_1360 + L616_cutpoint` |
+| `GPT-5.4-Mini Extra High` | Pass | `PASS - curl_complete + pre_code_balance_1360 + L616_cutpoint + CONTAM_RISK: commonmark.html` |
 | `GPT-5.4 Low` | Pass | `PASS - curl_complete + first_Low_tier_curl_success + lineno_7390_probe` |
 | `GPT-5.4 Medium` | Pass | `PASS - curl_complete + L237_to_L7164_skip_described + sandbox_escalation` |
-| `GPT-5.4 High` | Pass | `PASS - curl_complete + pagination_described_correctly + lineno_7390_confirmed` |
-| `GPT-5.4 Extra High` | Pass | `PASS - curl_complete + three_truncation_layers_identified + ruby_tail + parallel_measurement` |
-| `GPT-5.5 Low` | Pass | `PASS - curl_only + web_open_bypassed + 27s + 8pct_context` |
-| `GPT-5.5 Medium` | Pass | `PASS - curl_only + web_open_bypassed + fenced_marker_count + 35s` |
-| `GPT-5.5 High` | Pass | `PASS - curl_only + web_open_bypassed + all_tag_counts_matched + 44s` |
-| `GPT-5.5 Extra High` | Pass | `PASS - curl_complete + web_open_L616_initial + pre_code_balance_1360 + parallel_checks` |
+| `GPT-5.4 High` | Pass | `PASS - curl_complete + pagination_described_correctly + lineno_7390_confirmed + CONTAM_RISK: commonmark-0.31.2.html` |
+| `GPT-5.4 Extra High` | Pass | `PASS - curl_complete + three_truncation_layers_identified + ruby_tail + parallel_measurement + CONTAM_RISK: op4_commonmark_0_31_2.html` |
+| `GPT-5.5 Low` | Pass | `PASS - curl_only + web_open_bypassed + 27s + 8pct_context + CONTAM_RISK: commonmark-0.31.2.html_shared_name` |
+| `GPT-5.5 Medium` | Pass | `PASS - curl_only + web_open_bypassed + fenced_marker_count + 35s + CONTAM_RISK: commonmark-0.31.2.html_shared_name` |
+| `GPT-5.5 High` | Pass | `PASS - curl_only + web_open_bypassed + all_tag_counts_matched + 44s + CONTAM_RISK: commonmark-0.31.2.html_shared_name` |
+| `GPT-5.5 Extra High` | Pass | `PASS - curl_complete + web_open_L616_initial + pre_code_balance_1360 + parallel_checks + CONTAM_RISK: commonmark-0.31.2.html_shared_name` |
