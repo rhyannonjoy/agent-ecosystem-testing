@@ -1,0 +1,25 @@
+GPT-5.2 Extra High, 20th run
+originally called bl3_headers.txt
+Codex Version: 26.513.31313 (2867)
+
+HTTP/2 200 
+content-type: text/html; charset=utf-8
+cache-control: public,max-age=0,must-revalidate
+cache-status: "Netlify Edge"; hit
+content-encoding: gzip
+date: Tue, 19 May 2026 03:05:39 GMT
+etag: "g7xltrn8ei1uhmy"
+netlify-vary: query=__nextDataReq|_rsc,header=x-nextjs-data|x-next-debug-logging|next-router-prefetch|next-router-segment-prefetch|next-router-state-tree|next-url|rsc|accept-encoding,cookie=__prerender_bypass|__next_preview_data
+server: istio-envoy
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-content-type-options: nosniff
+x-nextjs-date: Tue, 19 May 2026 02:16:44 GMT
+x-nf-request-id: 01KRZ34EM5WG5WXE9AMX8XD60Z
+x-powered-by: Next.js
+x-envoy-upstream-service-time: 38
+vary: Accept-Encoding
+x-cache: Miss from cloudfront
+via: 1.1 dbfd9bcc806d4c322e72b461b2458112.cloudfront.net (CloudFront)
+x-amz-cf-pop: SEA900-P10
+x-amz-cf-id: F-NNs4cpAczl6SPcXCeK4-Oi8zNNK1qRhQ9x0nPXALKwyxJWhldAxQ==
+age: 2966
