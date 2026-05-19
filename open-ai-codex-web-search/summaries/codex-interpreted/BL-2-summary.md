@@ -5,7 +5,7 @@
 |                 | **BL-2**                                                                        |
 | --------------- | ------------------------------------------------------------------------------- |
 | URL             | `https://www.mongodb.com/docs/manual/reference/change-events/create.md`         |
-| Expected size   | ~20 KB assumed; actual 6,024 chars / ~1,500 tokens                               |
+| Expected size   | ~20 KB assumed; actual 6,024 chars / ~1,500 tokens                              |
 | Surface         | Codex IDE                                                                       |
 | Workspace       | Session-scoped sandbox; persistent artifacts observed across sessions           |
 | Track           | `T1` GPT-interpreted, Codex IDE                                                 |
