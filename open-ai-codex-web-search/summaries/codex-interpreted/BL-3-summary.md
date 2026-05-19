@@ -121,11 +121,14 @@ intelligence level.
 
 4. **`GPT-5.4-Mini` produced HTTP `404` responses in three of four `curl` runs.** `Medium`, `High`, and `Extra High` `GPT-5.4-Mini` runs fetched a 299 KB error page rather than
 the tutorial. The `set-cookie: originalRequest=http%3A%2F%2F...` header in the `404` responses indicates an HTTP to HTTPS redirect failure. `GPT-5.4-Mini Low` didn't use `curl`
-at all. This pattern doesn't appear in any other LLM variant; treat as a LLM-specific URL handling deficiency for this test. All three affected runs flagged as invalid for `H1`
-and `H2` measurement purposes.
+at all. This pattern doesn't appear in any other LLM variant at the same point in the test cycle. The target URL confirmed to experience a temporary outage after testing concluded
+making it plausible that these runs occurred during a instability window rather than reflecting a LLM-specific URL handling deficiency, cause unresolved. All three affected runs
+flagged as invalid for `H1` and `H2` measurement purposes regardless of cause.
 
-5. **`GPT-5.2 Low` retrieved approximately 299 KB rather than the expected 3.1 MB.** This anomaly isn't explained by the headers data available for this run. The `404` pattern
-in `GPT-5.4-Mini` runs raises the possibility of a similar redirect failure, but this isn't confirmed. Treat `GPT-5.2 Low` result with caution for `H1` and `H2` comparisons.
+5. **`GPT-5.2 Low` retrieved approximately 299 KB rather than the expected 3.1 MB.** The `404` pattern in later `GPT-5.4-Mini` runs and the confirmed temporary outage of the target
+URL offer a plausible explanation: this run may have fetched the page during a server instability window, with the CDN returning a cached error response rather than the tutorial.
+The differing `etag` values across runs confirm the CDN served at least three distinct cached versions during the test cycle, making per-run response consistency unreliable. Treat
+the `GPT-5.2 Low` result with caution for `H1` and `H2` comparisons.
 
 6. **Intelligence level doesn't reliably predict retrieval quality within an LLM version.** `GPT-5.5 Low` retrieved the full document in 30 seconds using 8 percent context by
 bypassing `web.open` entirely. `GPT-5.3-Codex Medium` didn't escalate to `curl` despite recognizing the `web.open` result as incomplete. `GPT-5.4-Mini High` fetched a `404` page

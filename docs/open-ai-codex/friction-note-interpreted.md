@@ -184,9 +184,10 @@ before any truncation assessment logging:
 
 | **Layer** | **Mechanism** | **Agent-detectable?** | **Verification-detectable?** |
 | --- | --- | --- | --- |
-| **`web.open` Viewer Window** | Line-indexed extraction returns a windowed excerpt,<br>not the full page; window may start at `L39` or `L216`<br>and not `L0` | Yes, if agent checks line count vs lines received | Indirectly, via output size vs expected |
-| **Terminal Display Truncation** | Tool output printed inline truncated by the Codex transcript interface; `…116,434 tokens truncated…`<br>notice in some runs | Yes, notice visible in tool output | No, hidden tokens not any saved artifact |
-| **HTTP Response Body** | Actual bytes received from the server via `curl` | Yes, via `wc -c`<br>on saved file | Yes, via verifier script against known size |
+| **`web.open` Viewer Window** | Line-indexed extraction returns windowed excerpt, not full page; may start at `L39` or `L216`, not `L0` | _Yes_: if agent checks line count vs lines received | _Indirectly_: output size vs expected |
+| **Terminal Display Truncation** | Tool output printed inline truncated by Codex transcript interface; note<br>`…116,434 tokens truncated…` | _Yes_: notice visible in tool output | _No_: hidden tokens not saved |
+| **HTTP Response Body** | Actual bytes received from the server via `curl` | _Yes_: `wc -c` on saved file | _Yes_: verifier script against known size |
+| **Wrong Resource Returned** | Server returns complete HTML doc without `200`; passes checks, but not target content | _Yes_: status code; not reliably acted on; `BL-3`'s `GPT-5.4-Mini High` identified `404` explicitly, but assessed payload as complete, possible mid-testing outage | _Yes_: headers status code |
 
 Early `web.open`-only runs conflated all three layers into a single truncation field, producing unreliable
 self-reports. `GPT-5.4 Low` was the first run to cleanly separate all three: separating the `web.open` viewer window
@@ -211,6 +212,23 @@ Treat `web.open` output and `curl` output as measurements of different artifacts
 worse versions of the same measurement. A `web.open`-only run documents default retrieval behavior for that LLM and intelligence
 level. A `curl`-escalated run documents what the agent does when it reasons past the default. Both are valid observations. The
 distinction is already recoverable from the tools named column without additional logging.
+
+---
+
+## URL Instability Mid-Testing
+
+[`BL-3` URL](https://www.mongodb.com/docs/atlas/atlas-search/tutorial/) intermittenly returned a `404` but is back up, indicating
+a temporary outage or maintenance window rather than a permanent migration. The `404` pattern appearing in `GPT-5.4-Mini` `Medium`,
+`High`, and `Extra High` runs, and possibly `GPT-5.2 Low`, is consistent with those runs occurring during or adjacent to such a window.
+The CDN cache evidence supports this: differing `etag` values across runs confirm the CDN served at least three distinct cached versions
+of the page during the test cycle, meaning not all runs measured the same server state even when they received `200` responses.
+
+### Methodology Decision
+
+Where a test URL shows instability after testing concludes, treat it as evidence of such rather than evidence of permanent migration.
+A canonical snapshot captured at test start, full response body, headers, HTTP status, and timestamp, provides a stable reference point
+independent of server state fluctuations. Where CDN cache hits are present in headers, note the `age` and `etag` values as indicators that
+individual runs may have measured different cached versions of the same resource.
 
 ---
 
@@ -271,6 +289,10 @@ returning the full page from `L0` regardless of the fragment target.
 document and version-correlated rather than fixed; illustrating a type of version axis with lower cutpoints on older LLM versions and
 higher on newer.
 
+`BL-3` added a third document-specific cutpoint: `L453` for a [MongoDB tutorial](https://www.mongodb.com/docs/atlas/atlas-search/tutorial/),
+consistent across all LLM versions and intelligence levels that used `web.open`. The boundary falls at the page footer ending on
+`© 2026 MongoDB, Inc.`, with the tutorial body absent due to client-side rendering rather than viewer window truncation.
+
 `OP-2` results offered more architectural precision. Codex's `web.open` is a single-view tool with optional manual pagination. The agent receives
 a windowed excerpt and must infer incompleteness from metadata visible in the tool output, primarily the gap between `Total lines: 1269` and lines
 actually received. Whether it issues a `lineno` offset call to advance the window depends entirely on whether it notices and acts on that gap.
@@ -314,8 +336,14 @@ in the Codex response panel, but most didn't, even when the shell log confirmed 
 surface awareness reports didn't always match the session number - run 14 reported path `i-m-testing-codex-s-web-11` which
 should have been `-web-14`.
 
+`BL-3` added a format variant not previously observed: `GPT-5.2 Extra High` saved the response body as `bl3_body.bin`, treating
+the HTML payload as raw bytes rather than text. This is the only instance across all tests of an agent using a binary file
+extension, and it broke the toolchain for reading the artifact.
+
 `OP-4` produced the clearest collision in the dataset: `commonmark-0.31.2.html` used by `GPT-5.4 High` and all `GPT-5.5` runs
-across consecutive sessions. Whether each run wrote a fresh file or read a prior artifact is unresolvable on the interpreted track.
+across consecutive sessions. `BL-3` also produced a collision: agents across three LLM-variants wrote or referenced
+`bl3_mongodb_tutorial.html`: `GPT-5.3-Codex High`, `GPT-5.4 Medium`, `GPT-5.4 High`, `GPT-5.5 Medium`, and `GPT-5.5 High`.
+Whether each agent wrote a fresh file or read a prior artifact is unresolvable on the interpreted track.
 
 This nondeterminism makes artifact presence an unreliable signal for distinguishing fresh retrieval from workspace reads.
 A run that skips `web.open` and goes directly to file operations may reflect a trained tool preference, session contamination,
