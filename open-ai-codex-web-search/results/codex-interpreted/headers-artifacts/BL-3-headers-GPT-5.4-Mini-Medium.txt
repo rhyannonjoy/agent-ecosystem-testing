@@ -1,0 +1,16 @@
+GPT-5.4-Mini Medium, 10th run
+originally called mongo_headers.txt
+Codex Version: 26.513.31313 (2867)
+
+HTTP/2 404 
+content-type: text/html; charset=utf-8
+content-length: 299227
+set-cookie: originalRequest=http%3A%2F%2Fwww.mongodb.com%2Fdocs%2Fatlas%2Fatlas-search%2Ftutorial%2F; Max-Age=600; Path=/; Expires=Tue, 19 May 2026 00:21:38 GMT; SameSite=Lax
+etag: W/"490db-682ViJVfTs52IYhTDPtmnZL4JFE"
+date: Tue, 19 May 2026 00:11:38 GMT
+x-envoy-upstream-service-time: 238
+server: istio-envoy
+x-cache: Error from cloudfront
+via: 1.1 a53bab1af200813b8f27e3c0a28b4964.cloudfront.net (CloudFront)
+x-amz-cf-pop: SEA900-P10
+x-amz-cf-id: IThh9YkEqrsm_SNxwbzmBfNM1OCivtO8BeQ9dflyEr_ntMe7CJkgHQ==
