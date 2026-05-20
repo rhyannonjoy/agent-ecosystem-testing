@@ -189,7 +189,14 @@ before any truncation assessment logging:
 | **HTTP Response Body** | Actual bytes received from the server via `curl` | _Yes_: `wc -c` on saved file | _Yes_: verifier script against known size |
 | **Wrong Resource Returned** | Server returns complete HTML doc without `200`; passes checks, but not target content | _Yes_: status code; not reliably acted on; `BL-3`'s `GPT-5.4-Mini High` identified `404` explicitly, but assessed payload as complete, possible mid-testing outage | _Yes_: headers status code |
 
-Early `web.open`-only runs conflated all three layers into a single truncation field, producing unreliable
+`SC-1` agents consistently acknowledged that `web.open` returned an extraction rather than a raw response, and reasoned
+toward `curl`, but didn't classify the extraction as truncation. The framing used across runs described the `web.open` result
+as a _rendered text view_, _line-numbered extraction_, or _normalized content_, treating it as a different artifact from the
+target rather than an intentionally truncated version of it. While technically accurate, it produces a systematic gap in
+self-reporting. An agent can correctly describe `web` limitations, escalate to `curl`, and still log `No truncation`
+because they commonly prioritized the `curl` results.
+
+Early `BL-1` `web.open`-only runs conflated all three layers into a single truncation field, also producing unreliable
 self-reports. `GPT-5.4 Low` was the first run to cleanly separate all three: separating the `web.open` viewer window
 from the terminal display truncation from the actual HTTP body, and correctly identified the body as complete while
 reporting truncation in the other layers. At least one later run confirmed the terminal display truncation layer as observable:
@@ -307,6 +314,15 @@ direct path to accurate answers than paginating through rendered text windows. T
 more concerned with metric accuracy than content coverage, and `curl` satisfies both requirements in a single fetch. Pagination is most likely to occur
 when the agent has no easier path to the numbers.
 
+`SC-1` added precision to the viewer window architecture. The `web.open` extraction for the [Gemini URL Context doc](https://ai.google.dev/gemini-api/docs/url-context)
+produced a stable 479-line ceiling across all LLM versions and intelligence levels. Within that ceiling, a two-tier threshold was confirmed: a short-mode first view
+stops at approximately `L362`, while a second `open` call with a `lineno` offset or long-mode parameter recovers through `L478`. `GPT-5.3-Codex Extra High` was the
+first run across 145 or more tests to explicitly name this as a `response_length: "short"` versus `response_length: "long"` parameter distinction in the
+tool. Subsequent runs confirmed the `L362` threshold behaviorally without naming it. The `GPT-5.4 Extra High` run used `printf` debugging to inspect the boundary content
+and confirmed that `L362` lands on a page-content notice rather than a Markdown structural boundary or an arbitrary byte position. This establishes that the short-mode
+ceiling is a viewer window property, not a content-driven truncation event, and that the parameter distinction is observable in tool output when the agent reasons at
+sufficient depth.
+
 The practical consequence is that full-document access in Codex is either a reasoning success or a tool substitution, never a default outcome. `web.open`
 pagination requires the agent to notice the gap between `Total lines` reported and lines received, and to treat that gap as worth resolving. `curl` requires
 only that the agent decides measurement accuracy matters more than the tool it started with.
@@ -345,9 +361,17 @@ across consecutive sessions. `BL-3` also produced a collision: agents across thr
 `bl3_mongodb_tutorial.html`: `GPT-5.3-Codex High`, `GPT-5.4 Medium`, `GPT-5.4 High`, `GPT-5.5 Medium`, and `GPT-5.5 High`.
 Whether each agent wrote a fresh file or read a prior artifact is unresolvable on the interpreted track.
 
-This nondeterminism makes artifact presence an unreliable signal for distinguishing fresh retrieval from workspace reads.
+`SC-1` produced noticeably fewer artifacts. No run wrote to the permanent local workspace despite most runs disclosing
+access to it. No run produced a headers file for server response inspection, which was common in `BL-3`. The reduced artifact
+footprint may reflect the smaller document size or lower agent-assessed need to persist the payload. `GPT-5.4-Mini` produced zero
+artifacts, a pattern not observed in any other LLM variant within the same test ID, though four runs is too small a sample to treat
+as a firm behavioral signature. Contamination risk remained: at least three runs reused filenames from prior runs in the same session
+and one run produced a `truncated_marker: True` flag in `python3` output that contradicted its own truncation assessment, suggesting
+reading prior artifacts rather than fresh fetches.
+
+This nondeterminism makes artifact presence an unreliable signal for distinguishing live retrieval from workspace reads.
 A run that skips `web.open` and goes directly to file operations may reflect a trained tool preference, session contamination,
-or silent reuse of a prior artifact. Whatever the cause, they produced nearly identical report metrics and observations.
+or silent reuse of an existing artifact. Whatever the cause, they produced nearly identical report metrics and observations.
 
 ### Methodology Decision
 
