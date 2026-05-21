@@ -130,16 +130,20 @@ def collect_interpreted_fields() -> dict:
     section("Output Fields (interpreted track — T1 or T2)")
 
     output_chars = prompt("Output chars (integer or range midpoint)", required=False)
-    truncated = prompt("Truncated", choices=["yes", "no"])
-    truncation_point = None
-    if truncated == "yes":
-        truncation_point = prompt("Truncation point (character position)", required=False)
+    truncated = prompt(
+        "Truncated",
+        choices=["yes", "no", "mixed", "implicit"],
+    )
+    truncation_note = prompt(
+        "Truncation note (location, layer, or characterization — always log even if no)",
+        required=False,
+    )
     tokens = prompt("Estimated token count", required=False)
 
     return {
         "output_chars": to_int(output_chars),
         "truncated": truncated,
-        "truncation_point": truncation_point,
+        "truncation_note": truncation_note,
         "tokens_est": to_int(tokens),
     }
 
@@ -153,13 +157,35 @@ def collect_raw_fields() -> dict:
     tools_blocked = prompt("Tools blocked", required=False)
     execution_attempts = prompt("Execution attempts (total tool calls)", required=False)
 
+    section("Raw Track Behavioral Fields (T3 or T4)")
+
+    escalation_trigger = prompt(
+        "Escalation trigger",
+        choices=["reasoned", "automatic", "contaminated", "none"],
+        required=False,
+    )
+    artifact_path = prompt(
+        "Artifact path (path of file written by agent)",
+        required=False,
+    )
+    artifact_size_bytes = prompt("Artifact size bytes", required=False)
+    last_50_chars = prompt(
+        "Last 50 chars (verbatim terminal characters of retrieved content)",
+        required=False,
+    )
+
     section("Agent Self-Reported Fields (raw track)")
 
     ar_output_chars = prompt("agent_reported_output_chars", required=False)
     ar_truncated = prompt(
-        "agent_reported_truncated", choices=["yes", "no"], required=False
+        "agent_reported_truncated",
+        choices=["yes", "no", "mixed", "implicit"],
+        required=False,
     )
-    ar_truncation_point = prompt("agent_reported_truncation_point", required=False)
+    ar_truncation_note = prompt(
+        "agent_reported_truncation_note (location, layer, or characterization — always log even if no)",
+        required=False,
+    )
     ar_tokens_est = prompt("agent_reported_tokens_est", required=False)
     ar_file_size = prompt("agent_reported_file_size_bytes", required=False)
     ar_md5 = prompt("agent_reported_md5_checksum", required=False)
@@ -185,9 +211,13 @@ def collect_raw_fields() -> dict:
         "tools_used": tools_used,
         "tools_blocked": tools_blocked,
         "execution_attempts": to_int(execution_attempts),
+        "escalation_trigger": escalation_trigger,
+        "artifact_path": artifact_path,
+        "artifact_size_bytes": to_int(artifact_size_bytes),
+        "last_50_chars": last_50_chars,
         "agent_reported_output_chars": to_int(ar_output_chars),
         "agent_reported_truncated": ar_truncated or None,
-        "agent_reported_truncation_point": to_int(ar_truncation_point),
+        "agent_reported_truncation_note": ar_truncation_note,
         "agent_reported_tokens_est": to_int(ar_tokens_est),
         "agent_reported_file_size_bytes": to_int(ar_file_size),
         "agent_reported_md5_checksum": ar_md5,
