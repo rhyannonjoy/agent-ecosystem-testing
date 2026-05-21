@@ -134,7 +134,7 @@ cd open-ai-codex-web-search
    | `tools_used`* | `T3`/`T4`: observed tool chain | `web -> web.open` |
    | `tools_blocked`* | `T3`/`T4`: tools requested, but skipped | `curl` |
    | `execution_attempts`* | `T3`/`T4`: total tool calls, fallbacks | `3` |
-   | `escalation_trigger`* | `T3`/`T4`: what drove tool escalation | `reasoned`, `automatic`, `contaminated`, `none` |
+   | `escalation_trigger`* | `T3`/`T4`: what drove tool escalation | `automatic`, `contaminated`, `none`, `reasoned` |
    | `artifact_path`* | `T3`/`T4`: path of agent-written file | `/private/tmp/bl1_response.html` |
    | `artifact_size_bytes`* | `T3`/`T4`: agent-written file size | `505339` |
    | `last_50_chars`* | `T3`/`T4`: retrieved content verbatim;<br>cross-reference via `verify.py` | `])</script></body></html>` |
