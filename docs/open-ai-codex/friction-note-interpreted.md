@@ -323,6 +323,13 @@ and confirmed that `L362` lands on a page-content notice rather than a Markdown 
 ceiling is a viewer window property, not a content-driven truncation event, and that the parameter distinction is observable in tool output when the agent reasons at
 sufficient depth.
 
+`SC-3` extended the cutpoint dataset further. A table-heavy [Wikipedia page](https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population)
+produced three distinct first-fetch boundaries: `L266`, `L353`, and `L309`. All three land mid-table in the population data, not on structural boundaries.
+`GPT-5.4 Extra High` observed both `L266` and `L353` in a single session by varying response length settings, confirming the window is adjustable rather than fixed.
+`wordlim: 200` appeared explicitly in tool output in `GPT-5.4-Mini High` and `GPT-5.4 High`, consistent with the `OP-1` and `SC-1` findings. The within-session
+dual-cutpoint observation is the strongest evidence across all test cycles that the `web` window has a soft cap rather than a document-specific or
+LLM-specific constant.
+
 The practical consequence is that full-document access in Codex is either a reasoning success or a tool substitution, never a default outcome. `web.open`
 pagination requires the agent to notice the gap between `Total lines` reported and lines received, and to treat that gap as worth resolving. `curl` requires
 only that the agent decides measurement accuracy matters more than the tool it started with.
@@ -331,8 +338,9 @@ only that the agent decides measurement accuracy matters more than the tool it s
 
 ## Workspace Artifact Nondeterminism
 
-`BL-2` agents produced artifacts unprompted, inconsistently. About half wrote files to the local workspace or `/private/tmp`, which
-only stores artifacts for a day at a time. Agentic naming was also unstable across sessions and LLM versions:
+`BL-2` agents produced artifacts unprompted, inconsistently. About half wrote files to permanent `Documents/Codex` or
+`/private/tmp`, which only stores artifacts during the session. Naming was also unstable across sessions, LLM versions,
+and intelligence levels:
 
 - `GPT-5.2` `Medium`: `BL-2_create.md.html`
 - `GPT-5.2`, `GPT-5.3-Codex` - `High`: `BL-2_create.md`
@@ -368,6 +376,11 @@ artifacts, a pattern not observed in any other LLM variant within the same test 
 as a firm behavioral signature. Contamination risk remained: at least three runs reused filenames from prior runs in the same session
 and one run produced a `truncated_marker: True` flag in `python3` output that contradicted its own truncation assessment, suggesting
 reading prior artifacts rather than fresh fetches.
+
+`SC-3` introduced a multi-artifact variant in which `GPT-5.2 High` wrote two near-identical HTML files in a single run, and
+`GPT-5.2 Extra High` wrote three, including a compressed version. Both runs wrote to `Documents/Codex` rather than `/private/tmp`. The
+near-identical content across files suggests the agent fetched the same resource via different URL parameters rather than producing
+genuinely distinct artifacts.
 
 This nondeterminism makes artifact presence an unreliable signal for distinguishing live retrieval from workspace reads.
 A run that skips `web.open` and goes directly to file operations may reflect a trained tool preference, session contamination,
