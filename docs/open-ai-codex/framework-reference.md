@@ -128,34 +128,39 @@ cd open-ai-codex-web-search
    | `tools_named` | Tool names reported in agent output | `web`, `web.open`, `curl` |
    | `workspace_substitution` | _Local execution instead of web fetch?_ | `yes`/`no`/`unknown` |
    | `output_chars` | `T1`/`T2`: agent-measured output length | `27890` |
-   | `truncated` | `T1`/`T2`: truncation detected | `yes`/`no` |
-   | `truncation_point` | `T1`/`T2`: section/line truncation spot | `L477` |
+   | `truncated` | `T1`/`T2`: truncation status | `yes`/`no`/`mixed`/`implicit` |
+   | `truncation_note` | `T1`/`T2`: location, layer, or characterization | `web.open partial, curl complete` |
    | `tokens_est` | `T1`/`T2`: estimated token count | `16890` |
    | `tools_used`* | `T3`/`T4`: observed tool chain | `web -> web.open` |
    | `tools_blocked`* | `T3`/`T4`: tools requested, but skipped | `curl` |
    | `execution_attempts`* | `T3`/`T4`: total tool calls, fallbacks | `3` |
+   | `escalation_trigger`* | `T3`/`T4`: what drove tool escalation | `automatic`, `contaminated`, `none`, `reasoned` |
+   | `artifact_path`* | `T3`/`T4`: path of agent-written file | `/private/tmp/bl1_response.html` |
+   | `artifact_size_bytes`* | `T3`/`T4`: agent-written file size | `505339` |
+   | `last_50_chars`* | `T3`/`T4`: retrieved content verbatim;<br>cross-reference via `verify.py` | `])</script></body></html>` |
    | `agent_reported_output_chars`* | `T3`/`T4`: agent-measured char count | `9876` |
-   | `agent_reported_truncated`* | `T3`/`T4`: agent-measured truncation | `yes`/`no` |
+   | `agent_reported_truncated`* | `T3`/`T4`: agent-measured truncation status | `yes`/`no`/`mixed`/`implicit` |
+   | `agent_reported_truncation_note`* | `T3`/`T4`: agent-reported location,<br>layer, or characterization | `curl complete, web.open partial at L477` |
    | `agent_reported_tokens_est`* | `T3`/`T4`: agent-estimated token count | `2469` |
-   | `agent_reported_file_size_bytes`* | `T3`/`T4`: agent-measured file size: bytes | `4817` |
+   | `agent_reported_file_size_bytes`* | `T3`/`T4`: agent-measured file size | `4817` |
    | `agent_reported_md5_checksum`* | `T3`/`T4`: agent-measured MD5 | `abc123...` |
    | `agent_reported_lines`* | `T3`/`T4`: agent-measured line count | `143` |
    | `agent_reported_words`* | `T3`/`T4`: agent-measured word count | `564` |
-   | `agent_reported_code_blocks`* | `T3`/`T4`: agent-measured<br>code block count | `2` |
-   | `agent_reported_table_rows`* | `T3`/`T4`: agent-measured<br>table row count | `57` |
-   | `agent_reported_headers`* | `T3`/`T4`: agent-measured<br>header count | `4` |
-   | `verified_file_size_bytes`* | `T3`/`T4`: verifier-measured<br>file size: bytes | `4817` |
+   | `agent_reported_code_blocks`* | `T3`/`T4`: agent-measured code block count | `2` |
+   | `agent_reported_table_rows`* | `T3`/`T4`: agent-measured table row count | `57` |
+   | `agent_reported_headers`* | `T3`/`T4`: agent-measured header count | `4` |
+   | `verified_file_size_bytes`* | `T3`/`T4`: verifier-measured file size | `4817` |
    | `verified_md5_checksum`* | `T3`/`T4`: verifier-measured MD5 | `d6ad8451d3778bf3544574...` |
    | `verified_total_lines`* | `T3`/`T4`: verifier-measured line count | `143` |
    | `verified_total_words`* | `T3`/`T4`: verifier-measured word count | `564` |
    | `verified_tokens`* | `T3`/`T4`: verifier-measured token count | `197` |
-   | `verified_chars_per_token`* | `T3`/`T4`: verifier-measured<br>chars/token ratio | `4.43` |
-   | `verified_code_blocks`* | `T3`/`T4`: verifier-measured<br>code block count | `2` |
-   | `verified_table_rows`* | `T3`/`T4`: verifier-measured<br>table row count | `57` |
-   | `verified_headers`* | `T3`/`T4`: verifier-measured<br>header count | `4` |
+   | `verified_chars_per_token`* | `T3`/`T4`: verifier-measured chars/token ratio | `4.43` |
+   | `verified_code_blocks`* | `T3`/`T4`: verifier-measured code block count | `2` |
+   | `verified_table_rows`* | `T3`/`T4`: verifier-measured table row count | `57` |
+   | `verified_headers`* | `T3`/`T4`: verifier-measured header count | `4` |
 
-   > _*Optional field, raw tracks only. `agent_reported_*` fields may reflect tool output or payload estimates
-   > `verify.py` calculates `verified_*` values against `raw_output_{test_id}.txt` files._
+   > _*Optional field, raw tracks only. `agent_reported_*` fields may reflect tool output or payload estimates.
+   > <br>`verify.py` calculates `verified_*` values against `raw_output_{test_id}.txt` files._
 
 ---
 

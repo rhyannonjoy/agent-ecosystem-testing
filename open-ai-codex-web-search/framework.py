@@ -236,8 +236,8 @@ class TestResult:
     # --- Interpreted track output fields (T1, T2) ---
     # (unprefixed: all data is agent-reported by definition on these tracks)
     output_chars: Optional[int] = None
-    truncated: Optional[str] = None          # yes | no
-    truncation_point: Optional[str] = None
+    truncated: Optional[str] = None          # yes | no | mixed | implicit
+    truncation_note: Optional[str] = None
     tokens_est: Optional[int] = None
 
     # --- Tool behavior fields (T3, T4 raw tracks) ---
@@ -247,11 +247,27 @@ class TestResult:
     tools_blocked: Optional[str] = None
     execution_attempts: Optional[int] = None
 
+    # --- Raw track behavioral fields (T3, T4) ---
+    # escalation_trigger: what drove tool escalation beyond the default retrieval path
+    # Values: reasoned | automatic | contaminated | none
+    #   reasoned:      agent explicitly diagnosed a limitation and switched tools
+    #   automatic:     escalation appeared without visible reasoning (default behavior)
+    #   contaminated:  escalation strategy inherited from session context, not re-derived
+    #   none:          no escalation; agent stayed on initial tool path
+    escalation_trigger: Optional[str] = None
+    # artifact_path: path of file written by agent during retrieval (T3/T4 write task)
+    artifact_path: Optional[str] = None
+    # artifact_size_bytes: size of written artifact in bytes, verifiable against filesystem
+    artifact_size_bytes: Optional[int] = None
+    # last_50_chars: terminal 50 characters of retrieved content, verbatim
+    # cross-referenceable against verify.py output to confirm retrieval endpoint
+    last_50_chars: Optional[str] = None
+
     # --- Agent self-reported fields (T3, T4 raw tracks) ---
     # Values reported by the agent in its output; may differ from verified measurements
     agent_reported_output_chars: Optional[int] = None
     agent_reported_truncated: Optional[str] = None
-    agent_reported_truncation_point: Optional[str] = None
+    agent_reported_truncation_note: Optional[str] = None
     agent_reported_tokens_est: Optional[int] = None
     agent_reported_file_size_bytes: Optional[int] = None
     agent_reported_md5_checksum: Optional[str] = None
@@ -427,8 +443,12 @@ Note: this is the raw HTML/Markdown source. The agent typically converts and fil
 
         if is_raw:
             track_fields = [
+                "Escalation trigger (reasoned/automatic/contaminated/none)",
+                "Artifact path (path of file written by agent)",
+                "Artifact size bytes (size of written artifact)",
+                "Last 50 chars (verbatim terminal characters of retrieved content)",
                 "Agent reported output chars",
-                "Agent reported truncated (yes/no, where)",
+                "Agent reported truncated (yes/no/mixed/implicit, where)",
                 "Agent reported tokens estimated",
                 "Agent reported file size bytes",
                 "Agent reported MD5 checksum",
@@ -453,7 +473,7 @@ Note: this is the raw HTML/Markdown source. The agent typically converts and fil
         else:
             track_fields = [
                 "Output chars (or range midpoint)",
-                "Truncated (yes/no, where)",
+                "Truncated (yes/no/mixed/implicit, where)",
                 "Tokens estimated",
                 "Last 50 characters (verbatim)",
                 "Formatting assessment",
@@ -512,16 +532,21 @@ Note: this is the raw HTML/Markdown source. The agent typically converts and fil
         # Interpreted track output fields (T1, T2)
         output_chars: Optional[int] = None,
         truncated: Optional[str] = None,
-        truncation_point: Optional[str] = None,
+        truncation_note: Optional[str] = None,
         tokens_est: Optional[int] = None,
         # Tool behavior fields (T3, T4)
         tools_used: Optional[str] = None,
         tools_blocked: Optional[str] = None,
         execution_attempts: Optional[int] = None,
+        # Raw track behavioral fields (T3, T4)
+        escalation_trigger: Optional[str] = None,
+        artifact_path: Optional[str] = None,
+        artifact_size_bytes: Optional[int] = None,
+        last_50_chars: Optional[str] = None,
         # Agent self-reported fields (T3, T4)
         agent_reported_output_chars: Optional[int] = None,
         agent_reported_truncated: Optional[str] = None,
-        agent_reported_truncation_point: Optional[str] = None,
+        agent_reported_truncation_note: Optional[str] = None,
         agent_reported_tokens_est: Optional[int] = None,
         agent_reported_file_size_bytes: Optional[int] = None,
         agent_reported_md5_checksum: Optional[str] = None,
@@ -571,14 +596,18 @@ Note: this is the raw HTML/Markdown source. The agent typically converts and fil
             workspace_substitution=workspace_substitution,
             output_chars=output_chars,
             truncated=truncated,
-            truncation_point=truncation_point,
+            truncation_note=truncation_note,
             tokens_est=tokens_est,
             tools_used=tools_used,
             tools_blocked=tools_blocked,
             execution_attempts=execution_attempts,
+            escalation_trigger=escalation_trigger,
+            artifact_path=artifact_path,
+            artifact_size_bytes=artifact_size_bytes,
+            last_50_chars=last_50_chars,
             agent_reported_output_chars=agent_reported_output_chars,
             agent_reported_truncated=agent_reported_truncated,
-            agent_reported_truncation_point=agent_reported_truncation_point,
+            agent_reported_truncation_note=agent_reported_truncation_note,
             agent_reported_tokens_est=agent_reported_tokens_est,
             agent_reported_file_size_bytes=agent_reported_file_size_bytes,
             agent_reported_md5_checksum=agent_reported_md5_checksum,
@@ -682,12 +711,16 @@ Examples:
     --model_observed "o4-mini" \\
     --model_intelligence_level "high" \\
     --codex_version "1.0.0" \\
-    --tools_used "web -> web.open" \\
+    --escalation_trigger reasoned \\
+    --artifact_path "/private/tmp/bl1_response.html" \\
+    --artifact_size_bytes 505339 \\
+    --last_50_chars ',",$L46",null,{{}}}]}}\\n"])</script></body></html>' \\
+    --tools_used "web -> web.open -> curl" \\
     --tools_blocked "" \\
-    --execution_attempts 2 \\
+    --execution_attempts 3 \\
     --agent_reported_output_chars 9876 \\
     --agent_reported_truncated yes \\
-    --agent_reported_truncation_point L477 \\
+    --agent_reported_truncation_note L477 \\
     --agent_reported_tokens_est 2469 \\
     --agent_reported_file_size_bytes 4817 \\
     --agent_reported_md5_checksum abc123 \\
@@ -741,8 +774,13 @@ Examples:
 
     # Interpreted track output fields (T1, T2)
     parser.add_argument("--output_chars", type=int, help="[T1/T2] Output character count")
-    parser.add_argument("--truncated", type=str, choices=["yes", "no"], help="Was content truncated?")
-    parser.add_argument("--truncation_point", type=str, help="Truncation point if reported by agent (e.g. L477)")
+    parser.add_argument(
+        "--truncated",
+        type=str,
+        choices=["yes", "no", "mixed", "implicit"],
+        help="Truncation status: yes | no | mixed (conflicting signals) | implicit (described but not flagged)",
+    )
+    parser.add_argument("--truncation_note", type=str, help="Truncation point if reported by agent (e.g. L477)")
     parser.add_argument("--tokens", type=int, help="Estimated token count")
 
     # Tool behavior fields (T3, T4)
@@ -750,10 +788,25 @@ Examples:
     parser.add_argument("--tools_blocked", type=str, help="[T3/T4] Blocked tools encountered")
     parser.add_argument("--execution_attempts", type=int, help="[T3/T4] Total tool calls including fallbacks")
 
+    # Raw track behavioral fields (T3, T4)
+    parser.add_argument(
+        "--escalation_trigger",
+        type=str,
+        choices=["reasoned", "automatic", "contaminated", "none"],
+        help="[T3/T4] What drove tool escalation: reasoned | automatic | contaminated | none",
+    )
+    parser.add_argument("--artifact_path", type=str, help="[T3/T4] Path of file written by agent during retrieval")
+    parser.add_argument("--artifact_size_bytes", type=int, help="[T3/T4] Size of written artifact in bytes")
+    parser.add_argument("--last_50_chars", type=str, help="[T3/T4] Verbatim terminal 50 characters of retrieved content")
+
     # Agent self-reported fields (T3, T4)
     parser.add_argument("--agent_reported_output_chars", type=int)
-    parser.add_argument("--agent_reported_truncated", type=str, choices=["yes", "no"])
-    parser.add_argument("--agent_reported_truncation_point", type=str)
+    parser.add_argument(
+        "--agent_reported_truncated",
+        type=str,
+        choices=["yes", "no", "mixed", "implicit"],
+    )
+    parser.add_argument("--agent_reported_truncation_note", type=str)
     parser.add_argument("--agent_reported_tokens_est", type=int)
     parser.add_argument("--agent_reported_file_size_bytes", type=int)
     parser.add_argument("--agent_reported_md5_checksum", type=str)
@@ -810,14 +863,18 @@ Examples:
             workspace_substitution=args.workspace_substitution,
             output_chars=args.output_chars,
             truncated=args.truncated,
-            truncation_point=args.truncation_point,
+            truncation_note=args.truncation_note,
             tokens_est=args.tokens,
             tools_used=args.tools_used,
             tools_blocked=args.tools_blocked,
             execution_attempts=args.execution_attempts,
+            escalation_trigger=args.escalation_trigger,
+            artifact_path=args.artifact_path,
+            artifact_size_bytes=args.artifact_size_bytes,
+            last_50_chars=args.last_50_chars,
             agent_reported_output_chars=args.agent_reported_output_chars,
             agent_reported_truncated=args.agent_reported_truncated,
-            agent_reported_truncation_point=args.agent_reported_truncation_point,
+            agent_reported_truncation_note=args.agent_reported_truncation_note,
             agent_reported_tokens_est=args.agent_reported_tokens_est,
             agent_reported_file_size_bytes=args.agent_reported_file_size_bytes,
             agent_reported_md5_checksum=args.agent_reported_md5_checksum,
