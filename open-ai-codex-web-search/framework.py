@@ -515,6 +515,22 @@ Note: this is the raw HTML/Markdown source. The agent typically converts and fil
     # ------------------------------------------------------------------
     # CSV logging
     # ------------------------------------------------------------------
+    
+    def _check_schema(self, fieldnames: list):
+        """Raise if the existing CSV header doesn't match the current schema."""
+        if not self.csv_path.exists():
+            return
+        with open(self.csv_path, newline="") as f:
+            existing = next(csv.reader(f))
+        if list(existing) != list(fieldnames):
+            missing = set(fieldnames) - set(existing)
+            extra = set(existing) - set(fieldnames)
+            raise ValueError(
+                f"CSV schema mismatch in {self.csv_path}\n"
+                f"  Missing from header: {missing}\n"
+                f"  Extra in header:     {extra}\n"
+                f"  Run fix_csv.py before logging."
+            )
 
     def log_result(
         self,
@@ -627,6 +643,8 @@ Note: this is the raw HTML/Markdown source. The agent typically converts and fil
             verified_headers=verified_headers,
         )
 
+        self._check_schema(list(asdict(result).keys()))
+        
         file_exists = self.csv_path.exists()
         with open(self.csv_path, "a", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=asdict(result).keys())
