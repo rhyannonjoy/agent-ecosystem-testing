@@ -1,0 +1,17 @@
+The next step is to draft a summary in Markdown of the {test ID} results. Use this {test ID} Summary as a template for formatting.
+
+Some styling rules:
+
+1. Don’t use parentheses
+2. Don’t use “s” for seconds, spell it out
+3. Make sure it’s in Markdown so that I can copy and paste it easily
+4. Use contractions (don't instead of do not)
+5. Make sure anything code is in backticks: `curl`, `python3`, `GPT-5.5 Low`, `L266`
+
+Some general observations (edit to ensure it's accurate to the test cycle):
+
+* 9 artifacts wrote-saved (mostly temporary) total across 20 runs, so less than half the time, created infrastructure for itself (directories) then don’t use them.
+* 7 artifacts (1 headers txt file, 6 identical HTML files) saved to `private/tmp`
+* 2 artifacts (2 identical HTML files) saved to more permanent `Document/Codex`
+* Truncation reporting is mostly mixed (curl no, web yes), implied (no, but reasoned to not use web for metrics), rarely yes/no.
+* Pattern is use `web`, realize its limits, use `curl` to complete the task
