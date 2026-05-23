@@ -9,6 +9,44 @@ parent: OpenAI Codex
 
 ---
 
+## Agentic Reasoning-Report Integrity
+
+`SC-4`'s `GPT-5.4-Mini Extra High` demonstrated a gap between thought panel reasoning and visible output.
+The thought panel showed the agent reasoning through Playwright, `xmllint`, `lynx`, `w3m`, `pup`, `htmlq`,
+and `tiktoken` as candidate tools, attempting and discarding each before settling on `curl`. The output
+panel showed only the successful `curl` result. Without the thought panel, the run would appear as a
+straightforward single-tool fetch. The effort, the failure chain, and the escalation logic were invisible
+in the report.
+
+This is a general limitation of post-hoc output as an observability surface, and it is more acute
+on Codex than on other platforms tested in this collection. GitHub Copilot and Windsurf Cascade
+agents expose substantially more turn-by-turn reasoning: tool calls, intermediate results, and
+decision branches are visible as they occur, generally making an agent's path reconstructable after the
+fact. Codex's thought panel is comparatively opaque, closer to Cursor's style with reasoning visible only
+intermittently and incompletely. Agent reports describe what succeeded. What the agent tried, reconsidered,
+and abandoned is largely implicit and unrecoverable from output alone.
+
+For hypothesis testing, the rejected paths are often as informative as the one taken. A run that attempts
+five tools and falls back to `curl` is behaviorally distinct from a run that goes directly to `curl`, even
+if both produce identical metrics. The opacity means that distinctiveness is only visible when the thought
+panel happens to expose it, which is inconsistent and not something the methodology can rely on.
+
+Platform updates compound this problem. The Codex desktop app `v26.519.31651 (3017)` has removed the default
+context window usage counter. Previously, the counter provided a direct scalar measure of agent effort: token
+consumption per run was a proxy for reasoning depth, tool churn, and session contamination accumulation. Runtime
+in seconds is now the only remaining effort indicator, and it conflates network latency, tool execution time, and
+reasoning depth in a way the context counter didn't. On a platform where reasoning is already difficult to observe,
+losing an effort proxy has an outsized impact relative to what the same loss would mean on a more transparent surface.
+
+### Methodology Decision
+
+Capture thought panel reasoning at run time rather than relying on the output panel alone. Where platform updates
+remove previously available signals such as the context window counter, note the version at which the signal disappeared
+and flag affected runs. Surface observability isn't stable across the test cycle, and on an already opaque platform, each
+lost signal has proportionally higher cost to the methodology than it would elsewhere.
+
+---
+
 ## LLM × Intelligence Matrix
 
 Codex exposes a two-dimensional agent configuration space unique among the platforms tested: five LLM variants

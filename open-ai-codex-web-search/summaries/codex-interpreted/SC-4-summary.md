@@ -121,7 +121,7 @@ unique in the `SC-4` set.
 
 6. **`GPT-5.4-Mini Low` produced the most ambiguous truncation assessment in the set.** With `curl` returning 0 bytes, the agent estimated 28,000–32,000 chars
 from `web.open` output and believed content reached the footer, roughly half the confirmed document size. The false-complete signal is the clearest `H1`-adjacent
-finding in SC-4.
+finding in `SC-4`.
 
 7. **`GPT-5.5` introduced novel measurement tools not seen in prior LLM versions.** `rg` appeared in `GPT-5.5 Medium`, `perl -CS -Mutf8` in `GPT-5.5 Extra High`,
 and `wc -w` word count in `GPT-5.5 High`. This broader scripting tool repertoire is consistent with the `SC-3` findings for the same LLM version.
