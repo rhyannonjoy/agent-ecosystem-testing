@@ -1,0 +1,20 @@
+GPT-5.4 High, 15th run
+originally called ec1_headers.txt
+Codex Version 26.519.41501 (3044)
+
+HTTP/2 200 
+last-modified: Mon, 18 May 2026 20:53:17 GMT
+content-type: text/html; charset=utf-8
+vary: Cookie
+content-security-policy: base-uri 'self'; object-src 'none'; script-src 'strict-dynamic' 'unsafe-inline' https: http: 'nonce-7C++7Sev+SnTEODbEAbUKFQESfuwh5' 'unsafe-eval'; frame-ancestors 'self' https://developers.google.com/_d/analytics-iframe https://aistudio.google.com; report-uri https://csp.withgoogle.com/csp/devsite/v2
+strict-transport-security: max-age=63072000; includeSubdomains; preload
+x-xss-protection: 0
+x-content-type-options: nosniff
+cache-control: no-cache, must-revalidate
+expires: 0
+pragma: no-cache
+x-cloud-trace-context: 28bee546c9e9382bc825153b85b142b5
+date: Sat, 23 May 2026 06:10:26 GMT
+server: Google Frontend
+content-length: 133110
+alt-svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
