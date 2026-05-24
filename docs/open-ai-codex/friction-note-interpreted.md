@@ -47,6 +47,56 @@ lost signal has proportionally higher cost to the methodology than it would else
 
 ---
 
+## Autonomous Post-Hoc Session Alterations
+
+Codex default settings continue processing session output after run completion and archival placement. Across recent
+desktop versions, a few signals pose data integrity risks in the form of:
+
+- **Output Editing**: at least one run produced a double report where the two instances
+  described `web` tool behavior differently; one acknowledged truncation by design, the
+  other omitting it entirely. A later batch-logging pass found the double report resolved to
+  a single output, with the `web` limitation observation absent.
+- **Thought Panel Collapse**: command execution dropdown windows are only visible in real time.
+  The remaining reasoning summary condenses failures, escalation logic, and rejected paths -
+  the signals most useful for hypotheses assessment.
+- **Timer Drift**: real-time observations captured in screenshots show different elapsed times
+  than what the app displays for the same run after the fact.
+
+Character counts, token estimation, and toolchain reporting appear somewhat more stable across this process. While these
+edits include numeric metrics, agentic effort through time, they also impact qualitative components such as prose framing,
+report structure, and strategy characterization. While most measurements may be reliable, the reasoning and self-reporting
+around them isn't. As a control measure, testing conditions include disablement of `Auto-review` and `Full access` settings.
+These mechanisms aren't visible in the thought panel, agents don't report the edits; whether either setting drives this
+particular behavior remains unconfirmed.
+
+### Methodology Decision
+
+Treat screenshot capture at run time as the primary record for agent reasoning, tool characterization, and truncation self-reporting.
+Cross-reference logged output against screenshots and observe for discrepancies. Note the Codex app version at the time of capture,
+as platform updates may change what gets swept and what doesn't.
+
+---
+
+## Hypotheses Unreachability
+
+`EC-1`'s [Gemini API documentation](https://ai.google.dev/gemini-api/docs) was intended to stress-test retrieval behavior
+on a page that `web` can't fully render. Most agents didn't traverse with `web` long enough to produce useful data. The
+dominant pattern across all LLM versions was call `web.run open( {URL} )`, note the extracted view, escalate to `curl`.
+`H1`-`H3` are only accurately testable against `web` output. Runs that escalated confirmed the raw fetch ceiling wasn't hit,
+but that's a different question than whether the in-house retrieval surface has a ceiling.
+
+Three of four `GPT-5.5` runs bypassed the `web` pipeline entirely. The measurement task may accelerate this. When the prompt
+asks for character counts and token estimates, `curl` is a more direct path to numbers than paginating through a rendered text
+window. The prompt design may be actively displacing the retrieval behavior the test is trying to observe.
+
+### Methodology Decision
+
+For SPAs and/or JavaScript-heavy URLs, consider a two-prompt design: a first run asking the agent to describe what the retrieval
+surface returned without escalating, and a second run asking for measurement. Combining both goals in a single prompt favors `curl`
+escalation over `web` boundary examination.
+
+---
+
 ## LLM × Intelligence Matrix
 
 Codex exposes a two-dimensional agent configuration space unique among the platforms tested: five LLM variants
@@ -72,6 +122,12 @@ intelligence levels, stated for `GPT-5.5` but applicable generally:
 `GPT-5.3-Codex`: more tool calls, longer runtimes, and identical or lower output quality compared to `Medium` or `High`.
 The retrieval task has weak stopping criteria by design. The prompt asks for measurements, not a specific content target.
 `web` provides open-ended tool access with no built-in completion signal, risking LLM overthinking.
+
+`EC-1`'s `GPT-5.2 Extra High` spent 48 minutes and 10 seconds searching with `web` 113 times and triggered context auto-compaction
+mid-run. The agent measured the same `web` buffer repeatedly across both halves of the compacted session: approximately
+13,383 chars and 3,346 tokens, confirmed again and again without producing new information. No error messages were visible
+in the thought panel. While other agents in the same test cycle successfully pivoted to `Browser` or `curl`, this agent didn't
+expose explicit struggle beyond unproductive spinning.
 
 ### Methodology Decision
 
@@ -126,7 +182,7 @@ destination serves a Next.js client-rendered app shell with nonce-gated scripts 
 `cache-control: no-cache, no-store, must-revalidate`. No agent received the Messages API reference body. The shell
 contained nav scaffolding, inline scripts, and JSON bundles, but no readable documentation text.
 
-Most `GPT`-series agents handled this redirect cleanly and consistently. Most runs that attempted `curl` or `web.open`
+Most `GPT`-series agents handled this redirect cleanly and consistently. Most runs that attempted `curl` or `web`
 acknowledged the `301` and named the destination correctly. No agent characterized the redirect as failure attributable to
 its own toolchain. Agents treated the redirect as a server property, noted, and incorporated into the two-path fetch strategy
 most runs adopted by `Medium` intelligence level or higher.
@@ -148,7 +204,7 @@ contexts rather than a difference in the underlying network behavior.
 The outcome instead produced a cross-ecosystem finding about `GPT` truncation reporting consistency.
 
 `GPT` agents converged on the same characterization: `curl` returns a structurally complete HTML shell,
-`web.open` returns a fixed 142-line extraction window that ends at the footer boundary. Different LLM variations
+`web` returns a fixed 142-line extraction window that ends at the footer boundary. Different LLM variations
 at different intelligence levels agreed on this framing with very little difference.
 
 [Cascade agents across testing cycles reported truncation very differently](../cognition-windsurf-cascade/friction-note-interpreted.md#truncation-taxonomy) -
@@ -222,39 +278,39 @@ before any truncation assessment logging:
 
 | **Layer** | **Mechanism** | **Agent-detectable?** | **Verification-detectable?** |
 | --- | --- | --- | --- |
-| **`web.open` Viewer Window** | Line-indexed extraction returns windowed excerpt, not full page; may start at `L39` or `L216`, not `L0` | _Yes_: if agent checks line count vs lines received | _Indirectly_: output size vs expected |
+| **`web` Viewer Window** | Line-indexed extraction returns windowed excerpt, not full page; may start at `L39` or `L216`, not `L0` | _Yes_: if agent checks line count vs lines received | _Indirectly_: output size vs expected |
 | **Terminal Display Truncation** | Tool output printed inline truncated by Codex transcript interface; note<br>`…116,434 tokens truncated…` | _Yes_: notice visible in tool output | _No_: hidden tokens not saved |
 | **HTTP Response Body** | Actual bytes received from the server via `curl` | _Yes_: `wc -c` on saved file | _Yes_: verifier script against known size |
 | **Wrong Resource Returned** | Server returns complete HTML doc without `200`; passes checks, but not target content | _Yes_: status code; not reliably acted on; `BL-3`'s `GPT-5.4-Mini High` identified `404` explicitly, but assessed payload as complete, possible mid-testing outage | _Yes_: headers status code |
 
-`SC-1` agents consistently acknowledged that `web.open` returned an extraction rather than a raw response, and reasoned
-toward `curl`, but didn't classify the extraction as truncation. The framing used across runs described the `web.open` result
+`SC-1` agents consistently acknowledged that `web` returned an extraction rather than a raw response, and reasoned
+toward `curl`, but didn't classify the extraction as truncation. The framing used across runs described the `web` result
 as a _rendered text view_, _line-numbered extraction_, or _normalized content_, treating it as a different artifact from the
 target rather than an intentionally truncated version of it. While technically accurate, it produces a systematic gap in
 self-reporting. An agent can correctly describe `web` limitations, escalate to `curl`, and still log `No truncation`
 because they commonly prioritized the `curl` results.
 
-Early `BL-1` `web.open`-only runs conflated all three layers into a single truncation field, also producing unreliable
-self-reports. `GPT-5.4 Low` was the first run to cleanly separate all three: separating the `web.open` viewer window
+Early `BL-1` `web`-only runs conflated all three layers into a single truncation field, also producing unreliable
+self-reports. `GPT-5.4 Low` was the first run to cleanly separate all three: separating the `web` viewer window
 from the terminal display truncation from the actual HTTP body, and correctly identified the body as complete while
 reporting truncation in the other layers. At least one later run confirmed the terminal display truncation layer as observable:
 `OP-4`'s `GPT-5.4 Extra High` produced an explicit `…124,675 tokens truncated…` marker in tool output mid-stream, with
 the saved file confirmed complete.
 
-`OP-1` run 16 introduced a type of pagination-completion false negative. The agent successfully paginated `web.open` output
+`OP-1` run 16 introduced a type of pagination-completion false negative. The agent successfully paginated `web` output
 to `L1863` and reported no truncation, reasoning that the full document was accessible. Technically accurate on one level, but
-misleading as a truncation assessment. `OP-1` `web.open` calls only returned a windowed slice, never retrieving the document
+misleading as a truncation assessment. `OP-1` `web` calls only returned a windowed slice, never retrieving the document
 as a contiguous payload.
 
 Three-layer truncation has a practical implications for hypothesis assessment. `H1` and `H2` character and token ceilings
-are only testable against the HTTP response body layer. Assessments made against `web.open` output measure the viewer window,
+are only testable against the HTTP response body layer. Assessments made against `web` output measure the viewer window,
 not the retrieval ceiling. Runs that didn't escalate to `curl` can't meaningfully contribute to `H1` or `H2` verdicts
 with the same confidence as runs that did.
 
 ### Methodology Decision
 
-Treat `web.open` output and `curl` output as measurements of different artifacts within the truncation taxonomy, not as better or
-worse versions of the same measurement. A `web.open`-only run documents default retrieval behavior for that LLM and intelligence
+Treat `web` output and `curl` output as measurements of different artifacts within the truncation taxonomy, not as better or
+worse versions of the same measurement. A `web`-only run documents default retrieval behavior for that LLM and intelligence
 level. A `curl`-escalated run documents what the agent does when it reasons past the default. Both are valid observations. The
 distinction is already recoverable from the tools named column without additional logging.
 
@@ -277,16 +333,16 @@ individual runs may have measured different cached versions of the same resource
 
 ---
 
-## `web.open` Line-Indexed Viewer
+## `web` Line-Indexed Viewer
 
-`web.open` doesn't return a raw HTTP response body. It returns a line-indexed, rendered text extraction: a processed view of the page
+`web.run open( {URL} )` doesn't return a raw HTTP response body. It returns a line-indexed, rendered text extraction: a processed view of the page
 with line numbers injected, HTML stripped, and a viewer window applied that doesn't necessarily start at line 0. The distinction matters
-for every measurement in the interpreted track:
+for every interpreted track metric:
 
-- **Character Counts** from `web.open` include injected line-number prefixes, inflating
+- **Character Counts** from `web` include injected line-number prefixes, inflating
   the count relative to the actual content.
 - **Viewer Window** starts at an arbitrary line offset, observed at `BL-1`'s `L39` and `L216` in
-  different runs, meaning `web.open`-only runs may return a mid-document slice with no
+  different runs, meaning `web`-only runs may return a mid-document slice with no
   skipping signal for previous content.
 - **Line Count** - agents consistently reported `Total lines: 542`, but it's a property of the
   extracted text representation, not the raw HTML.
@@ -302,10 +358,10 @@ for every measurement in the interpreted track:
 > partially normalized page view (`Total lines: 542`) centered on readable content,
 > while a direct terminal fetch returned the full HTML."_
 
-This suggests that `web.open`-only runs may not be retrieving a truncated version of the page so much as a different artifact entirely,
+This suggests that `web`-only runs may not be retrieving a truncated version of the page so much as a different artifact entirely,
 a rendered text view optimized for readability rather than byte-faithful retrieval. The `~85 KB` ceiling observed in
 <br>`GPT-5.4-Mini Medium/High/Extra High` may reflect the approximate size of that readable content layer rather than an infrastructure
-retrieval limit. `SC-2` produced a precise internal structure map of a `web.open` 142-line extraction window:
+retrieval limit. `SC-2` produced a precise internal structure map of a `web` 142-line extraction window:
 
 | **Zone** | **Lines** | **Content** |
 | --- | --- | --- |
@@ -322,11 +378,11 @@ captures a pre-hydration snapshot of the page: the content that exists in the ra
 CSP confirmed in run 8's headers file suggests that each script tag carries a per-request nonce that the extractor doesn't hold authorization
 to run. The `Loading...` placeholders may not be a retrieval failure, but represent the page's own loading state at the moment of extraction.
 
-`OP-1` confirmed a second document-specific window boundary. The `web.open` extraction consistently terminated at `L552` across
+`OP-1` confirmed a second document-specific window boundary. The `web` extraction consistently terminated at `L552` across
 runs 7, 8, 11, 12, 15, 18, and 20, spanning `GPT-5.3-Codex` through `GPT-5.5`. The content landmark at this boundary was stable: the Data
 compression section ending on mark for `"general intelligence".[24][25][26]`. The `wordlim: 200` parameter visible in tool metadata across runs
 is the likely control variable, with `L305` and `L552` representing consecutive 200-line window positions from the rendered document. The
-[URL fragment #History](https://en.wikipedia.org/wiki/Machine_learning#History) was silently stripped by `web.open` on every run, with the tool
+[URL fragment #History](https://en.wikipedia.org/wiki/Machine_learning#History) was silently stripped by `web` on every run, with the tool
 returning the full page from `L0` regardless of the fragment target.
 
 `OP-4` added new cutpoints for the [CommonMark Spec](https://spec.commonmark.org/0.31.2/): `L237` as the dominant first-fetch boundary across
@@ -335,10 +391,10 @@ document and version-correlated rather than fixed; illustrating a type of versio
 higher on newer.
 
 `BL-3` added a third document-specific cutpoint: `L453` for a [MongoDB tutorial](https://www.mongodb.com/docs/atlas/atlas-search/tutorial/),
-consistent across all LLM versions and intelligence levels that used `web.open`. The boundary falls at the page footer ending on
+consistent across all LLM versions and intelligence levels that used `web`. The boundary falls at the page footer ending on
 `© 2026 MongoDB, Inc.`, with the tutorial body absent due to client-side rendering rather than viewer window truncation.
 
-`OP-2` results offered more architectural precision. Codex's `web.open` is a single-view tool with optional manual pagination. The agent receives
+`OP-2` results offered more architectural precision. Codex's `web` is a single-view tool with optional manual pagination. The agent receives
 a windowed excerpt and must infer incompleteness from metadata visible in the tool output, primarily the gap between `Total lines: 1269` and lines
 actually received. Whether it issues a `lineno` offset call to advance the window depends entirely on whether it notices and acts on that gap.
 Pagination is an emergent reasoning behavior, but not an architectural guarantee.
@@ -352,9 +408,9 @@ direct path to accurate answers than paginating through rendered text windows. T
 more concerned with metric accuracy than content coverage, and `curl` satisfies both requirements in a single fetch. Pagination is most likely to occur
 when the agent has no easier path to the numbers.
 
-`SC-1` added precision to the viewer window architecture. The `web.open` extraction for the [Gemini URL Context doc](https://ai.google.dev/gemini-api/docs/url-context)
-produced a stable 479-line ceiling across all LLM versions and intelligence levels. Within that ceiling, a two-tier threshold was confirmed: a short-mode first view
-stops at approximately `L362`, while a second `open` call with a `lineno` offset or long-mode parameter recovers through `L478`. `GPT-5.3-Codex Extra High` was the
+`SC-1` added precision to the viewer window architecture. The `web` extraction for the [Gemini URL Context doc](https://ai.google.dev/gemini-api/docs/url-context)
+produced a stable 479-line ceiling across all LLM versions and intelligence levels. Within that ceiling, results confirmed a two-tier threshold: a short-mode first view
+stops at approximately `L362`, while a second `web` call with a `lineno` offset or long-mode parameter recovers through `L478`. `GPT-5.3-Codex Extra High` was the
 first run across 145 or more tests to explicitly name this as a `response_length: "short"` versus `response_length: "long"` parameter distinction in the
 tool. Subsequent runs confirmed the `L362` threshold behaviorally without naming it. The `GPT-5.4 Extra High` run used `printf` debugging to inspect the boundary content
 and confirmed that `L362` lands on a page-content notice rather than a Markdown structural boundary or an arbitrary byte position. This establishes that the short-mode
@@ -368,9 +424,15 @@ produced three distinct first-fetch boundaries: `L266`, `L353`, and `L309`. All 
 dual-cutpoint observation is the strongest evidence across all test cycles that the `web` window has a soft cap rather than a document-specific or
 LLM-specific constant.
 
-The practical consequence is that full-document access in Codex is either a reasoning success or a tool substitution, never a default outcome. `web.open`
-pagination requires the agent to notice the gap between `Total lines` reported and lines received, and to treat that gap as worth resolving. `curl` requires
-only that the agent decides measurement accuracy matters more than the tool it started with.
+`EC-1` results included an extraction ratio. `GPT-5.4 Extra High` produced the only `web`-exclusive metrics, receiving approximately 13,132–13,398 chars from a page with
+~132,894 chars in other runs, roughly 10% of the raw HTML body. Runs that escalated to `curl` didn't meaningfully examine the difference. Most confirmed the ceiling wasn't
+hit by checking `content-length` response headers or running `wc -c` on the saved file, then reported the byte count without processing the content. The measurement task
+rewards confirmation over reading, and `curl` satisfies both requirements in a single fetch. Neither retrieval path in `EC-1` produced genuine content coverage: `web`-only
+runs likely viewed ~10% of the page at a time, didn't traverse further, while `curl`-escalated runs confirmed byte count and moved on.
+
+The practical consequence is that full-document access in Codex is either a reasoning success or a tool substitution, never a default outcome. `web` pagination requires the
+agent to notice the gap between `Total lines` reported and lines received, and to treat that gap as worth resolving. `curl` requires only that the agent decides measurement
+accuracy matters more than the tool it started with.
 
 ---
 
@@ -421,7 +483,7 @@ near-identical content across files suggests the agent fetched the same resource
 genuinely distinct artifacts.
 
 This nondeterminism makes artifact presence an unreliable signal for distinguishing live retrieval from workspace reads.
-A run that skips `web.open` and goes directly to file operations may reflect a trained tool preference, session contamination,
+A run that skips `web` and goes directly to file operations may reflect a trained tool preference, session contamination,
 or silent reuse of an existing artifact. Whatever the cause, they produced nearly identical report metrics and observations.
 
 ### Methodology Decision
@@ -444,7 +506,7 @@ environment with read/write capability. The prompt condition _"no workspace"_ de
 project files, not the absence of the sandbox itself. The gap is between the framework's intent and the Codex environment's
 actual configuration. The bleed takes two forms with different implications:
 
-**Passive Bleed**: agents report sandbox access but don't use it. All `web.open`-only runs fall here. The disclosure is accurate
+**Passive Bleed**: agents report sandbox access but don't use it. All `web`-only runs fall here. The disclosure is accurate
 and doesn't affect retrieval behavior.
 
 **Active Bleed**: agents write artifacts to `/private/tmp` or the sandbox path during retrieval, then read those artifacts to
@@ -462,7 +524,7 @@ from learned behavior, session memory, or finding a prior run's cached file.
 
 Log workspace disclosure as a surface characteristic, not a test anomaly. Distinguish passive disclosure from active artifact
 creation in the tool visibility field. For runs where measurements derive from sandbox artifacts rather than direct tool output,
-document it in the notes column, as the measurement methodology differs from `web.open`-only runs and the two aren't directly
+document it in the notes column, as the measurement methodology differs from `web`-only runs and the two aren't directly
 comparable. For fresh-session verification, check whether `/private/tmp` is empty at run start. While a non-empty `/private/tmp` at
 the beginning of a purportedly fresh run is a contamination indicator, exclude `codex-browser-use` from the assessment. Its presence
 reflects desktop initialization, not a prior agent run's artifact. A non-empty `codex-browser-use` at run start identifies the
