@@ -1,6 +1,6 @@
 I’m working on my Agent Ecosystem Testing project: 
 
- https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/open-ai-codex/framework-reference
+https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/open-ai-codex/framework-reference
 
 I am logging my {test ID} results for Codex-interpreted track. {test type}, baseline tests intend to test
 {brief test description}. {test ID}'s test URL is specifically a {brieft test URL description}:
