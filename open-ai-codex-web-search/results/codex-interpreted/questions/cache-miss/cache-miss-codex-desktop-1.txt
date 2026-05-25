@@ -1,0 +1,61 @@
+GPT-5.5 Medium
+Version 26.519.41501 (3044)
+
+Prompt:
+I'm repeatedly seeing a web.run open Failed to fetch ...: Cache miss (no content retrieved) error for this GitHub URL:
+https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md
+
+Does the Codex web tool have some sort of limitation when it comes to reading files in GitHub repositories?
+Is it because web first attempts to retrieve a cached version of a URL and if it's not cached, it's not possible to retrieve it?
+
+---
+
+Codex web.run and GitHub raw URL cache misses
+
+Short answer: this does not appear to be a general limitation on reading files from GitHub repositories.
+The Codex web tool can read at least some raw.githubusercontent.com files, but it failed on this specific raw URL:
+
+https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md
+
+Observed behavior
+
+1. Opening the raw URL directly with web.run returned:
+
+   Failed to fetch https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md: Cache miss
+
+2. Opening the normal GitHub file page worked:
+
+   https://github.com/agent-ecosystem/agent-docs-spec/blob/main/SPEC.md
+
+   That page showed the file metadata and content, including that SPEC.md is 1555 lines, 1314 lines of code, and about 84.2 KB.
+
+3. Clicking the Raw link from the GitHub page also failed with a cache miss:
+
+   https://github.com/agent-ecosystem/agent-docs-spec/raw/refs/heads/main/SPEC.md
+
+4. As a control, another raw GitHub URL did load successfully:
+
+   https://raw.githubusercontent.com/github/gitignore/main/Python.gitignore
+
+What this likely means
+
+The error message suggests that this particular fetch path is mediated by a retrieval/cache layer. For this URL, that layer reported a cache miss and did not retrieve fresh content successfully. However, because another raw.githubusercontent.com URL loaded successfully, the failure is probably not simply "Codex web cannot read GitHub raw files."
+
+It is also not safe to conclude that web.run only reads pre-cached URLs and cannot fetch uncached URLs at all. The successful GitHub blob page and the successful raw.githubusercontent.com control URL argue against that. A better interpretation is:
+
+- web.run has a fetch/cache pipeline.
+- Some URLs, including this specific raw file URL, can fail inside that pipeline with "Cache miss."
+- The failure may be URL-specific, content-size-related, host/path-specific, transient, or an implementation quirk of the web retrieval backend.
+- The normal GitHub blob URL can be a useful workaround when the raw URL fails.
+
+Practical workaround
+
+Use the GitHub blob page when raw.githubusercontent.com fails:
+
+https://github.com/agent-ecosystem/agent-docs-spec/blob/main/SPEC.md
+
+In this case, web.run was able to read that page and extract the rendered file content. If you need exact raw bytes, line-preserving Markdown, or a large file without GitHub page chrome, a local command such as curl or git clone may be more reliable than web.run, assuming network access is available in the local environment.
+
+Bottom line
+
+The observed error is real, but it does not prove a broad GitHub repository limitation or a strict "cache-only" design. It looks more like a specific failure mode in the web tool's retrieval/cache layer for that raw URL.

@@ -1,0 +1,100 @@
+GPT-5.5 Medium
+Version 26.519.41501 (3044)
+
+Prompts:
+1. What does cache-miss mean, please give me more details? This is not an error I've seen while testing other agent platforms.
+2. "...this particular raw URL path did not produce a usable content artifact inside Codex’s web retrieval layer" ok, 
+but what about this URL produced a challenge in the web retrieval layer?
+
+
+Codex web.run Cache Miss Details
+
+Output 1
+
+In this context, "Cache miss" probably means the Codex web retrieval service looked for fetched/processed content for that URL and found no usable content object.
+
+It does not necessarily mean:
+
+- GitHub returned a cache error.
+- The file does not exist.
+- Your browser cache is involved.
+- raw.githubusercontent.com is universally blocked.
+- Codex can only read URLs that were already cached.
+
+The phrasing is coming from the web.run backend, not from GitHub. A more literal expansion would be something like:
+
+"I tried to open this URL through the web tool's retrieval/cache pipeline, but no retrievable page/content was available for that cache key."
+
+The important part is the parenthetical you saw: "no content retrieved." That suggests the tool did not end up with a fetched, transformed text payload it could hand to the model.
+
+Why this can happen in Codex but not other agents:
+
+Different agent platforms do web access very differently. Some agents do a plain HTTP request from the local runtime, almost like curl. Others use a browser. Others use a managed retrieval service that fetches, caches, converts HTML/text/PDF into model-readable snippets, applies safety/rate/size rules, and then returns that processed content.
+
+Codex's web.run appears to use the latter kind of pipeline. So there may be multiple places where a fetch can fail even though the URL is valid:
+
+- the origin fetch failed or timed out;
+- the backend chose not to fetch that URL directly;
+- the raw response was fetched but not stored/converted into usable content;
+- a cache lookup key missed after a redirect or URL normalization issue;
+- the file was too large or awkward for that specific raw-file path;
+- GitHub/CDN headers or redirects interacted badly with the retrieval service;
+- a transient backend issue occurred.
+
+Your specific case is especially interesting because the regular GitHub page worked:
+
+https://github.com/agent-ecosystem/agent-docs-spec/blob/main/SPEC.md
+
+...but the raw URL failed:
+
+https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md
+
+That makes me think this is less "Codex cannot access GitHub repositories" and more "this particular raw URL path did not produce a usable content artifact inside Codex's web retrieval layer."
+
+The cache wording is a little misleading because it sounds like a normal web cache. I would read it as an implementation-level retrieval error: Codex's web service expected or attempted to obtain a cached/processed representation, but none was available, and it did not successfully fall back to fresh retrieval.
+
+Practical takeaway: when raw.githubusercontent.com produces this error, try the GitHub blob URL, GitHub's ?plain=1/raw alternates, or use local network tools like curl/git clone where available.
+
+
+Output 2
+
+The likely challenge is the combination of raw GitHub CDN URL + fairly large mutable text file.
+
+I checked the headers directly with curl -I. The URL returns HTTP/2 200, so GitHub itself is serving it fine. The notable bits are:
+
+content-type: text/plain; charset=utf-8
+content-length: 91877
+cache-control: max-age=300
+vary: Authorization,Accept-Encoding
+x-cache: MISS
+via: 1.1 varnish
+
+So this file is about 91.9 KB as raw text. GitHub's rendered page reports it as 1555 lines / 84.2 KB:
+
+https://github.com/agent-ecosystem/agent-docs-spec/blob/main/SPEC.md
+
+What about this URL is probably awkward for web.run:
+
+1. It is over common agent-fetch comfort limits.
+
+   The file is about 92 KB raw. Many agent retrieval systems have internal thresholds around 50 KB, 100 KB, or token-equivalent limits. The funny part is that this spec itself discusses 50,000-character fetch limits for agents.
+
+2. It is served from raw.githubusercontent.com, not github.com.
+
+   Raw GitHub URLs are CDN-backed plain file responses. They do not have the normal GitHub HTML page structure, metadata, rendered Markdown, file navigation, or fallback content extraction path. If the web tool's raw-file fetch path is stricter than its HTML-page extraction path, this is exactly where you would see weirdness.
+
+3. The branch URL is mutable.
+
+   This URL points to main, not a commit SHA. Retrieval systems sometimes treat mutable raw URLs differently because the same URL can change. Combined with cache-control: max-age=300, the backend may be trying to manage a short-lived cache entry.
+
+4. GitHub's CDN says x-cache: MISS, but that is probably not the same error.
+
+   This is important: GitHub/Fastly's x-cache: MISS is normal. It just means the CDN fetched from origin instead of serving an edge-cached copy. Since the response is still 200, GitHub's cache miss is not a failure.
+
+   The web.run message "Cache miss (no content retrieved)" is almost certainly from Codex's retrieval layer, not GitHub's CDN.
+
+My best read: the URL is valid, but Codex's web backend failed to produce its own cached/processed content artifact for a large raw text file on GitHub's raw CDN. The regular GitHub page works because it goes through a different path: HTML retrieval plus GitHub page extraction.
+
+So the challenge is probably not "GitHub repository files" in general. It is more specifically:
+
+"a large raw.githubusercontent.com text asset, referenced by mutable branch URL, that crosses whatever size/processing/cache boundary Codex's web retrieval layer uses for raw content."
