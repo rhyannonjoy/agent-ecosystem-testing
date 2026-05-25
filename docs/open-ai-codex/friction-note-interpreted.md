@@ -82,8 +82,8 @@ as platform updates may change what gets swept and what doesn't.
 
 `EC-1`'s [Gemini API documentation](https://ai.google.dev/gemini-api/docs) was intended to stress-test retrieval behavior
 on a page that `web` can't fully render. Most agents didn't traverse with `web` long enough to produce useful data. The
-dominant pattern across all LLM versions was call `web.run open({"ref_id":"[URL]","lineno":[int]})`, note the extracted view,
-escalate to `curl`. `H1`-`H3` are only accurately testable against `web` output. Runs that escalated confirmed the raw fetch
+dominant pattern across all LLM versions was call `web.run open( {"ref_id": "[ URL ]", "lineno": [ int ]} )`, note the extracted
+view, escalate to `curl`. `H1`-`H3` are only accurately testable against `web` output. Runs that escalated confirmed the raw fetch
 ceiling wasn't hit, but that's a different question than whether the in-house retrieval surface has a ceiling.
 
 Three of four `GPT-5.5` runs bypassed the `web` pipeline entirely. The measurement task may accelerate this. When the prompt
@@ -348,7 +348,7 @@ individual runs may have measured different cached versions of the same resource
 
 ## `web` Line-Indexed Viewer
 
-`web.run open({"ref_id":"[URL]","lineno":[int]})` doesn't return a raw HTTP response body. It returns a line-indexed, rendered text
+`web.run open( {"ref_id": "[ URL ]", "lineno": [ int ]} )` doesn't return a raw HTTP response body. It returns a line-indexed, rendered text
 extraction: a processed view of the page with line numbers injected, HTML stripped, and a viewer window applied that doesn't
 necessarily start at line 0. The distinction matters for every interpreted track metric:
 
