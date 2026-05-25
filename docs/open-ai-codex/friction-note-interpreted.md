@@ -59,14 +59,15 @@ desktop versions, a few signals pose data integrity risks in the form of:
 - **Thought Panel Collapse**: command execution dropdown windows are only visible in real time.
   The remaining reasoning summary condenses failures, escalation logic, and rejected paths -
   the signals most useful for hypotheses assessment.
-- **Timer Drift**: real-time observations captured in screenshots show different elapsed times
-  than what the app displays for the same run after the fact.
+- **Timer Drift and/or Removal**: real-time observations captured in screenshots show different elapsed times
+  than what the app displays for the same run after the fact. `GPT-5.2` timers are completely absent from
+  chats post-session.
 
 Character counts, token estimation, and toolchain reporting appear somewhat more stable across this process. While these
 edits include numeric metrics, agentic effort through time, they also impact qualitative components such as prose framing,
 report structure, and strategy characterization. While most measurements may be reliable, the reasoning and self-reporting
 around them isn't. As a control measure, testing conditions include disablement of `Auto-review` and `Full access` settings.
-These mechanisms aren't visible in the thought panel, agents don't report the edits; whether either setting drives this
+These mechanisms aren't visible in the thought panel, agents don't report the edits. Whether either setting drives this
 particular behavior remains unconfirmed.
 
 ### Methodology Decision
@@ -89,11 +90,23 @@ Three of four `GPT-5.5` runs bypassed the `web` pipeline entirely. The measureme
 asks for character counts and token estimates, `curl` is a more direct path to numbers than paginating through a rendered text
 window. The prompt design may be actively displacing the retrieval behavior the test is trying to observe.
 
+`EC-3`'s redirect to a 660-char JSON body largely didn't support any hypotheses and wasn't explicitly designed to. Its value is
+as a floor case, a payload well below any suspected ceiling - and perhaps exposed behavior that tests with larger content sizes
+may obscure. Toolchain selection at minimum effort varied more than expected across LLM versions: most runs defaulted to
+`web`-`Node REPL`, but `GPT-5.2 Medium` and `GPT-5.5 High` bypassed the `web` pipeline entirely for `curl` without a size-driven
+reason to do so. `GPT-5.4-Mini Low` went `web`-only while `GPT-5.4-Mini Extra High` spent 2 minutes 33 seconds on the same payload
+with `tiktoken` probing and dual `tokenizer` estimates. Neither produced more enriched reports than the other. Agents repeatedly
+acknowledged expected vs received size discrepancies and though less often, corrected the prompt's `web.open` reference.
+Neither [Cursor](../anysphere-cursor/friction-note.md#agent-as-unreliable-methodology-validator) or
+[Cascade](../cognition-windsurf-cascade/friction-note-explicit.md#agent-as-unreliable-methodology-validator) agents made an effort
+to correct method references and/or general misuse.
+
 ### Methodology Decision
 
 For SPAs and/or JavaScript-heavy URLs, consider a two-prompt design: a first run asking the agent to describe what the retrieval
 surface returned without escalating, and a second run asking for measurement. Combining both goals in a single prompt favors `curl`
-escalation over `web` boundary examination.
+escalation over `web` boundary examination. With that said, lack of hypotheses support isn't always a reason to explicitly change
+testing conditions, but may offer an opportunity to change perspective to gather details less visible across other test cycles.
 
 ---
 
@@ -428,7 +441,9 @@ LLM-specific constant.
 ~132,894 chars in other runs, roughly 10% of the raw HTML body. Runs that escalated to `curl` didn't meaningfully examine the difference. Most confirmed the ceiling wasn't
 hit by checking `content-length` response headers or running `wc -c` on the saved file, then reported the byte count without processing the content. The measurement task
 rewards confirmation over reading, and `curl` satisfies both requirements in a single fetch. Neither retrieval path in `EC-1` produced genuine content coverage: `web`-only
-runs likely viewed ~10% of the page at a time, didn't traverse further, while `curl`-escalated runs confirmed byte count and moved on.
+runs likely viewed ~10% of the page at a time, didn't traverse further, while `curl`-escalated runs confirmed byte count and moved on. `EC-3` results produced the inverse
+in which `curl` runs returned 254 bytes while `web` pipeline runs returned 660 chars from the same URL, suggesting that `web` may re-serialize or reformat before calculating.
+Some agents speculated that `web` character count inflation is result of additional wrapper text, but no artifact supports either idea.
 
 The practical consequence is that full-document access in Codex is either a reasoning success or a tool substitution, never a default outcome. `web` pagination requires the
 agent to notice the gap between `Total lines` reported and lines received, and to treat that gap as worth resolving. `curl` requires only that the agent decides measurement
