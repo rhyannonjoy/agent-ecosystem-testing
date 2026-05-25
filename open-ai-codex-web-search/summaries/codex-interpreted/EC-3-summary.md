@@ -5,13 +5,13 @@
 |                 | **EC-3**                                                                                      |
 | --------------- | --------------------------------------------------------------------------------------------- |
 | URL             | `https://httpbin.org/redirect/5`                                                              |
-| Expected size   | ~2KB per prompt; actual confirmed 660 chars / 254 bytes via `curl` / ~165 tokens             |
+| Expected size   | ~2KB per prompt; actual confirmed 660 chars / 254 bytes via `curl` / ~165 tokens              |
 | Surface         | Codex IDE                                                                                     |
 | Workspace       | Session-scoped sandbox; `/private/tmp` cleared between sessions; `Documents/Codex` persistent |
 | Track           | `T1` GPT-interpreted, Codex IDE                                                               |
 | Method          | GPT-interpreted                                                                               |
 | Runs            | 20                                                                                            |
-| Chunks returned | N/A, codex-interpreted track                                                                        |
+| Chunks returned | N/A, codex-interpreted track                                                                  |
 
 ---
 
