@@ -1,7 +1,7 @@
 ---
 layout: default
-title: "Friction Note"
-permalink: /docs/open-ai-codex/friction-note-interpreted
+title: "Friction: Interpreted (Desktop)"
+permalink: /docs/open-ai-codex/friction-note-interpreted-desktop
 parent: OpenAI Codex
 ---
 
