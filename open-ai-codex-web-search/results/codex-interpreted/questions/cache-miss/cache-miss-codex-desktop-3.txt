@@ -1,0 +1,31 @@
+GPT-5.5 Medium
+Version 26.519.41501 (3044)
+
+Prompts:
+"...crosses whatever size/processing/cache boundary Codex’s web retrieval layer uses for raw content."
+Can you tell me what this boundary is? Is it discussed in any Codex documentation?
+
+---
+
+I can’t give you a documented numeric boundary, because I don’t see one published in OpenAI/Codex docs.
+
+What I found:
+
+The official Codex docs describe Codex web, Codex app, the in-app browser, and agent internet access, but they do not document a web.run raw-fetch size limit or a Cache miss (no content retrieved) threshold.
+Searches across official OpenAI docs/help pages for Cache miss, no content retrieved, web.run, and raw GitHub fetch behavior did not turn up public documentation.
+The Codex internet access docs discuss environment-level internet controls, domain allowlists, and HTTP method restrictions, including github.com / githubusercontent.com in common dependency domains, but not the internal retrieval/cache behavior of this chat-side web tool. See Codex agent internet access.
+The Codex app in-app browser docs say it is for local dev servers, file previews, and public pages that do not require sign-in, but again do not specify raw-file retrieval limits. See Codex in-app browser.
+So the honest answer is: no public Codex documentation I found states the boundary.
+
+The “boundary” language was my inference from behavior, not a documented rule. The observed facts are:
+
+The raw URL is valid and returns HTTP/2 200.
+It has content-length: 91877, so about 92 KB.
+A smaller raw.githubusercontent.com file loaded through web.run.
+The GitHub blob page for the same file loaded.
+This specific raw URL failed with Cache miss (no content retrieved).
+That makes size/processing/cache limits plausible, but I cannot pin it to “the limit is 90 KB,” “100 KB,” “50,000 chars,” etc. It could also be a bug, a transient retrieval issue, a raw-GitHub path handling issue, or some interaction with redirects/cache keys. My best refined wording would be:
+
+This URL appears to hit an undocumented failure mode in Codex’s web retrieval backend. Size is a plausible contributing factor, but the exact threshold is not publicly documented.
+
+Tiny correction to my prior phrasing: I should have said “may cross” rather than “crosses.” The evidence supports suspicion, not certainty.
