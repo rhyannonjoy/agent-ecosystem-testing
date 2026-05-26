@@ -346,6 +346,61 @@ individual runs may have measured different cached versions of the same resource
 
 ---
 
+## `web` `Cache Miss`
+
+Every `EC-6` run that attempted to retrieve with `web` on [the test URL](https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md)
+returned the same failure: `Failed to fetch ...: Cache miss (no content retrieved)`. All runs that produced metrics did so with `curl` escalation,
+either in response to the error or by skipping the `web` pipeline entirely.
+
+`Cache Miss` comes from Codex's internal retrieval layer, not from GitHub. A direct `curl` call against the same URL confirmed an `HTTP/2 200` with
+`content-length: 91877` and standard `x-cache: MISS` from GitHub's CDN indicating a fresh origin fetch, not a failure. Agent reports of
+`Cache miss (no content retrieved)` is a separate, downstream failure in Codex's own pipeline.
+
+A separate test confirmed that the failure is URL-specific rather than a blanket `raw.githubusercontent.com` block: a smaller raw GitHub file
+(`https://raw.githubusercontent.com/github/gitignore/main/Python.gitignore`) loaded successfully with `web`. The GitHub blob page for the same
+[`SPEC.md`](https://github.com/agent-ecosystem/agent-docs-spec/blob/main/SPEC.md) also loaded, suggesting the failure is path-type-specific,
+raw CDN responses, rather than repository-specific.
+
+No public Codex documentation describes the `Cache Miss` threshold or this raw-fetch failure mode. `Cache Miss` was consistent across 20 runs, which
+rules out transient or test implementation-level failures, but based on observed behavior and HTTP headers, plausible contributing factors include:
+
+- **File Size**: at ~92 KB raw, the file exceeds common agent retrieval comfort thresholds.
+  The spec itself documents 50,000-character fetch limits for agents, making this an
+  edge-case payload by the document's own framing.
+- **Raw CDN Path vs. Rendered Page Path**: `raw.githubusercontent.com` returns a
+  `text/plain` response with no HTML structure, metadata, or fallback extraction path.
+  Codex's `web` pipeline may use a different, stricter handling path for raw file
+  responses than for HTML pages.
+- **URL Mutability**: the URL references `main` rather than a commit SHA. Retrieval systems
+  that manage cache keys may treat mutable branch URLs differently, particularly combined
+  with GitHub's `cache-control: max-age=300`.
+
+No agent reported `Cache Miss` as an error worth investigating. All agents used a silent pivot: `web.run with open` failed, note it
+in passing, proceeded directly to `curl`. In spite of some agents using `web.search_query`, they didn't attempt an alternative path, such as the
+blob URL, retry the raw URL, or flag the failure as a signal about `web` pipeline limitations. As described in the [Truncation Taxonomy](#truncation-taxonomy),
+Codex agents tend to report successes, but not examine failures.
+
+`EC-6`'s silent pivot has a specific implication for the hypotheses. `H1–H3` are only testable against `web`'s surface. Because no run produced usable
+`web` output `H1–H3` are somewhat unreachable. The `curl`-based results confirm that the HTTP response body was complete and untruncated, which addresses a
+different question than whether `web` has a retrieval ceiling for this content type and size.
+
+`Cache Miss` is likely the mechanism behind the display truncation reported in runs 1, 14, 15, 16, 18, and 19. When agents printed `curl` output inline rather
+than saved to disk first, the Codex tool output renderer applied a separate truncation at ~12,970 tokens, visible as an inserted `…12970 tokens truncated…`
+marker. Runs that saved the file locally before measuring reported no truncation in the saved content. It's the terminal display truncation layer described in
+the [Truncation Taxonomy](#truncation-taxonomy), distinct from the `web` viewer window and the HTTP response body.
+
+### Methodology Decision
+
+Log `Cache Miss` as a Codex-specific finding for this URL rather than a reason to modify the test condition. Other platforms' frameworks have tested
+`EC-6'`s raw GitHub URL without producing this failure mode, suggesting a signal about Codex's `web` retrieval layer specifically, not a problem with the test
+design. Don't treat agent silence on the failure as evidence that it's benign. Lack of diagnosis is a finding about the Codex desktop app's `web` error visibility.
+
+>_`Cache Miss` in `web` output isn't related to the cache expiry described in [Codex CLI issue #4764](https://github.com/openai/codex/issues/4764),
+> which causes token consumption spikes when sessions idle for more than ~15 minutes. The two share only terminology: one is a content retrieval failure visible
+> to the agent, the other is a billing-layer infrastructure event that isn't_.
+
+---
+
 ## `web` Line-Indexed Viewer
 
 `web.run open( {"ref_id": "[ URL ]", "lineno": [ int ]} )` doesn't return a raw HTTP response body. It returns a line-indexed, rendered text
