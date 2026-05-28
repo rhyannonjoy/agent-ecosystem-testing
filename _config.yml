@@ -120,13 +120,13 @@ navigation:
     sections:
       - title: "Methodology"
         url: "/docs/open-ai-codex/methodology"
-      - title: "Findings: Interpreted (Desktop)"
+      - title: "Findings: Interpreted - Desktop"
         url: "/docs/open-ai-codex/codex-test-findings-desktop"
       - title: "Framework Reference"
         url: "/docs/open-ai-codex/framework-reference"
-      - title: "Friction: Interpreted (Desktop)"
+      - title: "Friction: Interpreted - Desktop"
         url: "/docs/open-ai-codex/friction-note-interpreted-desktop"
-      - title: "Friction: Interpreted (Extension)"
+      - title: "Friction: Interpreted - Extension"
         url: "/docs/open-ai-codex/friction-note-interpreted-extension"
 
   - title: "OpenAI Web Search"

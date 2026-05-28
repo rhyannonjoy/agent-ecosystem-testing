@@ -1,28 +1,26 @@
 ---
 layout: default
-title: "Key Findings for Codex's Web Search Behavior, GPT-interpreted (Desktop)"
+title: "Key Findings for Codex's Web Search Behavior, GPT-interpreted - Desktop"
 permalink: /docs/open-ai-codex/codex-test-findings-desktop
 parent: OpenAI Codex
 ---
 
-# Key Findings for Codex's Web Search Behavior, GPT-interpreted (Desktop)
+# Key Findings for Codex's Web Search Behavior, GPT-interpreted - Desktop
 
 ---
 
-## [Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/web_search_testing_framework.py)
+## [Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/framework.py)
 
-1. Run `python web_search_testing_framework.py --test {test ID} --track interpreted`
+1. Run `python framework.py --test {test ID} --track codex-interpreted`
 2. Review terminal output
 3. Copy the provided prompt asking agent to report on fetch results:
-   character count, token estimate, truncation status, content completeness,
+   character count, token estimate,<br>truncation status, content completeness,
    Markdown formatting integrity, and tool visibility
-4. Open a new Codex session in the Codex IDE, paste the prompt into the chat window
+4. Open a new session in the Codex desktop app, paste the prompt into the chat window
 5. Approve `curl` escalation and shell permission requests; skip requests for runs of local scripts
-6. Capture the agent's full response; observe the gap between self-report and actual retrieval behavior as the interpreted finding
-7. Log structured metadata as described in `framework-reference.md`
-8. Ensure log results saved to `/results/codex-interpreted/results.csv`
-
-> _`codex-implicit` results document fetch requests without explicit tool invocation tracking — a surface with a two-tier network access architecture (sandboxed shell → escalated `curl`) and no single-call full-page `web.open` retrieval path; see [Friction: Interpreted](friction-note-interpreted.md#webopen--fetch-architecture-and-parsing-limits) for analysis._
+6. Capture the agent's full response; observe the gap between self-report and actual retrieval behavior<br>as the interpreted finding
+7. Log structured metadata as described in [`framework-reference.md`](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/open-ai-codex/framework-reference#workflow)
+8. Ensure results saved to [`/results/codex-interpreted/results.csv`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/results/codex-interpreted/results.csv)
 
 ---
 
@@ -30,12 +28,12 @@ parent: OpenAI Codex
 
 | **Limit** | **Observed** |
 | --- | --- |
-| **Hard Character Limit** | _None detected via `curl` path_: successful `curl` fetches returned payloads from 660 chars to 3.1 MB with no ceiling hit; output chars on the `web.open` path reflect a `wordlim: 200` line window, not a byte ceiling |
-| **Hard Token Limit** | _None detected via `curl` path_: token counts ranged from ~24 to ~835,000; display truncation confirmed at ~12,970 tokens in `EC-6` tool output rendering, independent of HTTP retrieval |
-| **Output Consistency** | _Model-version-stratified_: same URL and intelligence level produced distinct output sizes and tool strategies across `GPT-5.2` through `GPT-5.5`; intelligence level is a weaker predictor than model version |
-| **Content Selection Behavior** | _Two-tier retrieval_: `web.open` returns a line-indexed rendered text extraction (`wordlim: 200`); full content requires `curl` escalation with elevated network permissions |
-| **Truncation Pattern** | _Three independent truncation layers_: `web.open` line window (L237–L657 depending on model/URL), terminal display cap (~12,970 tokens, `EC-6`), and the underlying HTTP response body (consistently complete via `curl`) |
-| **`web.open` Line Window** | _URL- and model-version-dependent_: L140 (`BL-1`), L237 (`OP-4`), L266/L309/L353 (`SC-3`), L305/L477/L552 (`OP-1`), L316/L657 (`SC-4`), L362/L478 (`SC-1`), L453 (`BL-3`), L479 (`EC-1`); variable across model versions for the same URL |
+| **Hard<br>Character<br>Limit** | _None detected via `curl` path_: successful `curl` fetches returned payloads from 660 chars to 3.1 MB with no ceiling hit; output chars on the `web` path reflect a `wordlim: 200` window, not a byte ceiling |
+| **Hard<br>Token<br>Limit** | _None detected via `curl` path_: token counts ranged from ~24 to ~835,000; display truncation confirmed at ~12,970 tokens in `EC-6` tool output rendering, independent of HTTP retrieval |
+| **Output<br>Consistency** | _LLM-version-stratified_: same URL and intelligence level produced distinct output sizes and tool strategies across `GPT-5.2` through `GPT-5.5`; intelligence level weaker predictor than LLM version |
+| **Content<br>Selection<br>Behavior** | _Two-tier retrieval_: `web` returns a line-indexed rendered text extraction, `wordlim: 200`; full content requires `curl` escalation with elevated network permissions |
+| **Truncation<br>Pattern** | _Three independent truncation layers_: `web` line-indexed window, LLM/URL dependent - `L237–L657`, `EC-6`'s terminal display cap ~12,970 tokens, and underlying `curl` response |
+| **`web`<br>Line-Indexed<br>Window** | _LLM-version-URL-dependent_: agent's choice, varied across sessions - `BL-1`:`L140`, `BL-3`:`L453`, `EC-1`:`L479`, `OP-4`:`L237`, `SC-3`:`L266/L309/L353`, `OP-1`:`L305/L477/L552`, `SC-4`:`L316/L657`, `SC-1`:`L362/L478` |
 | **`curl` Escalation** | _Model-version-gated_: `GPT-5.2` requires `Medium`+ intelligence; `GPT-5.3-Codex` typically `Medium`+; `GPT-5.4` escalates at `Low`; `GPT-5.5` bypasses `web.open` entirely at all levels |
 | **Session Contamination** | _Significant confound_: workspace artifacts from prior sessions persist across runs in `Documents/Codex`; `/private/tmp` clears between sessions; filename reuse observed across 42 / 261 runs |
 | **JS-Rendered Pages** | _Structural retrieval failure_: `SC-2` (Next.js/Netlify) and `BL-3` (Next.js/Gatsby) tutorial body absent from static extraction regardless of model or intelligence level; `curl` returns app shell only |
