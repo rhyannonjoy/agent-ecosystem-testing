@@ -63,48 +63,56 @@ parent: OpenAI Codex
 | **Loading Failure** | `SC-2` with Next.js CSP-nonce-gated SPA - `web` returned 142-line loading<br>shell, no agent retrieved API reference text |
 | **Runaway Failure** | `EC-1`:`GPT-5.2 Extra High` searched `web` 113 times over 48m10s, only session<br>in which context auto-compacted |
 
-## Retrieval Strategy by Model Version and Intelligence Level
+## Content Access x Intelligence
 
-Agents consistently used `web.open` as a first fetch attempt, but whether they escalated to `curl` — and at what intelligence level — is the primary behavioral variable in this dataset. The heatmap below shows retrieval outcome per run, organized by test ID (ascending by actual page size) and model family × intelligence level.
+Agentic task completion isn't a useful signal for page readability. For Codex, retrieval strategy largely influences content accessbility; its `web` tool
+returns a rendered text extraction window, but it's up to the agent to use it and most agent's didn't, at least not completely. Agents across this track most often
+started with `web`, recognized its limits, and pivoted to `curl` to complete the task, but `curl` returns a raw HTTP body whose readability entirely depends on that
+page's architecture. For JS-rendered pages, `curl` delivers app shells with prose absent. Agents rarely distinguished between having fetched a URL and
+having read it.
+
+The heatmap below encodes retrieval strategy, not task outcome. Rows are reasoning/intelligence levels, with LLM version as a sub-grouping. Columns are URLs ordered
+by content accessibility difficulty, left to right: straightforward static payloads → large static HTML → JS-rendered and/or SPAs where `curl` returns unreadable
+scaffolding.
 
 {% raw %}
-<div id="cdx-hm-root"></div>
+<div id="cdx-hm2-root"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 
 <style>
-.cdx-hm-wrap { overflow-x: auto; }
-table.cdx-hm { border-collapse: collapse; width: 100%; }
-table.cdx-hm th { font-size: 11px; font-weight: 500; padding: 4px 5px; text-align: center; white-space: nowrap; color: inherit; }
-table.cdx-hm th.cdx-row-head { text-align: left; }
-table.cdx-hm th .cdx-url-note { font-weight: 400; font-size: 10px; opacity: 0.55; }
-table.cdx-hm td { padding: 2px 3px; text-align: center; }
-table.cdx-hm td.cdx-row-label { font-size: 11px; text-align: left; padding-left: 0; white-space: nowrap; font-weight: 400; padding-right: 6px; color: inherit; }
-.cdx-hint { font-size: 11px; opacity: 0.5; margin-top: 6px; cursor: pointer; color: inherit; }
-.cdx-overlay {
+.cdx2-wrap { overflow-x: auto; }
+table.cdx2 { border-collapse: collapse; width: 100%; }
+table.cdx2 th { font-size: 10px; font-weight: 500; padding: 3px 4px; text-align: center; white-space: nowrap; color: inherit; }
+table.cdx2 th.cdx2-rh { text-align: left; }
+table.cdx2 th .cdx2-sub { font-weight: 400; font-size: 10px; opacity: 0.55; display: block; }
+table.cdx2 td { padding: 2px 2px; text-align: center; }
+table.cdx2 td.cdx2-rl { font-size: 11px; text-align: left; padding-left: 0; white-space: nowrap; font-weight: 400; padding-right: 6px; color: inherit; vertical-align: middle; }
+table.cdx2 td.cdx2-rl.cdx2-model { font-size: 10px; opacity: 0.65; padding-left: 8px; }
+.cdx2-hint { font-size: 11px; opacity: 0.5; margin-top: 6px; cursor: pointer; color: inherit; }
+.cdx2-overlay {
   position: fixed; inset: 0; z-index: 9999;
-  background: rgba(0,0,0,0.75);
+  background: rgba(0,0,0,0.78);
   display: flex; align-items: center; justify-content: center;
-  padding: 24px;
+  padding: 20px;
 }
-.cdx-overlay-inner {
-  border-radius: 10px;
-  padding: 24px 28px;
-  max-width: 98vw;
-  max-height: 92vh;
-  overflow: auto;
-  position: relative;
+.cdx2-overlay-inner {
+  border-radius: 10px; padding: 22px 26px;
+  max-width: 99vw; max-height: 93vh;
+  overflow: auto; position: relative;
 }
-.cdx-close {
-  position: absolute; top: 12px; right: 14px;
+.cdx2-close {
+  position: absolute; top: 10px; right: 12px;
   background: none; border: none; font-size: 20px;
   cursor: pointer; opacity: 0.5; line-height: 1;
 }
-.cdx-close:hover { opacity: 1; }
-.cdx-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; font-size: 11px; align-items: center; opacity: 0.8; }
-.cdx-legend-swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; flex-shrink: 0; border: 0.5px solid rgba(128,128,128,0.3); }
-.cdx-note { font-size: 12px; margin-top: 10px; line-height: 1.6; opacity: 0.7; }
+.cdx2-close:hover { opacity: 1; }
+.cdx2-section-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
+  opacity: 0.45; padding: 6px 0 2px 0; text-align: left;
+}
+.cdx2-divider td { border-top: 1px solid rgba(128,128,128,0.18); height: 4px; }
 </style>
 
 <script>
@@ -112,423 +120,337 @@ table.cdx-hm td.cdx-row-label { font-size: 11px; text-align: left; padding-left:
   var e = React.createElement;
 
   function detectDark() {
-    var theme = document.documentElement.getAttribute('data-theme');
-    if (theme === 'dark') return true;
-    if (theme === 'light') return false;
+    var t = document.documentElement.getAttribute('data-theme');
+    if (t === 'dark') return true;
+    if (t === 'light') return false;
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 
-  // Tests ordered by actual page size ascending
-  var testOrder = [
-    {id:'EC-3',  l1:'EC-3',  l2:'0.7 KB' },
-    {id:'BL-2',  l1:'BL-2',  l2:'6 KB'   },
-    {id:'SC-4',  l1:'SC-4',  l2:'65 KB'  },
-    {id:'EC-6',  l1:'EC-6',  l2:'92 KB'  },
-    {id:'EC-1',  l1:'EC-1',  l2:'133 KB' },
-    {id:'SC-1',  l1:'SC-1',  l2:'121 KB' },
-    {id:'BL-1',  l1:'BL-1',  l2:'505 KB' },
-    {id:'SC-2',  l1:'SC-2',  l2:'512 KB' },
-    {id:'OP-1',  l1:'OP-1',  l2:'696 KB' },
-    {id:'SC-3',  l1:'SC-3',  l2:'786 KB' },
-    {id:'BL-3',  l1:'BL-3',  l2:'3.1 MB' },
-    {id:'OP-2',  l1:'OP-2',  l2:'240 KB' },
-    {id:'OP-4',  l1:'OP-4',  l2:'514 KB' },
+  // Columns ordered by content accessibility difficulty:
+  // clean static → large static → JS-rendered/SPA (curl returns unreadable shell)
+  // Each entry: id, short label, difficulty tier, note shown on hover
+  var cols = [
+    // ── Readable via web.open ─────────────────────────────────────────
+    {id:'EC-3',  l1:'EC-3',  l2:'660 B',   tier:'readable', note:'Redirect JSON — tiny, inline, no truncation possible'},
+    {id:'BL-2',  l1:'BL-2',  l2:'6 KB',    tier:'readable', note:'Raw Markdown — small, clean, well below any ceiling'},
+    {id:'EC-6',  l1:'EC-6',  l2:'92 KB',   tier:'readable', note:'Raw GitHub Markdown — web.open cache miss; curl readable'},
+    {id:'SC-4',  l1:'SC-4',  l2:'65 KB',   tier:'readable', note:'Markdown Guide — static HTML, fully readable via curl'},
+    {id:'SC-1',  l1:'SC-1',  l2:'121 KB',  tier:'readable', note:'Gemini API docs — static HTML, readable via curl'},
+    // ── Large static — readable via curl but web.open truncates ───────
+    {id:'BL-1',  l1:'BL-1',  l2:'505 KB',  tier:'large',    note:'MongoDB docs — large static; curl readable; web.open line-windowed'},
+    {id:'OP-2',  l1:'OP-2',  l2:'240 KB',  tier:'large',    note:'MDN Array — large static HTML; curl readable'},
+    {id:'OP-1',  l1:'OP-1',  l2:'696 KB',  tier:'large',    note:'Wikipedia + #fragment — large; fragment silently dropped'},
+    {id:'SC-3',  l1:'SC-3',  l2:'786 KB',  tier:'large',    note:'Wikipedia population table — large; curl readable raw HTML'},
+    {id:'OP-4',  l1:'OP-4',  l2:'514 KB',  tier:'large',    note:'CommonMark spec — large; curl readable; web.open line-windowed'},
+    // ── JS-rendered — curl returns unreadable shell ───────────────────
+    {id:'EC-1',  l1:'EC-1',  l2:'133 KB',  tier:'spa',      note:'Gemini API SPA — web.open ~10% of raw; curl readable static shell'},
+    {id:'BL-3',  l1:'BL-3',  l2:'3.1 MB',  tier:'spa',      note:'MongoDB Atlas tutorial — Next.js/Gatsby; tutorial body JS-rendered, absent from any fetch'},
+    {id:'SC-2',  l1:'SC-2',  l2:'512 KB',  tier:'spa',      note:'Anthropic API docs — Next.js CSP-nonce SPA; curl returns app shell only; API reference text inaccessible'},
   ];
 
-  // OUTCOME CODES:
-  // pass      = full doc retrieved (curl or valid path)
-  // partial   = partial retrieval / web.open only / truncated
-  // fail      = retrieval failure (0 bytes, 400, loop, etc.)
-  // invalid   = HTTP 404 or known bad measurement
-  // N/A       = not run
+  // Surface encoding per run.
+  // web        — agent used web.open only (got text extraction, readable but possibly truncated)
+  // web+curl   — used both; reported on web.open limits explicitly (mixed)
+  // curl       — escalated to curl; bypassed or skipped web.open (implicit or curl-primary)
+  // web-fail   — attempted web.open, got nothing useful (cache miss, 0 bytes, DNS block)
+  // none       — no usable content retrieved (runaway loop, hard fail)
+  // n/a        — not run
 
-  var runs = [
-    // EC-3 (660 chars - all pass, tiny payload)
-    {test:'EC-3', agent:'5.2-L',    outcome:'pass'},
-    {test:'EC-3', agent:'5.2-M',    outcome:'pass'},
-    {test:'EC-3', agent:'5.2-H',    outcome:'pass'},
-    {test:'EC-3', agent:'5.2-XH',   outcome:'pass'},
-    {test:'EC-3', agent:'5.3-L',    outcome:'pass'},
-    {test:'EC-3', agent:'5.3-M',    outcome:'pass'},
-    {test:'EC-3', agent:'5.3-H',    outcome:'pass'},
-    {test:'EC-3', agent:'5.3-XH',   outcome:'pass'},
-    {test:'EC-3', agent:'5.4m-L',   outcome:'pass'},
-    {test:'EC-3', agent:'5.4m-M',   outcome:'pass'},
-    {test:'EC-3', agent:'5.4m-H',   outcome:'pass'},
-    {test:'EC-3', agent:'5.4m-XH',  outcome:'pass'},
-    {test:'EC-3', agent:'5.4-L',    outcome:'pass'},
-    {test:'EC-3', agent:'5.4-M',    outcome:'pass'},
-    {test:'EC-3', agent:'5.4-H',    outcome:'pass'},
-    {test:'EC-3', agent:'5.4-XH',   outcome:'pass'},
-    {test:'EC-3', agent:'5.5-L',    outcome:'pass'},
-    {test:'EC-3', agent:'5.5-M',    outcome:'pass'},
-    {test:'EC-3', agent:'5.5-H',    outcome:'pass'},
-    {test:'EC-3', agent:'5.5-XH',   outcome:'pass'},
-    // BL-2 (6 KB)
-    {test:'BL-2', agent:'5.2-L',    outcome:'fail'},
-    {test:'BL-2', agent:'5.2-M',    outcome:'pass'},
-    {test:'BL-2', agent:'5.2-H',    outcome:'pass'},
-    {test:'BL-2', agent:'5.2-XH',   outcome:'pass'},
-    {test:'BL-2', agent:'5.3-L',    outcome:'fail'},
-    {test:'BL-2', agent:'5.3-M',    outcome:'pass'},
-    {test:'BL-2', agent:'5.3-H',    outcome:'pass'},
-    {test:'BL-2', agent:'5.3-XH',   outcome:'pass'},
-    {test:'BL-2', agent:'5.4m-L',   outcome:'partial', note:'rendered view, curl DNS fail'},
-    {test:'BL-2', agent:'5.4m-M',   outcome:'pass'},
-    {test:'BL-2', agent:'5.4m-H',   outcome:'pass'},
-    {test:'BL-2', agent:'5.4m-XH',  outcome:'pass'},
-    {test:'BL-2', agent:'5.4-L',    outcome:'partial', note:'false truncation report'},
-    {test:'BL-2', agent:'5.4-M',    outcome:'fail'},
-    {test:'BL-2', agent:'5.4-H',    outcome:'pass'},
-    {test:'BL-2', agent:'5.4-XH',   outcome:'pass'},
-    {test:'BL-2', agent:'5.5-L',    outcome:'pass'},
-    {test:'BL-2', agent:'5.5-M',    outcome:'pass'},
-    {test:'BL-2', agent:'5.5-H',    outcome:'pass'},
-    {test:'BL-2', agent:'5.5-XH',   outcome:'pass'},
-    // SC-4 (65 KB)
-    {test:'SC-4', agent:'5.2-L',    outcome:'partial'},
-    {test:'SC-4', agent:'5.2-M',    outcome:'pass'},
-    {test:'SC-4', agent:'5.2-H',    outcome:'pass'},
-    {test:'SC-4', agent:'5.2-XH',   outcome:'pass'},
-    {test:'SC-4', agent:'5.3-L',    outcome:'pass', note:'bypassed web.open entirely'},
-    {test:'SC-4', agent:'5.3-M',    outcome:'pass'},
-    {test:'SC-4', agent:'5.3-H',    outcome:'pass'},
-    {test:'SC-4', agent:'5.3-XH',   outcome:'pass'},
-    {test:'SC-4', agent:'5.4m-L',   outcome:'partial', note:'curl 0 bytes, believed footer reached'},
-    {test:'SC-4', agent:'5.4m-M',   outcome:'pass'},
-    {test:'SC-4', agent:'5.4m-H',   outcome:'pass'},
-    {test:'SC-4', agent:'5.4m-XH',  outcome:'pass'},
-    {test:'SC-4', agent:'5.4-L',    outcome:'pass'},
-    {test:'SC-4', agent:'5.4-M',    outcome:'pass'},
-    {test:'SC-4', agent:'5.4-H',    outcome:'pass'},
-    {test:'SC-4', agent:'5.4-XH',   outcome:'pass'},
-    {test:'SC-4', agent:'5.5-L',    outcome:'pass', note:'bypassed web.open entirely'},
-    {test:'SC-4', agent:'5.5-M',    outcome:'pass'},
-    {test:'SC-4', agent:'5.5-H',    outcome:'pass'},
-    {test:'SC-4', agent:'5.5-XH',   outcome:'pass'},
-    // EC-6 (92 KB - raw GitHub, cache miss on web.open)
-    {test:'EC-6', agent:'5.2-L',    outcome:'pass', note:'display trunc ~20470 tok'},
-    {test:'EC-6', agent:'5.2-M',    outcome:'pass'},
-    {test:'EC-6', agent:'5.2-H',    outcome:'pass'},
-    {test:'EC-6', agent:'5.2-XH',   outcome:'pass'},
-    {test:'EC-6', agent:'5.3-L',    outcome:'pass', note:'bypassed web.open'},
-    {test:'EC-6', agent:'5.3-M',    outcome:'pass'},
-    {test:'EC-6', agent:'5.3-H',    outcome:'pass'},
-    {test:'EC-6', agent:'5.3-XH',   outcome:'pass'},
-    {test:'EC-6', agent:'5.4m-L',   outcome:'pass'},
-    {test:'EC-6', agent:'5.4m-M',   outcome:'pass'},
-    {test:'EC-6', agent:'5.4m-H',   outcome:'pass'},
-    {test:'EC-6', agent:'5.4m-XH',  outcome:'pass'},
-    {test:'EC-6', agent:'5.4-L',    outcome:'pass'},
-    {test:'EC-6', agent:'5.4-M',    outcome:'pass', note:'display trunc ~12970 tok'},
-    {test:'EC-6', agent:'5.4-H',    outcome:'pass', note:'display trunc ~12970 tok'},
-    {test:'EC-6', agent:'5.4-XH',   outcome:'pass', note:'display trunc ~12970 tok'},
-    {test:'EC-6', agent:'5.5-L',    outcome:'pass', note:'bypassed web.open'},
-    {test:'EC-6', agent:'5.5-M',    outcome:'pass', note:'display trunc confirmed'},
-    {test:'EC-6', agent:'5.5-H',    outcome:'pass', note:'display trunc confirmed'},
-    {test:'EC-6', agent:'5.5-XH',   outcome:'pass', note:'bypassed web.open'},
-    // EC-1 (133 KB SPA)
-    {test:'EC-1', agent:'5.2-L',    outcome:'pass'},
-    {test:'EC-1', agent:'5.2-M',    outcome:'partial', note:'web.open only, ~13K chars'},
-    {test:'EC-1', agent:'5.2-H',    outcome:'pass'},
-    {test:'EC-1', agent:'5.2-XH',   outcome:'fail', note:'113 searches, runaway 48m'},
-    {test:'EC-1', agent:'5.3-L',    outcome:'partial', note:'curl 0 bytes'},
-    {test:'EC-1', agent:'5.3-M',    outcome:'pass'},
-    {test:'EC-1', agent:'5.3-H',    outcome:'pass'},
-    {test:'EC-1', agent:'5.3-XH',   outcome:'pass'},
-    {test:'EC-1', agent:'5.4m-L',   outcome:'partial', note:'web.open extraction not isolated'},
-    {test:'EC-1', agent:'5.4m-M',   outcome:'pass', note:'Browser/Playwright path'},
-    {test:'EC-1', agent:'5.4m-H',   outcome:'pass', note:'Browser/Playwright path'},
-    {test:'EC-1', agent:'5.4m-XH',  outcome:'partial', note:'web.open only, no curl'},
-    {test:'EC-1', agent:'5.4-L',    outcome:'pass'},
-    {test:'EC-1', agent:'5.4-M',    outcome:'pass'},
-    {test:'EC-1', agent:'5.4-H',    outcome:'pass'},
-    {test:'EC-1', agent:'5.4-XH',   outcome:'partial', note:'web.open only, ~13K chars isolated'},
-    {test:'EC-1', agent:'5.5-L',    outcome:'pass', note:'bypassed web.open'},
-    {test:'EC-1', agent:'5.5-M',    outcome:'pass', note:'bypassed web.open'},
-    {test:'EC-1', agent:'5.5-H',    outcome:'pass'},
-    {test:'EC-1', agent:'5.5-XH',   outcome:'pass', note:'bypassed web.open'},
-    // SC-1 (121 KB)
-    {test:'SC-1', agent:'5.2-L',    outcome:'pass'},
-    {test:'SC-1', agent:'5.2-M',    outcome:'pass'},
-    {test:'SC-1', agent:'5.2-H',    outcome:'partial', note:'curl DNS blocked, web.open only'},
-    {test:'SC-1', agent:'5.2-XH',   outcome:'pass'},
-    {test:'SC-1', agent:'5.3-L',    outcome:'pass'},
-    {test:'SC-1', agent:'5.3-M',    outcome:'pass'},
-    {test:'SC-1', agent:'5.3-H',    outcome:'pass'},
-    {test:'SC-1', agent:'5.3-XH',   outcome:'pass'},
-    {test:'SC-1', agent:'5.4m-L',   outcome:'partial', note:'curl DNS blocked, two-fetch web.open'},
-    {test:'SC-1', agent:'5.4m-M',   outcome:'partial', note:'curl DNS blocked'},
-    {test:'SC-1', agent:'5.4m-H',   outcome:'partial', note:'curl DNS blocked, browser fallback'},
-    {test:'SC-1', agent:'5.4m-XH',  outcome:'partial', note:'curl DNS blocked, browser playwright'},
-    {test:'SC-1', agent:'5.4-L',    outcome:'partial', note:'curl not invoked'},
-    {test:'SC-1', agent:'5.4-M',    outcome:'pass'},
-    {test:'SC-1', agent:'5.4-H',    outcome:'pass'},
-    {test:'SC-1', agent:'5.4-XH',   outcome:'pass'},
-    {test:'SC-1', agent:'5.5-L',    outcome:'pass'},
-    {test:'SC-1', agent:'5.5-M',    outcome:'pass'},
-    {test:'SC-1', agent:'5.5-H',    outcome:'pass'},
-    {test:'SC-1', agent:'5.5-XH',   outcome:'pass'},
-    // BL-1 (505 KB - model-stratified curl escalation)
-    {test:'BL-1', agent:'5.2-L',    outcome:'partial', note:'wordlim:200 cap ~1600 chars'},
-    {test:'BL-1', agent:'5.2-M',    outcome:'partial', note:'L477 cut, gap-aware, no pagination'},
-    {test:'BL-1', agent:'5.2-H',    outcome:'pass', note:'curl escalation, 505K'},
-    {test:'BL-1', agent:'5.2-XH',   outcome:'pass', note:'curl, 18 web searches'},
-    {test:'BL-1', agent:'5.3-L',    outcome:'partial', note:'L140 cut, open→find template'},
-    {test:'BL-1', agent:'5.3-M',    outcome:'partial', note:'L140 cut identical to Low'},
-    {test:'BL-1', agent:'5.3-H',    outcome:'partial', note:'L477 cut, meta-ceiling reasoning'},
-    {test:'BL-1', agent:'5.3-XH',   outcome:'partial', note:'L477 cut, Node REPL'},
-    {test:'BL-1', agent:'5.4m-L',   outcome:'partial', note:'web.open line window ~19K'},
-    {test:'BL-1', agent:'5.4m-M',   outcome:'partial', note:'web.open ~85K, identical tail'},
-    {test:'BL-1', agent:'5.4m-H',   outcome:'partial', note:'web.open ~85K, fewer tool calls'},
-    {test:'BL-1', agent:'5.4m-XH',  outcome:'partial', note:'3-part fetch strategy, 85s runtime'},
-    {test:'BL-1', agent:'5.4-L',    outcome:'pass', note:'curl default, 3 trunc layers'},
-    {test:'BL-1', agent:'5.4-M',    outcome:'pass', note:'curl default, stable profile'},
-    {test:'BL-1', agent:'5.4-H',    outcome:'pass', note:'curl, DNS sandbox retry'},
-    {test:'BL-1', agent:'5.4-XH',   outcome:'pass', note:'curl, session contamination flag'},
-    {test:'BL-1', agent:'5.5-L',    outcome:'pass', note:'curl primary, no web.open'},
-    {test:'BL-1', agent:'5.5-M',    outcome:'pass', note:'curl primary, session contam flag'},
-    {test:'BL-1', agent:'5.5-H',    outcome:'pass', note:'curl primary, session contam flag'},
-    {test:'BL-1', agent:'5.5-XH',   outcome:'pass', note:'curl, parallel tools, session contam'},
-    // SC-2 (512 KB Next.js SPA - structural retrieval failure)
-    {test:'SC-2', agent:'5.2-L',    outcome:'partial', note:'JS render wall, loading shell'},
-    {test:'SC-2', agent:'5.2-M',    outcome:'partial', note:'wordlim:200, redirect detected'},
-    {test:'SC-2', agent:'5.2-H',    outcome:'pass', note:'curl, Next.js shell ~512K'},
-    {test:'SC-2', agent:'5.2-XH',   outcome:'fail', note:'curl DNS fail, 1hr+ loop'},
-    {test:'SC-2', agent:'5.3-L',    outcome:'partial', note:'curl 0 bytes, web.open shell'},
-    {test:'SC-2', agent:'5.3-M',    outcome:'pass', note:'curl escalated, 512K shell'},
-    {test:'SC-2', agent:'5.3-H',    outcome:'pass'},
-    {test:'SC-2', agent:'5.3-XH',   outcome:'pass', note:'headers saved, CSP nonce confirmed'},
-    {test:'SC-2', agent:'5.4m-L',   outcome:'pass', note:'most efficient, 57s, 8% ctx'},
-    {test:'SC-2', agent:'5.4m-M',   outcome:'partial', note:'curl DNS fail, 142-line L141'},
-    {test:'SC-2', agent:'5.4m-H',   outcome:'partial', note:'browser, innerText 15K'},
-    {test:'SC-2', agent:'5.4m-XH',  outcome:'pass'},
-    {test:'SC-2', agent:'5.4-L',    outcome:'partial', note:'web.open only, truncation named'},
-    {test:'SC-2', agent:'5.4-M',    outcome:'pass', note:'display vs retrieval trunc distd'},
-    {test:'SC-2', agent:'5.4-H',    outcome:'partial', note:'web.open only, 142-line confirmed'},
-    {test:'SC-2', agent:'5.4-XH',   outcome:'pass', note:'Loading block mapped L28-L84'},
-    {test:'SC-2', agent:'5.5-L',    outcome:'pass', note:'browser screenshot confirms loading'},
-    {test:'SC-2', agent:'5.5-M',    outcome:'pass', note:'bypassed web.open, curl only'},
-    {test:'SC-2', agent:'5.5-H',    outcome:'pass', note:'perl UTF-8, 0 fences confirmed'},
-    {test:'SC-2', agent:'5.5-XH',   outcome:'partial', note:'web.open only, Loading L23'},
-    // OP-1 (696 KB Wikipedia + fragment)
-    {test:'OP-1', agent:'5.2-L',    outcome:'pass', note:'fragment-aware, curl direct'},
-    {test:'OP-1', agent:'5.2-M',    outcome:'partial', note:'web.open L303, wordlim:200, 9m'},
-    {test:'OP-1', agent:'5.2-H',    outcome:'pass'},
-    {test:'OP-1', agent:'5.2-XH',   outcome:'pass', note:'37 searches, History regex isolated'},
-    {test:'OP-1', agent:'5.3-L',    outcome:'partial', note:'lineno pagination, missing middle'},
-    {test:'OP-1', agent:'5.3-M',    outcome:'pass'},
-    {test:'OP-1', agent:'5.3-H',    outcome:'pass', note:'L305/L551 cutpoints named'},
-    {test:'OP-1', agent:'5.3-XH',   outcome:'pass'},
-    {test:'OP-1', agent:'5.4m-L',   outcome:'partial', note:'web.open L305, curl 0 bytes'},
-    {test:'OP-1', agent:'5.4m-M',   outcome:'partial', note:'wordlim:200, 3-turn pagination'},
-    {test:'OP-1', agent:'5.4m-H',   outcome:'pass'},
-    {test:'OP-1', agent:'5.4m-XH',  outcome:'partial', note:'L552/L553 handoff, no curl'},
-    {test:'OP-1', agent:'5.4-L',    outcome:'partial', note:'web.open L305, no curl'},
-    {test:'OP-1', agent:'5.4-M',    outcome:'pass'},
-    {test:'OP-1', agent:'5.4-H',    outcome:'pass'},
-    {test:'OP-1', agent:'5.4-XH',   outcome:'pass'},
-    {test:'OP-1', agent:'5.5-L',    outcome:'pass', note:'curl only, bypassed web.open'},
-    {test:'OP-1', agent:'5.5-M',    outcome:'partial', note:'web.open L552, curl complete'},
-    {test:'OP-1', agent:'5.5-H',    outcome:'pass', note:'curl only, bypassed web.open'},
-    {test:'OP-1', agent:'5.5-XH',   outcome:'pass'},
-    // SC-3 (786 KB Wikipedia)
-    {test:'SC-3', agent:'5.2-L',    outcome:'partial', note:'web.run snippets, no curl'},
-    {test:'SC-3', agent:'5.2-M',    outcome:'pass'},
-    {test:'SC-3', agent:'5.2-H',    outcome:'pass'},
-    {test:'SC-3', agent:'5.2-XH',   outcome:'pass', note:'20 searches, triple artifact'},
-    {test:'SC-3', agent:'5.3-L',    outcome:'partial', note:'two-fetch start+end, no curl'},
-    {test:'SC-3', agent:'5.3-M',    outcome:'pass'},
-    {test:'SC-3', agent:'5.3-H',    outcome:'pass'},
-    {test:'SC-3', agent:'5.3-XH',   outcome:'pass'},
-    {test:'SC-3', agent:'5.4m-L',   outcome:'fail', note:'curl 0 bytes, believed 18K complete'},
-    {test:'SC-3', agent:'5.4m-M',   outcome:'partial', note:'L266 correctly identified, no curl'},
-    {test:'SC-3', agent:'5.4m-H',   outcome:'pass'},
-    {test:'SC-3', agent:'5.4m-XH',  outcome:'pass', note:'text proxy 67K measured separately'},
-    {test:'SC-3', agent:'5.4-L',    outcome:'partial', note:'L266, lineno pagination, no curl'},
-    {test:'SC-3', agent:'5.4-M',    outcome:'partial', note:'3-point traversal, no curl'},
-    {test:'SC-3', agent:'5.4-H',    outcome:'partial', note:'L353, follow-up L1225, no curl'},
-    {test:'SC-3', agent:'5.4-XH',   outcome:'pass', note:'L266+L353 both in single session'},
-    {test:'SC-3', agent:'5.5-L',    outcome:'pass'},
-    {test:'SC-3', agent:'5.5-M',    outcome:'pass'},
-    {test:'SC-3', agent:'5.5-H',    outcome:'pass'},
-    {test:'SC-3', agent:'5.5-H2',   outcome:'pass'},
-    {test:'SC-3', agent:'5.5-XH',   outcome:'pass', note:'custom user-agent, L309 third cutoff'},
-    // BL-3 (3.1 MB Next.js tutorial)
-    {test:'BL-3', agent:'5.2-L',    outcome:'partial', note:'curl ~299KB anomaly'},
-    {test:'BL-3', agent:'5.2-M',    outcome:'pass', note:'curl 3MB'},
-    {test:'BL-3', agent:'5.2-H',    outcome:'pass'},
-    {test:'BL-3', agent:'5.2-XH',   outcome:'pass'},
-    {test:'BL-3', agent:'5.3-L',    outcome:'partial', note:'web.open only, 453-line cap'},
-    {test:'BL-3', agent:'5.3-M',    outcome:'partial', note:'web.open only, 453-line cap'},
-    {test:'BL-3', agent:'5.3-H',    outcome:'pass'},
-    {test:'BL-3', agent:'5.3-XH',   outcome:'pass'},
-    {test:'BL-3', agent:'5.4m-L',   outcome:'partial', note:'web.open only, 453-line cap'},
-    {test:'BL-3', agent:'5.4m-M',   outcome:'invalid', note:'HTTP 404 fetched'},
-    {test:'BL-3', agent:'5.4m-H',   outcome:'invalid', note:'HTTP 404 fetched'},
-    {test:'BL-3', agent:'5.4m-XH',  outcome:'invalid', note:'HTTP 404 fetched'},
-    {test:'BL-3', agent:'5.4-L',    outcome:'partial', note:'web.open only, 453-line cap'},
-    {test:'BL-3', agent:'5.4-M',    outcome:'pass'},
-    {test:'BL-3', agent:'5.4-H',    outcome:'pass'},
-    {test:'BL-3', agent:'5.4-XH',   outcome:'pass', note:'L385-L389 boundary localized'},
-    {test:'BL-3', agent:'5.5-L',    outcome:'pass', note:'curl-first, web.open bypassed'},
-    {test:'BL-3', agent:'5.5-M',    outcome:'pass'},
-    {test:'BL-3', agent:'5.5-H',    outcome:'pass'},
-    {test:'BL-3', agent:'5.5-XH',   outcome:'pass'},
-    // OP-2 (240 KB MDN Array)
-    {test:'OP-2', agent:'5.2-L',    outcome:'pass'},
-    {test:'OP-2', agent:'5.2-M',    outcome:'pass'},
-    {test:'OP-2', agent:'5.2-H',    outcome:'pass'},
-    {test:'OP-2', agent:'5.2-XH',   outcome:'pass'},
-    {test:'OP-2', agent:'5.3-L',    outcome:'pass'},
-    {test:'OP-2', agent:'5.3-M',    outcome:'pass'},
-    {test:'OP-2', agent:'5.3-H',    outcome:'pass'},
-    {test:'OP-2', agent:'5.3-XH',   outcome:'pass'},
-    {test:'OP-2', agent:'5.4m-L',   outcome:'partial', note:'curl 0 bytes silent fail'},
-    {test:'OP-2', agent:'5.4m-M',   outcome:'pass'},
-    {test:'OP-2', agent:'5.4m-H',   outcome:'pass'},
-    {test:'OP-2', agent:'5.4m-XH',  outcome:'partial', note:'browser only, DOM 143K vs raw 240K'},
-    {test:'OP-2', agent:'5.4-L',    outcome:'pass'},
-    {test:'OP-2', agent:'5.4-M',    outcome:'pass'},
-    {test:'OP-2', agent:'5.4-H',    outcome:'pass'},
-    {test:'OP-2', agent:'5.4-XH',   outcome:'pass'},
-    {test:'OP-2', agent:'5.5-L',    outcome:'pass', note:'curl only, bypassed web.open'},
-    {test:'OP-2', agent:'5.5-M',    outcome:'pass'},
-    {test:'OP-2', agent:'5.5-H',    outcome:'pass'},
-    {test:'OP-2', agent:'5.5-XH',   outcome:'pass'},
-    // OP-4 (514 KB CommonMark)
-    {test:'OP-4', agent:'5.2-L',    outcome:'partial', note:'web.open only, L237 ceiling'},
-    {test:'OP-4', agent:'5.2-M',    outcome:'partial', note:'lineno tail probe, no curl'},
-    {test:'OP-4', agent:'5.2-H',    outcome:'partial', note:'looped 14m24s, L237 ceiling'},
-    {test:'OP-4', agent:'5.2-XH',   outcome:'pass'},
-    {test:'OP-4', agent:'5.3-L',    outcome:'partial', note:'web.open only, L237'},
-    {test:'OP-4', agent:'5.3-M',    outcome:'pass', note:'bypassed web.open'},
-    {test:'OP-4', agent:'5.3-H',    outcome:'pass', note:'run 6 - most granular permissions'},
-    {test:'OP-4', agent:'5.3-XH',   outcome:'pass'},
-    {test:'OP-4', agent:'5.4m-L',   outcome:'partial', note:'curl DNS fail, tail reached L7422'},
-    {test:'OP-4', agent:'5.4m-M',   outcome:'pass'},
-    {test:'OP-4', agent:'5.4m-H',   outcome:'pass'},
-    {test:'OP-4', agent:'5.4m-XH',  outcome:'pass'},
-    {test:'OP-4', agent:'5.4-L',    outcome:'pass', note:'first Low-tier curl success in OP-4'},
-    {test:'OP-4', agent:'5.4-M',    outcome:'pass'},
-    {test:'OP-4', agent:'5.4-H',    outcome:'pass', note:'pagination described correctly'},
-    {test:'OP-4', agent:'5.4-XH',   outcome:'pass', note:'3 trunc layers identified'},
-    {test:'OP-4', agent:'5.5-L',    outcome:'pass', note:'curl only, 27s, 8% ctx'},
-    {test:'OP-4', agent:'5.5-M',    outcome:'pass', note:'curl only'},
-    {test:'OP-4', agent:'5.5-H',    outcome:'pass', note:'curl only'},
-    {test:'OP-4', agent:'5.5-XH',   outcome:'pass'},
-  ];
+  // Rows: grouped by intelligence level, sub-keyed by model version
+  // Key format: "MODEL:LEVEL" e.g. "5.2:L"
+  var LEVELS = ['L','M','H','XH'];
+  var MODELS = ['5.2','5.3','5.4m','5.4','5.5'];
 
-  // Agent rows: model version × intelligence level
-  var agentOrder = [
-    '5.2-L','5.2-M','5.2-H','5.2-XH',
-    '5.3-L','5.3-M','5.3-H','5.3-XH',
-    '5.4m-L','5.4m-M','5.4m-H','5.4m-XH',
-    '5.4-L','5.4-M','5.4-H','5.4-XH',
-    '5.5-L','5.5-M','5.5-H','5.5-XH',
-    '5.5-H2'
-  ];
+  var MODEL_LABELS = {
+    '5.2':  'GPT-5.2',
+    '5.3':  'GPT-5.3-Codex',
+    '5.4m': 'GPT-5.4-Mini',
+    '5.4':  'GPT-5.4',
+    '5.5':  'GPT-5.5',
+  };
+  var LEVEL_LABELS = { L:'Low', M:'Medium', H:'High', XH:'Extra High' };
 
-  var agentLabels = {
-    '5.2-L':   'GPT-5.2 Low',
-    '5.2-M':   'GPT-5.2 Medium',
-    '5.2-H':   'GPT-5.2 High',
-    '5.2-XH':  'GPT-5.2 Extra High',
-    '5.3-L':   'GPT-5.3-Codex Low',
-    '5.3-M':   'GPT-5.3-Codex Medium',
-    '5.3-H':   'GPT-5.3-Codex High',
-    '5.3-XH':  'GPT-5.3-Codex Extra High',
-    '5.4m-L':  'GPT-5.4-Mini Low',
-    '5.4m-M':  'GPT-5.4-Mini Medium',
-    '5.4m-H':  'GPT-5.4-Mini High',
-    '5.4m-XH': 'GPT-5.4-Mini Extra High',
-    '5.4-L':   'GPT-5.4 Low',
-    '5.4-M':   'GPT-5.4 Medium',
-    '5.4-H':   'GPT-5.4 High',
-    '5.4-XH':  'GPT-5.4 Extra High',
-    '5.5-L':   'GPT-5.5 Low',
-    '5.5-M':   'GPT-5.5 Medium',
-    '5.5-H':   'GPT-5.5 High',
-    '5.5-XH':  'GPT-5.5 Extra High',
-    '5.5-H2':  'GPT-5.5 High*',
+  // Surface data: runs[testId][modelKey] = {surface, note}
+  // modelKey = model + ':' + level
+  var runs = {
+    'EC-3': {
+      '5.2:L':'web','5.2:M':'curl','5.2:H':'web','5.2:XH':'web',
+      '5.3:L':'web','5.3:M':'web','5.3:H':'web','5.3:XH':'web',
+      '5.4m:L':'web','5.4m:M':'web','5.4m:H':'web','5.4m:XH':'web',
+      '5.4:L':'web','5.4:M':'web','5.4:H':'web','5.4:XH':'web',
+      '5.5:L':'web','5.5:M':'web','5.5:H':'curl','5.5:XH':'web',
+    },
+    'BL-2': {
+      '5.2:L':'web-fail','5.2:M':'web+curl','5.2:H':'web+curl','5.2:XH':'web+curl',
+      '5.3:L':'web-fail','5.3:M':'web+curl','5.3:H':'web+curl','5.3:XH':'web+curl',
+      '5.4m:L':'web','5.4m:M':'web+curl','5.4m:H':'web+curl','5.4m:XH':'web+curl',
+      '5.4:L':'web+curl','5.4:M':'web-fail','5.4:H':'web+curl','5.4:XH':'web+curl',
+      '5.5:L':'curl','5.5:M':'curl','5.5:H':'curl','5.5:XH':'web+curl',
+    },
+    'EC-6': {
+      '5.2:L':'curl','5.2:M':'curl','5.2:H':'curl','5.2:XH':'curl',
+      '5.3:L':'curl','5.3:M':'web+curl','5.3:H':'curl','5.3:XH':'curl',
+      '5.4m:L':'curl','5.4m:M':'curl','5.4m:H':'curl','5.4m:XH':'curl',
+      '5.4:L':'curl','5.4:M':'curl','5.4:H':'curl','5.4:XH':'curl',
+      '5.5:L':'curl','5.5:M':'curl','5.5:H':'curl','5.5:XH':'curl',
+    },
+    'SC-4': {
+      '5.2:L':'web','5.2:M':'web+curl','5.2:H':'web+curl','5.2:XH':'web+curl',
+      '5.3:L':'curl','5.3:M':'web+curl','5.3:H':'web+curl','5.3:XH':'web+curl',
+      '5.4m:L':'web','5.4m:M':'web+curl','5.4m:H':'web+curl','5.4m:XH':'web+curl',
+      '5.4:L':'web+curl','5.4:M':'web+curl','5.4:H':'web+curl','5.4:XH':'web+curl',
+      '5.5:L':'curl','5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':'web+curl',
+    },
+    'SC-1': {
+      '5.2:L':'web+curl','5.2:M':'web+curl','5.2:H':'web','5.2:XH':'web+curl',
+      '5.3:L':'web+curl','5.3:M':'web+curl','5.3:H':'web+curl','5.3:XH':'web+curl',
+      '5.4m:L':'web','5.4m:M':'web','5.4m:H':'web','5.4m:XH':'web',
+      '5.4:L':'web','5.4:M':'web+curl','5.4:H':'web+curl','5.4:XH':'web+curl',
+      '5.5:L':'web+curl','5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':'web+curl',
+    },
+    'BL-1': {
+      '5.2:L':'web','5.2:M':'web','5.2:H':'curl','5.2:XH':'curl',
+      '5.3:L':'web','5.3:M':'web','5.3:H':'web','5.3:XH':'web',
+      '5.4m:L':'web','5.4m:M':'web','5.4m:H':'web','5.4m:XH':'web',
+      '5.4:L':'curl','5.4:M':'curl','5.4:H':'curl','5.4:XH':'curl',
+      '5.5:L':'curl','5.5:M':'curl','5.5:H':'curl','5.5:XH':'curl',
+    },
+    'OP-2': {
+      '5.2:L':'web+curl','5.2:M':'web+curl','5.2:H':'web+curl','5.2:XH':'web+curl',
+      '5.3:L':'web+curl','5.3:M':'web+curl','5.3:H':'web+curl','5.3:XH':'web+curl',
+      '5.4m:L':'web','5.4m:M':'web+curl','5.4m:H':'web+curl','5.4m:XH':'web',
+      '5.4:L':'web+curl','5.4:M':'web+curl','5.4:H':'web+curl','5.4:XH':'web+curl',
+      '5.5:L':'curl','5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':'web+curl',
+    },
+    'OP-1': {
+      '5.2:L':'curl','5.2:M':'web','5.2:H':'web+curl','5.2:XH':'curl',
+      '5.3:L':'web','5.3:M':'web+curl','5.3:H':'web+curl','5.3:XH':'web+curl',
+      '5.4m:L':'web','5.4m:M':'web','5.4m:H':'web+curl','5.4m:XH':'web',
+      '5.4:L':'web','5.4:M':'web+curl','5.4:H':'web+curl','5.4:XH':'curl',
+      '5.5:L':'curl','5.5:M':'web+curl','5.5:H':'curl','5.5:XH':'web+curl',
+    },
+    'SC-3': {
+      '5.2:L':'web','5.2:M':'web+curl','5.2:H':'web+curl','5.2:XH':'web+curl',
+      '5.3:L':'web','5.3:M':'web+curl','5.3:H':'web+curl','5.3:XH':'web+curl',
+      '5.4m:L':'web','5.4m:M':'web','5.4m:H':'web+curl','5.4m:XH':'web+curl',
+      '5.4:L':'web','5.4:M':'web','5.4:H':'web','5.4:XH':'web+curl',
+      '5.5:L':'web+curl','5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':'web+curl',
+    },
+    'OP-4': {
+      '5.2:L':'web','5.2:M':'web','5.2:H':'web','5.2:XH':'web+curl',
+      '5.3:L':'web','5.3:M':'curl','5.3:H':'curl','5.3:XH':'web+curl',
+      '5.4m:L':'web','5.4m:M':'web+curl','5.4m:H':'web+curl','5.4m:XH':'web+curl',
+      '5.4:L':'web+curl','5.4:M':'web+curl','5.4:H':'web+curl','5.4:XH':'web+curl',
+      '5.5:L':'curl','5.5:M':'curl','5.5:H':'curl','5.5:XH':'web+curl',
+    },
+    'EC-1': {
+      '5.2:L':'web+curl','5.2:M':'web','5.2:H':'web+curl','5.2:XH':'none',
+      '5.3:L':'web-fail','5.3:M':'web+curl','5.3:H':'web+curl','5.3:XH':'web+curl',
+      '5.4m:L':'web','5.4m:M':'web+curl','5.4m:H':'web+curl','5.4m:XH':'web',
+      '5.4:L':'web+curl','5.4:M':'web+curl','5.4:H':'web+curl','5.4:XH':'web',
+      '5.5:L':'curl','5.5:M':'curl','5.5:H':'web+curl','5.5:XH':'curl',
+    },
+    'BL-3': {
+      '5.2:L':'web+curl','5.2:M':'web+curl','5.2:H':'web+curl','5.2:XH':'web+curl',
+      '5.3:L':'web','5.3:M':'web','5.3:H':'web+curl','5.3:XH':'web+curl',
+      '5.4m:L':'web','5.4m:M':'curl','5.4m:H':'curl','5.4m:XH':'curl',
+      '5.4:L':'web','5.4:M':'web+curl','5.4:H':'web+curl','5.4:XH':'web+curl',
+      '5.5:L':'curl','5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':'web+curl',
+    },
+    'SC-2': {
+      '5.2:L':'web','5.2:M':'web','5.2:H':'web+curl','5.2:XH':'none',
+      '5.3:L':'web-fail','5.3:M':'web+curl','5.3:H':'web+curl','5.3:XH':'web+curl',
+      '5.4m:L':'curl','5.4m:M':'web','5.4m:H':'web','5.4m:XH':'curl',
+      '5.4:L':'web','5.4:M':'web+curl','5.4:H':'web','5.4:XH':'web+curl',
+      '5.5:L':'web+curl','5.5:M':'curl','5.5:H':'web+curl','5.5:XH':'web',
+    },
   };
 
-  function getCellColors(isDark, outcome) {
-    if (outcome === 'pass')    return {bg: isDark ? '#0F6E56' : '#1D9E75', fg: '#fff',                           label: '✓'};
-    if (outcome === 'partial') return {bg: isDark ? '#cba452' : '#FFB74D', fg: isDark ? '#412402' : '#412402',   label: '~'};
-    if (outcome === 'fail')    return {bg: isDark ? '#A32D2D' : '#F06292', fg: '#fff',                           label: '✗'};
-    if (outcome === 'invalid') return {bg: isDark ? '#3C3489' : '#BA68C8', fg: '#fff',                           label: '!'};
-    return {bg: isDark ? '#363634' : '#d0cec7', fg: 'inherit', label: ''};
+  var SURFACE_NOTE = {
+    'web':      'web-only text extraction, readable but truncated',
+    'web+curl': 'web + curl used with web limits reported',
+    'curl':     'curl-only raw HTTP body, readability architecture-dependent',
+    'web-fail': 'web attempted, no usable content returned: cache miss / DNS / 0 bytes',
+    'none':     'no usable content retrieved',
+  };
+
+  function getColors(dark, surface) {
+    // web      → green   — text extraction, readable (Cascade 100% = best outcome)
+    // web+curl → blue    — both surfaces, most informative (Cascade 50-99%)
+    // curl     → amber   — raw body only, readability uncertain (Cascade 10-49%)
+    // web-fail → pink    — attempted, nothing returned (Cascade <10%)
+    // none     → red/orange — complete failure (Cascade refused)
+    var map = {
+      'web':      { bg: dark ? '#0F6E56' : '#1D9E75', fg: '#fff',                        label: 'W'   },
+      'web+curl': { bg: dark ? '#185FA5' : '#378ADD', fg: '#fff',                        label: 'W+C' },
+      'curl':     { bg: dark ? '#cba452' : '#FFB74D', fg: dark ? '#412402' : '#412402',  label: 'C'   },
+      'web-fail': { bg: dark ? '#A32D2D' : '#F06292', fg: '#fff',                        label: 'W✗'  },
+      'none':     { bg: dark ? '#D4537E' : '#FF8A65', fg: '#fff',                        label: '✗'   },
+    };
+    return map[surface] || { bg: dark ? '#363634' : '#d0cec7', fg: 'inherit', label: '' };
+  }
+  // Column tier background tint for readability grouping
+  function getTierHeaderBg(dark, tier) {
+    if (tier === 'readable') return dark ? 'rgba(0,120,80,0.12)' : 'rgba(0,160,100,0.07)';
+    if (tier === 'large')    return dark ? 'rgba(30,80,160,0.12)' : 'rgba(40,100,200,0.07)';
+    if (tier === 'spa')      return dark ? 'rgba(140,0,0,0.15)'   : 'rgba(200,30,30,0.07)';
+    return 'transparent';
   }
 
-  function getLegendItems(isDark, notObsBg) {
-    return [
-      {bg: isDark ? '#0F6E56' : '#1D9E75', label: '✓ — full document retrieved (curl or valid path)'},
-      {bg: isDark ? '#cba452' : '#FFB74D', label: '~ — partial: web.open only, truncated, or curl failed'},
-      {bg: isDark ? '#A32D2D' : '#F06292', label: '✗ — retrieval failure (0 bytes, loop, DNS block)'},
-      {bg: isDark ? '#3C3489' : '#BA68C8', label: '! — invalid measurement (HTTP 404, contaminated)'},
-      {bg: notObsBg,                        label: 'untested'},
+  function getTierLabel(tier) {
+    if (tier === 'readable') return 'Readable Static';
+    if (tier === 'large')    return 'Large Static HTML';
+    if (tier === 'spa')      return 'JS-rendered / SPA';
+    return '';
+  }
+
+  function LegendTable(props) {
+    var dark = props.isDark;
+    var tc = props.textColor || 'inherit';
+    var cs = {fontFamily:'monospace', fontSize:10,
+      background:'rgba(128,128,128,0.15)', borderRadius:2, padding:'1px 3px'};
+    var C = function(t) { return e('code', {style:cs}, t); };
+    var items = [
+      { surface: 'web',      desc: [C('web'), '-only text extraction: readable, but truncated'] },
+      { surface: 'web+curl', desc: [C('web'), ' + ', C('curl'), ' path with ', C('web'), ' limits reported'] },
+      { surface: 'curl',     desc: [C('curl'), '-only raw HTTP body: readability architecture-dependent'] },
+      { surface: 'web-fail', desc: [C('web'), ' attempted, no usable content: cache miss / DNS / 0 bytes'] },
+      { surface: 'none',     desc: ['no usable content retrieved'] },
     ];
+    return e('table', {style:{borderCollapse:'collapse', fontSize:11, marginTop:0}},
+      e('tbody', null, items.map(function(item) {
+        var c = getColors(dark, item.surface);
+        return e('tr', {key:item.surface},
+          e('td', {style:{paddingRight:8, paddingBottom:4, verticalAlign:'middle'}},
+            e('span', {style:{
+              display:'inline-flex', alignItems:'center', justifyContent:'center',
+              width:32, height:16, borderRadius:3,
+              background:c.bg, color:c.fg, fontSize:10, fontWeight:600
+            }}, c.label)
+          ),
+          e('td', {style:{paddingBottom:4, color:tc, opacity:0.8}}, item.desc)
+        );
+      }))
+    );
   }
 
-  function Code(props) {
-    return e('code', {style:{
-      background: props.isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.07)',
-      color: props.textColor || 'inherit',
-      borderRadius: 3,
-      padding: '1px 4px',
-      fontSize: '11px',
-      fontFamily: 'monospace'
-    }}, props.children);
+  function NoteBlock(props) {
+    var tc = props.textColor || 'inherit';
+    var cs = {fontFamily:'monospace', fontSize:10,
+      background:'rgba(128,128,128,0.15)', borderRadius:2, padding:'1px 3px'};
+    var C = function(t) { return e('code', {style:cs}, t); };
+    return e('p', {style:{fontSize:11, marginTop:8, lineHeight:1.6, opacity:0.65, color:tc}},
+      e('i', null,
+        'Columns grouped left-to-right by content accessibility: static pages where any path returns readable content; large static HTML where ', C('web'), ' truncates but ', C('curl'), ' is readable; JS-rendered or SPAs where ', C('curl'), ' returns text-less shell. ',
+        C('W'), ' = ', C('web'), ' only; ', C('W+C'), ' = both surfaces; ', C('C'), ' = ', C('curl'), ' only; ', C('W✗'), ' = ', C('web'), ' attempted, but no content; ', C('✗'), ' = complete failure. ',
+        C('SC-3'), ' has 21 runs; extra ', C('GPT-5.5 High'), ' run included in ', C('High'), ' row. Hover over cells for retrieval path details.'
+      )
+    );
   }
 
   function HeatmapTable(props) {
     var dark = props.isDark;
-    var cellW = props.large ? 52 : 38;
-    var cellH = props.large ? 34 : 26;
-    var agentColW = props.large ? 190 : 140;
-    var fs = props.large ? 13 : 11;
+    var large = props.large;
     var tc = props.textColor || 'inherit';
-    var notObsBg = dark ? '#363634' : '#d0cec7';
+    var cellW  = large ? 52  : 38;
+    var cellH  = large ? 30  : 24;
+    var labelW = large ? 110 : 86;
+    var fs     = large ? 11  : 10;
 
-    return e('div', {className:'cdx-hm-wrap'},
-      e('table', {className:'cdx-hm'},
+    // Build rows: for each level, emit a level-header row then one row per model
+    var rows = [];
+    LEVELS.forEach(function(level) {
+      // level header row
+      rows.push({ type: 'level-header', level: level });
+      MODELS.forEach(function(model) {
+        rows.push({ type: 'data', model: model, level: level, key: model + ':' + level });
+      });
+    });
+
+    return e('div', {className:'cdx2-wrap'},
+      e('table', {className:'cdx2'},
+        // ── thead ──────────────────────────────────────────────────────
         e('thead', null,
           e('tr', null,
-            e('th', {className:'cdx-row-head', style:{minWidth:agentColW, color:tc}}, 'Agent'),
-            testOrder.map(function(t) {
-              return e('th', {key:t.id, style:{color:tc}},
-                t.l1, e('br'), e('span', {className:'cdx-url-note'}, t.l2)
+            e('th', {className:'cdx2-rh', style:{minWidth:labelW, color:tc}},
+              'LLM / Intelligence'
+            ),
+            cols.map(function(col) {
+              return e('th', {key:col.id, title:col.note,
+                style:{color:tc, background:getTierHeaderBg(dark, col.tier)}},
+                col.l1,
+                e('span', {className:'cdx2-sub'}, col.l2)
               );
             })
+          ),
+          // tier label row — one spanning cell per tier group, centered
+          e('tr', null,
+            e('th', {className:'cdx2-rh', style:{color:tc, fontSize:9, opacity:0.4,
+              fontWeight:400, paddingBottom:4}},''),
+            (function() {
+              // Build groups: [{tier, startId, count}]
+              var groups = [];
+              cols.forEach(function(col) {
+                if (!groups.length || groups[groups.length-1].tier !== col.tier) {
+                  groups.push({tier:col.tier, count:1});
+                } else {
+                  groups[groups.length-1].count++;
+                }
+              });
+              return groups.map(function(g, i) {
+                return e('th', {key:'tier-'+g.tier+i, colSpan:g.count,
+                  style:{fontSize:9, opacity:0.55, fontWeight:600,
+                    textAlign:'center', color:tc,
+                    background:getTierHeaderBg(dark, g.tier),
+                    borderTop:'1px solid rgba(128,128,128,0.15)',
+                    letterSpacing:'0.04em'}},
+                  getTierLabel(g.tier)
+                );
+              });
+            })()
           )
         ),
+        // ── tbody ──────────────────────────────────────────────────────
         e('tbody', null,
-          agentOrder.map(function(agent) {
-            var ar = runs.filter(function(r) { return r.agent === agent; });
-            return e('tr', {key:agent},
-              e('td', {className:'cdx-row-label', style:{color:tc, verticalAlign:'middle'}}, agentLabels[agent]),
-              testOrder.map(function(t) {
-                var run = ar.find(function(r) { return r.test === t.id; });
-                if (!run) {
-                  return e('td', {key:t.id},
+          rows.map(function(row) {
+            if (row.type === 'level-header') {
+              return e('tr', {key:'lh-'+row.level,
+                style:{borderTop:'1.5px solid rgba(128,128,128,0.22)'}},
+                e('td', {colSpan: cols.length + 1,
+                  style:{fontSize:10, fontWeight:700, letterSpacing:'0.07em',
+                    opacity:0.55, paddingTop:5, paddingBottom:1,
+                    textTransform:'uppercase', textAlign:'center', color:tc}},
+                  LEVEL_LABELS[row.level]
+                )
+              );
+            }
+
+            var rowKey = row.key;
+            return e('tr', {key:rowKey},
+              e('td', {className:'cdx2-rl cdx2-model', style:{color:tc, maxWidth:labelW, width:labelW}},
+                MODEL_LABELS[row.model]
+              ),
+              cols.map(function(col) {
+                var surface = (runs[col.id] || {})[rowKey];
+                if (!surface) {
+                  return e('td', {key:col.id},
                     e('div', {style:{
-                      borderRadius:4, fontSize:fs, fontWeight:600,
-                      display:'flex', alignItems:'center', justifyContent:'center',
                       width:cellW, height:cellH, margin:'1px auto',
-                      background:notObsBg
+                      borderRadius:3,
+                      background: dark ? '#2a2a28' : '#e0e0de'
                     }})
                   );
                 }
-                var c = getCellColors(dark, run.outcome);
-                var tip = run.outcome + (run.note ? ': ' + run.note : '');
-                return e('td', {key:t.id},
+                var c = getColors(dark, surface);
+                var tip = col.l1 + ' · ' + MODEL_LABELS[row.model] + ' ' +
+                  LEVEL_LABELS[row.level] + '\n' + SURFACE_NOTE[surface];
+                return e('td', {key:col.id,
+                  style:{background:getTierHeaderBg(dark, col.tier)}},
                   e('div', {title:tip, style:{
-                    borderRadius:4, fontSize:fs, fontWeight:600,
+                    borderRadius:3, fontSize:fs, fontWeight:700,
                     display:'flex', alignItems:'center', justifyContent:'center',
                     width:cellW, height:cellH, margin:'1px auto',
-                    background:c.bg, color:c.fg,
-                    cursor: run.note ? 'help' : 'default'
+                    background:c.bg, color:c.fg, cursor:'help'
                   }}, c.label)
                 );
               })
@@ -539,50 +461,13 @@ table.cdx-hm td.cdx-row-label { font-size: 11px; text-align: left; padding-left:
     );
   }
 
-  function Legend(props) {
-    var dark = props.isDark;
-    var notObsBg = dark ? '#363634' : '#d0cec7';
-    var tc = props.textColor || 'inherit';
-    var items = getLegendItems(dark, notObsBg);
-    return e('table', {style:{borderCollapse:'collapse', marginTop:0, fontSize:11, width:'auto'}},
-      e('tbody', null,
-        items.map(function(item, i) {
-          return e('tr', {key:i},
-            e('td', {style:{paddingRight:8, paddingBottom:4, verticalAlign:'middle'}},
-              e('span', {style:{
-                width:12, height:12, borderRadius:2, display:'inline-block',
-                background:item.bg, border:'0.5px solid rgba(128,128,128,0.3)'
-              }})
-            ),
-            e('td', {style:{paddingBottom:4, color:tc, opacity:0.8, whiteSpace:'nowrap'}}, item.label)
-          );
-        })
-      )
-    );
-  }
-
-  function Note(props) {
-    var tc = props.textColor || 'inherit';
-    var dark = props.isDark;
-    var C = function(p) { return e(Code, {textColor:tc, isDark:dark}, p.children); };
-    return e('p', {className:'cdx-note', style:{color:tc, marginTop:0, paddingTop:0}},
-      e('i', null,
-        'Columns: page size ascending. ',
-        e(C, null, 'SC-3'), ' has 21 runs (one extra ', e(C, null, 'GPT-5.5 High'), ' retry). ',
-        e(C, null, 'GPT-5.5 High*'), ': second run in SC-3 cycle. ',
-        e(C, null, '!'), ': invalid measurement (HTTP 404, contamination). ',
-        'Hover cells for run notes.'
-      )
-    );
-  }
-
   function App() {
-    var state = React.useState(false);
-    var isOpen = state[0];
-    var setOpen = state[1];
-    var isDark = detectDark();
-    var lbBg   = isDark ? '#1e1e1c' : '#ffffff';
-    var lbText = isDark ? '#e8e6df' : '#1a1a18';
+    var openState = React.useState(false);
+    var isOpen = openState[0];
+    var setOpen = openState[1];
+    var dark = detectDark();
+    var lbBg   = dark ? '#1c1c1a' : '#ffffff';
+    var lbText = dark ? '#e8e6df' : '#1a1a18';
 
     React.useEffect(function() {
       function onKey(ev) { if (ev.key === 'Escape') setOpen(false); }
@@ -600,44 +485,48 @@ table.cdx-hm td.cdx-row-label { font-size: 11px; text-align: left; padding-left:
 
     return e('div', {style:{marginTop:'1.5rem', fontFamily:'inherit'}},
       e('div', {onClick:function(){ setOpen(true); }, style:{cursor:'pointer'}},
-        e(HeatmapTable, {large:false, isDark:isDark}),
-        e('p', {className:'cdx-hint'}, '\u2197 click to expand')
+        e(HeatmapTable, {isDark:dark, large:false}),
+        e('p', {className:'cdx2-hint'}, '\u2197 click to expand')
       ),
-      e('div', {style:{display:'flex', gap:32, alignItems:'center', flexWrap:'wrap', marginTop:8, width:'100%', justifyContent:'center'}},
-        e('div', {style:{flexShrink:0}}, e(Legend, {isDark:isDark})),
-        e('div', {style:{flex:1, maxWidth:420}}, e(Note, {isDark:isDark}))
+      e('div', {style:{display:'flex', gap:28, alignItems:'flex-start',
+        flexWrap:'wrap', marginTop:10, justifyContent:'center'}},
+        e('div', {style:{flexShrink:0}}, e(LegendTable, {isDark:dark})),
+        e('div', {style:{flex:1, maxWidth:460}}, e(NoteBlock, {isDark:dark}))
       ),
       isOpen && e('div', {
-        className:'cdx-overlay',
-        onClick:function(ev){ if (ev.target === ev.currentTarget) setOpen(false); }
+        className:'cdx2-overlay',
+        onClick:function(ev){ if (ev.target===ev.currentTarget) setOpen(false); }
       },
-        e('div', {
-          className:'cdx-overlay-inner',
-          style:{background:lbBg, color:lbText, width:'98vw'}
-        },
-          e('button', {
-            className:'cdx-close',
-            style:{color:lbText},
-            onClick:function(){ setOpen(false); },
-            'aria-label':'Close'
-          }, '\u00d7'),
-          e(HeatmapTable, {large:true, isDark:isDark, textColor:lbText}),
-          e('div', {style:{display:'flex', gap:32, alignItems:'center', flexWrap:'nowrap', marginTop:8, width:'100%', justifyContent:'center'}},
-            e('div', {style:{flexShrink:0}}, e(Legend, {isDark:isDark, textColor:lbText})),
-            e('div', {style:{flex:1, maxWidth:420}}, e(Note, {isDark:isDark, textColor:lbText}))
+        e('div', {className:'cdx2-overlay-inner',
+          style:{background:lbBg, color:lbText, width:'99vw'}},
+          e('button', {className:'cdx2-close', style:{color:lbText},
+            onClick:function(){ setOpen(false); }, 'aria-label':'Close'}, '\u00d7'),
+          e(HeatmapTable, {isDark:dark, large:true, textColor:lbText}),
+          e('div', {style:{display:'flex', gap:28, alignItems:'flex-start',
+            flexWrap:'wrap', marginTop:10, justifyContent:'center'}},
+            e('div', {style:{flexShrink:0}}, e(LegendTable, {isDark:dark, textColor:lbText})),
+            e('div', {style:{flex:1, maxWidth:460}}, e(NoteBlock, {isDark:dark, textColor:lbText}))
           )
         )
       )
     );
   }
 
-  var root = ReactDOM.createRoot(document.getElementById('cdx-hm-root'));
+  var root = ReactDOM.createRoot(document.getElementById('cdx-hm2-root'));
   root.render(e(App));
 })();
 </script>
 {% endraw %}
 
-The model-version threshold is visible top-to-bottom: `GPT-5.2` requires `High` or `Extra High` intelligence to escalate to `curl` on most URLs; `GPT-5.3-Codex` escalates at `Medium`; `GPT-5.4` at `Low`; and `GPT-5.5` bypasses `web.open` entirely at all intelligence levels. Partial-retrieval runs cluster in `GPT-5.2` and `GPT-5.3-Codex` at `Low` and `Medium` intelligence levels, with `GPT-5.4-Mini` as an exception — `curl` DNS failures suppressed escalation there regardless of intelligence level.
+While `curl` is an appropriate choice to calculate metrics for some URLs, a prompt with context-specific questions - summarize a section, locate a specific value in
+the documentation - may have produced a different signal. This track instead uncovers a proxy: agents that used `web` long enough to traverse page text completely
+performed something closer to directly reading prose, as in, accessed semantic context, but agents that pivoted to `curl` may have retrieved code they never processed
+as text.
+
+The column grouping makes the practitioner-relevant question legible: agents working with pages in the left two groups had readable content to process regardless of
+fetch toolchain. Agents working with pages in the right group - `EC-1`'s SPA extraction at ~10% of raw, `BL-3`'s JS-rendered tutorial body absent from every fetch,
+`SC-2`'s CSP-nonce-gated app shell - retrieved bytes but perhaps didn't meaningfully read regardless of intelligence level or method. The `curl`-only cells - `C` - in
+those columns represent the highest task effort with the lowest content accessibility.
 
 ---
 
@@ -653,7 +542,7 @@ The model-version threshold is visible top-to-bottom: `GPT-5.2` requires `High` 
 | 6 | **Session contamination is a persistent confound** | `BL-1`, `BL-2`, `BL-3`, `EC-1`, `EC-6`, `SC-2`, `SC-4` | `Documents/Codex` persists across sessions; artifact filenames reused across runs confirmed in 20+ cases; `GPT-5.5 High` (`BL-2`) likely read a prior session artifact rather than executing a fresh fetch; `GPT-5.4 Extra High` (`BL-1`) completed in 42s vs 1m46s for `Low` on identical task due to strategy reuse | **Intelligence level is not an independent variable within shared sessions; future runs should use isolated sessions per level** |
 | 7 | **JS-rendered pages produce a structural retrieval failure, not a truncation event** | `SC-2`, `BL-3` | `SC-2` (Next.js / Netlify): `web.open` returns a consistent 142-line pre-hydration shell; nonce-based CSP and `no-store` cache policy prevent JS execution on any fetch path; `BL-3` tutorial body absent from static extraction at a reproducible structural position (L385-L389) across all 20 runs | **Neither `web.open` nor `curl` returns the actual content for CSP-gated JS-rendered pages; this is a fundamental retrieval barrier not addressable by escalation** |
 | 8 | **`raw.githubusercontent.com` `Cache Miss` is systematic for large payloads** | `EC-6` | 17 of 20 runs that attempted `web.open` on the raw GitHub URL received `Cache Miss (no content retrieved)`; a smaller `raw.githubusercontent.com` control confirmed the host isn't fully blocked; no run investigated or diagnosed the failure before pivoting to `curl` | **The failure is URL-size-class-specific to raw GitHub payloads; agents report what succeeded, not what failed** |
-| 9 | **`web.open` line window is LLM-version-correlated on the same URL** | `OP-2`, `OP-4`, `SC-3` | `OP-2`: L317 dominant cutpoint for `GPT-5.2`–`5.4`; L590 for `GPT-5.5`; `OP-4`: L237 for `GPT-5.2`–`5.4`; L616 for `GPT-5.5 Extra High`; `SC-3`: L266 dominant for `GPT-5.2`/`5.4-Mini`; L353 for `GPT-5.3-Codex`/`5.5` | **The viewport window scales across model generations; the same URL returns a larger first-fetch window in newer LLM versions** |
+| 9 | **`web` line window is LLM-version-correlated on the same URL** | `OP-2`, `OP-4`, `SC-3` | `OP-2`: L317 dominant cutpoint for `GPT-5.2`–`5.4`; L590 for `GPT-5.5`; `OP-4`: L237 for `GPT-5.2`–`5.4`; L616 for `GPT-5.5 Extra High`; `SC-3`: L266 dominant for `GPT-5.2`/`5.4-Mini`; L353 for `GPT-5.3-Codex`/`5.5` | **The viewport window scales across model generations; the same URL returns a larger first-fetch window in newer LLM versions** |
 | 10 | **`wordlim: 200` is the operative `web.open` window parameter** | `BL-1`, `OP-1`, `OP-4`, `SC-3`, `SC-4` | First surfaced in `BL-1` `GPT-5.2 Low`; confirmed in `OP-1`, `SC-3`, and `SC-4` across multiple model families; controls the line window and explains consecutive L-offset cutpoints | **`wordlim: 200` is a line-count parameter, not a character or token ceiling; increasing intelligence level doesn't change it** |
 | 11 | **`L477` is a probable shared infrastructure cutoff constant in `BL-1`** | `BL-1` | L477 appeared as the identical cutpoint across `GPT-5.2 Medium`, `GPT-5.3-Codex High`, and `GPT-5.3-Codex Extra High` without model coordination | **A hardcoded viewer-window constant rather than content-adaptive behavior; L477 cutpoint makes `GPT-5.3-Codex` ceiling behavior an infrastructure property** |
 | 12 | **`multi_tool_use.parallel` is exclusive to `GPT-5.4 Extra High` and `GPT-5.5`** | `BL-1`, `BL-3`, `EC-1`, `EC-3`, `EC-6`, `OP-2`, `OP-4`, `SC-1`, `SC-3`, `SC-4` | Not observed in `GPT-5.2` or `GPT-5.3-Codex` at any intelligence level; first appeared in `GPT-5.4 Extra High`; consistent across all `GPT-5.5` levels | **Parallel tool invocation is a model-version capability, not an intelligence-level behavior** |
