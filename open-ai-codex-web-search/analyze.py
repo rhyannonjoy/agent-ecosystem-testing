@@ -8,10 +8,16 @@ Codex Web Search Testing Results Analyzer
 - Matches findings to hypotheses H1-H5
 
 Four tracks:
-  codex-interpreted   GPT-interpreted, Codex IDE (no workspace)
+  codex-interpreted         GPT-interpreted, Codex IDE (no workspace)
   vscode-codex-interpreted  GPT-interpreted, VS Code-Codex (workspace present)
-  codex-raw           Raw verbatim output, Codex IDE
+  codex-raw                 Raw verbatim output, Codex IDE
   vscode-codex-raw          Raw verbatim output, VS Code-Codex
+
+Truncation field values:
+  yes       Agent stayed on web.open, hit the limit, and reported it explicitly
+  mixed     Agent used both web.open and curl; named web.open limits in self-report
+  implicit  Agent reasoned around web.open to curl without naming the limitation
+  no        curl-only or no truncation signal detected
 
 Cross-track comparisons of interest:
   T1 vs T2: Does workspace context change self-reported measurements or tool selection?
@@ -41,7 +47,7 @@ Usage:
 
 import csv
 from pathlib import Path
-from collections import defaultdict
+from collections import defaultdict, Counter
 from statistics import mean, stdev
 import argparse
 
@@ -84,6 +90,27 @@ COMPARISONS = [
     ("vscode-codex-interpreted", "vscode-codex-raw",
      "T2 vs T4 — VS Code-Codex perception gap (interpreted vs raw)"),
 ]
+
+# Truncation severity ordering.
+# yes=3:      agent stayed on web.open, hit the limit, reported it explicitly
+# mixed=2:    used both paths, named web.open limits in self-report
+# implicit=1: reasoned around web.open to curl without naming the limitation
+# no=0:       curl-only or no truncation signal
+# -1:         unrecognised / not recorded
+TRUNCATION_TIER = {
+    "yes":      3,
+    "mixed":    2,
+    "implicit": 1,
+    "no":       0,
+}
+
+# Human-readable labels used in output
+TRUNCATION_TIER_LABELS = {
+    "yes":      "yes      — web.open hit, reported explicitly",
+    "mixed":    "mixed    — both paths used, web.open limits named",
+    "implicit": "implicit — escalated to curl without naming web.open limit",
+    "no":       "no       — curl-only or no truncation signal",
+}
 
 
 class CodexResultsAnalyzer:
@@ -193,6 +220,12 @@ class CodexResultsAnalyzer:
             normalized["tokens_est"] = self._parse_optional_int(row.get("tokens_est")) or 0
             normalized["truncation_char_num"] = self._parse_optional_int(row.get("truncation_char_num"))
 
+        # Normalise the truncated field to lowercase and map to tier.
+        # Accepts yes / no / mixed / implicit (and common variants).
+        raw_trunc = str(normalized.get("truncated", "")).strip().lower()
+        normalized["truncated"] = raw_trunc
+        normalized["truncation_tier"] = TRUNCATION_TIER.get(raw_trunc, -1)
+
         # Codex-specific behavioral fields
         normalized["tools_named"] = row.get("tools_named", "").strip() or "unknown"
         normalized["workspace_substitution"] = row.get("workspace_substitution", "").strip() or "unknown"
@@ -272,8 +305,10 @@ class CodexResultsAnalyzer:
         print("TRUNCATION THRESHOLD ANALYSIS")
         print("=" * 80 + "\n")
 
-        truncated = [r for r in self.results if r.get("truncated") == "yes"]
-        not_truncated = [r for r in self.results if r.get("truncated") == "no"]
+        # Any run with a truncation tier > 0 is a truncation event.
+        # This includes yes, mixed, and implicit — previously only yes was counted.
+        truncated = [r for r in self.results if r.get("truncation_tier", 0) > 0]
+        not_truncated = [r for r in self.results if r.get("truncation_tier", 0) == 0]
 
         if not truncated:
             print("No truncation detected in any tests.\n")
@@ -295,13 +330,22 @@ class CodexResultsAnalyzer:
         if output_sizes:
             print(f"Output size range (all runs): {min(output_sizes):,} – {max(output_sizes):,} chars")
 
-        print("\nInput sizes where truncation occurred:")
+        # Break down truncation events by type so mixed/implicit are visible
+        print("\nTruncation events by type (tier > 0):")
+        tier_counts = Counter(r.get("truncated", "unknown") for r in truncated)
+        for val in ("yes", "mixed", "implicit"):
+            if tier_counts[val]:
+                label = TRUNCATION_TIER_LABELS.get(val, val)
+                print(f"  {label}: {tier_counts[val]}")
+
+        print(f"\nInput sizes where truncation occurred (yes / mixed / implicit):")
         for r in sorted(truncated, key=lambda x: x["input_est_chars"]):
             track_label = TRACK_META.get(r.get("track", ""), {}).get("label", r.get("track", "?"))
-            print(f"  {r['test_id']} [{track_label}]: "
+            trunc_type = r.get("truncated", "?")
+            print(f"  {r['test_id']} [{track_label}] ({trunc_type}): "
                   f"{r['input_est_chars']:,} chars in → {r['output_chars']:,} chars out")
 
-        print("\nInput sizes where NO truncation occurred:")
+        print("\nInput sizes where NO truncation occurred (no):")
         for r in sorted(not_truncated, key=lambda x: x["input_est_chars"]):
             track_label = TRACK_META.get(r.get("track", ""), {}).get("label", r.get("track", "?"))
             print(f"  {r['test_id']} [{track_label}]: "
@@ -366,6 +410,10 @@ class CodexResultsAnalyzer:
         """
         Core paired comparison helper used by surface effect and perception gap analyses.
         Logs per-test-ID output delta, truncation divergence, and tool chain differences.
+
+        Truncation divergence is tier-aware: mixed vs implicit counts as a divergence
+        because the agent's self-report characterisation differs even if both paths
+        involved curl escalation.
         """
         results_a = self.filter_by_track(track_a)
         results_b = self.filter_by_track(track_b)
@@ -400,15 +448,25 @@ class CodexResultsAnalyzer:
             b = by_id_b[test_id]
 
             output_delta = b["output_chars"] - a["output_chars"]
-            truncation_divergence = a.get("truncated") != b.get("truncated")
+
+            # Tier-aware divergence: any difference in truncation_tier is flagged,
+            # including mixed vs implicit — these represent different self-report
+            # accuracy levels even when both runs used curl.
+            tier_a = a.get("truncation_tier", -1)
+            tier_b = b.get("truncation_tier", -1)
+            truncation_divergence = tier_a != tier_b
 
             print(f"  {test_id}:")
-            print(f"    {label_a}: {a['output_chars']:,} chars  truncated: {a.get('truncated', '?')}")
-            print(f"    {label_b}: {b['output_chars']:,} chars  truncated: {b.get('truncated', '?')}")
+            print(f"    {label_a}: {a['output_chars']:,} chars  "
+                  f"truncated: {a.get('truncated', '?')} (tier {tier_a})")
+            print(f"    {label_b}: {b['output_chars']:,} chars  "
+                  f"truncated: {b.get('truncated', '?')} (tier {tier_b})")
             print(f"    Output delta: {output_delta:+,} chars")
 
             if truncation_divergence:
-                print(f"    ⚠️  TRUNCATION DIVERGENCE — tracks disagree")
+                print(f"    ⚠️  TRUNCATION DIVERGENCE — "
+                      f"{a.get('truncated')} (tier {tier_a}) vs "
+                      f"{b.get('truncated')} (tier {tier_b})")
                 divergences.append(test_id)
 
             # Tool chain comparison
@@ -466,33 +524,52 @@ class CodexResultsAnalyzer:
                           "codex-raw", "vscode-codex-raw"):
                 if track in by_track:
                     r = by_track[track]
-                    short_label = track.replace("_codex_interpreted", " interp")  \
-                                       .replace("_vscode_interpreted", " interp") \
-                                       .replace("_codex_raw", " raw")             \
-                                       .replace("_vscode_raw", " raw")
                     ws_sub = r.get("workspace_substitution", "?")
+                    trunc_val = r.get("truncated", "?")
+                    tier = r.get("truncation_tier", -1)
                     print(f"  {track:<28}: {r['output_chars']:>8,} chars  "
-                          f"truncated: {r.get('truncated', '?'):<3}  "
+                          f"truncated: {trunc_val:<8} (tier {tier})  "
                           f"tools: {r.get('tools_named', '?'):<20}  "
                           f"ws_sub: {ws_sub}")
 
-            # Flag perception gaps (interpreted vs raw per surface)
+            # Flag perception gaps (interpreted vs raw per surface).
+            # Tier-aware: any tier difference is a gap, not just yes vs no.
             if "codex-interpreted" in by_track and "codex-raw" in by_track:
-                if by_track["codex-interpreted"].get("truncated") != by_track["codex-raw"].get("truncated"):
-                    print(f"  ⚠️  Perception gap — Codex IDE (T1 vs T3 truncation mismatch)")
+                tier_t1 = by_track["codex-interpreted"].get("truncation_tier", -1)
+                tier_t3 = by_track["codex-raw"].get("truncation_tier", -1)
+                if tier_t1 != tier_t3:
+                    t1_val = by_track["codex-interpreted"].get("truncated", "?")
+                    t3_val = by_track["codex-raw"].get("truncated", "?")
+                    print(f"  ⚠️  Perception gap — Codex IDE "
+                          f"(T1: {t1_val} tier {tier_t1} vs T3: {t3_val} tier {tier_t3})")
 
             if "vscode-codex-interpreted" in by_track and "vscode-codex-raw" in by_track:
-                if by_track["vscode-codex-interpreted"].get("truncated") != by_track["vscode-codex-raw"].get("truncated"):
-                    print(f"  ⚠️  Perception gap — VS Code-Codex (T2 vs T4 truncation mismatch)")
+                tier_t2 = by_track["vscode-codex-interpreted"].get("truncation_tier", -1)
+                tier_t4 = by_track["vscode-codex-raw"].get("truncation_tier", -1)
+                if tier_t2 != tier_t4:
+                    t2_val = by_track["vscode-codex-interpreted"].get("truncated", "?")
+                    t4_val = by_track["vscode-codex-raw"].get("truncated", "?")
+                    print(f"  ⚠️  Perception gap — VS Code-Codex "
+                          f"(T2: {t2_val} tier {tier_t2} vs T4: {t4_val} tier {tier_t4})")
 
             # Flag surface divergences (same method, different surface)
             if "codex-interpreted" in by_track and "vscode-codex-interpreted" in by_track:
-                if by_track["codex-interpreted"].get("truncated") != by_track["vscode-codex-interpreted"].get("truncated"):
-                    print(f"  ⚠️  Surface divergence — interpreted tracks (T1 vs T2 truncation mismatch)")
+                tier_t1 = by_track["codex-interpreted"].get("truncation_tier", -1)
+                tier_t2 = by_track["vscode-codex-interpreted"].get("truncation_tier", -1)
+                if tier_t1 != tier_t2:
+                    t1_val = by_track["codex-interpreted"].get("truncated", "?")
+                    t2_val = by_track["vscode-codex-interpreted"].get("truncated", "?")
+                    print(f"  ⚠️  Surface divergence — interpreted tracks "
+                          f"(T1: {t1_val} tier {tier_t1} vs T2: {t2_val} tier {tier_t2})")
 
             if "codex-raw" in by_track and "vscode-codex-raw" in by_track:
-                if by_track["codex-raw"].get("truncated") != by_track["vscode-codex-raw"].get("truncated"):
-                    print(f"  ⚠️  Surface divergence — raw tracks (T3 vs T4 truncation mismatch)")
+                tier_t3 = by_track["codex-raw"].get("truncation_tier", -1)
+                tier_t4 = by_track["vscode-codex-raw"].get("truncation_tier", -1)
+                if tier_t3 != tier_t4:
+                    t3_val = by_track["codex-raw"].get("truncated", "?")
+                    t4_val = by_track["vscode-codex-raw"].get("truncated", "?")
+                    print(f"  ⚠️  Surface divergence — raw tracks "
+                          f"(T3: {t3_val} tier {tier_t3} vs T4: {t4_val} tier {tier_t4})")
 
             print()
 
@@ -731,12 +808,22 @@ class CodexResultsAnalyzer:
                 label = TRACK_META.get(track, {}).get("label", track)
                 print(f"  {label}: {tracks_present[track]}")
 
-        truncated = [r for r in self.results if r.get("truncated") == "yes"]
-        print(f"\nTruncation events: {len(truncated)} / {len(self.results)}")
+        # Truncation event count now includes yes, mixed, and implicit.
+        # A flat "42 / 261" previously only counted yes; the breakdown below
+        # makes all four values visible so the count is interpretable.
+        truncated_any = [r for r in self.results if r.get("truncation_tier", 0) > 0]
+        print(f"\nTruncation events (tier > 0): {len(truncated_any)} / {len(self.results)}")
+        tier_counts = Counter(r.get("truncated", "unknown") for r in self.results)
+        for val in ("yes", "mixed", "implicit", "no"):
+            if tier_counts[val]:
+                label = TRUNCATION_TIER_LABELS.get(val, val)
+                print(f"  {label}: {tier_counts[val]}")
+        if tier_counts.get("unknown", 0):
+            print(f"  unknown / not recorded: {tier_counts['unknown']}")
 
         output_chars = [r["output_chars"] for r in self.results if r.get("output_chars")]
         if output_chars:
-            print(f"Average output size: {mean(output_chars):,.0f} chars")
+            print(f"\nAverage output size: {mean(output_chars):,.0f} chars")
             print(f"Output size range:   {min(output_chars):,} – {max(output_chars):,} chars")
 
         tokens = [r["tokens_est"] for r in self.results if r.get("tokens_est")]
@@ -752,9 +839,9 @@ class CodexResultsAnalyzer:
         codex_results = self.filter_by_surface("codex")
         vscode_results = self.filter_by_surface("vscode_codex")
         if codex_results and vscode_results:
-            codex_trunc = sum(1 for r in codex_results if r.get("truncated") == "yes")
-            vscode_trunc = sum(1 for r in vscode_results if r.get("truncated") == "yes")
-            print(f"\nTruncation by surface:")
+            codex_trunc = sum(1 for r in codex_results if r.get("truncation_tier", 0) > 0)
+            vscode_trunc = sum(1 for r in vscode_results if r.get("truncation_tier", 0) > 0)
+            print(f"\nTruncation by surface (tier > 0):")
             print(f"  Codex IDE ({len(codex_results)} runs):      {codex_trunc} truncated")
             print(f"  VS Code-Codex ({len(vscode_results)} runs): {vscode_trunc} truncated")
 
@@ -785,10 +872,16 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Track reference:
-  codex-interpreted   GPT-interpreted, Codex IDE (no workspace)
+  codex-interpreted         GPT-interpreted, Codex IDE (no workspace)
   vscode-codex-interpreted  GPT-interpreted, VS Code-Codex (workspace present)
-  codex-raw           Raw verbatim output, Codex IDE
+  codex-raw                 Raw verbatim output, Codex IDE
   vscode-codex-raw          Raw verbatim output, VS Code-Codex
+
+Truncation field values:
+  yes       Agent stayed on web.open, hit the limit, reported it explicitly
+  mixed     Agent used both paths; named web.open limits in self-report
+  implicit  Agent escalated to curl without naming the web.open limitation
+  no        curl-only or no truncation signal detected
 
 Examples:
   python analyze.py \\
@@ -858,8 +951,10 @@ Examples:
         print(f"\nResults for method '{args.method}':\n")
         for r in method_results:
             label = TRACK_META.get(r.get("track", ""), {}).get("label", r.get("track", "?"))
+            trunc_val = r.get("truncated", "?")
+            tier = r.get("truncation_tier", -1)
             print(f"  {r['test_id']} [{label}]: "
-                  f"{r['output_chars']:,} chars  truncated: {r.get('truncated', '?')}")
+                  f"{r['output_chars']:,} chars  truncated: {trunc_val} (tier {tier})")
         print()
 
     elif args.track:
@@ -867,8 +962,10 @@ Examples:
         label = TRACK_META.get(args.track, {}).get("label", args.track)
         print(f"\nResults for {label}:\n")
         for r in track_results:
+            trunc_val = r.get("truncated", "?")
+            tier = r.get("truncation_tier", -1)
             print(f"  {r['test_id']}: {r['output_chars']:,} chars  "
-                  f"truncated: {r.get('truncated', '?')}  "
+                  f"truncated: {trunc_val:<8} (tier {tier})  "
                   f"tools: {r.get('tools_named', '?')}  "
                   f"ws_sub: {r.get('workspace_substitution', '?')}")
         print()

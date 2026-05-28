@@ -45,23 +45,23 @@ parent: OpenAI Codex
 
 | | |
 | --- | --- |
-| **Track** | `T1` GPT-interpreted, Codex IDE |
+| **Track** | `T1` GPT-interpreted, Codex Desktop App |
 | **Agents Observed** | `GPT-5.2`, `GPT-5.3-Codex`, `GPT-5.4-Mini`, `GPT-5.4`, `GPT-5.5` |
 | **Intelligence Levels** | `Low`, `Medium`, `High`, `Extra High` |
 | **Total Runs** | 261 |
-| **Distinct URLs** | 11 |
-| **Input Size Range** | ~660 chars (`EC-3`) – ~3.1 MB (`BL-3`) |
-| **Truncation Events** | 42 / 261 |
+| **Distinct URLs** | 13 |
+| **Input Size Range** | `EC-3`: ~660 chars to `BL-3`: ~3.1 MB |
+| **Truncation Events** | 195 / 261 - 78% of agents report truncation in some form<br>- `web`-only path with limits reported explicitly: 42 <br>- `web`&rarr;`curl` path with `web` limits reported explicitly: 114<br>- `web`&rarr;`curl` path with `web` limits implied in reasoning: 39<br>- `curl`-only path and/or no truncation signal: 66 |
 | **Average Output Size** | 351,961 chars |
-| **Output Size Range** | 95 – 3,103,342 chars |
-| **Average Token Count** | 88,489 tokens |
-| **Token Count Range** | 24 – 835,000 tokens |
-| **Workspace Substitution** | 2 / 261 runs (confirmed); contamination risk flagged in ~40 additional runs |
-| **`curl` Escalation** | Dominant full-document retrieval path; present in ~180 / 261 runs |
-| **`GPT-5.5` `web.open` Bypass** | All four intelligence levels bypassed `web.open` on at least one URL |
+| **Output Size Range** | 95 - 3,103,342 chars |
+| **Average Token Use** | 88,489 tokens |
+| **Token Count Range** | 24 - 835,000 tokens |
+| **Workspace Substitution** | 2 / 261 runs confirmed, contamination risk flagged in ~40 additional runs |
+| **`curl` Escalation** | Dominant retrieval path, present in ~180 / 261 runs, 69% of the track |
+| **`web` Bypass** | `GPT-5.5` at all intelligence levels skipped `web` completely on at least one URL |
 | **Parallel Tool Use** | `multi_tool_use.parallel` exclusive to `GPT-5.4 Extra High` and all `GPT-5.5` runs |
-| **Runaway Failure** | `EC-1` `GPT-5.2 Extra High`: 113 web searches, 48m10s, context auto-compacted |
-| **`SC-2` URL** | Next.js CSP-nonce-gated SPA; `web.open` returns 142-line loading shell; no run retrieved API reference text |
+| **Loading Failure** | `SC-2` with Next.js CSP-nonce-gated SPA - `web` returned 142-line loading<br>shell, no agent retrieved API reference text |
+| **Runaway Failure** | `EC-1`:`GPT-5.2 Extra High` searched `web` 113 times over 48m10s, only session<br>in which context auto-compacted |
 
 ## Retrieval Strategy by Model Version and Intelligence Level
 
