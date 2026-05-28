@@ -42,7 +42,7 @@ parent: Cognition Windsurf Cascade
 | **Self-reported Completeness** | _Inconsistent_: agents with identical content report contradictory truncation assessments; disagreement tracks chunk selection depth,<br>not actual content loss |
 | **Chunk Summary Population** | _URL-dependent_: well-structured pages return populated summaries providing navigational signal; CSS-heavy or SPAs may return empty summaries collapsing skimming into blind sampling |
 | **SPA extraction** | _Lossy by design_: Go Colly static scraper delivers ~25–30% of raw HTML as extracted text; scripts, styles, and metadata discarded before delivery |
-| **Prompt Injection Sensitivity** | _Agent-dependent_: `Claude Sonnet 4.6` triggered safety heuristics twice, refusing tool visibility reporting in one and full<br>prompt execution in another |
+| **Prompt Injection Sensitivity** | _Agent-dependent_: `Claude Sonnet 4.6` triggered safety heuristics twice, refusing tool visibility reporting in one and full prompt execution in another |
 
 ## Results Details
 
