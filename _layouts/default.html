@@ -340,6 +340,28 @@
     .table-truncation th:nth-child(2) { width: 25%; }
     .table-truncation th:nth-child(3) { width: 60%; }
 
+    .table-findings {
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    .table-findings th:nth-child(1) { width: 4%; }   /* # */
+    .table-findings th:nth-child(2) { width: 22%; }  /* Finding */
+    .table-findings th:nth-child(3) { width: 10%; }  /* Tests */
+    .table-findings th:nth-child(4) { width: 34%; }  /* Observed */
+    .table-findings th:nth-child(5) { width: 30%; }  /* Conclusion */
+
+    .table-perception {
+      table-layout: fixed;
+      width: 100%;
+  }
+
+    .table-perception th:nth-child(1) { width: 12%; }  /* Test */
+    .table-perception th:nth-child(2) { width: 12%; }  /* Expected */
+    .table-perception th:nth-child(3) { width: 16%; }  /* Received */
+    .table-perception th:nth-child(4) { width: 16%; }  /* Content Accessibility */
+    .table-perception th:nth-child(5) { width: 44%; }  /* Agent Characterization */
+
     /* TOC panel */
     .toc-panel {
       width: var(--toc-width);

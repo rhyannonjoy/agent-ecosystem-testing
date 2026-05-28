@@ -194,31 +194,31 @@ Examine hypothesis matching, surface-workspace effects, perception gap, and trun
 
 ```bash
 # Single track: full analysis or summary
-python analyze.py --csv results/codex_interpreted/results.csv --summary
-python analyze.py --csv results/codex_raw/results.csv --full
+python analyze.py --csv results/codex-interpreted/results.csv --summary
+python analyze.py --csv results/codex-raw/results.csv --full
 
 # Filter by track
-python analyze.py --csv results/codex_interpreted/results.csv --track t1_codex_interpreted
+python analyze.py --csv results/codex-interpreted/results.csv --track t1_codex_interpreted
 
 # Compare interpreted tracks, T1 vs T2, isolates workspace effect
 python analyze.py \
    --csv results/codex_interpreted/results.csv \
-         results/vscode_codex_interpreted/results.csv --full
+         results/vscode-codex-interpreted/results.csv --full
 
 # Compare raw tracks, T3 vs T4, isolates surface effect on retrieval ceiling
 python analyze.py \
    --csv results/codex_raw/results.csv \
-         results/vscode_codex_raw/results.csv --full
+         results/vscode-codex-raw/results.csv --full
 
 # Compare all four tracks
 python analyze.py \
-   --csv results/codex_interpreted/results.csv \
-         results/vscode_codex_interpreted/results.csv \
-         results/codex_raw/results.csv \
-         results/vscode_codex_raw/results.csv --full
+   --csv results/codex-interpreted/results.csv \
+         results/vscode-codex-interpreted/results.csv \
+         results/codex-raw/results.csv \
+         results/vscode-codex-raw/results.csv --full
 ```
 
->_Provide the full relative path including subdirectory - `results/codex_interpreted/results.csv`_
+>_Provide the full relative path including subdirectory - `results/codex-interpreted/results.csv`_
 
 ---
 
