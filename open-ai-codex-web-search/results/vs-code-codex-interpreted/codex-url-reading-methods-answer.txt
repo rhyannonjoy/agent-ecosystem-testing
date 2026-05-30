@@ -1,0 +1,38 @@
+Codex URL Reading Methods
+Date: 2026-05-30
+GPT-5.5 Medium
+Version 26.527.31454
+
+
+Question:
+What methods does Codex use to read URLs? Is it web search or something else?
+
+Answer:
+Codex can read URLs through several tool paths, depending on the URL and the task.
+
+1. Web search and web open
+For public web pages, Codex can use a web tool that supports search, opening a specific URL,
+inspecting page text, following links, and citing sources. If you provide a direct URL, Codex
+can often open that URL directly. Web search is mainly used when Codex needs to find the right
+page, verify current information, compare sources, or locate supporting citations.
+
+2. Browser automation
+For rendered pages, local apps, interactive sites, screenshots, or visual UI checks, Codex can
+use browser automation. This is closer to driving a browser than reading a search result. It is
+especially useful for localhost URLs, file URLs, frontend testing, clicking through an interface,
+and checking what actually appears on screen.
+
+3. Command-line or local tools
+Inside a coding workspace, Codex can sometimes use tools such as curl, test runners, package
+commands, or small scripts to fetch and analyze URL content. In this environment, external network
+access may be restricted, so some fetches can require user approval.
+
+4. Provided context or model knowledge
+If the user pastes URL content into the chat, Codex can read that directly from the conversation.
+If no URL is opened or content is provided, Codex may answer from built-in knowledge, but for current,
+source-specific, or URL-specific questions, it should fetch or open the source instead of relying on memory.
+
+Short answer:
+It is not only web search. Web search is one method, but Codex may also directly open URLs, use browser
+automation, or use command-line tools, depending on whether the task needs source text, current facts,
+rendered page behavior, or local workspace analysis.
