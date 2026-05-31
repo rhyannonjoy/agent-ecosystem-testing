@@ -57,17 +57,17 @@ cd open-ai-codex-web-search
    expected size reference:
 
    ```bash
-   # T1: GPT-interpreted, Codex IDE
+   # T1: GPT-interpreted, Codex Desktop App
    python framework.py --test BL-1 --track codex-interpreted
 
-   # T2: GPT-interpreted, VS Code-Codex
-   python framework.py --test BL-1 --track vscode_interpreted
+   # T2: GPT-interpreted, VS Code-Codex Extension
+   python framework.py --test BL-1 --track vscode-codex-interpreted
 
-   # T3: Raw verbatim output, Codex IDE
-   python framework.py --test BL-1 --track codex_raw
+   # T3: Raw verbatim output, Codex Desktop App
+   python framework.py --test BL-1 --track codex-raw
 
-   # T4: Raw verbatim output, VS Code-Codex
-   python framework.py --test BL-1 --track vscode_raw
+   # T4: Raw verbatim output, VS Code-Codex Extension
+   python framework.py --test BL-1 --track vscode-codex-raw
    ```
 
 3. **Copy Prompt → Run in Codex**
