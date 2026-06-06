@@ -2,7 +2,7 @@
 
 **Overview**: empirically tests web fetch behavior across agentic platforms to contribute to the<br>
 [Agent-Friendly Documentation Spec](https://agentdocsspec.com/). Full methodology and findings in
-[the docs](https://rhyannonjoy.github.io/agent-ecosystem-testing/)
+[the docs](https://rhyannonjoy.github.io/agent-ecosystem-testing/).
 
 **Origin**: programmatic extension of Dachary Carey's
 [Agent Web Fetch Spelunking](https://dacharycarey.com/2026/02/19/agent-web-fetch-spelunking/)
