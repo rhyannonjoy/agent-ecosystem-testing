@@ -1,9 +1,8 @@
 # Agent Ecosystem Testing
 
 **Overview**: empirically tests web fetch behavior across agentic platforms to contribute to the
-[Agent-Friendly Documentation Spec](https://github.com/agent-ecosystem/agent-docs-spec) -
-specifically the [Known Platform Limits](https://github.com/agent-ecosystem/agent-docs-spec/blob/main/SPEC.md#known-platform-limits);
-full methodology and findings in [the docs](https://rhyannonjoy.github.io/agent-ecosystem-testing/)
+[Agent-Friendly Documentation Spec](https://github.com/agent-ecosystem/agent-docs-spec).
+Full methodology and findings in [the docs](https://rhyannonjoy.github.io/agent-ecosystem-testing/)
 
 **Origin**: programmatic extension of Dachary Carey's
 [Agent Web Fetch Spelunking](https://dacharycarey.com/2026/02/19/agent-web-fetch-spelunking/)
