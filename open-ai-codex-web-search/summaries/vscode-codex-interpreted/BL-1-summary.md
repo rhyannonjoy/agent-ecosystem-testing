@@ -2,17 +2,17 @@
 
 ## Test Conditions
 
-|                 | **BL-1**                                                                                                                                                                                                          |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| URL             | `https://www.mongodb.com/docs/manual/reference/change-events/create/` MongoDB documentation page; heavy inline CSS precedes page content; Gatsby-rendered static HTML; served via Netlify Edge and CloudFront CDN |
-| Expected size   | ~85KB per prompt; actual confirmed 509,025 chars / ~127,000 tokens via `curl`, discrepancy reflects inline CSS and Gatsby runtime payload; semantic content is ~85KB equivalent                                   |
-| Surface         | VS Code-Codex Extension                                                                                                                                                                                           |
-| Workspace       | Session-scoped sandbox; `/private/tmp` available within session; no `/private/tmp/codex-browser-use` initialized or `Documents/Codex` workspace; VS Code project accessible as working directory                  |
-| Track           | T2 VS Code-Codex-interpreted                                                                                                                                                                                      |
-| Method          | `GPT`-interpreted                                                                                                                                                                                                 |
-| Models          | `GPT-5.5`, `GPT-5.4-Mini`                                                                                                                                                                                         |
-| Runs            | 8                                                                                                                                                                                                                 |
-| Chunks returned | N/A, GPT-interpreted track                                                                                                                                                                                        |
+|                 | **BL-1** |
+| --------------- | -------- |
+| URL             | `https://www.mongodb.com/docs/manual/reference/change-events/create/` |
+| Expected size   | ~85KB per prompt; actual confirmed 509,025 chars / ~127,000 tokens via `curl`, discrepancy reflects inline CSS and Gatsby runtime payload; semantic content is ~85KB equivalent |
+| Surface         | VS Code-Codex Extension      |
+| Workspace       | Session-scoped sandbox; no `/private/tmp/codex-browser-use` or `Documents/Codex`; project accessible as working directory |
+| Track           | T2 VS Code-Codex-interpreted |
+| Method          | `GPT`-interpreted |
+| Models          | `GPT-5.5`, `GPT-5.4-Mini` |
+| Runs            | 8 |
+| Chunks returned | N/A |
 
 ---
 
