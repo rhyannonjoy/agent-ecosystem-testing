@@ -1,0 +1,22 @@
+BL-2, 3rd run GPT-5.4-Mini High
+Version 26.602.40724
+Not written-saved by agent, manually written-saved
+
+curl -I -L --silent --show-error https://www.mongodb.com/docs/manual/reference/change-events/create.md
+
+HTTP/2 200 
+content-type: text/markdown; charset=UTF-8
+accept-ranges: bytes
+cache-control: public,max-age=0,must-revalidate
+cache-status: "Netlify Edge"; hit
+date: Sun, 07 Jun 2026 02:52:07 GMT
+server: istio-envoy
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-nf-request-id: 01KTFZXAFDJ4T0ZJGGFWV7SHNR
+x-envoy-upstream-service-time: 16
+etag: "d6e87a8927b15d7476b9760a820b32fc-ssl"
+x-cache: Miss from cloudfront
+via: 1.1 87247d9a9b2f9e51b0c72b364948aefa.cloudfront.net (CloudFront)
+x-amz-cf-pop: SEA900-P10
+x-amz-cf-id: GNNfvyYyuY4WCCCEzg94Mqj8ZAXWO9ASfr2jG3vIIHvS6GN9-OkBAw==
+age: 3534
