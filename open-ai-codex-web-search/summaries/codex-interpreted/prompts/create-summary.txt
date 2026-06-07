@@ -6,7 +6,8 @@ Some styling rules:
 2. Don’t use “s” for seconds, spell it out
 3. Make sure it’s in Markdown so that I can copy and paste it easily
 4. Use contractions (don't instead of do not)
-5. Make sure anything code is in backticks: `curl`, `python3`, `GPT-5.5 Low`, `L266`
+5. Make sure anything code is in backticks: `curl`, `python3`, `GPT-5.5 Low`, `L266`, `T1`
+6. Don't use dashes, use commas
 
 Some general observations (edit to ensure it's accurate to the test cycle):
 

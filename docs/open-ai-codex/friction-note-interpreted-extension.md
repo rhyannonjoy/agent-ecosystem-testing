@@ -28,6 +28,10 @@ On the desktop app, thought panel collapse offered an explicit session-end indic
 as distinct. Whether `Auto-review`, `Full access`, or any other default setting drives this behavior isn't confirmed. The mechanism
 isn't visible in the thought panel, and the agent doesn't report the changes unprompted.
 
+`BL-2` extended this from an isolated event to a consistent surface behavior. All runs produced a duplicate report after an initial
+complete render, with identical content added rather than resolved. The pattern appeared at every intelligence level, with no exceptions,
+suggesting this post-hoc over-delivery isn't LLM-specific or intelligence-level-specific.
+
 ### Methodology Decision
 
 The primary record principle, screenshot at runtime, also applies while testing using the VS Code extension. While the `T2` evidence
@@ -86,3 +90,17 @@ version drift, or both, and the data alone can't always separate them.
 Use the `T1` subset filtered to `GPT-5.4-Mini` and `GPT-5.5` as the controlled cross-track comparator for `T1` ↔ `T2`.
 Don't treat the LLM reduction as a study failure; the asymmetry is explainable and documented. Where a `T2` finding diverges
 from its `T1` equivalent, note LLM-version drift as an alternative explanation alongside known platform limits.
+
+---
+
+## Mixed-Format Source Misidentification, Tool Selection Driver
+
+`T2` `BL-2` replicated `T1`'s pattern at reduced cost. The same triggers were present: embedded HTML table markup, the
+`ce-create## Summary` concatenation artifact, and an unexplained ~20 KB size expectation across most runs. The `file` utility
+added a layer not observed in `T1`: every run that saved and inspected the `.md` file received
+`HTML document text, ASCII text, with very long lines (527)`, which some agents cited alongside the format anomaly. The
+`Browser Use` escalation path isn't available on the VS Code extension by default, so the misidentification resolved to a generic,
+unexamined `web` error and `curl` pivot rather than a 63K-token tool failure. Whether the same escalation would have
+occurred with `Browser` configuration isn't resolvable from `T2` data alone, but the surface constraint bounded the cost.
+
+>_Read more about this `T1` pattern in [Friction: Interpreted - Desktop](friction-note-interpreted-desktop.md#mixed-format-source-misidentification-tool-selection-driver)_
