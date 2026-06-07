@@ -186,7 +186,7 @@ positive truncation report driven by format mismatch is a distinct finding from 
 misidentification produces tool escalation, not just a bad report, log the escalation path and its context cost as a
 direct consequence of the source format property.
 
-> _`T2` results produced this pattern at reduced cost; analysis in [Friction Note: Extension](friction-note-interpreted-extension.md#mixed-format-source-misidentification-tool-selection-driver)_
+> _`T2` results produced this pattern at reduced cost; analysis in [Friction: Interpreted - Extension](friction-note-interpreted-extension.md#mixed-format-source-misidentification-tool-selection-driver)_
 
 ---
 

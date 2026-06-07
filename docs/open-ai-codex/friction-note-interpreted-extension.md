@@ -99,8 +99,8 @@ from its `T1` equivalent, note LLM-version drift as an alternative explanation a
 `ce-create## Summary` concatenation artifact, and an unexplained ~20 KB size expectation across most runs. The `file` utility
 added a layer not observed in `T1`: every run that saved and inspected the `.md` file received
 `HTML document text, ASCII text, with very long lines (527)`, which some agents cited alongside the format anomaly. The
-`Browser Use` escalation path isn't available on the VS Code extension by default, so the misidentification resolved to a generic
-`web` error and a silent `curl` pivot rather than a 63K-token tool failure. Whether the same escalation would have occurred with
-`Browser` configuration isn't resolvable from `T2` data alone, but the surface constraint bounded the cost.
+`Browser Use` escalation path isn't available on the VS Code extension by default, so the misidentification resolved to a generic,
+unexamined `web` error and `curl` pivot rather than a 63K-token tool failure. Whether the same escalation would have
+occurred with `Browser` configuration isn't resolvable from `T2` data alone, but the surface constraint bounded the cost.
 
->_Read more about this `T1` pattern in [Friction Note: Desktop](friction-note-interpreted-desktop.md#mixed-format-source-misidentification-tool-selection-driver)_
+>_Read more about this `T1` pattern in [Friction: Interpreted - Desktop](friction-note-interpreted-desktop.md#mixed-format-source-misidentification-tool-selection-driver)_
