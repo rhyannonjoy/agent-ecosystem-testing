@@ -15,7 +15,7 @@ Here are the hypotheses:
 - H1: Character-based truncation at fixed limit. Is there a ceiling at ~10–100 KB?
 - H2: Token-based truncation. Is there a ceiling at ~2,000 tokens?
 - H3: Structure-aware truncation. Does truncation fall on Markdown boundaries rather than arbitrary byte positions?
-- H4: Surface impact on retrieval behavior. Does the Codex IDE versus VS Code-Codex surface produce different retrieval behavior?
+- H4: Surface impact on retrieval behavior. Does the Codex desktop app versus VS Code-Codex surface produce different retrieval behavior?
 (always untested on Track 1, because we’re only using Codex desktop app on Track 1)
 - H5: Auto-chunking and/or pagination. Does the agent fetch with multi-step tool chains, or only when reasoned into it?
 
