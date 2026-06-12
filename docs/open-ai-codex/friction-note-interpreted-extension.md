@@ -9,17 +9,17 @@ parent: OpenAI Codex
 
 ---
 
-## Autonomous Post-Hoc Session Alterations
+## Autonomous Post-Hoc Session Double Rendering
 
 The output editing behavior [documented in T1](./friction-note-interpreted-desktop.md#autonomous-post-hoc-session-alterations)
-extends to the VS Code extension surface, confirmed in `BL-1`.<br>`GPT-5.4-Mini High` showed a duplicate report appear after the
-session _appeared to complete_, alongside timer drift.
+extends to the VS Code extension surface, first confirmed in `BL-1`.<br>`GPT-5.4-Mini High`, and all `BL-2` `SC-2` runs showed
+duplicate reports after the session _appeared to complete_, alongside timer drift.
 
 `T1` described a double report that resolved: two versions of a run collapsed to one during a later batch-logging pass, with
 the `web` limitation observation absent from the surviving copy. But in `T2`, the direction reversed in which a single report
 became a double, with identical content added rather than cleaned up. Both variants share the same data integrity risk, the
-post-session state doesn't match the runtime state, but the mechanism may continue to operate differently while testing the VS Code
-extension.
+post-session state doesn't match the runtime state, but the mechanism may continue to operate differently while testing the
+VS Code extension.
 
 The timer drift also reveals a measurement ambiguity specific to the extension surface. While the screenshot at `1min45s`
 captured output that appeared complete, the session hadn't terminated. The agent continued processing after the visible report
@@ -28,16 +28,21 @@ On the desktop app, thought panel collapse offered an explicit session-end indic
 as distinct. Whether `Auto-review`, `Full access`, or any other default setting drives this behavior isn't confirmed. The mechanism
 isn't visible in the thought panel, and the agent doesn't report the changes unprompted.
 
-`BL-2` extended this from an isolated event to a consistent surface behavior. All runs produced a duplicate report after an initial
-complete render, with identical content added rather than resolved. The pattern appeared at every intelligence level, with no exceptions,
-suggesting this post-hoc over-delivery isn't LLM-specific or intelligence-level-specific.
+`BL-2` and `SC-2` extended this from an isolated event to a consistent surface behavior. All runs produced a duplicate report after
+an initial complete render, with identical content added rather than resolved. The pattern appeared at every intelligence level, with
+no exceptions, suggesting this post-hoc over-delivery isn't LLM-specific or intelligence-level-specific. The data written-saved to
+`~.codex/archived_sessions` suggests that the extension sessions aren't being altered, but double-rendering single emissions.
+`GPT-5.4-Mini High`'s `SC-2` was the only agent to display output truncation, not finishing the report to include surface
+awareness observations, and the archived session `JSONL` corroborates double-rendering as generation-side and unrepaired.
 
 ### Methodology Decision
 
 The primary record principle, screenshot at runtime, also applies while testing using the VS Code extension. While the `T2` evidence
 adds new formatting inconsistencies to look out for, there's no need to wait for a stable timer and confirmed session termination
 before treating output as _final_. Flag inconsistencies as they come, as the current implication remains that sessions may be incomplete
-at capture time.
+at capture time. Where a report is incomplete at capture time, log the missing items explicitly and treat any later complete version
+of the same report as post-hoc output, but not the primary record. Report completeness is now a runtime observation and not a stable
+session property.
 
 ---
 
@@ -104,3 +109,39 @@ unexamined `web` error and `curl` pivot rather than a 63K-token tool failure. Wh
 occurred with `Browser` configuration isn't resolvable from `T2` data alone, but the surface constraint bounded the cost.
 
 >_Read more about this `T1` pattern in [Friction: Interpreted - Desktop](friction-note-interpreted-desktop.md#mixed-format-source-misidentification-tool-selection-driver)_
+
+---
+
+## `web` Line Ceiling
+
+`BL-1` flagged inconsistent `web` line ceiling behavior while `SC-2` reports included a somewhat more stable `T2` property
+and exposed a cross-track discrepancy in its value. Every `T2` run that used `web` against the `SC-2` URL cut at ~140 lines,
+consistent across both LLM variants and all intelligence levels that touched the tool. `T1` runs against the same URL produced
+a consistently mapped 142-line extraction window, documented in
+[`web` Line-Indexed Viewer](./friction-note-interpreted-desktop.md#web-line-indexed-viewer).
+
+The internal structure of the window matched across tracks: nav header, a `Loading...` placeholder band, then footer
+navigation terminating at the terms and usage policy links. `GPT-5.5 Extra High` mapped the placeholder band
+to lines 21 to 76, within range of `T1`'s `L23–L84` mapping. The architecture finding, a fixed pre-hydration extraction
+window rather than content-driven truncation, holds without modification. What differs is only the window value itself,
+two to three lines across tracks.
+
+Three explanations fit the discrepancy and the data can't separate them. The extension surface may configure a slightly
+smaller viewer window. The page's pre-hydration shell may have changed between collection windows, the within-cycle char
+count drift of 578,233 to 578,275 confirms the payload is dynamic. Or the line count may vary with extraction conditions
+the tool doesn't expose, consistent with `T1` `SC-3`'s finding that the window is a soft cap rather than a constant. The
+[LLM Retirement](#llm-retirement) applies here too as version drift between collection windows remains a test confound.
+
+In addition, no `T2` run inspected HTTP headers, contrasting with `T1` run 8's full response chain capture that grounded
+the redirect and CSP findings. And only three of eight runs acknowledged the `docs.anthropic.com` to `platform.claude.com`
+redirect, against near-universal acknowledgment in `T1`. Whether reduced header curiosity is a surface effect, a version effect,
+or sampling noise isn't resolvable from this track alone.
+
+### Methodology Decision
+
+Log the observed line ceiling value per run rather than treating it as a known constant. A two to three line difference
+isn't itself meaningful, but a drifting window value across test IDs would distinguish a soft, condition-dependent cap
+from a configured constant, and only per-run logging makes that visible. Treat the window structure, nav, placeholder
+band, footer, as the stable signature and the line value as the variable. Reference
+[`SC-2` Cross-Ecosystem Divergence](./friction-note-interpreted-desktop.md#sc-2-cross-ecosystem-divergence) for the
+hydration shell finding; `T2` confirms it with little difference.

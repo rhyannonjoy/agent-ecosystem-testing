@@ -76,6 +76,8 @@ Treat screenshot capture at run time as the primary record for agent reasoning, 
 Cross-reference logged output against screenshots and observe for discrepancies. Note the Codex app version at the time of capture,
 as platform updates may change what gets swept and what doesn't.
 
+> _[Friction: Extension](friction-note-interpreted-extension.md#autonomous-post-hoc-session-double-rendering) recontextualizes this topic for `T2`_
+
 ---
 
 ## Hypotheses Unreachability
@@ -237,6 +239,8 @@ evidence from run 8, which captured the full HTTP response chain. Treat Cascade'
 an agent hypothesis, not a confirmed finding, consistent with the existing redirect section's framing. Where future runs
 against this URL produce divergent redirect descriptions across agents or ecosystems, treat the divergence as a signal about
 tool output consistency or failure recovery, rather than a signal about the URL's behavior.
+
+> _[Friction: Extension](friction-note-interpreted-extension.md#web-line-ceiling) reinforces these observations_
 
 ---
 
