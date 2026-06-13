@@ -112,6 +112,52 @@ occurred with `Browser` configuration isn't resolvable from `T2` data alone, but
 
 ---
 
+## Output Token Cap
+
+`SC-2` transcripts revealed what the [Truncation Taxonomy](./friction-note-interpreted-desktop.md#truncation-taxonomy)
+describes as terminal display truncation is a token cap on tool output entering the LLM's context, with the panel marker
+as its visible side effect. The cap is agent-requested, not platform-configured. Each `function_call` record in the
+`~/.codex/sessions` rollout files carries a `max_output_tokens` value inside its `arguments` field, set by the agent per
+command, and the platform honors it exactly. `GPT-5.5 High` requested 2,000 tokens for an `rg` search that matched the
+entire minified HTML document as a single 118,359-token line, and received exactly 2,000. The one observed exception
+reveals a platform ceiling: `GPT-5.5 Low` requested 120,000 tokens for its `curl` fetch and received 10,000, the request
+silently overridden. Requested values across the cycle ranged from 2,000 to 120,000, varying with the agent's expectation
+of each command's output, suggesting that the cap is agent behavior bounded by one platform constant.
+
+These amounts aren't logged as a field anywhere. Each `function_call_output` wrapper reports `Original token count` and,
+when clipping occurs, an inline `tokens truncated` marker; the kept value is the subtraction. The taxonomy row's
+verification cell, _not detectable, hidden tokens not saved_, is wrong at the transcript layer as the clipped content is
+gone, but the arithmetic is recoverable. This also reattaches `H2`'s 2,000-token figure a second time. It isn't a
+retrieval or platform context ceiling, but likely a routine allocation agents make for commands they expect to produce
+short output, and it becomes visible only when a command returns far more than expected.
+
+The cap also suggests why `total_token_usage` in session metadata diverges so widely from the content sizes agents report.
+A retrieved payload contributes at most its requested cap to context, and runs that saved to a file and measured with `wc`
+or `node` contributed single and double digit token outputs. `GPT-5.4-Mini Medium` handled a 145,000-token artifact while
+its session consumed 32,560 cumulative tokens. Session totals scale with call count, resent context, and reasoning, while
+payload size contributes only up to each call's cap. The gap between the two numbers per run is itself a readout of retrieval
+strategy rather than a measurement error.
+
+Rollout metadata inspection belongs to the Raw track by design; `T3` and `T4` exist to extract measurements
+programmatically rather than through agent self-reports. This finding surfaced ahead of schedule because diagnosing the
+[duplicate report rendering](#autonomous-post-hoc-session-double-rendering), required opening the session logs. The friction
+produced the finding early, and it recontextualizes observations already logged: display truncation markers across `OP-4`,
+`EC-6`, and `SC-2` were cap events with recoverable arithmetic, not rendering noise, and at least some of them were self-imposed
+by the agent's own per-call budgeting.
+
+### Methodology Decision
+
+Treat the rollout wrappers as the authoritative record for what tool output the agent actually received in context,
+distinct from what the tool retrieved and from what the panel displayed. Where an agent's reasoning seems blind to content
+it demonstrably fetched, check the requested `max_output_tokens` and the kept arithmetic before attributing the gap to
+LLM behavior; a clipped output may reflect the agent's own budget rather than a platform limit. Log requested versus kept per
+call where clipping occurs, alongside the command type, as request sizes track anticipated output per command rather than
+intelligence level on current evidence. Defer systematic ceiling characterization to the raw tracks, where it's in scope by design,
+and flag interpreted-track runs where cap events shape self-reports, so the two layers aren't conflated in cross-track
+comparison.
+
+---
+
 ## `web` Line Ceiling
 
 `BL-1` flagged inconsistent `web` line ceiling behavior while `SC-2` reports included a somewhat more stable `T2` property
