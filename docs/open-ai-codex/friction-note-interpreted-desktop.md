@@ -76,7 +76,7 @@ Treat screenshot capture at run time as the primary record for agent reasoning, 
 Cross-reference logged output against screenshots and observe for discrepancies. Note the Codex app version at the time of capture,
 as platform updates may change what gets swept and what doesn't.
 
-> _[Friction: Extension](friction-note-interpreted-extension.md#autonomous-post-hoc-session-double-rendering) recontextualizes this topic for `T2`_
+> _[Friction: Interpreted - Extension](friction-note-interpreted-extension.md#autonomous-post-hoc-session-double-rendering) recontextualizes this topic_
 
 ---
 
@@ -240,7 +240,7 @@ an agent hypothesis, not a confirmed finding, consistent with the existing redir
 against this URL produce divergent redirect descriptions across agents or ecosystems, treat the divergence as a signal about
 tool output consistency or failure recovery, rather than a signal about the URL's behavior.
 
-> _[Friction: Extension](friction-note-interpreted-extension.md#web-line-ceiling) reinforces these observations_
+> _[Friction: Interpreted - Extension](friction-note-interpreted-extension.md#web-line-ceiling) reinforces these observations_
 
 ---
 
@@ -333,7 +333,7 @@ worse versions of the same measurement. A `web`-only run documents default retri
 level. A `curl`-escalated run documents what the agent does when it reasons past the default. Both are valid observations. The
 distinction is already recoverable from the tools named column without additional logging.
 
-> _[Friction: Extension](friction-note-interpreted-extension.md#output-token-cap) recontextualizes Terminal Display Truncation_
+> _[Friction: Interpreted - Extension](friction-note-interpreted-extension.md#output-token-cap) recontextualizes Terminal Display Truncation_
 
 ---
 

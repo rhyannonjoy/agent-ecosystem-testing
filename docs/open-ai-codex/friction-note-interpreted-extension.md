@@ -12,7 +12,7 @@ parent: OpenAI Codex
 ## Autonomous Post-Hoc Session Double Rendering
 
 The output editing behavior [documented in T1](./friction-note-interpreted-desktop.md#autonomous-post-hoc-session-alterations)
-extends to the VS Code extension surface, first confirmed in `BL-1`.<br>`GPT-5.4-Mini High`, and all `BL-2` `SC-2` runs showed
+extends to the VS Code extension, first confirmed in `BL-1`'s `GPT-5.4-Mini High` run. All `BL-2` `SC-2` runs showed
 duplicate reports after the session _appeared to complete_, alongside timer drift.
 
 `T1` described a double report that resolved: two versions of a run collapsed to one during a later batch-logging pass, with
@@ -31,7 +31,7 @@ isn't visible in the thought panel, and the agent doesn't report the changes unp
 `BL-2` and `SC-2` extended this from an isolated event to a consistent surface behavior. All runs produced a duplicate report after
 an initial complete render, with identical content added rather than resolved. The pattern appeared at every intelligence level, with
 no exceptions, suggesting this post-hoc over-delivery isn't LLM-specific or intelligence-level-specific. The data written-saved to
-`~.codex/archived_sessions` suggests that the extension sessions aren't being altered, but double-rendering single emissions.
+`~.codex/sessions` suggests that the extension sessions aren't agent-altered, but double-rendering single emissions.
 `GPT-5.4-Mini High`'s `SC-2` was the only agent to display output truncation, not finishing the report to include surface
 awareness observations, and the archived session `JSONL` corroborates double-rendering as generation-side and unrepaired.
 
@@ -138,7 +138,7 @@ its session consumed 32,560 cumulative tokens. Session totals scale with call co
 payload size contributes only up to each call's cap. The gap between the two numbers per run is itself a readout of retrieval
 strategy rather than a measurement error.
 
-Rollout metadata inspection belongs to the Raw track by design; `T3` and `T4` exist to extract measurements
+Rollout metadata inspection belongs to the raw tracks by design; `T3` and `T4` exist to extract measurements
 programmatically rather than through agent self-reports. This finding surfaced ahead of schedule because diagnosing the
 [duplicate report rendering](#autonomous-post-hoc-session-double-rendering), required opening the session logs. The friction
 produced the finding early, and it recontextualizes observations already logged: display truncation markers across `OP-4`,
@@ -161,7 +161,8 @@ comparison.
 ## `web` Line Ceiling
 
 `BL-1` flagged inconsistent `web` line ceiling behavior while `SC-2` reports included a somewhat more stable `T2` property
-and exposed a cross-track discrepancy in its value. Every `T2` run that used `web` against the `SC-2` URL cut at ~140 lines,
+and exposed a cross-track discrepancy in its value. Every `T2` run that used `web` against the
+[`SC-2` URL](https://docs.anthropic.com/en/api/messages) cut at ~140 lines,
 consistent across both LLM variants and all intelligence levels that touched the tool. `T1` runs against the same URL produced
 a consistently mapped 142-line extraction window, documented in
 [`web` Line-Indexed Viewer](./friction-note-interpreted-desktop.md#web-line-indexed-viewer).
@@ -190,4 +191,4 @@ isn't itself meaningful, but a drifting window value across test IDs would disti
 from a configured constant, and only per-run logging makes that visible. Treat the window structure, nav, placeholder
 band, footer, as the stable signature and the line value as the variable. Reference
 [`SC-2` Cross-Ecosystem Divergence](./friction-note-interpreted-desktop.md#sc-2-cross-ecosystem-divergence) for the
-hydration shell finding; `T2` confirms it with little difference.
+HTML shell finding; `T2` confirms it with little difference.
