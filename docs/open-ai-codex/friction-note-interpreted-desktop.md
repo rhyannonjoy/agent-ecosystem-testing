@@ -333,6 +333,8 @@ worse versions of the same measurement. A `web`-only run documents default retri
 level. A `curl`-escalated run documents what the agent does when it reasons past the default. Both are valid observations. The
 distinction is already recoverable from the tools named column without additional logging.
 
+> _[Friction: Extension](friction-note-interpreted-extension.md#output-token-cap) recontextualizes Terminal Display Truncation_
+
 ---
 
 ## URL Instability Mid-Testing
