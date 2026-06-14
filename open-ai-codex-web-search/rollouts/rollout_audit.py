@@ -4,7 +4,7 @@
 Usage:
     python3 rollout_audit.py session1.jsonl session2.jsonl ...
     python3 rollout_audit.py ~/.codex/sessions/rollout-*.jsonl
-    python3 rollout_audit.py --csv audit.csv rollout-*.jsonl
+    python3 rollout_audit.py --csv audit.csv T2-SC2/rollout-*.jsonl
 
 For each session file this reports:
   1. Identity: session id, model, reasoning effort, CLI version, test prompt ID if present
