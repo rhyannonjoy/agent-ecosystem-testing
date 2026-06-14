@@ -17,7 +17,8 @@ data for the [Agent-Friendly Documentation Spec](https://agentdocsspec.com/).
 
 | **Post** | **Focus** |
 | -------- | --------- |
-| **[Field Notes from a Yelper: Guerrilla Testing Agents](/blogs/field-notes-from-yelper.md)** | Methodology evolution: what broke,<br>what changed, and letting data lead |
+| **[Field Notes from a Yelper: Guerrilla Testing Agents](/blogs/field-notes-from-yelper.md)** | Methodology evolution: what broke, what changed, letting data lead |
+| **[Seeing Double: Examining a Codex Rendering Bug](/blogs/seeing-double.md)** | Beyond agent output, troubleshooting chat quirks |
 
 ## Documentation Structure
 

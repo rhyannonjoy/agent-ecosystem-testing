@@ -5,9 +5,11 @@ permalink: /blogs/seeing-double
 parent: Blogs
 ---
 
-# Seeing Double
+# Seeing Double: Examining a Codex Rendering Bug
 
-![Two identical computers smile with stars framing them](../static/assets/seeing-double.png)
+<div class="blog-seeing-double-img">
+  <img src="../static/assets/seeing-double.png" alt="Two identical computers smile with stars framing them">
+</div>
 
 AET research concerns remain capturing default behavior to assess documentation truncation
 risk across the web. Each platform testing cycle offers opportunities to adapt to
@@ -17,15 +19,13 @@ is the fourth in a series of chat-based agent testing which builds on previous f
 deployment context comparison. Codex testing first felt expansive,
 [LLM x Intelligence Matrix](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/open-ai-codex/friction-note-interpreted-desktop#llm--intelligence-matrix)
 now restrive, [LLM Retirement](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/open-ai-codex/friction-note-interpreted-extension#llm-retirement),
-
-How did we get to the logs?
-Opportunity to capture more data, influenced process change in which run and log tests in batches
-Previously I wasn't even looking at session output after they had ran, but that changed with the volume up
-Among the version updates, I noticed that data had changed and started to poke around more. Noticed
-session terminal execution details gone, cleaned up, timer drift.
-[Autonomous Post-Hoc Session Alterations](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/open-ai-codex/friction-note-interpreted-desktop#autonomous-post-hoc-session-alterations)
-but on the second track, there was doubling
-[Autonomous Post-Hoc Session Double Rendering](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/open-ai-codex/friction-note-interpreted-extension#autonomous-post-hoc-session-double-rendering) and I dug in more.
+and the rollercoaster influenced the run-observe-log process to include first pass documenting
+and second pass logging in batches, allowing for more granular reporting to handle the bump in data volume.
+While testing the desktop app for Track 1, agent output changed in the form of clipping command executions,
+report correction, and timer continuation as described in
+[Autonomous Post-Hoc Session Alterations](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/open-ai-codex/friction-note-interpreted-desktop#autonomous-post-hoc-session-alterations),
+but while testing the VS Code extension for Track 2, outputs weren't corrected but duplicated, as documented in
+[Autonomous Post-Hoc Session Double Rendering](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/open-ai-codex/friction-note-interpreted-extension#autonomous-post-hoc-session-double-rendering).
 
 ## What the logs actually contain
 
