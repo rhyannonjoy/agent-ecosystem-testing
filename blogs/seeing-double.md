@@ -25,66 +25,77 @@ While testing the desktop app for Track 1, agent output changed in the form of t
 report correction, and timer continuation as described in
 [Autonomous Post-Hoc Session Alterations](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/open-ai-codex/friction-note-interpreted-desktop#autonomous-post-hoc-session-alterations).
 While testing the VS Code extension for Track 2, outputs weren't corrected but duplicated, as documented in
-[Autonomous Post-Hoc Session Double Rendering](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/open-ai-codex/friction-note-interpreted-extension#autonomous-post-hoc-session-double-rendering). First dismissed as mere chat
-quirks, these data drifts inspired an inspection of Codex metadata in the `.codex/sessions/` rollout `JSONL` files.
+[Autonomous Post-Hoc Session Double Rendering](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/open-ai-codex/friction-note-interpreted-extension#autonomous-post-hoc-session-double-rendering). First dismissed as mere chat quirks, these data drifts inspired an inspection of Codex metadata in the `.codex` rollout files.
 
 ## Log Anatomy
 
-Each rollout file interleaves two parallel streams describing one session. The `event_msg` records are the UI event
-feed, what the panel renders live. The `response_item` records are the model-facing conversation transcript, the
-message objects that get replayed as context. When the agent emits its final answer, Codex writes it once to each
-stream, and the `task_complete` event carries the full text a third time as `last_agent_message`. One generation,
-three stored copies.
+>_What the heck are we looking at?_
 
-## The audit
+While the chat displays a single generation, Codex writes-stores three copies. Each rollout is a `JSON` log
+file that includes parallel streams describing one session. while `event_msg` records are the UI event feed and what the
+panel renders live, `response_item` records are the LLM-facing conversation transcript and the message objects that get
+replayed as context. When the agent emits its final answer, Codex writes it once to each stream, and the `task_complete`
+event carries the full text a third time as `last_agent_message`. Script
+[`rollout_decode.py`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/rollouts/rollout_decode.py)
+converts the logs into readable forms for further inspection.
 
-A small Python script parses each file and counts everything: turns, emissions, tool calls, completion events, and
-any record appended after `task_complete`. Across all eight sessions, spanning two models, four reasoning levels,
-zero to twelve tool calls, and 25 to 233 seconds of runtime:
+## Log Audit
 
-1. Every session contains exactly one final answer emission.
-2. All three stored copies are byte-identical in every session.
-3. Zero records exist after `task_complete` in any session. The file's wall clock span equals the turn duration
-   exactly, so the log closes at completion and nothing touches it afterward.
+>_Do the logs document rendering oddities?_
 
-The doubling reproduced in the panel for all eight runs. The invariant held in the transcript for all eight runs.
-Whatever duplicates the report lives downstream of the log writer, in the client's render path. The likeliest
-mechanism given the file structure: the panel hydrates the final message from two of its three stored copies,
-probably the live event stream plus `task_complete.last_agent_message`, without deduplicating by ID.
+Script [`rollout_audit.py`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/rollouts/rollout_audit.py)
+counts everything: turns, emissions, tool calls, completion events, and any record appended after `task_complete`. Across
+the last eight test sessions, spanning two LLMs and four reasoning levels, zero to twelve tool calls, and 25 to 233 seconds of runtime:
 
-The timer drift resolves the same way. The completion event carries `duration_ms` as the authoritative turn length,
-and it ran 4 to 10 seconds longer than the live counter in every session. Two instruments, one reconciliation, no
-mystery. The simplest failing case is a 38 second session with zero tool calls and 18,002 total tokens, so nothing
-about session complexity is required to trigger any of it.
+- Every session contains exactly _one final_ answer emission
+- Every session's three copies are byte-identical
+- Every file's clock span equals turn duration
+- No session includes records after `task_complete`
 
-## What the audit caught that the panel couldn't
+>_Why would the chat display double reports?_
 
-One run's report cut off mid-sentence, ending inside item 7 of an eight-item report with an unclosed backtick. The
-transcript shows the same truncation in all three copies. So that one was real: the generation itself stopped, the
-durable record agrees with the screenshot, and no later process repaired it. Distinguishing a rendering artifact
-from a genuine generation failure is exactly what the runtime screenshot alone couldn't do, and the JSONL settles
-it per run.
+Each run displayed double reports. No additional records after `task_complete` suggests that nothing writes
+to the log after completion and that whatever produces the double report operates entirely within the chat, and
+not some autonomous session re-trigger. The doubling is likely downstream of the log writer in the client's
+render path. Reading from more than one of the three copies without checking if it's already rendered would
+produce a duplicate. The logs themselves don't document any rendering behavior, only what was available to render.
 
-The wrappers around tool outputs settled a second standing question. Every `function_call_output` carries an
-`Original token count` field, and when output is clipped before entering the model's context, the arithmetic is
-exact: one run's `curl` output arrived at 144,804 tokens and kept exactly 10,000; another arrived at 118,359 and
-kept exactly 2,000. What renders in the panel as a display truncation marker is actually a configured context
-injection budget, which is why an agent can correctly measure a 145,000 token payload while its session consumes a
-fraction of that. The retrieval layer and the context layer are decoupled by design, and the logs carry the budget
-math even though the clipped content is gone.
+>_Why would the timer show a different value after the session appears to complete?_
 
-## Practitioner takeaways
+Chat timer drift is consistent across surfaces and test cycles, but unexplained by the logs alone. First-pass
+observations record the chat live counter's supposed stopping point, while `task_complete.duration_ms` likely runs
+until another mechanism the chat abstracts away continues to work - suggesting that the two values measure different
+endpoints. The logs themselves don't document any timer rendering behavior.
 
-1. The duplicate reports and timer drift on the Codex VS Code extension are presentation-layer behavior. Your
-   session data is intact, and the rollout file is the arbiter.
-2. Don't trust the panel as a record of what the agent did. Trust it as a record of what rendered, and reconcile
-   against `~/.codex/sessions` when the two might differ.
-3. Tool output entering model context is budgeted in exact token amounts that the logs disclose per call. If your
-   agent's behavior depends on seeing large tool outputs, it isn't seeing them, and the wrapper tells you precisely
+## Log Insights
+
+One run's report cut off mid-sentence, ending inside the seventh of an eight-item report with an unclosed backtick.
+The transcript shows the same truncation in all three copies implying that the generation itself stopped and
+no later process repaired it. Distinguishing a rendering artifact from a generation failure is exactly what the
+first-pass observations can't do alone, while the log settles it per run.
+
+The wrappers around tool outputs settled
+[a second standing question](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/open-ai-codex/friction-note-interpreted-extension#output-token-cap).
+Instances in Codex clips output before it enters the LLM's context, its terminal renderer injects the original size
+and amount truncated as plain text into the output field. One run's `curl` output arrived at 144,804 tokens and kept
+10,000; another arrived at 118,359 and kept 2,000. What renders in the chat as a display truncation marker such as
+`…116,434 tokens truncated…` is a configured context injection budget, implying why a Codex agent can correctly measure
+a 145,000 token payload while its session consumes a fraction of that and suggesting a decoupling of the retrieval and
+context layers. The logs document the math even though the clipped content's gone.
+
+## Takeaways
+
+1. Duplicate reports and timer drift on the VS Code Codex extension are presentation-layer quirks while the chat session
+   data remains intact. Both the Codex desktop app and the extension write-save rollout files to the same `.codex` directory
+   for verification.
+2. Don't trust the chat as a record of what the agent did. Trust it as a record of what rendered, and reconcile
+   against `~/.codex/sessions` and/or `~/.codex/archived_sessions` when the two might differ.
+3. Codex budgets tool output entering LLM context in exact token amounts that the logs disclose per call. If your
+   agent's behavior depends on seeing large tool outputs, but isn't seeing them, the wrapper records precisely
    how much it saw.
-4. Reasoning blocks in the rollout are encrypted, but their lengths and the cumulative `total_token_usage`
-   checkpoints survive as effort proxies, useful on a surface that exposes little else.
-
-The audit and decoder scripts are small, dependency-free Python and run against any rollout file. The bug itself
-belongs to OpenAI's extension render path; everything needed to reproduce and localize it is in the logs their own
-client writes.
+4. Codex encrypts log reasoning blocks, but their lengths and the cumulative `total_token_usage`
+   checkpoints survive as effort proxies, which may be useful on a surface that exposes little else.
+5. In lieu of agentic observability infrastructure, the
+   [audit](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/rollouts/rollout_audit.py) and
+   [decoder](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/rollouts/rollout_decode.py)
+   scripts are small, dependency-free, and designed to parse any rollout log.
