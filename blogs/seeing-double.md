@@ -21,13 +21,14 @@ deployment context comparison. Codex testing first felt expansive,
 now restrive, [LLM Retirement](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/open-ai-codex/friction-note-interpreted-extension#llm-retirement),
 and the rollercoaster influenced the run-observe-log process to include first pass documenting
 and second pass logging in batches, allowing for more granular reporting to handle the bump in data volume.
-While testing the desktop app for Track 1, agent output changed in the form of clipping command executions,
+While testing the desktop app for Track 1, agent output changed in the form of thought panel clipping,
 report correction, and timer continuation as described in
-[Autonomous Post-Hoc Session Alterations](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/open-ai-codex/friction-note-interpreted-desktop#autonomous-post-hoc-session-alterations),
-but while testing the VS Code extension for Track 2, outputs weren't corrected but duplicated, as documented in
-[Autonomous Post-Hoc Session Double Rendering](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/open-ai-codex/friction-note-interpreted-extension#autonomous-post-hoc-session-double-rendering).
+[Autonomous Post-Hoc Session Alterations](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/open-ai-codex/friction-note-interpreted-desktop#autonomous-post-hoc-session-alterations).
+While testing the VS Code extension for Track 2, outputs weren't corrected but duplicated, as documented in
+[Autonomous Post-Hoc Session Double Rendering](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/open-ai-codex/friction-note-interpreted-extension#autonomous-post-hoc-session-double-rendering). First dismissed as mere chat
+quirks, these data drifts inspired an inspection of Codex metadata in the `.codex/sessions/` rollout `JSONL` files.
 
-## What the logs actually contain
+## Log Anatomy
 
 Each rollout file interleaves two parallel streams describing one session. The `event_msg` records are the UI event
 feed, what the panel renders live. The `response_item` records are the model-facing conversation transcript, the
