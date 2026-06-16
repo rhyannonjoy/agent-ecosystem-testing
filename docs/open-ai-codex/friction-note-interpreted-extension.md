@@ -44,7 +44,7 @@ at capture time. Where a report is incomplete at capture time, log the missing i
 of the same report as post-hoc output, but not the primary record. Report completeness is now a runtime observation and not a stable
 session property.
 
-> _Additional topic analysis in [Seeing Double: Examining a Codex Rendering Bug](/blogs/seeing-double.md)_
+> _Additional topic analysis in [Seeing Double: Examining a Codex Rendering Bug](../../blogs/seeing-double.md)_
 
 ---
 
@@ -186,11 +186,18 @@ the redirect and CSP findings. And only three of eight runs acknowledged the `do
 redirect, against near-universal acknowledgment in `T1`. Whether reduced header curiosity is a surface effect, a version effect,
 or sampling noise isn't resolvable from this track alone.
 
+`OP-1` sharpens the discrepancy from a drift to a split. Against the
+[Wikipedia `Machine_learning` URL](https://en.wikipedia.org/wiki/Machine_learning#History), all `GPT-5.4-Mini` runs clipped
+`web` windows at `~L304` and all `GPT-5.5` runs clipped at `~L556`, regardless of intelligence level. A ~250-line gap that tracks
+cleanly by LLM rather than by reasoning level or by track suggests an LLM-configured window over the soft, condition-dependent cap
+suggested by `T1` `SC-3`.
+
 ### Methodology Decision
 
 Log the observed line ceiling value per run rather than treating it as a known constant. A two to three line difference
 isn't itself meaningful, but a drifting window value across test IDs would distinguish a soft, condition-dependent cap
-from a configured constant, and only per-run logging makes that visible. Treat the window structure, nav, placeholder
-band, footer, as the stable signature and the line value as the variable. Reference
-[`SC-2` Cross-Ecosystem Divergence](./friction-note-interpreted-desktop.md#sc-2-cross-ecosystem-divergence) for the
-HTML shell finding; `T2` confirms it with little difference.
+from a configured constant, and only per-run logging makes that visible. Consider the `OP-1`-defined LLM-split as a primary grouping
+variable going forward. Treat the window structure, nav, placeholder band, footer, as the stable signature and the line value as
+the variable. Reference
+[`SC-2` Cross-Ecosystem Divergence](./friction-note-interpreted-desktop.md#sc-2-cross-ecosystem-divergence) for the HTML shell
+finding; `T2` confirms it with little difference.
