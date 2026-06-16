@@ -1,0 +1,9 @@
+file,session_id,model,effort,test_id,turns,user_messages,commentary_msgs,final_answers_event,final_answers_item,web_search_calls,function_calls,task_completes,records_after_complete,duration_s,ttft_s,wallclock_s,tokens_total,flags
+rollout-2026-06-16T09-33-29-019ed147-e05e-7d32-b1b8-f316de2280a4.jsonl,019ed147-e05e-7d32-b1b8-f316de2280a4,gpt-5.4-mini,low,OP-2,1,1,3,1,1,3,4,1,0,51.7,1.3,51.6,121348,
+rollout-2026-06-16T09-47-05-019ed154-54cd-7ba0-9516-56bd5f4ff078.jsonl,019ed154-54cd-7ba0-9516-56bd5f4ff078,gpt-5.4-mini,medium,OP-2,1,1,3,1,1,1,2,1,0,92.0,4.9,91.9,81607,
+rollout-2026-06-16T09-57-01-019ed15d-6ee6-7db0-9bee-2fa58f5ee59c.jsonl,019ed15d-6ee6-7db0-9bee-2fa58f5ee59c,gpt-5.4-mini,high,OP-2,1,1,6,1,1,4,5,1,0,222.7,9.2,222.6,238073,
+rollout-2026-06-16T10-07-58-019ed167-734e-7560-ad63-177bd7dee0b6.jsonl,019ed167-734e-7560-ad63-177bd7dee0b6,gpt-5.4-mini,xhigh,OP-2,1,1,10,1,1,3,14,1,0,482.6,7.4,482.6,849246,
+rollout-2026-06-16T11-11-25-019ed1a1-8c7e-73b2-9523-bdd5dc1b1e7d.jsonl,019ed1a1-8c7e-73b2-9523-bdd5dc1b1e7d,gpt-5.5,low,OP-2,1,1,1,1,1,2,0,1,0,27.1,2.0,27.1,33160,
+rollout-2026-06-16T11-18-17-019ed1a7-d419-7552-b98f-6594680c89e0.jsonl,019ed1a7-d419-7552-b98f-6594680c89e0,gpt-5.5,medium,OP-2,1,1,2,1,1,2,6,1,0,50.6,2.7,50.5,140945,
+rollout-2026-06-16T11-29-46-019ed1b2-5817-7ef1-aad2-a4554d7bc7aa.jsonl,019ed1b2-5817-7ef1-aad2-a4554d7bc7aa,gpt-5.5,high,OP-2,1,1,3,1,1,1,10,1,0,88.1,9.9,88.0,163678,
+rollout-2026-06-16T11-39-56-019ed1bb-a7ae-78b2-bd32-0ed91e50085e.jsonl,019ed1bb-a7ae-78b2-bd32-0ed91e50085e,gpt-5.5,xhigh,OP-2,1,1,4,1,1,2,6,1,0,168.9,10.7,168.8,159389,
