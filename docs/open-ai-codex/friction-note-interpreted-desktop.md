@@ -82,7 +82,7 @@ as platform updates may change what gets swept and what doesn't.
 
 ## Hypotheses Unreachability
 
-`EC-1`'s [Gemini API documentation](https://ai.google.dev/gemini-api/docs) was intended to stress-test retrieval behavior
+`EC-1`'s [Gemini API documentation's](https://ai.google.dev/gemini-api/docs) meant to stress-test retrieval behavior
 on a page that `web` can't fully render. Most agents didn't traverse with `web` long enough to produce useful data. The
 dominant pattern across all LLM versions was call `web.run open( {"ref_id": "[ URL ]", "lineno": [ int ]} )`, note the extracted
 view, escalate to `curl`. `H1`-`H3` are only accurately testable against `web` output. Runs that escalated confirmed the raw fetch

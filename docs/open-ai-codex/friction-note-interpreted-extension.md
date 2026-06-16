@@ -44,6 +44,8 @@ at capture time. Where a report is incomplete at capture time, log the missing i
 of the same report as post-hoc output, but not the primary record. Report completeness is now a runtime observation and not a stable
 session property.
 
+> _Additional topic analysis in [Seeing Double: Examining a Codex Rendering Bug](/blogs/seeing-double.md)_
+
 ---
 
 ## `Browser` Unavailable
