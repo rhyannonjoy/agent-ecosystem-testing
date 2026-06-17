@@ -44,7 +44,7 @@ at capture time. Where a report is incomplete at capture time, log the missing i
 of the same report as post-hoc output, but not the primary record. Report completeness is now a runtime observation and not a stable
 session property.
 
-> _Additional topic analysis in [Seeing Double: Examining a Codex Rendering Bug](../../blogs/seeing-double.md)_
+> _Additional analysis in [Seeing Double: Examining a Codex Rendering Bug](../../blogs/seeing-double.md) and [Undercounting Agent Activity](#undercounting-agent-activity)_
 
 ---
 
@@ -160,6 +160,30 @@ comparison.
 
 ---
 
+## Undercounting Agent Activity
+
+Two `OP-2` instances extend the chat panel's unreliability as a complete record beyond
+[double rendering's](#autonomous-post-hoc-session-double-rendering) over-delivery to the opposite failure.
+`GPT-5.5 High`'s rollout audit logged 10 `function_calls` against 7 commands visible in the panel. `GPT-5.4-Mini Extra High`
+exposed full HTTP response headers in-panel but didn't save them as an artifact, recoverable here only because the panel
+still held them at review time. Where the panel over-renders in one direction and silently drops content in another, neither
+failure mode is visible from the chat alone.
+
+The rate limit message reached during `GPT-5.5 Extra High` adds a data point to double rendering's mechanism rather than a
+separate concern. No duplicate report appeared after the limit message, and the chat timer, which had been drifting to
+converge with the rollout log timer on every prior run, continued drifting afterward without converging. This suggests the
+rate limit halted whatever post-hoc process drives both the duplicate render and the timer convergence, rather than the
+two being independent symptoms.
+
+### Methodology Decision
+
+Treat the rollout audit's `function_calls` count as authoritative and the chat-counted figure as a lower bound. Capture
+panel-exposed data manually at review time rather than assuming the panel retains it. Log timer convergence behavior
+alongside rate limit status going forward, since the post-limit non-convergence is the first evidence pointing to a
+specific stage in the double-rendering mechanism.
+
+---
+
 ## `web` Line Ceiling
 
 `BL-1` flagged inconsistent `web` line ceiling behavior while `SC-2` reports included a somewhat more stable `T2` property
@@ -190,7 +214,11 @@ or sampling noise isn't resolvable from this track alone.
 [Wikipedia `Machine_learning` URL](https://en.wikipedia.org/wiki/Machine_learning#History), all `GPT-5.4-Mini` runs clipped
 `web` windows at `~L304` and all `GPT-5.5` runs clipped at `~L556`, regardless of intelligence level. A ~250-line gap that tracks
 cleanly by LLM rather than by reasoning level or by track suggests an LLM-configured window over the soft, condition-dependent cap
-suggested by `T1` `SC-3`.
+suggested by `T1` `SC-3`. `OP-2` complicates the split rather than confirming it. `GPT-5.4-Mini High` and `Extra High` clipped
+[an MDN reference doc](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) near
+`L317` to `L318`, consistent with `OP-1`'s `GPT-5.4-Mini` band, but `GPT-5.4-Mini Medium` clipped at `L590`, landing inside
+`OP-1`'s `GPT-5.5` band instead. `GPT-5.5` itself held `~L591` across all intelligence levels, suggesting that the window may be
+level-dependent for `GPT-5.4-Mini` and level-independent for `GPT-5.5`, rather than a single constant per LLM.
 
 ### Methodology Decision
 
