@@ -11,7 +11,7 @@ parent: OpenAI Codex
 
 ## Autonomous Post-Hoc Session Double Rendering
 
-The output editing behavior [documented in T1](./friction-note-interpreted-desktop.md#autonomous-post-hoc-session-alterations)
+The output editing behavior [documented in `T1`](./friction-note-interpreted-desktop.md#autonomous-post-hoc-session-alterations)
 extends to the VS Code extension, first confirmed in `BL-1`'s `GPT-5.4-Mini High` run. All `BL-2` `SC-2` runs showed
 duplicate reports after the session _appeared to complete_, alongside timer drift.
 
@@ -34,6 +34,10 @@ no exceptions, suggesting this post-hoc over-delivery isn't LLM-specific or inte
 `~.codex/sessions` suggests that the extension sessions aren't agent-altered, but double-rendering single emissions.
 `GPT-5.4-Mini High`'s `SC-2` was the only agent to display output truncation, not finishing the report to include surface
 awareness observations, and the archived session `JSONL` corroborates double-rendering as generation-side and unrepaired.
+
+Without an extension upgrade, double rendering stopped partway through `OP-4`, but repeated `T1` command execution dropdown and
+reasoning detail clearning post-session. It's possible VS Code's responsible for double rendering and that Codex's responsible
+for chat component removal.
 
 ### Methodology Decision
 
@@ -175,6 +179,10 @@ converge with the rollout log timer on every prior run, continued drifting after
 rate limit halted whatever post-hoc process drives both the duplicate render and the timer convergence, rather than the
 two being independent symptoms.
 
+`OP-4`'s `GPT-5.5 Extra High` run extends this gap further. The rollout audit cited 16 commands against roughly 6 visible in
+the chat panel. The run's broader toolchain suggests the panel may collapse multi-tool batches into fewer summary lines as tool
+variety increases, though this is a hypothesis rather than a confirmed mechanism.
+
 ### Methodology Decision
 
 Treat the rollout audit's `function_calls` count as authoritative and the chat-counted figure as a lower bound. Capture
@@ -214,11 +222,18 @@ or sampling noise isn't resolvable from this track alone.
 [Wikipedia `Machine_learning` URL](https://en.wikipedia.org/wiki/Machine_learning#History), all `GPT-5.4-Mini` runs clipped
 `web` windows at `~L304` and all `GPT-5.5` runs clipped at `~L556`, regardless of intelligence level. A ~250-line gap that tracks
 cleanly by LLM rather than by reasoning level or by track suggests an LLM-configured window over the soft, condition-dependent cap
-suggested by `T1` `SC-3`. `OP-2` complicates the split rather than confirming it. `GPT-5.4-Mini High` and `Extra High` clipped
+suggested by `T1` `SC-3`.
+
+`OP-2` complicates the split rather than confirming it. `GPT-5.4-Mini High` and `Extra High` clipped
 [an MDN reference doc](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) near
 `L317` to `L318`, consistent with `OP-1`'s `GPT-5.4-Mini` band, but `GPT-5.4-Mini Medium` clipped at `L590`, landing inside
 `OP-1`'s `GPT-5.5` band instead. `GPT-5.5` itself held `~L591` across all intelligence levels, suggesting that the window may be
 level-dependent for `GPT-5.4-Mini` and level-independent for `GPT-5.5`, rather than a single constant per LLM.
+
+`OP-4` results didn't land in either established band. `GPT-5.4-Mini Medium` and `Extra High` both clipped the
+[CommonMark spec](https://spec.commonmark.org/0.31.2/) at `L237`, below `OP-1`'s `~L304` band and below `OP-2`'s `L317` to `L318` floor.
+`GPT-5.5 Low` and `High` both clipped at `L616`, close to but not matching `OP-2`'s `~L591`. The window value continues to move across
+test IDs rather than holding at a constant per LLM, suggesting the viewport depends on page architecture rather than tool contraints.
 
 ### Methodology Decision
 
