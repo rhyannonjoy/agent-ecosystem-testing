@@ -192,6 +192,35 @@ specific stage in the double-rendering mechanism.
 
 ---
 
+## URL Retirement
+
+The original [`BL-3` URL](https://www.mongodb.com/docs/atlas/atlas-search/tutorial/), returned a `404` between `T1` and `T2`.
+MongoDB restructured its Atlas Search documentation and the umbrella tutorial page no longer exists as a single URL.
+[The replacement test URL](https://www.mongodb.com/docs/vector-search/tutorials/quick-start/?deployment-type=atlas&interface=atlas-ui&embedding=auto)
+brings complications intended to stress test multiple components and compromises current hypotheses.
+
+The query parameters are load-bearing: `deployment-type`, `interface`, and `embedding` control which
+tab variant renders. The raw HTML is approximately 4.4 MB, compared to `T1`'s ~250 KB estimate, because
+MongoDB server-renders all tab variants into the DOM simultaneously and uses JavaScript to show and hide
+them. What an agent's fetch tool actually receives depends on its extraction layer, not on the query params.
+
+It's not a like-for-like replacement. Both are MongoDB tutorial pages with tabbed structure, but
+the size difference is too large to attribute a `T1` ↔ `T2` behavioral delta cleanly to surface rather
+than page weight. `H4` cross-track comparison on `BL-3` is therefore unavailable.
+
+`T2` `BL-3` runs are still worth collecting. The page's size makes it useful as a hard ceiling probe,
+and `H1`, `H2`, `H3`, and `H5` assessments remain valid within `T2` alone. `OP-4` already tests
+above-ceiling behavior on a different URL; `BL-3` now independently tests it on a MongoDB surface,
+which preserves some continuity with the original intent.
+
+### Methodology Decision
+
+Run `T2` `BL-3` and log it as ceiling characterization data. Exclude it from `T1` ↔ `T2` `H4`
+comparison. Note in any cross-track summary that `BL-3` `H4` is unavailable due to URL retirement
+between tracks. The `T1` `BL-3` record stands as-is; don't retrofit it.
+
+---
+
 ## `web` Line Ceiling
 
 `BL-1` flagged inconsistent `web` line ceiling behavior while `SC-2` reports included a somewhat more stable `T2` property
