@@ -256,7 +256,7 @@ between tracks. The `T1` `BL-3` record stands as-is; don't retrofit it.
 
 ---
 
-## `web` Cache Miss, Cross-Domain Confirmation
+## `web Cache Miss`, Cross-Domain Confirmation
 
 `BL-3` adds a second domain to the `Cache Miss` pattern first documented in [`T1`](./friction-note-interpreted-desktop.md#web-cache-miss).
 All runs that attempted `web` against the replacement query parameter URL received the identical failure signature, `Cache miss`,
