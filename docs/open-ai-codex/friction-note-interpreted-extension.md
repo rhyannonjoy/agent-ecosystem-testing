@@ -35,9 +35,9 @@ no exceptions, suggesting this post-hoc over-delivery isn't LLM-specific or inte
 `GPT-5.4-Mini High`'s `SC-2` was the only agent to display output truncation, not finishing the report to include surface
 awareness observations, and the archived session `JSONL` corroborates double-rendering as generation-side and unrepaired.
 
-Without an extension upgrade, double rendering stopped partway through `OP-4`, but repeated `T1` command execution dropdown and
-reasoning detail clearning post-session. It's possible VS Code's responsible for double rendering and that Codex's responsible
-for chat component removal.
+Without an extension upgrade, double rendering stopped partway through `OP-4`; with an upgrade, returned partway through `BL-3`,
+and repeated `T1` command execution dropdown and reasoning detail clearning post-session throughout. It's possible VS Code's
+responsible for double rendering and that Codex's responsible for chat component removal.
 
 ### Methodology Decision
 
@@ -164,6 +164,41 @@ comparison.
 
 ---
 
+## Retrieved-Report Mismatches
+
+In `BL-3`'s runs, `curl` or a `curl`-equivalent escalation succeeded in 6 of 8 attempts, retrieving the complete multi-megabyte body
+without truncation in every successful case. Agent self-reports didn't consistently reflect that success rate. `GPT-5.5 Extra High`
+closed its report with
+_"the direct fetch to www.mongodb.com did not succeed from this environment, so this result reflects retrieval behavior under failure conditions rather than the actual document payload"_
+in the same turn its escalated `curl` call retrieved the full page and confirmed no truncation. The identical sentence also appeared
+in `GPT-5.4-Mini Low` and it's accurate, no body was ever retrieved in that run.
+
+The same framing language covering two opposite outcomes, one run where retrieval genuinely failed and one where it fully succeeded,
+suggesting agents default to describing the `web` tool's failure as the run's outcome, rather than updating that framing once `curl`
+resolves it. This sits in some tension with the [Truncation Taxonomy](./friction-note-interpreted-desktop.md#truncation-taxonomy)'s
+methodology decision to treat `web` and `curl` output as two valid, parallel measurements rather than a degraded fallback and its recovery.
+Agents apply that neutral framing to the data they report, but not consistently to the language describing how they got it.
+
+This extends [`web Cache Miss`](./friction-note-interpreted-desktop.md#web-cache-miss)'s existing finding that no agent investigates the
+cause of a `web` failure. `BL-3` shows the gap runs deeper than non-investigation. The failure framing can outlive the failure itself,
+persisting into a report describing a fully successful retrieval.
+
+Another `BL-3` instance shares the same shape through a different mechanism. `T1`'s `GPT-5.4-Mini High` run against the original `BL-3`
+returned a `404`, logged in the [Truncation Taxonomy](./friction-note-interpreted-desktop.md#truncation-taxonomy)'s Wrong Resource Returned row,
+and still assessed the payload as complete. `T2`'s `GPT-5.4-Mini High` run against the replacement URL produced a structurally similar failure.
+After the query parameter URL failed, the agent substituted the URL without query parameters and reported size and truncation metrics against that
+substitution without disclosing the swap. Both runs share the same LLM and intelligence combination and the same test ID. Two instances across two
+tracks isn't enough to claim a `GPT-5.4-Mini High`-specific pattern, but it's worth watching for if `BL-3` or a similarly structured test ID recurs
+at this LLM-reasoning combination in `T3` or `T4`.
+
+### Methodology Decision
+
+Don't take a run's closing characterization of _"failure,"_ _"incomplete,"_ or _"complete"_ at face value. Check it against the run's own measured output
+and the URL fetched before logging the outcome. Where the same boilerplate failure sentence appears across runs with different actual outcomes, log
+as evidence of unreconciled closing narration rather than a status report.
+
+---
+
 ## Undercounting Agent Activity
 
 Two `OP-2` instances extend the chat panel's unreliability as a complete record beyond
@@ -189,6 +224,62 @@ Treat the rollout audit's `function_calls` count as authoritative and the chat-c
 panel-exposed data manually at review time rather than assuming the panel retains it. Log timer convergence behavior
 alongside rate limit status going forward, since the post-limit non-convergence is the first evidence pointing to a
 specific stage in the double-rendering mechanism.
+
+---
+
+## URL Retirement
+
+The original [`BL-3` URL](https://www.mongodb.com/docs/atlas/atlas-search/tutorial/), returned a `404` between `T1` and `T2`.
+MongoDB restructured its Atlas Search documentation and the umbrella tutorial page no longer exists as a single URL.
+[The replacement test URL](https://www.mongodb.com/docs/vector-search/tutorials/quick-start/?deployment-type=atlas&interface=atlas-ui&embedding=auto)
+brings complications intended to stress test multiple components and compromises current hypotheses.
+
+The query parameters are load-bearing: `deployment-type`, `interface`, and `embedding` control which
+tab variant renders. The raw HTML is approximately 4.4 MB, compared to `T1`'s ~250 KB estimate, because
+MongoDB server-renders all tab variants into the DOM simultaneously and uses JavaScript to show and hide
+them. What an agent's fetch tool actually receives depends on its extraction layer, not on the query params.
+
+It's not a like-for-like replacement. Both are MongoDB tutorial pages with tabbed structure, but
+the size difference is too large to attribute a `T1` ↔ `T2` behavioral delta cleanly to surface rather
+than page weight. `H4` cross-track comparison on `BL-3` is therefore unavailable.
+
+`T2` `BL-3` runs are still worth collecting. The page's size makes it useful as a hard ceiling probe,
+and `H1`, `H2`, `H3`, and `H5` assessments remain valid within `T2` alone. `OP-4` already tests
+above-ceiling behavior on a different URL; `BL-3` now independently tests it on a MongoDB surface,
+which preserves some continuity with the original intent.
+
+### Methodology Decision
+
+Run `T2` `BL-3` and log it as ceiling characterization data. Exclude it from `T1` ↔ `T2` `H4`
+comparison. Note in any cross-track summary that `BL-3` `H4` is unavailable due to URL retirement
+between tracks. The `T1` `BL-3` record stands as-is; don't retrofit it.
+
+---
+
+## `web` Cache Miss, Cross-Domain Confirmation
+
+`BL-3` adds a second domain to the `Cache Miss` pattern first documented in [`T1`](./friction-note-interpreted-desktop.md#web-cache-miss).
+All runs that attempted `web` against the replacement query parameter URL received the identical failure signature, `Cache miss`,
+with zero content returned. This matches `EC-6`'s raw GitHub URL failure exactly in wording, but the two URLs share almost nothing else.
+[`BL-3`'s target](https://www.mongodb.com/docs/vector-search/tutorials/quick-start/?deployment-type=atlas&interface=atlas-ui&embedding=auto)
+is a server-rendered Next.js HTML page carrying three query parameters and roughly 4.4 MB, while 
+[`EC-6`'s target](https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md) is a raw, unparameterized CDN text file at
+~92 KB. The shared failure string across two structurally unrelated URLs weakens `EC-6`'s raw CDN path hypothesis and its URL mutability
+hypothesis as standalone explanations, since neither property is present in `BL-3`'s case. Size and query parameter complexity both remain
+candidates, but `BL-3` can't isolate which one drives the failure, since both differ from `EC-6` simultaneously.
+
+The result also marks a layer shift for this specific test ID. `T1` `BL-3` runs against the original URL produced a real, if windowed,
+`web` extraction terminating at `L453` at the page footer, documented in [`web` Line-Indexed Viewer](./friction-note-interpreted-desktop.md#web-line-indexed-viewer).
+`T2` `BL-3` runs against the replacement URL never reached that layer at all. The failure occurs earlier, before `web` has any change of
+producing any windowed extraction. The same test ID moved from a viewer window failure mode in `T1` to a `Cache Miss` failure mode in `T2`,
+which is one more reason `H4` cross-track comparison stays unavailable for `BL-3`, beyond the difference already logged in [URL Retirement](#url-retirement).
+
+### Methodology Decision
+
+Log `Cache Miss` as `BL-3`'s confirmed `web` failure signature going forward, distinct from the `L453` windowed extraction `T1` produced on
+the retired URL. Treat the two-domain confirmation as evidence against `EC-6`'s raw CDN path and URL mutability hypotheses specifically,
+while leaving size and query parameter complexity open. Where future test IDs reproduce the exact `Cache Miss` string, cross-reference both
+`EC-6` and `BL-3` rather than treating either as the canonical case.
 
 ---
 

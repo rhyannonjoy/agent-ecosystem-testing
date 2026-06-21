@@ -65,10 +65,10 @@ TEST_URLS = {
     },
     "BL-3": {
         "name": "Long HTML page (multi-section tabbed tutorial)",
-        "url": "https://www.mongodb.com/docs/atlas/atlas-search/tutorial/",
-        "expected_size_kb": 250,
+        "url": "https://www.mongodb.com/docs/vector-search/tutorials/quick-start/?deployment-type=atlas&interface=atlas-ui&embedding=auto",
+        "expected_size_kb": 4531,
         "category": "baseline",
-        "note": "Same as Claude API test 3; used to measure default truncation ceiling",
+        "note": "Replaces retired Atlas Search tutorial; raw HTML ~4.4MB due to server-side rendering of all tab variants; used to measure default truncation ceiling",
     },
 
     # --- STRUCTURED CONTENT TESTS, SC ---

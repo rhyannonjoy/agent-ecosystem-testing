@@ -408,6 +408,8 @@ design. Don't treat agent silence on the failure as evidence that it's benign. L
 > which causes token consumption spikes when sessions idle for more than ~15 minutes. The two share only terminology: one is a content retrieval failure visible
 > to the agent, the other is a billing-layer infrastructure event that isn't_.
 
+>_`T2` recontextualizes `Cache Miss` in [`BL-3` analysis](friction-note-interpreted-extension.md#web-cache-miss-cross-domain-confirmation)_
+
 ---
 
 ## `web` Line-Indexed Viewer
