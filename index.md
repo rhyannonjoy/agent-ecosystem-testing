@@ -18,6 +18,7 @@ data for the [Agent-Friendly Documentation Spec](https://agentdocsspec.com/).
 | **Post** | **Focus** |
 | -------- | --------- |
 | **[Field Notes from a Yelper: Guerrilla Testing Agents](/blogs/field-notes-from-yelper.md)** | Methodology evolution: what broke, what changed, letting data lead |
+| **[No Lab Coat, Live Fire: Codex Natural Experiments](/blogs/no-lab-coat.md)** | Methodology reinforcement: usability testing uncontrolled conditions |
 | **[Seeing Double: Examining a Codex Rendering Bug](/blogs/seeing-double.md)** | Beyond agent output, troubleshooting chat quirks |
 
 ## Documentation Structure

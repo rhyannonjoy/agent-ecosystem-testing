@@ -38,6 +38,8 @@ navigation:
         url: "/blogs/field-notes-from-a-yelper"
       - title: "Seeing Double"
         url: "/blogs/seeing-double"
+      - title: "No Lab Coat, Live Fire"
+        url: "/blogs/no-lab-coat"
     
   - title: "Anthropic Claude API"
     sections:
