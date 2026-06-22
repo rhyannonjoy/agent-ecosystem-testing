@@ -82,13 +82,13 @@ python claude-api/web_fetch_test.py
 # Raw
 python claude-api/web_fetch_test_raw.py
 
-# Codex-interpreted (Codex Desktop)
+# Codex-interpreted, Desktop
 python open-ai-codex-web-search/framework.py --test {test ID} --track codex-interpreted
-# Codex-interpreted (VS Code-Codex Extension)
+# Codex-interpreted, Extension
 python open-ai-codex-web-search/framework.py --test {test ID} --track vscode-codex-interpreted
-# Codex-raw (Codex Desktop)
+# Codex-raw, Desktop
 python open-ai-codex-web-search/framework.py --test {test ID} --track codex-raw
-# Codex-raw (VS Code-Codex Extension)
+# Codex-raw, Extension
 python open-ai-codex-web-search/framework.py --test {test ID} --track vscode-codex-raw
 
 # Copilot-interpreted
@@ -121,7 +121,7 @@ regardless of agent - `insufficient_quota` is an account-level block, not a rate
 
 ---
 
-### Test Details
+### Methodology Details
 
 #### Cascade
 
@@ -161,7 +161,7 @@ and truncation signals programmatically from the `web_fetch_tool_result` block.
 
 ---
 
-#### Codex Desktop, VS Code Extension
+#### Codex Desktop, Extension
 
 Codex testing uses manual chat sessions in the Codex Desktop App and the VS Code-Codex
 extension, with a four-track design that isolates deployment surface and method. The framework
@@ -173,12 +173,12 @@ across the four tracks.
 | --- | --- | --- |
 | Baseline | _What does Codex retrieve by default on progressively larger pages?_ | MongoDB docs ~20KB–4.5 MB; HTML and Markdown URL variants |
 | Structured Content | _How does Codex handle tables, code blocks, nested headings, and JavaScript-rendered pages?_ | Anthropic API docs, Gemini Docs, Markdown Guide, Wikipedia |
-| Offset/Pagination | _Does Codex auto-paginate or honor URL fragment navigation?_ | CommonMark Spec, MDN reference, Wikipedia |
-| Edge Cases | _How does Codex handle redirect chains, JS-rendered SPAs, and raw Markdown files?_ | `httpbin.org`, Gemini docs, GitHub raw `SPEC.md` |
+| Offset/Pagination | _Does Codex auto-paginate or honor URL fragment navigation?_ | CommonMark Spec,<br>MDN reference, Wikipedia |
+| Edge Cases | _How does Codex handle redirect chains, JS-rendered SPAs, and raw Markdown files?_ | `httpbin.org`, Gemini docs,<br>GitHub raw `SPEC.md` |
 
 ---
 
-#### Copilot VS Code Extension
+#### Copilot, Extension
 
 Unlike API-based platforms, Copilot testing uses manual chat sessions in the VS Code IDE.
 The framework generates prompts, but execution requires copy-paste into the Copilot chat
