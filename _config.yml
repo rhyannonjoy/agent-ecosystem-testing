@@ -36,6 +36,8 @@ navigation:
     sections:
       - title: "Field Notes from a Yelper"
         url: "/blogs/field-notes-from-a-yelper"
+      - title: "No Lab Coat, Live Fire"
+        url: "/blogs/no-lab-coat"
       - title: "Seeing Double"
         url: "/blogs/seeing-double"
     
