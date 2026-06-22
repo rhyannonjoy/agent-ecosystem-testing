@@ -23,21 +23,18 @@ URL-to-response pipeline through layers platforms don't disclose.
 | Google Gemini API | [URL context](https://ai.google.dev/gemini-api/docs/url-context) | `gemini-url-context/` |
 | Microsoft GitHub<br>Copilot Extension | `fetch_webpage` | `copilot-web-content-retrieval/` |
 | OpenAI APIs<br>Chat Completions,<br>Responses | [web search](https://developers.openai.com/api/docs/guides/tools-web-search) | `open-ai-web-search/` |
+| OpenAI Codex | [web search](https://developers.openai.com/codex/ide/features#web-search) | `open-ai-codex-web-search/` |
 
-Each platform has two tracks:
+Most platform testing frameworks include two tracks:
 
 - **Interpreted** - ask the agent to reflect on what it retrieved; captures self-perception and estimation variance
 - **Raw** - Python extracts measurements directly from the response object; produces citable, reproducible numbers
 
-> _Cursor, Copilot and Cascade testing use a hybrid approach: raw track saves verbatim output to disk
-> for programmatic analysis; interpreted track asks the agent to self-report metrics from
-> fetched content. Visit the
-> [Cursor Friction Note](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/anysphere-cursor/friction-note)
-> and
-> [Copilot Friction Note](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/microsoft-github-copilot/friction-note)
-> for methodology challenges unique to IDE-based testing_.
->
-> _Cascade adds a third track: **explicit** - identical to interpreted, but prefixed with `@web`; designed to test whether it changes retrieval ceiling, tool chain, or chunking behavior; [Cascade Friction: Explicit](https://rhyannonjoy.github.io/agent-ecosystem-testing/docs/cognition-windsurf-cascade/friction-note-explicit) analysis._
+> _Cascade, Codex, Copilot, and Cursor testing use a hybrid approach in which the raw track saves output to disk
+> for analysis; interpreted track asks the agent to self-report metrics from fetched content. Each framework includes
+> friction notes describing methodology challenges unique to each platform's testing cycle.
+> Cascade adds third track **explicit** - identical to interpreted, but prefixed with `@web`; designed to test whether
+> it changes retrieval behavior. Codex includes four tracks to determine differences between desktop and extension surfaces._
 
 ---
 
@@ -47,7 +44,7 @@ Each platform has two tracks:
 
 - Python 3.8+
 - API keys for the applicable platforms
-- Copilot extension-chat, Cursor and/or Windsurf-Cascade IDEs if applicable
+- Codex, Copilot extension-chat, Cascade and/or Cursor IDEs if applicable
 
 ### Install
 
@@ -80,15 +77,19 @@ python windsurf-cascade-web-search/web_search_testing_framework.py --test {test 
 # Raw
 python windsurf-cascade-web-search/web_search_testing_framework.py --test {test ID} --track raw
 
-# ChatGPT-interpreted
-python open-ai-web-search/web_search_test.py
-# Raw
-python open-ai-web-search/web_search_test_raw.py
-
 # Claude-interpreted
 python claude-api/web_fetch_test.py
 # Raw
 python claude-api/web_fetch_test_raw.py
+
+# Codex-interpreted, Desktop
+python open-ai-codex-web-search/framework.py --test {test ID} --track codex-interpreted
+# Codex-interpreted, Extension
+python open-ai-codex-web-search/framework.py --test {test ID} --track vscode-codex-interpreted
+# Codex-raw, Desktop
+python open-ai-codex-web-search/framework.py --test {test ID} --track codex-raw
+# Codex-raw, Extension
+python open-ai-codex-web-search/framework.py --test {test ID} --track vscode-codex-raw
 
 # Copilot-interpreted
 python copilot-web-content-retrieval/web_content_retrieval_testing_framework.py --test {test ID} --track interpreted
@@ -104,6 +105,11 @@ python cursor-web-fetch/web_fetch_testing_framework.py --test {test ID} --track 
 python gemini-url-context/url_context_test.py
 # Raw
 python gemini-url-context/url_context_test_raw.py
+
+# GPT-interpreted
+python open-ai-web-search/web_search_test.py
+# Raw
+python open-ai-web-search/web_search_test_raw.py
 ```
 
 > _**Free Tier Limits**: Claude API not available on the free-tier, the API is pay-as-you-go;
@@ -115,14 +121,16 @@ regardless of agent - `insufficient_quota` is an account-level block, not a rate
 
 ---
 
-## Cascade Test Details
+### Methodology Details
 
-Like Copilot and Cursor, Cascade testing uses manual chat sessions in the Windsurf IDE.
-The framework generates prompts, but execution requires copy-paste into the Cascade chat
-panel. Cascade is the first platform in this collection with a user-invocable web directive,
-`@web`, making it the primary variable under test alongside the standard truncation questions.
-All 11 URLs run across three tracks; interpreted and explicit track results compared
-directly to isolate the `@web` effect.
+#### Cascade
+
+Like Codex, Copilot, and Cursor, Cascade testing uses manual chat sessions in the Windsurf IDE.
+The framework generates prompts, but execution requires copy-paste into the Cascade chat. Cascade
+is the first platform in this collection with a user-invocable web directive, `@web`, making it
+the primary variable under test alongside the standard truncation questions. All 11 URLs run
+across three tracks; interpreted and explicit track results compared directly to isolate the
+`@web` effect.
 
 | Category | Question | Source |
 | --- | --- | --- |
@@ -138,10 +146,10 @@ directly to isolate the `@web` effect.
 
 ---
 
-## Claude API Test Details
+#### Claude API
 
-Both tracks test the same four URLs. The **Claude-interpreted track** asks the agent to
-describe what it received; the **raw track** extracts character counts, CSS indicators,
+Both tracks test the same four URLs. The **interpreted** track asks agents to
+describe what they received; the **raw** track extracts character counts, CSS indicators,
 and truncation signals programmatically from the `web_fetch_tool_result` block.
 
 | Category | Question | Source |
@@ -153,7 +161,24 @@ and truncation signals programmatically from the `web_fetch_tool_result` block.
 
 ---
 
-## Copilot Test Details
+#### Codex Desktop, Extension
+
+Codex testing uses manual chat sessions in the Codex Desktop App and the VS Code-Codex
+extension, with a four-track design that isolates deployment surface and method. The framework
+generates prompts, but execution requires copy-paste into the chat. `T1` and `T2` analyze
+agent self-reports; `T3` and `T4` save output for programmatic analysis. All 13 URLs run
+across the four tracks.
+
+| Category | Question | Source |
+| --- | --- | --- |
+| Baseline | _What does Codex retrieve by default on progressively larger pages?_ | MongoDB docs ~20KB–4.5 MB; HTML and Markdown URL variants |
+| Structured Content | _How does Codex handle tables, code blocks, nested headings, and JavaScript-rendered pages?_ | Anthropic API docs, Gemini Docs, Markdown Guide, Wikipedia |
+| Offset/Pagination | _Does Codex auto-paginate or honor URL fragment navigation?_ | CommonMark Spec,<br>MDN reference, Wikipedia |
+| Edge Cases | _How does Codex handle redirect chains, JS-rendered SPAs, and raw Markdown files?_ | `httpbin.org`, Gemini docs,<br>GitHub raw `SPEC.md` |
+
+---
+
+#### Copilot, Extension
 
 Unlike API-based platforms, Copilot testing uses manual chat sessions in the VS Code IDE.
 The framework generates prompts, but execution requires copy-paste into the Copilot chat
@@ -177,10 +202,14 @@ mechanism selected determines output format more than any other variable.
 
 ---
 
-## Cursor Test Details
+#### Cursor IDE
 
-Unlike testing platforms with API web fetch tools, Cursor testing uses manual chat sessions with the Cursor IDE. The framework
-generates prompts, but execution is intentionally not automated and requires copy-paste into the Cursor IDE. Interpreted track asks Cursor to self-report; raw track saves outputs to disk for measurement. Both tracks test 13 distinct URLs. Tests focus on truncation behavior, backend routing variance, content conversion patterns, and reproducibility.
+Unlike testing platforms with API web fetch tools, Cursor testing uses manual chat sessions
+with the Cursor IDE. The framework generates prompts, but execution is intentionally not
+automated and requires copy-paste into the Cursor chat. **Interpreted** track asks Cursor
+agents to self-report; **raw** track saves outputs to disk for measurement. Both tracks test
+13 distinct URLs. Tests focus on truncation behavior, backend routing variance, content
+conversion patterns, and reproducibility.
 
 | Category | Question | Source |
 | --- | --- | --- |
@@ -191,10 +220,10 @@ generates prompts, but execution is intentionally not automated and requires cop
 
 ---
 
-## Gemini API Test Details
+#### Gemini API
 
-Both tracks test the same eight URLs and content types. The **Gemini-interpreted track**
-asks the agent to characterize each retrieval; the **raw track** reads `url_retrieval_status`
+Both tracks test the same eight URLs and content types. The **interpreted** track
+asks agents to characterize each retrieval; the **raw** track reads `url_retrieval_status`
 enums and `tool_use_prompt_token_count` directly from the response object.
 
 | Category | Question | Source |
@@ -210,12 +239,12 @@ enums and `tool_use_prompt_token_count` directly from the response object.
 
 ---
 
-## OpenAI API Test Details
+#### OpenAI API
 
-Two tracks test the same queries through different API surfaces. The **ChatGPT-interpreted track**
-uses the Chat Completions API with `gpt-4o-mini-search-preview` in which search is always implicit.
-The **raw track** uses the Responses API with `gpt-4o` + `web_search_preview` in which tool invocation
-is conditional, explicitly observable.
+Two tracks test the same queries through different API surfaces. The **interpreted** track
+uses the Chat Completions API with `gpt-4o-mini-search-preview` in which search is implicit.
+The **raw** track uses the Responses API with `gpt-4o` + `web_search_preview` in which tool
+invocation is conditional, explicitly observable.
 
 | Category | Question | Track |
 | ---- | -------- | ----- |
