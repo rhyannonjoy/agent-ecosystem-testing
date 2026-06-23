@@ -427,18 +427,19 @@ HYPOTHESIS_LABELS = {
 }
 
 
-def format_markdown(values: dict, test_id: str, track: str, timestamp: str) -> str:
-    """Return the assessment as a Markdown document."""
-    safe_test_id = test_id.replace("-", "_").replace("/", "_")
-    safe_track = track.replace("-", "_")
+def format_markdown_entry(
+    values: dict, test_id: str, track: str, model_reasoning: str, timestamp: str
+) -> str:
+    """Return a single assessment entry suitable for appending to a test file."""
     lines = []
-    lines.append("# Hypothesis Assessment")
+    lines.append(f"## Assessment — {timestamp}")
     lines.append("")
-    lines.append(f"Test: {safe_test_id}")
-    lines.append(f"Track: {safe_track}")
+    lines.append(f"Test: {test_id}")
+    lines.append(f"Track: {track}")
+    lines.append(f"LLM/reasoning: {model_reasoning}")
     lines.append(f"Generated: {timestamp}")
     lines.append("")
-    lines.append("## Result")
+    lines.append("### Result")
     lines.append("")
     lines.append("| Hypothesis | Value | Rationale |")
     lines.append("|------------|-------|-----------|")
@@ -449,7 +450,7 @@ def format_markdown(values: dict, test_id: str, track: str, timestamp: str) -> s
         rationale = values[key]["rationale"].replace("|", "\\|")
         lines.append(f"| {label} | {val} | {rationale} |")
     lines.append("")
-    lines.append("## Copy-paste")
+    lines.append("### Copy-paste")
     lines.append("")
     hypothesis_string = build_string(values)
     lines.append("**framework.py --log**")
@@ -467,11 +468,14 @@ def format_markdown(values: dict, test_id: str, track: str, timestamp: str) -> s
     return "\n".join(lines)
 
 
-def print_results(values: dict, test_id: str, track: str):
+def print_results(values: dict, test_id: str, track: str, model_reasoning: str):
     section("Generated hypothesis assessment")
 
     hypothesis_string = build_string(values)
-    print(f"\n  hypothesis_match:\n    {hypothesis_string}\n")
+    print(f"\n  Test: {test_id}")
+    print(f"  Track: {track}")
+    print(f"  LLM/reasoning: {model_reasoning}\n")
+    print(f"  hypothesis_match:\n    {hypothesis_string}\n")
 
     print("  | Hypothesis | Value |")
     print("  |------------|-------|")
@@ -499,15 +503,27 @@ def print_results(values: dict, test_id: str, track: str):
         print(f"    | {key} | {values[key]['value']:<11} | {values[key]['rationale']} |")
 
 
-def save_assessment(values: dict, test_id: str, track: str) -> Path:
-    """Write the assessment to results/{track}/hypotheses/{test_id}_{timestamp}.md."""
-    timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+def save_assessment(
+    values: dict, test_id: str, track: str, model_reasoning: str
+) -> Path:
+    """Append the assessment to results/{track}/hypotheses/{test_id}.md.
+
+    The first assessment for a given test and track creates the file; later
+    assessments are appended as new sections.
+    """
+    timestamp = datetime.now().isoformat()
     out_dir = Path("results") / track / "hypotheses"
     out_dir.mkdir(parents=True, exist_ok=True)
-    safe_test_id = test_id.replace("-", "_").replace("/", "_")
-    out_path = out_dir / f"{safe_test_id}_{timestamp}.md"
-    markdown = format_markdown(values, test_id, track, datetime.now().isoformat())
-    out_path.write_text(markdown, encoding="utf-8")
+    safe_test_id = test_id.replace("/", "_").replace("\\", "_")
+    out_path = out_dir / f"{safe_test_id}.md"
+    entry = format_markdown_entry(values, test_id, track, model_reasoning, timestamp)
+    if out_path.exists():
+        existing = out_path.read_text(encoding="utf-8").rstrip()
+        content = f"{existing}\n\n{entry}"
+    else:
+        header = f"# Hypothesis Assessment\n\nTrack: {track}\n\n"
+        content = header + entry
+    out_path.write_text(content + "\n", encoding="utf-8")
     return out_path
 
 
@@ -524,6 +540,11 @@ def main():
     try:
         section("Run context (for copy/paste convenience)")
         test_id = prompt("Test ID (e.g. BL-1)", required=False, default="unknown")
+        model_reasoning = prompt(
+            "LLM/reasoning (e.g. GPT-5.4-Mini Low)",
+            required=False,
+            default="unknown",
+        )
         track = prompt("Track", choices=[
             "codex-interpreted",
             "vscode-codex-interpreted",
@@ -547,10 +568,10 @@ def main():
         values["H4"] = {"value": assess_h4(observations["H4"])[0], "rationale": assess_h4(observations["H4"])[1]}
         values["H5"] = {"value": assess_h5(observations["H5"])[0], "rationale": assess_h5(observations["H5"])[1]}
 
-        print_results(values, test_id, track)
+        print_results(values, test_id, track, model_reasoning)
 
-        if confirm(f"Save this assessment to results/{track}/hypotheses/{test_id}_*.md?"):
-            out_path = save_assessment(values, test_id, track)
+        if confirm(f"Save this assessment to results/{track}/hypotheses/{test_id}.md?"):
+            out_path = save_assessment(values, test_id, track, model_reasoning)
             print(f"\n  ✓ Saved: {out_path}")
 
     except KeyboardInterrupt:
