@@ -13,14 +13,13 @@ questions.  The script maps the answers to H1–H5 support values in the format
 
     H1-partially, H2-no, H3-indeterminate, H4-untested, H5-partially
 
-Run it before logging the result with ``log.py`` or ``framework.py``::
+Run it before logging the result with ``log.py``::
 
     python scripts/assess_hypotheses.py
 
 The script is intentionally small and focused: it does not log results,
 does not modify CSVs, and does not automate data collection.  It only
-produces the hypothesis string for the analyst to paste into ``log.py`` or
-``framework.py``.
+produces the hypothesis string for the analyst to paste into ``log.py``.
 
 Design notes
 ------------
@@ -233,40 +232,23 @@ def assess_h4(obs: dict) -> tuple[str, str]:
 
 def assess_h5(obs: dict) -> tuple[str, str]:
     """H5: Agent auto-chunks above the truncation ceiling."""
-    import re
-
-    tools_used = obs.get("tools_used", "") or ""
-    tools_named = obs.get("tools_named", "") or ""
     attempts = obs.get("execution_attempts") or 0
     chunking = obs.get("chunking", False)
-
-    combined = f"{tools_used} {tools_named}".strip().lower()
-    multi_step = "->" in tools_used
-
-    # View markers like turn0view0 / turn1view0 indicate multiple page views.
-    views = re.findall(r"turn\d+view\d+", combined)
-    # Repeated web-family tool calls (web, web.open, web.run).
-    web_calls = re.findall(r"\bweb(?:\.open|\.run|_run)?\b", combined)
-    # Distinct tools named or chained.
-    distinct_tools = {t.strip() for t in re.split(r"[\s,;->]+", combined) if t.strip()}
-
-    has_view_pagination = len(views) >= 2
-    has_repeated_web = len(web_calls) >= 2
     many_attempts = bool(attempts) and attempts >= 3
 
-    if multi_step and chunking:
+    if chunking:
         return (
             "yes",
-            f"Multi-step tool chain observed ('{tools_used.strip()}') with explicit chunking/pagination behavior.",
+            "Agent visibly paginated, fetched tail/offset sections, filled gaps, or reasoned about chunking.",
         )
 
-    if has_view_pagination or has_repeated_web or chunking or many_attempts or len(distinct_tools) >= 3:
+    if many_attempts:
         return (
             "partially",
-            "Some pagination or multi-tool signal present, but not extensive auto-chunking.",
+            f"{attempts} execution attempts/tool calls observed, but no explicit chunking/pagination signal.",
         )
 
-    return "no", "Single tool call or simple retrieval path; no auto-chunking signal."
+    return "no", "No visible pagination or multi-step chunking signal."
 
 
 # ---------------------------------------------------------------------------
@@ -385,15 +367,6 @@ def collect_h5_observations() -> dict:
     section("H5 — Agent auto-chunks above the truncation ceiling")
 
     return {
-        "tools_used": prompt(
-            "Observed tool chain / views (e.g. web -> web.open -> curl, or turn0view0 turn1view0)",
-            required=False,
-        )
-        or "",
-        "tools_named": prompt(
-            "Tools named by agent (if different from chain above)", required=False
-        )
-        or "",
         "execution_attempts": to_int(
             prompt("Total execution attempts / tool calls", required=False)
         ),
@@ -453,12 +426,6 @@ def format_markdown_entry(
     lines.append("### Copy-paste")
     lines.append("")
     hypothesis_string = build_string(values)
-    lines.append("**framework.py --log**")
-    lines.append("")
-    lines.append("```bash")
-    lines.append(f"--hypothesis \"{hypothesis_string}\"")
-    lines.append("```")
-    lines.append("")
     lines.append("**log.py**")
     lines.append("")
     lines.append("```text")
@@ -489,10 +456,8 @@ def print_results(values: dict, test_id: str, track: str, model_reasoning: str):
         print(f"    {key}: {values[key]['value']}")
         print(f"       {values[key]['rationale']}")
 
-    section("Copy-paste commands")
-    print("  For framework.py --log, add:")
-    print(f"    --hypothesis \"{hypothesis_string}\"")
-    print("\n  For log.py, paste this when prompted:")
+    section("Copy-paste")
+    print("  For log.py, paste this when prompted:")
     print(f"    {hypothesis_string}")
 
     print("\n  Suggested notes snippet:")
@@ -506,13 +471,13 @@ def print_results(values: dict, test_id: str, track: str, model_reasoning: str):
 def save_assessment(
     values: dict, test_id: str, track: str, model_reasoning: str
 ) -> Path:
-    """Append the assessment to results/{track}/hypotheses/{test_id}.md.
+    """Append the assessment to results/{track}/artifacts/hypotheses-assessment/{test_id}.md.
 
     The first assessment for a given test and track creates the file; later
     assessments are appended as new sections.
     """
     timestamp = datetime.now().isoformat()
-    out_dir = Path("results") / track / "hypotheses"
+    out_dir = Path("results") / track / "artifacts" / "hypotheses-assessment"
     out_dir.mkdir(parents=True, exist_ok=True)
     safe_test_id = test_id.replace("/", "_").replace("\\", "_")
     out_path = out_dir / f"{safe_test_id}.md"
@@ -570,7 +535,7 @@ def main():
 
         print_results(values, test_id, track, model_reasoning)
 
-        if confirm(f"Save this assessment to results/{track}/hypotheses/{test_id}.md?"):
+        if confirm(f"Save this assessment to results/{track}/artifacts/hypotheses-assessment/{test_id}.md?"):
             out_path = save_assessment(values, test_id, track, model_reasoning)
             print(f"\n  ✓ Saved: {out_path}")
 
