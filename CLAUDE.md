@@ -103,10 +103,17 @@ python windsurf-cascade-web-search/web_search_results_analyzer.py \
 # OpenAI Codex (four tracks, manual IDE sessions)
 python open-ai-codex-web-search/framework.py --list-tests
 python open-ai-codex-web-search/framework.py --test BL-1 --track codex-interpreted
+python open-ai-codex-web-search/framework.py --test BL-1 --track vscode-codex-interpreted
 python open-ai-codex-web-search/framework.py --test BL-1 --track codex-raw
+python open-ai-codex-web-search/framework.py --test BL-1 --track vscode-codex-raw
 python open-ai-codex-web-search/verify.py BL-1 --all
 python open-ai-codex-web-search/analyze.py \
   --csv results/codex-interpreted/results.csv results/codex-raw/results.csv --full
+
+# Inspect Codex .jsonl rollout logs
+python open-ai-codex-web-search/rollout_audit.py results/{track}/rollouts/*/*.jsonl --csv audit.csv
+python open-ai-codex-web-search/rollout_decode.py results/{track}/rollouts/{test}/rollout-*.jsonl --timeline
+python open-ai-codex-web-search/session_reader.py results/{track}/rollouts/{test}/rollout-*.jsonl -o report.html
 ```
 
 ### Run a Single Test
@@ -126,7 +133,7 @@ Cascade adds a third track, **explicit**, which is identical to interpreted but 
 
 ### Site vs. Harness
 
-- **Jekyll site** (`_config.yml`, `_layouts/default.html`, `index.md`, `docs/`, `blogs/`, `static/`) publishes the findings to GitHub Pages. `_config.yml` defines the navigation tree, markdown processor, and excluded directories.
+- **Jekyll site** (`_config.yml`, `_layouts/default.html`, `index.md`, `docs/`, `blogs/`, `static/`) publishes the findings to GitHub Pages. `_config.yml` defines the navigation tree, markdown processor, and excluded directories. The Codex Framework Reference is documented in `docs/open-ai-codex/framework-reference.md`.
 - **Python harnesses** run the tests and emit results. The site does not read results automatically; findings are written into `docs/` and `blogs/` by hand based on the harness output.
 
 ### Automated vs. IDE Tests
