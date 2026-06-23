@@ -204,6 +204,7 @@ python log.py
 ```
 
 > _Verify key metrics before logging raw track runs with `python verify.py {test_id}`._
+> _When logging Track 2 results, pull the matching Track 1 record with `python query.py --test {test_id} --models {model}`._
 
 ### Framework Fields
 
