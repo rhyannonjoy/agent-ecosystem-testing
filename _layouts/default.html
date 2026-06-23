@@ -277,7 +277,7 @@
       transition: max-height 0.25s ease;
     }
 
-    .sidebar-group.open .sidebar-group-items { max-height: 400px; }
+    .sidebar-group.open .sidebar-group-items { max-height: 1000px; }
 
     .sidebar-link {
       display: block;
@@ -643,12 +643,15 @@
     <aside class="sidebar">
       {% for nav_item in site.navigation %}
         {% if nav_item.url %}
+          {% unless nav_item.sections %}
           <div class="sidebar-section">
             <a class="sidebar-link-top {% if page.url == nav_item.url %}active{% endif %}" href="{{ nav_item.url | relative_url }}">
               {{ nav_item.title }}
             </a>
           </div>
-        {% else %}
+          {% endunless %}
+        {% endif %}
+        {% if nav_item.sections %}
           {% assign group_has_active = false %}
           {% for section in nav_item.sections %}
             {% if page.url == section.url %}
@@ -657,7 +660,7 @@
           {% endfor %}
           <div class="sidebar-section">
             <div class="sidebar-group {% if group_has_active %}open{% endif %}">
-              <button class="sidebar-group-toggle" aria-expanded="{% if group_has_active %}true{% else %}false{% endif %}">
+              <button type="button" class="sidebar-group-toggle" aria-expanded="{% if group_has_active %}true{% else %}false{% endif %}">
                 <span>{{ nav_item.title }}</span>
                 <span class="toggle-right">
                   {% if nav_item.status %}<span class="sidebar-status">{{ nav_item.status }}</span>{% endif %}
@@ -666,6 +669,11 @@
               </button>
               <div class="sidebar-group-items">
                 <div class="sidebar-group-items-inner">
+                  {% if nav_item.url %}
+                    <a class="sidebar-link {% if page.url == nav_item.url %}active{% endif %}" href="{{ nav_item.url | relative_url }}">
+                      Overview
+                    </a>
+                  {% endif %}
                   {% for section in nav_item.sections %}
                     <a class="sidebar-link {% if page.url == section.url %}active{% endif %}" href="{{ section.url | relative_url }}">
                       {{ section.title }}
@@ -749,14 +757,18 @@
       applyTheme(next);
     });
 
-    // --- Collapsible sidebar groups ---
-    document.querySelectorAll('.sidebar-group-toggle').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var group = this.closest('.sidebar-group');
-        var isOpen = group.classList.contains('open');
-        group.classList.toggle('open', !isOpen);
-        this.setAttribute('aria-expanded', String(!isOpen));
-      });
+    // --- Collapsible sidebar groups (event delegation) ---
+    document.querySelector('.sidebar').addEventListener('click', function(event) {
+      var btn = event.target.closest('.sidebar-group-toggle');
+      if (!btn) return;
+
+      event.preventDefault();
+      var group = btn.closest('.sidebar-group');
+      if (!group) return;
+
+      var isOpen = group.classList.contains('open');
+      group.classList.toggle('open');
+      btn.setAttribute('aria-expanded', String(!isOpen));
     });
 
     // --- TOC builder + scroll spy ---
