@@ -7,7 +7,7 @@
 This project empirically measures what happens between "agent fetches URL" and "user sees output":
 retrieval mechanism behavior, content transformation, and architectural constraints. It observes the
 URL-to-response pipeline through layers platforms don't disclose. The interpreted track records agent
-synthesis — what the agent reports about what it retrieved. Agent-reported measurements (char counts,
+synthesis, what the agent reports about what it retrieved. Agent-reported measurements (char counts,
 token estimates, truncation status) reflect self-perception and may differ from what screenshots show.
 
 The Codex framework uses a four-track design to isolate deployment surface as a variable. `T1` is
