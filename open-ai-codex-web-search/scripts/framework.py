@@ -303,11 +303,14 @@ class CodexTestingFramework:
         self.track_info = TRACKS[track]
 
         if results_dir is None:
+            # Anchor to the directory containing framework.py so callers work
+            # regardless of current working directory (e.g. running from scripts/).
+            _root = Path(__file__).resolve().parent.parent
             _dir_map = {
-                "codex-interpreted": "results/codex-interpreted",
-                "vscode-codex-interpreted": "results/vscode-codex-interpreted",
-                "codex-raw":          "results/codex-raw",
-                "vscode-codex-raw":         "results/vscode-codex-raw",
+                "codex-interpreted": _root / "results" / "codex-interpreted",
+                "vscode-codex-interpreted": _root / "results" / "vscode-codex-interpreted",
+                "codex-raw":          _root / "results" / "codex-raw",
+                "vscode-codex-raw":         _root / "results" / "vscode-codex-raw",
             }
             results_dir = _dir_map[track]
 

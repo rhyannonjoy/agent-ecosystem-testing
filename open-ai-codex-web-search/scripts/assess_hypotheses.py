@@ -38,7 +38,20 @@ except ImportError:
 
 from datetime import datetime
 from pathlib import Path
+import re
 import sys
+
+
+# Markdown sanitiser: the assessment file must not contain parentheses or any
+# kind of dash (hyphen, en dash, em dash).
+_DASH_RE = re.compile(r"[-–—]")
+
+
+def md_safe(text, dash_replacement: str = "_") -> str:
+    """Return text stripped of parentheses and dash-like characters."""
+    text = str(text).replace("(", "").replace(")", "")
+    text = _DASH_RE.sub(dash_replacement, text)
+    return text
 
 
 # ---------------------------------------------------------------------------
@@ -155,14 +168,26 @@ def assess_h1(obs: dict) -> tuple[str, str]:
 
 
 def assess_h2(obs: dict) -> tuple[str, str]:
-    """H2: Token-based truncation."""
+    """H2: Token-based truncation.
+
+    A token ceiling can only be supported when a truncation event was actually
+    observed and the token count sits near a recognized ceiling tier with a
+    plausible chars/token ratio. Full-page retrievals that happen to land near
+    a threshold do not support the hypothesis.
+    """
     token_count = obs.get("token_count") or 0
     output_chars = obs.get("output_chars") or 0
+    truncated = obs.get("truncated", "unknown")
 
-    if not token_count or not output_chars:
+    if not token_count:
         return "indeterminate", "No token count available; token-based ceiling cannot be evaluated."
 
+    if truncated == "no":
+        return "indeterminate", "No truncation event observed; token-based ceiling cannot be inferred from token count alone."
+
     ratio = output_chars / token_count if token_count else 0
+
+    # Known approximate retrieval/token ceiling tiers.
     near_threshold = (
         1_800 <= token_count <= 2_200
         or 7_200 <= token_count <= 8_800
@@ -171,30 +196,46 @@ def assess_h2(obs: dict) -> tuple[str, str]:
         or token_count >= 180_000
     )
 
-    if near_threshold and 3.0 <= ratio <= 5.0:
+    if truncated == "yes" and near_threshold and 3.0 <= ratio <= 5.0:
         return (
             "yes",
-            f"Token count ({token_count:,}) is near a known threshold and chars/token ratio ({ratio:.2f}) is consistent with token-based truncation.",
+            f"Truncation observed; token count ({token_count:,}) is near a known ceiling and chars/token ratio ({ratio:.2f}) is consistent with token-based truncation.",
         )
 
-    if 2.0 <= ratio <= 6.0:
+    if near_threshold and 2.0 <= ratio <= 6.0:
         return (
             "partially",
-            f"Token data exists and ratio ({ratio:.2f}) is plausible, but the count is not cleanly aligned with a standard ceiling.",
+            f"Token count ({token_count:,}) is near a known ceiling and ratio ({ratio:.2f}) is plausible, but truncation evidence is not definitive.",
+        )
+
+    if not near_threshold:
+        return (
+            "no",
+            f"Token count ({token_count:,}) is not near a recognized token ceiling tier.",
         )
 
     return (
         "no",
-        f"Chars/token ratio ({ratio:.2f}) or token count ({token_count:,}) is not consistent with a token ceiling.",
+        f"Chars/token ratio ({ratio:.2f}) is not consistent with token-based truncation.",
     )
 
 
 def assess_h3(obs: dict) -> tuple[str, str]:
-    """H3: Structure-aware truncation."""
+    """H3: Structure-aware truncation.
+
+    H3 asks whether any truncation that occurred respected structural
+    boundaries. If no truncation event was observed, the hypothesis cannot
+    be tested: it is ``indeterminate``, not a positive claim that structure
+    was preserved.
+    """
     truncated = obs.get("truncated", "no")
 
+    # No truncation event — the mechanism was never observable.
     if truncated == "no":
-        return "yes", "No truncation reported; Markdown/HTML structure is intact by default."
+        return (
+            "indeterminate",
+            "No truncation event observed; structure-aware boundary behavior could not be evaluated.",
+        )
 
     boundary = obs.get("boundary", "not_sure")
 
@@ -210,9 +251,11 @@ def assess_h3(obs: dict) -> tuple[str, str]:
             f"Truncation cut {boundary.replace('_', '-')} — structure was not preserved.",
         )
 
+    # A truncation event was reported, but we cannot confidently label the
+    # boundary as clearly clean or clearly mid-structure.
     return (
         "partially",
-        "Truncation is reported but the exact boundary is unclear or mixed.",
+        "Truncation event observed, but the exact boundary is unclear or mixed.",
     )
 
 
@@ -309,17 +352,29 @@ def collect_h2_observations(output_chars: int = None) -> dict:
     if not has_tokens:
         return {}
 
+    truncated = prompt(
+        "Was the output truncated (stopped before the full page)?",
+        choices=["yes", "no", "unknown"],
+        default="unknown",
+    )
+
     return {
         "token_count": to_int(prompt("Token count", required=False)),
         "output_chars": output_chars,
+        "truncated": truncated,
     }
 
 
 def collect_h3_observations() -> dict:
     section("H3 — Structure-aware truncation")
+    print("  H3 asks whether truncation, when it occurs, lands on structural")
+    print("  boundaries (headings, paragraphs, code fences, tables) rather")
+    print("  than arbitrary byte positions. If no truncation event happened,")
+    print("  the outcome is *indeterminate* — not a claim that structure")
+    print("  was preserved.")
 
     truncated = prompt(
-        "Was the content truncated?",
+        "Was a truncation event observed?",
         choices=["yes", "no", "mixed", "implicit"],
         default="no",
     )
@@ -403,27 +458,37 @@ HYPOTHESIS_LABELS = {
 def format_markdown_entry(
     values: dict, test_id: str, track: str, model_reasoning: str, timestamp: str
 ) -> str:
-    """Return a single assessment entry suitable for appending to a test file."""
+    """Return a single assessment entry suitable for appending to a test file.
+
+    Written Markdown is sanitized: no parentheses and no dashes (hyphen,
+    en dash, em dash). Tables are avoided because their header separator
+    requires dashes.
+    """
+    safe_test_id = md_safe(test_id)
+    safe_track = md_safe(track)
+    safe_model = md_safe(model_reasoning)
+    safe_time = md_safe(timestamp)
+
     lines = []
-    lines.append(f"## Assessment — {timestamp}")
+    lines.append(f"## Assessment {safe_time}")
     lines.append("")
-    lines.append(f"Test: {test_id}")
-    lines.append(f"Track: {track}")
-    lines.append(f"LLM/reasoning: {model_reasoning}")
-    lines.append(f"Generated: {timestamp}")
+    lines.append(f"Test: {safe_test_id}")
+    lines.append(f"Track: {safe_track}")
+    lines.append(f"LLM/reasoning: {safe_model}")
+    lines.append(f"Generated: {safe_time}")
     lines.append("")
     lines.append("### Result")
     lines.append("")
-    lines.append("| Hypothesis | Value | Rationale |")
-    lines.append("|------------|-------|-----------|")
     for i in range(1, 6):
         key = f"H{i}"
-        label = f"{key}: {HYPOTHESIS_LABELS[key]}"
-        val = values[key]["value"]
-        rationale = values[key]["rationale"].replace("|", "\\|")
-        lines.append(f"| {label} | {val} | {rationale} |")
-    lines.append("")
-    lines.append("### Copy-paste")
+        label = md_safe(HYPOTHESIS_LABELS[key])
+        val = md_safe(values[key]["value"])
+        rationale = md_safe(values[key]["rationale"])
+        lines.append(f"**{key} {label}**")
+        lines.append(f"Value: {val}")
+        lines.append(f"Rationale: {rationale}")
+        lines.append("")
+    lines.append("### Copy/paste")
     lines.append("")
     hypothesis_string = build_string(values)
     lines.append("**log.py**")
@@ -476,8 +541,11 @@ def save_assessment(
     The first assessment for a given test and track creates the file; later
     assessments are appended as new sections.
     """
-    timestamp = datetime.now().isoformat()
-    out_dir = Path("results") / track / "artifacts" / "hypotheses-assessment"
+    timestamp = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+    # Anchor to the project root so the file is written to the same place
+    # regardless of where the script is launched from.
+    _root = Path(__file__).resolve().parent.parent
+    out_dir = _root / "results" / track / "artifacts" / "hypotheses-assessment"
     out_dir.mkdir(parents=True, exist_ok=True)
     safe_test_id = test_id.replace("/", "_").replace("\\", "_")
     out_path = out_dir / f"{safe_test_id}.md"
@@ -486,7 +554,7 @@ def save_assessment(
         existing = out_path.read_text(encoding="utf-8").rstrip()
         content = f"{existing}\n\n{entry}"
     else:
-        header = f"# Hypothesis Assessment\n\nTrack: {track}\n\n"
+        header = f"# Hypothesis Assessment\n\nTrack: {md_safe(track)}\n\n"
         content = header + entry
     out_path.write_text(content + "\n", encoding="utf-8")
     return out_path
