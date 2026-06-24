@@ -36,18 +36,14 @@ description}:
 
 ## First-pass observations
 
-{Add first-pass observations from GitLab issue comments: write paths, time worked, truncation
-reporting patterns, tool chains used, anything notable from the thought panel.}
+These are  my first-pass observations of the {test number} {test_id} run, which used GPT- using the
+{effort name} reasoning level. Do you agree with the hypothesis assessment? In a single sentence per
+hypothesis, assess support from this run. Use the words yes, no, partially, indeterminate, or untested.
+Look at the screenshot carefully before assessing.
 
 ---
 
-Draft a summary in Markdown of the `{test ID}` results. Use the SC-2 Summary as a template for
-formatting and section structure.
-
-In a single sentence per hypothesis, assess support from this run. Use the words yes, no, partially,
-indeterminate, or untested. Look at the screenshot carefully before assessing.
-
-**Hypotheses:**
+Hypotheses:
 
 - `H1`: Character-based truncation at a fixed limit. Is there a ceiling at ~10 to 100KB?
 - `H2`: Token-based truncation. Is there a ceiling at ~2,000 tokens?
@@ -60,7 +56,10 @@ indeterminate, or untested. Look at the screenshot carefully before assessing.
 
 ---
 
-**Styling rules:**
+Draft a summary in Markdown of the `{test ID}` results. Use the SC-2 Summary as a template for
+formatting and section structure.
+
+Styling rules:
 
 1. Don't use parentheses
 2. Spell out seconds, don't abbreviate
