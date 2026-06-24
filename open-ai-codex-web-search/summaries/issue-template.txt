@@ -14,7 +14,8 @@ Suggested Workflow
 5. Run first pass hypotheses assessment
 6. Run second pass hypotheses assessment while logging results
 7. Archive test
-8. Ensure results are written to the right CSV
+8. Generate test cycle summary
+9. Assess results for Friction Note content
 
 ### General Observations:
 
