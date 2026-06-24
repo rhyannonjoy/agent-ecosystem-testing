@@ -48,7 +48,7 @@ Generated: 2026-06-23T15:26:36.295231
 H1-partially, H2-yes, H3-yes, H4-no, H5-partially
 ```
 
-## Assessment — 2026-06-23T15:34:36.557692
+## Assessment - 2026-06-23T15:34:36.557692
 
 Test: SC-1
 Track: vscode-codex-interpreted
@@ -73,7 +73,7 @@ Generated: 2026-06-23T15:34:36.557692
 H1-partially, H2-yes, H3-yes, H4-no, H5-partially
 ```
 
-## Assessment — 2026-06-23T15:39:04.226378
+## Assessment - 2026-06-23T15:39:04.226378
 
 Test: SC-1
 Track: vscode-codex-interpreted
@@ -86,7 +86,7 @@ Generated: 2026-06-23T15:39:04.226378
 |------------|-------|-----------|
 | H1: Character-based truncation at a fixed ceiling | partially | Output appears capped or smaller than expected, but the ceiling is not clearly fixed across runs. Agent reported 27,000 chars vs expected 40,960. |
 | H2: Token-based truncation | partially | Token data exists and ratio (3.97) is plausible, but the count is not cleanly aligned with a standard ceiling. |
-| H3: Structure-aware truncation | no | Truncation cut mid-code-block — structure was not preserved. |
+| H3: Structure-aware truncation | no | Truncation cut mid-code-block - structure was not preserved. |
 | H4: Surface context changes retrieval ceiling | yes | Output size or truncation tier differs meaningfully between surfaces. |
 | H5: Agent auto-chunks above the truncation ceiling | partially | Some pagination or multi-tool signal present, but not extensive auto-chunking. |
 
@@ -98,7 +98,7 @@ Generated: 2026-06-23T15:39:04.226378
 H1-partially, H2-partially, H3-no, H4-yes, H5-partially
 ```
 
-## Assessment — 2026-06-23T15:44:06.541933
+## Assessment - 2026-06-23T15:44:06.541933
 
 Test: SC-1
 Track: vscode-codex-interpreted
@@ -123,7 +123,7 @@ Generated: 2026-06-23T15:44:06.541933
 H1-indeterminate, H2-partially, H3-yes, H4-yes, H5-partially
 ```
 
-## Assessment — 2026-06-23T15:48:01.494725
+## Assessment - 2026-06-23T15:48:01.494725
 
 Test: SC-1
 Track: vscode-codex-interpreted
@@ -148,7 +148,7 @@ Generated: 2026-06-23T15:48:01.494725
 H1-no, H2-yes, H3-partially, H4-no, H5-partially
 ```
 
-## Assessment — 2026-06-23T15:52:28.894428
+## Assessment - 2026-06-23T15:52:28.894428
 
 Test: SC-1
 Track: vscode-codex-interpreted
@@ -173,7 +173,7 @@ Generated: 2026-06-23T15:52:28.894428
 H1-no, H2-yes, H3-yes, H4-no, H5-partially
 ```
 
-## Assessment — 2026-06-23T15:56:23.276935
+## Assessment - 2026-06-23T15:56:23.276935
 
 Test: SC-1
 Track: vscode-codex-interpreted
@@ -197,4 +197,3 @@ Generated: 2026-06-23T15:56:23.276935
 ```text
 H1-indeterminate, H2-partially, H3-yes, H4-yes, H5-partially
 ```
-
