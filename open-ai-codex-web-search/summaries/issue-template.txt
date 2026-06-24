@@ -1,0 +1,58 @@
+GitHub Issue Template
+
+- run {test_id} tests in VS Code with Codex Extension
+- [test URL description](add URL here): {description}
+- add any friction content (look for continued output auto-editing/replaying)
+- in this issue as comments: first-pass observations, log summaries, emergent findings
+- pull `T1` data from `query.py` for accurate `H4` assessment
+
+### General Observations:
+
+- Artifacts: 
+- Artifact Path: 
+- Tools: 
+- Truncation Reports: 
+- Extension
+
+---
+
+### `GPT-5.4-Mini`
+
+- Artifacts: 
+- Artifact Path: 
+- Tools: 
+- Truncation Reports: 
+
+---
+
+### `GPT-5.5`
+
+- Artifacts: 
+- Artifact Path: 
+- Tools: 
+- Truncation Reports:
+
+---
+
+For each LLMxReasoning
+
+### `GPT-5.4-Mini Low`
+
+`T2` Logged:
+
+- Script Assessment:
+- Artifacts:
+- Tools:
+- Truncation Report:
+
+---
+
+`T1` {example pulled from `query.py`}
+
+>Hypotheses Assessment: H1-partially, H2-indeterminate, H3-indeterminate, H4-untested, H5-partially
+>Notes: 9th run GPT-5.4-Mini initializes /private/tmp/codex-browser-use, doesn’t write any artifacts. Named test Test web retrieval. Worked for 17 seconds. Searched web twice, ran ~1 command. 11% (27K/258K) context window used. Used curl without permission. Confirmed two-fetch sequence where 2nd call explicitly covered content first didn't, not reasoned into pagination but reactive gap filling, closest to auto-chunking behavior in batch.
+>Tools: web.run, open, turn0view0, turn1view0, turn1view1, curl but failed
+>Truncation: implicit
+>Truncation Note: not directly, but first web view line-limited, second fetch covered remainder through footer
+>Character Count: 23000
+>Token Estimation: 6000

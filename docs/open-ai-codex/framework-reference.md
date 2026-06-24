@@ -115,7 +115,7 @@ cd open-ai-codex-web-search
 ## Rollout Observability
 
 >_Examine `~.codex/sessions/rollout` logs for session structure and anomalies.
-> Point scripts at `/results/rollouts` for parsing._
+> Point scripts at `/results/{track name}/rollouts` for parsing._
 
 ```text
 results/vscode-codex-interpreted/rollouts/SC-2/rollout-2026-06-11T14-08-50-....jsonl
