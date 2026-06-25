@@ -38,14 +38,14 @@ file that includes parallel streams describing one session. While `event_msg` re
 panel renders live, `response_item` records are the LLM-facing conversation transcript and the message objects that get
 replayed as context. When the agent emits its final answer, Codex writes it once to each stream, and the `task_complete`
 event carries the full text a third time as `last_agent_message`. Script
-[`rollout_decode.py`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/rollouts/rollout_decode.py)
+[`rollout_decode.py`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/rollout_decode.py)
 converts the logs into readable forms for further inspection.
 
 ## Log Audit
 
 >_Do the logs document rendering oddities?_
 
-Script [`rollout_audit.py`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/rollouts/rollout_audit.py)
+Script [`rollout_audit.py`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/rollout_audit.py)
 counts everything: turns, emissions, tool calls, completion events, and any record appended after `task_complete`. Across
 the last eight test sessions, spanning two LLMs and four reasoning levels, zero to twelve tool calls, and 25 to 233 seconds of runtime:
 
@@ -112,6 +112,6 @@ Users have reported similar experiences across apps. The rollout evidence distin
 4. Codex encrypts log reasoning blocks, but their lengths and the cumulative `total_token_usage`
    checkpoints survive as effort proxies, which may be useful on a surface that exposes little else.
 5. In lieu of agentic observability infrastructure, the
-   [audit](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/rollouts/rollout_audit.py) and
-   [decoder](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/rollouts/rollout_decode.py)
+   [audit](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/rollout_audit.py) and
+   [decoder](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/rollout_decode.py)
    scripts are small and designed to parse any rollout log for debugging.

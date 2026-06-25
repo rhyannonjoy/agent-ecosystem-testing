@@ -16,10 +16,10 @@ Three views, combinable:
                one record or payload type, e.g. --pretty --grep web_search_call
 
 Examples:
-    python3 rollout_decode.py T2-SC2/rollout-*.jsonl --census
-    python3 rollout_decode.py T2-SC2/{session}.jsonl --timeline
-    python3 rollout_decode.py T2-SC2/{session}.jsonl --timeline --md decoded.md
-    python3 rollout_decode.py T2-SC2/{session}.jsonl --pretty --grep task_complete
+    python3 scripts/rollout_decode.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl --census
+    python3 scripts/rollout_decode.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/{session}.jsonl --timeline
+    python3 scripts/rollout_decode.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/{session}.jsonl --timeline --md decoded.md
+    python3 scripts/rollout_decode.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/{session}.jsonl --pretty --grep task_complete
 """
 
 import argparse
