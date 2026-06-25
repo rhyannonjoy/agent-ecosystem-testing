@@ -21,10 +21,10 @@ Alias mapping:
 
 Usage:
     # From open-ai-codex-web-search/
-    python query.py --test SC-1 --models GPT-5.4-Mini,GPT-5.5
+    python scripts/query.py --test SC-1 --models GPT-5.4-Mini,GPT-5.5
 
     # From repo root
-    python open-ai-codex-web-search/query.py --test SC-1 --models GPT-5.4-Mini,GPT-5.5
+    python open-ai-codex-web-search/scripts/query.py --test SC-1 --models GPT-5.4-Mini,GPT-5.5
 """
 
 import argparse
@@ -60,7 +60,7 @@ OUTPUT_FIELDS = [
 
 def default_csv_path() -> Path:
     """Return the default Track 1 CSV path relative to this script."""
-    return Path(__file__).resolve().parent / "results" / "codex-interpreted" / "results.csv"
+    return Path(__file__).resolve().parent.parent / "results" / "codex-interpreted" / "results.csv"
 
 
 def read_rows(csv_path: Path, test_id: str, models: list[str] | None) -> list[dict[str, str]]:
