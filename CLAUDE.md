@@ -114,9 +114,9 @@ python open-ai-codex-web-search/analyze.py \
 python open-ai-codex-web-search/scripts/query.py --test SC-1 --models GPT-5.4-Mini,GPT-5.5
 
 # Inspect Codex .jsonl rollout logs
-python open-ai-codex-web-search/rollout_audit.py results/{track}/rollouts/*/*.jsonl --csv audit.csv
-python open-ai-codex-web-search/rollout_decode.py results/{track}/rollouts/{test}/rollout-*.jsonl --timeline
-python open-ai-codex-web-search/session_reader.py results/{track}/rollouts/{test}/rollout-*.jsonl -o report.html
+python open-ai-codex-web-search/scripts/rollout_audit.py results/{track}/artifacts/rollouts/*/*.jsonl --csv audit.csv
+python open-ai-codex-web-search/scripts/rollout_decode.py results/{track}/artifacts/rollouts/{test}/rollout-*.jsonl --timeline
+python open-ai-codex-web-search/scripts/session_reader.py results/{track}/artifacts/rollouts/{test}/rollout-*.jsonl -o report.html
 ```
 
 ### Run a Single Test

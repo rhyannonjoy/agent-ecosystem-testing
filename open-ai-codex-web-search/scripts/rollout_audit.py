@@ -2,9 +2,9 @@
 """Audit Codex rollout .jsonl session logs for duplicate emissions and timing drift.
 
 Usage:
-    python3 rollout_audit.py session1.jsonl session2.jsonl ...
-    python3 rollout_audit.py ~/.codex/sessions/rollout-*.jsonl
-    python3 rollout_audit.py --csv audit.csv /rollout-*.jsonl
+    python3 scripts/rollout_audit.py results/{track}/artifacts/rollouts/{test}/rollout-*.jsonl
+    python3 scripts/rollout_audit.py results/{track}/artifacts/rollouts/*/*.jsonl --csv audit.csv
+    python3 scripts/rollout_audit.py ~/.codex/sessions/rollouts/rollout-*.jsonl
 
 For each session file this reports:
   1. Identity: session id, model, reasoning effort, CLI version, test prompt ID if present

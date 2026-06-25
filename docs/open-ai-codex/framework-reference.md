@@ -114,11 +114,11 @@ cd open-ai-codex-web-search
 
 ## Rollout Observability
 
->_Examine `~.codex/sessions/rollout` logs for session structure and anomalies.
-> Point scripts at `/results/{track name}/rollouts` for parsing._
+>_Examine `~/.codex/sessions/rollouts` logs for session structure and anomalies.
+> Point scripts at `results/{track}/artifacts/rollouts` for parsing._
 
 ```text
-results/vscode-codex-interpreted/rollouts/SC-2/rollout-2026-06-11T14-08-50-....jsonl
+results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-2026-06-11T14-08-50-....jsonl
 ```
 
 ### Session Overview
@@ -129,14 +129,14 @@ presence, and the conversation.
 
 ```bash
 # Text report to stdout
-python session_reader.py results/vscode-codex-interpreted/rollouts/SC-2/rollout-*.jsonl
+python scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl
 
 # HTML report
-python session_reader.py results/vscode-codex-interpreted/rollouts/SC-2/rollout-*.jsonl -o report.html
+python scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl -o report.html
 
 # List sessions and filter by ID
-python session_reader.py results/vscode-codex-interpreted/rollouts/SC-2/rollout-*.jsonl --list-sessions
-python session_reader.py results/vscode-codex-interpreted/rollouts/SC-2/rollout-*.jsonl --session-id <id>
+python scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl --list-sessions
+python scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl --session-id <id>
 ```
 
 ### Rollout Audit
@@ -157,10 +157,10 @@ session, the audit reports:
 
 ```bash
 # Audit a test's rollouts
-python rollout_audit.py results/vscode-codex-interpreted/rollouts/SC-2/rollout-*.jsonl
+python scripts/rollout_audit.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl
 
 # Audit all rollouts for a track, write a CSV
-python rollout_audit.py results/vscode-codex-interpreted/rollouts/*/*.jsonl --csv audit.csv
+python scripts/rollout_audit.py results/vscode-codex-interpreted/artifacts/rollouts/*/*.jsonl --csv audit.csv
 ```
 
 ### Rollout Decode
@@ -177,16 +177,16 @@ python rollout_audit.py results/vscode-codex-interpreted/rollouts/*/*.jsonl --cs
 
 ```bash
 # Timeline for a test
-python rollout_decode.py results/vscode-codex-interpreted/rollouts/SC-2/rollout-*.jsonl --timeline
+python scripts/rollout_decode.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl --timeline
 
 # Census: what record and payload types exist in logs
-python rollout_decode.py results/vscode-codex-interpreted/rollouts/SC-2/rollout-*.jsonl --census
+python scripts/rollout_decode.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl --census
 
 # Pretty-print only web_search_call records
-python rollout_decode.py results/vscode-codex-interpreted/rollouts/SC-2/rollout-*.jsonl --pretty --grep web_search_call
+python scripts/rollout_decode.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl --pretty --grep web_search_call
 
 # Write timeline to a Markdown file
-python rollout_decode.py results/vscode-codex-interpreted/rollouts/SC-2/rollout-*.jsonl --timeline --md decoded.md
+python scripts/rollout_decode.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl --timeline --md decoded.md
 ```
 
 ## Logging
