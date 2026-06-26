@@ -171,21 +171,22 @@ def assess_h2(obs: dict) -> tuple[str, str]:
     """H2: Token-based truncation.
 
     A token ceiling can only be supported when a truncation event was actually
-    observed and the token count sits near a recognized ceiling tier with a
-    plausible chars/token ratio. Full-page retrievals that happen to land near
-    a threshold do not support the hypothesis.
+    observed, the token count describes the returned excerpt or a stated tool
+    limit, and that count sits near a recognized ceiling tier with a plausible
+    chars/token ratio. Full-page size estimates (e.g., "the curl response is
+    ~200K tokens") do not support the hypothesis because they describe the raw
+    source, not a truncation point.
     """
     token_count = obs.get("token_count") or 0
     output_chars = obs.get("output_chars") or 0
     truncated = obs.get("truncated", "unknown")
+    token_scope = obs.get("token_scope", "unknown")
 
     if not token_count:
         return "indeterminate", "No token count available; token-based ceiling cannot be evaluated."
 
     if truncated == "no":
         return "indeterminate", "No truncation event observed; token-based ceiling cannot be inferred from token count alone."
-
-    ratio = output_chars / token_count if token_count else 0
 
     # Known approximate retrieval/token ceiling tiers.
     near_threshold = (
@@ -195,6 +196,42 @@ def assess_h2(obs: dict) -> tuple[str, str]:
         or 115_200 <= token_count <= 140_800
         or token_count >= 180_000
     )
+
+    # A reported token count for the full fetched page is evidence about the
+    # source size, not about where the retrieved excerpt was cut.
+    if token_scope == "full_raw_page":
+        return (
+            "no",
+            f"Token count ({token_count:,}) describes the full fetched page, not the returned excerpt or a truncation ceiling.",
+        )
+
+    # If we cannot tell what the count measures, we cannot treat it as a ceiling.
+    if token_scope == "unknown":
+        return (
+            "indeterminate",
+            f"Token count ({token_count:,}) reported, but its scope is unclear (returned excerpt vs. source page); token-based ceiling cannot be evaluated.",
+        )
+
+    # A stated tool/agent limit is evaluated against known tiers without assuming
+    # it matches the returned output size.
+    if token_scope == "tool_limit_cutoff":
+        if truncated == "yes" and near_threshold:
+            return (
+                "yes",
+                f"Agent/tool reported a token limit ({token_count:,}) near a recognized ceiling and truncation was observed.",
+            )
+        if near_threshold:
+            return (
+                "partially",
+                f"Agent/tool reported a token limit ({token_count:,}) near a recognized ceiling, but truncation was not confirmed.",
+            )
+        return (
+            "no",
+            f"Agent/tool reported token limit ({token_count:,}) is not near a recognized ceiling tier.",
+        )
+
+    # token_scope == "returned_excerpt" — apply chars/token ratio consistency.
+    ratio = output_chars / token_count if token_count else 0
 
     if truncated == "yes" and near_threshold and 3.0 <= ratio <= 5.0:
         return (
@@ -358,10 +395,24 @@ def collect_h2_observations(output_chars: int = None) -> dict:
         default="unknown",
     )
 
+    token_count = to_int(prompt("Token count", required=False))
+
+    token_scope = prompt(
+        "What does that token count describe?",
+        choices=[
+            "returned_excerpt",
+            "tool_limit_cutoff",
+            "full_raw_page",
+            "unknown",
+        ],
+        default="unknown",
+    )
+
     return {
-        "token_count": to_int(prompt("Token count", required=False)),
+        "token_count": token_count,
         "output_chars": output_chars,
         "truncated": truncated,
+        "token_scope": token_scope,
     }
 
 
