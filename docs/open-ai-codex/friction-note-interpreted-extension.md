@@ -191,6 +191,16 @@ substitution without disclosing the swap. Both runs share the same LLM and intel
 tracks isn't enough to claim a `GPT-5.4-Mini High`-specific pattern, but it's worth watching for if `BL-3` or a similarly structured test ID recurs
 at this LLM-reasoning combination in `T3` or `T4`.
 
+`SC-3`'s prompt specifies [`/wiki/List_of_countries_by_population`](https://en.wikipedia.org/wiki/List_of_countries_by_population), which is the
+redirect form of [`/wiki/List_of_countries_and_dependencies_by_population`](https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population).
+Most runs fetched content and reported metrics, but in spite of workspace awareness and access, no run disclosed the redirect or noted that the prompt
+URL differed from the resolved form. Unlike `BL-3`'s autonomous substitution, agents didn't make a URL decision of their own. The misalignment
+originated in the prompt, and agents confirmed rather than corrected it. Like
+[Cascade](../cognition-windsurf-cascade/friction-note-explicit.md#agent-as-unreliable-methodology-validator) and
+[Cursor](../anysphere-cursor/friction-note.md#agent-as-unreliable-methodology-validator) agents, Codex agents are less likely to correct misuse and
+abstract away failure modes that may otherwise positively inform users, which has implications about their effectiveness as tools that support
+learning.
+
 ### Methodology Decision
 
 Don't take a run's closing characterization of _"failure,"_ _"incomplete,"_ or _"complete"_ at face value. Check it against the run's own measured output
