@@ -68,24 +68,24 @@ cd open-ai-codex-web-search
 1. **List Available Tests and Tracks**
 
    ```bash
-   python framework.py --list-tests
-   python framework.py --list-tracks
+   python scripts/framework.py --list-tests
+   python scripts/framework.py --list-tracks
    ```
 
 2. **Generate Test Prompt for a Single Test**
 
    ```bash
    # T1: GPT-interpreted, Codex Desktop
-   python framework.py --test BL-1 --track codex-interpreted
+   python scripts/framework.py --test BL-1 --track codex-interpreted
 
    # T2: GPT-interpreted, Codex Extension
-   python framework.py --test BL-1 --track vscode-codex-interpreted
+   python scripts/framework.py --test BL-1 --track vscode-codex-interpreted
 
    # T3: Raw verbatim output, Codex Desktop
-   python framework.py --test BL-1 --track codex-raw
+   python scripts/framework.py --test BL-1 --track codex-raw
 
    # T4: Raw verbatim output, Codex Extension
-   python framework.py --test BL-1 --track vscode-codex-raw
+   python scripts/framework.py --test BL-1 --track vscode-codex-raw
    ```
 
 3. **Copy Prompt → Run in Codex**
@@ -197,14 +197,14 @@ Quotation marks not necessary; skip optional fields with `Enter`:
 
 ```bash
 # Call logger
-python log.py
+python scripts/log.py
 
 # Logger prompts-validates fields before writing
 ✓ Result logged to results/codex-{track}/results.csv
 ```
 
-> _Verify key metrics before logging raw track runs with `python verify.py {test_id}`._
-> _When logging Track 2 results, pull the matching Track 1 record with `python query.py --test {test_id} --models {model}`._
+> _Verify key metrics before logging raw track runs with `python scripts/verify.py {test_id}`._
+> _When logging Track 2 results, pull the matching Track 1 record with `python scripts/query.py --test {test_id} --models {model}`._
 
 ### Framework Fields
 
@@ -270,24 +270,24 @@ Examine hypothesis matching, surface-workspace effects, perception gap, and trun
 
 ```bash
 # Single track full analysis or summary
-python analyze.py --csv results/codex-interpreted/results.csv --summary
-python analyze.py --csv results/codex-raw/results.csv --full
+python scripts/analyze.py --csv results/codex-interpreted/results.csv --summary
+python scripts/analyze.py --csv results/codex-raw/results.csv --full
 
 # Filter by track
-python analyze.py --csv results/codex-interpreted/results.csv --track t1_codex_interpreted
+python scripts/analyze.py --csv results/codex-interpreted/results.csv --track t1_codex_interpreted
 
 # Compare interpreted tracks T1 vs T2
-python analyze.py \
+python scripts/analyze.py \
    --csv results/codex_interpreted/results.csv \
          results/vscode-codex-interpreted/results.csv --full
 
 # Compare raw tracks T3 vs T4
-python analyze.py \
+python scripts/analyze.py \
    --csv results/codex_raw/results.csv \
          results/vscode-codex-raw/results.csv --full
 
 # Compare all tracks
-python analyze.py \
+python scripts/analyze.py \
    --csv results/codex-interpreted/results.csv \
          results/vscode-codex-interpreted/results.csv \
          results/codex-raw/results.csv \
