@@ -6,16 +6,16 @@ GitHub Issue Template
 - in this issue as comments: first-pass observations, log summaries, emergent findings
 - pull `T1` data from `query.py` for accurate `H4` assessment
 
-Suggested Workflow
-1. Add `T1` data
-2. Run test, document first pass observations
-3. Audit rollout json log, document any divergence
-4. Take screenshot of test run
-5. Run first pass hypotheses assessment
-6. Run second pass hypotheses assessment while logging results
-7. Archive test
-8. Generate test cycle summary
-9. Assess results for Friction Note content
+Workflow
+- [ ] 1. Add `T1` data
+- [ ] 2. Run test, document first pass observations
+- [ ] 3. Audit rollout json log, document any divergence
+- [ ] 4. Take screenshot of test run
+- [ ] 5. Run first pass hypotheses assessment
+- [ ] 6. Run second pass hypotheses assessment while logging results
+- [ ] 7. Archive test
+- [ ] 8. Generate test cycle summary
+- [ ] 9. Assess results for Friction Note content
 
 ### General Observations:
 
