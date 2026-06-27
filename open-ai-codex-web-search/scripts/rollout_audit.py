@@ -39,6 +39,48 @@ def sha(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]
 
 
+def format_duration(seconds) -> str | None:
+    """Convert seconds to a human-readable minutes/seconds string.
+
+    Preserves the original one-decimal precision:
+      303.5  -> "5 minutes, 3.5 seconds"
+      45.2   -> "45.2 seconds"
+      60.0   -> "1 minute"
+      0.5    -> "0.5 seconds"
+    """
+    if seconds is None:
+        return None
+    minutes = int(seconds // 60)
+    remaining = round(seconds - minutes * 60, 1)
+    if remaining >= 60.0:
+        minutes += 1
+        remaining = round(remaining - 60.0, 1)
+
+    def fmt(n):
+        return f"{n:.1f}" if n != int(n) else str(int(n))
+
+    if minutes == 0:
+        second_word = "second" if remaining == 1 else "seconds"
+        return f"{fmt(remaining)} {second_word}"
+
+    minute_word = "minute" if minutes == 1 else "minutes"
+    if remaining == 0:
+        return f"{minutes} {minute_word}"
+
+    second_word = "second" if remaining == 1 else "seconds"
+    return f"{minutes} {minute_word}, {fmt(remaining)} {second_word}"
+
+
+def display_duration(seconds) -> str:
+    """Return a formatted duration, keeping raw seconds for values >= 60s."""
+    if seconds is None:
+        return "—"
+    formatted = format_duration(seconds)
+    if seconds >= 60:
+        return f"{formatted} ({seconds}s)"
+    return formatted
+
+
 def audit_file(path: Path) -> dict:
     records = []
     with open(path) as fh:
@@ -230,7 +272,7 @@ def main():
               f"final answers: event {r['final_answers_event']}, transcript {r['final_answers_item']}")
         print(f"  api calls: web_search {r['web_search_calls']} | function {r['function_calls']} "
               f"{dict(r['tools']) if r['tools'] else ''}")
-        print(f"  timing: duration {r['duration_s']}s | ttft {r['ttft_s']}s | file wallclock {r['wallclock_s']}s")
+        print(f"  timing: duration {display_duration(r['duration_s'])} | ttft {display_duration(r['ttft_s'])} | file wallclock {display_duration(r['wallclock_s'])}")
         print(f"  tokens {r['tokens_total']} / {r['context_window']}")
         if r["flags"]:
             any_flags = True

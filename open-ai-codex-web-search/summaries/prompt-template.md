@@ -27,23 +27,10 @@ description}:
 
 `{test URL}`
 
-## Test metadata
-
-- **Surface:** VS Code-Codex Extension
-- **Track:** `T2` VS Code-Codex interpreted
-- **Models:** `{LLM version}` on `{intelligence/reasoning level}` intelligence level
-- **Runs:** {run count}
-
-## First-pass observations
-
 These are  my first-pass observations of the {test number} {test_id} run, which used GPT- using the
 {effort name} reasoning level. Do you agree with the hypothesis assessment? In a single sentence per
 hypothesis, assess support from this run. Use the words yes, no, partially, indeterminate, or untested.
 Look at the screenshot carefully before assessing.
-
----
-
-Hypotheses:
 
 - `H1`: Character-based truncation at a fixed limit. Is there a ceiling at ~10 to 100KB?
 - `H2`: Token-based truncation. Is there a ceiling at ~2,000 tokens?
