@@ -193,11 +193,15 @@ python scripts/rollout_decode.py results/vscode-codex-interpreted/artifacts/roll
 
 Codex rollouts don't log temp-file creation or workspace writes. `artifacts_watcher.py` records filesystem events while Codex agents
 write logs of `created`, `modified`, `moved`, and `deleted` events under `~/.codex` and the macOS temp directories; correlate with
-`session_id` and timestamp; ignores macOS service noise such as `com.apple.*`, `.icloud`, `TemporaryItems`:
+`session_id` and timestamp; ignores macOS service noise such as `com.apple.*`, `.icloud`, `TemporaryItems`.
+
+Pass `--model` and `--effort` so the resulting log can be matched against your first-pass session notes and the rollout audit
+CSV. These fields are optional; older watcher files simply report `model/effort not recorded` when audited.
 
 ```bash
 # Start before test
-python scripts/artifacts_watcher.py --test SC-4 --track vscode-codex-interpreted
+python scripts/artifacts_watcher.py --test SC-4 --track vscode-codex-interpreted \
+  --model gpt-oss-120k --effort high
 
 # Stop with Ctrl-C after turn completes; output lands at
 # results/{track}/artifacts/fs-events/{test}/fs-events-{timestamp}.jsonl
@@ -212,14 +216,17 @@ python scripts/artifacts_watcher.py --test SC-4 --track vscode-codex-interpreted
     "size": 64659,
     "is_directory": false,
     "test_id": "SC-4",
-    "track": "vscode-codex-interpreted"
+    "track": "vscode-codex-interpreted",
+    "model": "gpt-oss-120k",
+    "effort": "high"
 }
 ```
 
 ### Artifact Audit
 
 `artifacts_audit.py` summarizes watcher JSONL logs, focusing on `/private/tmp` by default. It names each temp artifact, shows whether
-agents move or delete them, flags unmoved files, and detects basenames reused across runs.
+agents move or delete them, flags unmoved files, and detects basenames reused across runs. The summary and `--csv` output include
+`model` and `effort` when the watcher recorded them; older files show empty CSV cells and `model/effort not recorded` in the summary.
 
 ```bash
 python scripts/artifacts_audit.py results/vscode-codex-interpreted/artifacts/fs-events/EC-1/*.jsonl --csv temp_artifacts.csv

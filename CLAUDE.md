@@ -119,7 +119,9 @@ python open-ai-codex-web-search/scripts/rollout_decode.py results/{track}/artifa
 python open-ai-codex-web-search/scripts/read_session.py results/{track}/artifacts/rollouts/{test}/rollout-*.jsonl -o report.html
 
 # Watch filesystem artifacts while a Codex session runs; stop with Ctrl-C
-python open-ai-codex-web-search/scripts/artifacts_watcher.py --test {test} --track {track}
+# Pass --model and --effort to correlate the artifact log with your session notes.
+python open-ai-codex-web-search/scripts/artifacts_watcher.py --test {test} --track {track} \
+  --model {model} --effort {effort}
 
 # Audit temp files created by Codex (focuses on /private/tmp by default)
 python open-ai-codex-web-search/scripts/artifacts_audit.py results/{track}/artifacts/fs-events/{test}/*.jsonl --csv temp_artifacts.csv

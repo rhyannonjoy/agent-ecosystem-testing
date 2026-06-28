@@ -231,12 +231,16 @@ def audit_file(path: Path, temp_roots: list[Path]) -> dict:
 
     test_id = records[0].get("test_id") if records else None
     track = records[0].get("track") if records else None
+    model = records[0].get("model") if records else None
+    effort = records[0].get("effort") if records else None
 
     return {
         "file": path.name,
         "path": path,
         "test_id": test_id,
         "track": track,
+        "model": model,
+        "effort": effort,
         "records": len(records),
         "wallclock_s": wallclock_s,
         "event_counts": event_counts,
@@ -349,8 +353,11 @@ def generate_flags(r: dict, churn_threshold: int) -> list[str]:
 def print_summary(r: dict, temp_roots: list[Path], include: list[str], max_files: int) -> None:
     print("=" * 78)
     print(f"{r['file']}")
-    print(f"  run: {r['test_id']} | track: {r['track']} | {r['records']} event(s) | "
-          f"wallclock {format_duration(r['wallclock_s'])}")
+    model_effort = " | ".join(
+        x for x in (r.get("model"), r.get("effort")) if x
+    ) or "model/effort not recorded"
+    print(f"  run: {r['test_id']} | track: {r['track']} | {model_effort} | "
+          f"{r['records']} event(s) | wallclock {format_duration(r['wallclock_s'])}")
     print(f"  all events: {summarize_events(r['event_counts'], 'filesystem')}")
     print(f"  temp events: {summarize_events(r['temp_event_counts'], 'temp')}")
 
@@ -521,7 +528,7 @@ def main():
 
     if args.csv and results:
         cols = [
-            "file", "test_id", "track", "records", "wallclock_s",
+            "file", "test_id", "track", "model", "effort", "records", "wallclock_s",
             "temp_event_created", "temp_event_modified", "temp_event_moved",
             "temp_event_deleted", "temp_created_files", "temp_created_dirs",
             "temp_moved_files", "temp_unmoved_files",
@@ -537,6 +544,8 @@ def main():
                     "file": r["file"],
                     "test_id": r["test_id"],
                     "track": r["track"],
+                    "model": r.get("model") or "",
+                    "effort": r.get("effort") or "",
                     "records": r["records"],
                     "wallclock_s": r["wallclock_s"],
                     "temp_event_created": tec.get("created", 0),
