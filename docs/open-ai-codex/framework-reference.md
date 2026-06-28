@@ -191,48 +191,57 @@ python scripts/rollout_decode.py results/vscode-codex-interpreted/artifacts/roll
 
 ### Artifact Watcher
 
-`artifacts_watcher.py` records filesystem events while a Codex session runs. Codex rollouts do not log temp-file creation or workspace artifact writes, so this watcher runs alongside the agent and writes a JSONL log of `created`, `modified`, `moved`, and `deleted` events under `~/.codex` and the macOS temp directories. The log can later be correlated with a rollout by session id and timestamp.
-
-By default it ignores macOS service noise (`com.apple.*`, `.icloud`, `TemporaryItems`, etc.):
+Codex rollouts don't log temp-file creation or workspace writes. `artifacts_watcher.py` records filesystem events while Codex agents
+write logs of `created`, `modified`, `moved`, and `deleted` events under `~/.codex` and the macOS temp directories; correlate with
+`session_id` and timestamp; ignores macOS service noise such as `com.apple.*`, `.icloud`, `TemporaryItems`:
 
 ```bash
-# Start before the Codex test
+# Start before test
 python scripts/artifacts_watcher.py --test SC-4 --track vscode-codex-interpreted
 
-# Stop with Ctrl-C after the turn completes; output lands at
+# Stop with Ctrl-C after turn completes; output lands at
 # results/{track}/artifacts/fs-events/{test}/fs-events-{timestamp}.jsonl
 ```
 
-Event records look like:
-
 ```json
-{"timestamp": "2026-06-27T02:15:03.123456+00:00", "event_type": "modified", "src_path": "/private/tmp/codex-.../data.html", "dest_path": null, "size": 64659, "is_directory": false, "test_id": "SC-4", "track": "vscode-codex-interpreted"}
+{
+    "timestamp": "2026-06-27T02:15:03.123456+00:00",
+    "event_type": "modified",
+    "src_path": "/private/tmp/codex-.../data.html",
+    "dest_path": null,
+    "size": 64659,
+    "is_directory": false,
+    "test_id": "SC-4",
+    "track": "vscode-codex-interpreted"
+}
 ```
 
 ### Failure-Mode Detection
 
-Codex rollouts do not emit structured error events; failures appear as plain text inside tool outputs. `scripts/failure_classifier.py` detects the following patterns deterministically so the harness counts failures without relying on the agent to report them:
+Codex rollouts don't emit structured error events; failures appear as plain text inside tool outputs.
+`scripts/failure_classifier.py` detects the following patterns deterministically so the harness counts failures
+without relying on the agent self-reports:
 
 | **Category** | **Pattern** |
 | --- | --- |
 | `browser_unavailable` | `Browser is not available: iab` |
 | `dns_blocked` | `curl: (6) Could not resolve host: …` |
 | `fetch_failed` | `fetch failed`, `getaddrinfo ENOTFOUND`, other nonzero `curl` exits |
-| `sandbox_empty_response` | `Process exited with code 0` but the `Output:` section is empty, whitespace-only, or exactly `0`; indicates a sandboxed network command that the agent later recovered via escalation |
+| `sandbox_empty_response` | `Process exited with code 0` but `Output:` section is empty, whitespace-only,<br>or exactly `0`; indicates sandboxed network command that agent recovered<br>via escalation |
 | `cache_miss` | One-line `Cache miss` tool response |
 | `command_not_found` | exit 127, `command not found`, `ModuleNotFoundError` |
 | `runtime_error` | Python traceback, HTTP errors |
 | `ui_truncation` | `Truncated content`, `was UI-truncated` |
 
-The classifier is wired into the rollout scripts:
+Rollout scripts include classifier content while counting failures separately; if a turn reaches
+`task_complete`, its raw failure categories are still reported, but `recovered_failure_count` records how many of them
+occurred inside a completed turn.
 
-| **Script** | **Failure output** |
+| **Script** | **Output** |
 | --- | --- |
-| `rollout_audit.py` | Adds `failure_count_*`, `failure_categories`, `recovered_failure_count`, `has_failure`, `first_failure_category`, and `first_failure_detail` columns to the CSV, plus a `FAILURES_DETECTED` flag. |
-| `rollout_decode.py` | Tags failed tool outputs as `FAIL [category]` in `--timeline`; prints a `FAILURES:` summary block. |
-| `read_session.py` | Renders per-turn failure badges and a dedicated **Issues** panel in the HTML report. |
-
-Recovered failures are counted separately: if a turn reaches `task_complete`, its raw failure categories are still reported, but `recovered_failure_count` records how many of them occurred inside a completed turn.
+| `rollout_audit.py` | Adds `failure_count_*`, `failure_categories`, `recovered_failure_count`, `has_failure`, `first_failure_category`, `first_failure_detail` columns to CSV with `FAILURES_DETECTED` |
+| `rollout_decode.py` | Tags failed tool outputs as `FAIL [category]` in `--timeline`; prints a `FAILURES:` summary block |
+| `read_session.py` | Renders per-turn failure badges, dedicated **Issues** panel in HTML report |
 
 ## Logging
 
