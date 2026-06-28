@@ -172,10 +172,16 @@ def assess_h2(obs: dict) -> tuple[str, str]:
 
     A token ceiling can only be supported when a truncation event was actually
     observed, the token count describes the returned excerpt or a stated tool
-    limit, and that count sits near a recognized ceiling tier with a plausible
-    chars/token ratio. Full-page size estimates (e.g., "the curl response is
-    ~200K tokens") do not support the hypothesis because they describe the raw
-    source, not a truncation point.
+    limit, and that count sits near a recognized ceiling tier (e.g., ~2K,
+    ~8K, ~32K, ~128K) with a plausible chars/token ratio (~3-5 chars/token).
+
+    Full-page size estimates (e.g., "the curl response is ~200K tokens") do not
+    support the hypothesis because they describe the raw source, not a
+    truncation point.  However, if the full page or a large returned excerpt was
+    retrieved without truncation and the token count is well above the lowest
+    recognized ceiling tier (~2,000 tokens), that is active counter-evidence
+    against a low token ceiling and the result is ``no`` rather than
+    ``indeterminate``.
     """
     token_count = obs.get("token_count") or 0
     output_chars = obs.get("output_chars") or 0
@@ -184,9 +190,6 @@ def assess_h2(obs: dict) -> tuple[str, str]:
 
     if not token_count:
         return "indeterminate", "No token count available; token-based ceiling cannot be evaluated."
-
-    if truncated == "no":
-        return "indeterminate", "No truncation event observed; token-based ceiling cannot be inferred from token count alone."
 
     # Known approximate retrieval/token ceiling tiers.
     near_threshold = (
@@ -198,8 +201,16 @@ def assess_h2(obs: dict) -> tuple[str, str]:
     )
 
     # A reported token count for the full fetched page is evidence about the
-    # source size, not about where the retrieved excerpt was cut.
+    # source size, not about where the retrieved excerpt was cut.  If the full
+    # page was retrieved without truncation and is well above the lowest
+    # recognized ceiling tier (~2K tokens), that is active counter-evidence
+    # against a low token ceiling rather than an open question.
     if token_scope == "full_raw_page":
+        if truncated == "no" and token_count > 2_500:
+            return (
+                "no",
+                f"Token count ({token_count:,}) describes the full fetched page, no truncation was observed, and the page is well above the ~2,000-token ceiling tier — this argues against a low token ceiling.",
+            )
         return (
             "no",
             f"Token count ({token_count:,}) describes the full fetched page, not the returned excerpt or a truncation ceiling.",
@@ -211,6 +222,17 @@ def assess_h2(obs: dict) -> tuple[str, str]:
             "indeterminate",
             f"Token count ({token_count:,}) reported, but its scope is unclear (returned excerpt vs. source page); token-based ceiling cannot be evaluated.",
         )
+
+    # No truncation event: if the returned excerpt is already well above the
+    # lowest recognized ceiling tier, that is active counter-evidence against a
+    # low token ceiling rather than an open question.
+    if truncated == "no":
+        if token_count > 2_500:
+            return (
+                "no",
+                f"No truncation observed and the returned excerpt's token count ({token_count:,}) is well above the lowest recognized ceiling tier (~2,000 tokens), which argues against a low token ceiling.",
+            )
+        return "indeterminate", "No truncation event observed; token-based ceiling cannot be inferred from token count alone."
 
     # A stated tool/agent limit is evaluated against known tiers without assuming
     # it matches the returned output size.

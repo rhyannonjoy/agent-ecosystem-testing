@@ -99,7 +99,7 @@ cd open-ai-codex-web-search
    | **ID** | **Description** | **Question** |
    | --- | --- | --- |
    | `H1` | Character-based truncation at fixed limit | _Is there a ceiling at ~10–100 KB?_ |
-   | `H2` | Token-based truncation | _Is there a ceiling at ~2,000 tokens?_ |
+   | `H2` | Token-based truncation | _Is there a token ceiling at ~2K?_ |
    | `H3` | Structure-aware truncation | _Does truncation fall on Markdown boundaries rather than<br>arbitrary byte positions?_ |
    | `H4` | Surface impact on retrieval behavior | _Does the Codex IDE versus VS Code-Codex surface<br>produce different retrieval behavior?_ |
    | `H5` | Auto-chunking and/or pagination | _Does the agent fetch with multi-step tool chains, or<br>only when reasoned into it?_ |
