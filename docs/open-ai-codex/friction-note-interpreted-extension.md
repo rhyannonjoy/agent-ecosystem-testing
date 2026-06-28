@@ -67,6 +67,10 @@ No subsequent `T2` run attempted `Browser` after observing the failure, but didn
 which is consistent with the pattern described in [`web` Cache Miss](./friction-note-interpreted-desktop.md#web-cache-miss): agents tend
 to report successes and not examine failures.
 
+`GPT-5.4-Mini Extra High`'s `SC-4` run extended the pattern to a second backend. After receiving `Browser is not available: iab`, the agent
+attempted `Playwright` as an alternative. The `Playwright` attempt produced another failure without examination before the agent moved on.
+Two browser backends failing in sequence confirms the VS Code extention doesn't provision a browser surface by default.
+
 ### Methodology Decision
 
 Log `Browser is not available: iab` as an infrastructural difference, not an agent error. The absence of
@@ -345,3 +349,18 @@ variable going forward. Treat the window structure, nav, placeholder band, foote
 the variable. Reference
 [`SC-2` Cross-Ecosystem Divergence](./friction-note-interpreted-desktop.md#sc-2-cross-ecosystem-divergence) for the HTML shell
 finding; `T2` confirms it with little difference.
+
+---
+
+## Workspace Substitution
+
+After `GPT-5.4-Mini Extra High`'s `SC-4` run included `Browser` and `Playwright` failures, the agent read character count, token estimate,
+and last-50-char data from prior `SC-4` rollout logs in the workspace and reported them in its structured output without disclosing the source.
+The metrics are indistinguishable from a direct measurement. The structured report gives no signal that the data reflects a prior run's
+retrieval rather than the current session's, introducing a new fallback at the expense of data integrity.
+
+### Methodology Decision
+
+For workspace-aware runs, cross-check reported metrics against the rollout audit before treating them as direct measurements. Where the thought
+panel shows workspace reads during a run, flag the session's reported metrics as potentially sourced from a prior run and note any condition
+differences between the sourced run and the current one.
