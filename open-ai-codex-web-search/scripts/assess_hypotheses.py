@@ -185,9 +185,6 @@ def assess_h2(obs: dict) -> tuple[str, str]:
     if not token_count:
         return "indeterminate", "No token count available; token-based ceiling cannot be evaluated."
 
-    if truncated == "no":
-        return "indeterminate", "No truncation event observed; token-based ceiling cannot be inferred from token count alone."
-
     # Known approximate retrieval/token ceiling tiers.
     near_threshold = (
         1_800 <= token_count <= 2_200
@@ -198,8 +195,16 @@ def assess_h2(obs: dict) -> tuple[str, str]:
     )
 
     # A reported token count for the full fetched page is evidence about the
-    # source size, not about where the retrieved excerpt was cut.
+    # source size, not about where the retrieved excerpt was cut.  If the full
+    # page was retrieved without truncation and is well above the lowest
+    # recognized ceiling tier (~2K tokens), that is active counter-evidence
+    # against a low token ceiling rather than an open question.
     if token_scope == "full_raw_page":
+        if truncated == "no" and token_count > 2_500:
+            return (
+                "no",
+                f"Token count ({token_count:,}) describes the full fetched page, no truncation was observed, and the page is well above the ~2,000-token ceiling tier — this argues against a low token ceiling.",
+            )
         return (
             "no",
             f"Token count ({token_count:,}) describes the full fetched page, not the returned excerpt or a truncation ceiling.",
@@ -211,6 +216,17 @@ def assess_h2(obs: dict) -> tuple[str, str]:
             "indeterminate",
             f"Token count ({token_count:,}) reported, but its scope is unclear (returned excerpt vs. source page); token-based ceiling cannot be evaluated.",
         )
+
+    # No truncation event: if the returned excerpt is already well above the
+    # lowest recognized ceiling tier, that is active counter-evidence against a
+    # low token ceiling rather than an open question.
+    if truncated == "no":
+        if token_count > 2_500:
+            return (
+                "no",
+                f"No truncation observed and the returned excerpt's token count ({token_count:,}) is well above the lowest recognized ceiling tier (~2,000 tokens), which argues against a low token ceiling.",
+            )
+        return "indeterminate", "No truncation event observed; token-based ceiling cannot be inferred from token count alone."
 
     # A stated tool/agent limit is evaluated against known tiers without assuming
     # it matches the returned output size.
