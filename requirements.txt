@@ -10,3 +10,6 @@ openai
 # Python
 python-dotenv
 tiktoken
+
+# Codex observability helpers
+watchdog>=4.0
