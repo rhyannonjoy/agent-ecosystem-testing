@@ -55,6 +55,7 @@ For each LLMxReasoning
 - Artifacts:
 - Tools:
 - Truncation Report:
+- Rollout Audit Output:
 
 ---
 
