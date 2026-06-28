@@ -23,6 +23,7 @@ CATEGORIES = (
     "browser_unavailable",
     "dns_blocked",
     "fetch_failed",
+    "sandbox_empty_response",
     "cache_miss",
     "command_not_found",
     "runtime_error",
@@ -37,6 +38,7 @@ SEVERITY = {
     "browser_unavailable": "error",
     "dns_blocked": "error",
     "fetch_failed": "error",
+    "sandbox_empty_response": "error",
     "command_not_found": "error",
     "runtime_error": "error",
     "unknown_error": "error",
@@ -78,6 +80,45 @@ OUTPUT_PATTERNS: tuple[tuple[str, re.Pattern], ...] = (
 
 NONZERO_EXIT_RE = re.compile(r"Process\s+exited\s+with\s+code\s*([1-9]\d*)", re.I)
 EXIT_ZERO_RE = re.compile(r"Process\s+exited\s+with\s+code\s*(\d+)", re.I)
+OUTPUT_SECTION_RE = re.compile(r"Output\s*:\s*(.*)$", re.I | re.S)
+
+
+def _looks_like_sandbox_empty_response(text: str) -> bool:
+    """Detect Codex sandbox silently blocking a network fetch.
+
+    In the workspace-write sandbox with network disabled, commands such as
+    `curl` sometimes exit 0 but return no body. The agent then retries with
+    `sandbox_permissions: require_escalated` and succeeds. This heuristic
+    matches an exit-0 record whose Output: section is empty, whitespace-only,
+    or just `0` (the byte count from `wc -c` when curl produces nothing).
+
+    The check is intentionally conservative: the surrounding metadata must be
+    short and must include the standard Codex process-exit line, so normal
+    empty outputs from commands like `true` are not flagged.
+    """
+    if not EXIT_ZERO_RE.search(text):
+        return False
+
+    m = EXIT_ZERO_RE.search(text)
+    if not m or int(m.group(1)) != 0:
+        return False
+
+    # Only consider small outputs; real successful commands that intentionally
+    # produce no output are unlikely to include the Codex Chunk/Process headers.
+    if len(text) > 500:
+        return False
+
+    out_m = OUTPUT_SECTION_RE.search(text)
+    if out_m:
+        after_output = out_m.group(1).strip()
+    else:
+        after_output = ""
+
+    # Empty output section, or only whitespace / the literal digit 0.
+    if after_output and not re.fullmatch(r"\s*0?\s*", after_output):
+        return False
+
+    return True
 
 
 @dataclass(frozen=True)
@@ -135,6 +176,16 @@ def classify_output(output: str | None, tool_name: str | None = None) -> Failure
                 detail=detail,
                 severity=SEVERITY[category],
             )
+
+    # Codex sandbox sometimes silently blocks network commands: the process
+    # exits 0 but the body is completely empty. Detect that so recovery via
+    # `sandbox_permissions: require_escalated` is still counted as a failure.
+    if _looks_like_sandbox_empty_response(text):
+        return FailureClass(
+            category="sandbox_empty_response",
+            detail="sandbox returned empty body with exit code 0",
+            severity=SEVERITY["sandbox_empty_response"],
+        )
 
     # If nothing else matched but we have a nonzero shell exit with actual error
     # content, treat it as an unknown error. Empty-output nonzero exits (e.g.

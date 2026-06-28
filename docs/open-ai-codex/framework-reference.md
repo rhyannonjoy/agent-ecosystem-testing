@@ -198,6 +198,7 @@ Codex rollouts do not emit structured error events; failures appear as plain tex
 | `browser_unavailable` | `Browser is not available: iab` |
 | `dns_blocked` | `curl: (6) Could not resolve host: …` |
 | `fetch_failed` | `fetch failed`, `getaddrinfo ENOTFOUND`, other nonzero `curl` exits |
+| `sandbox_empty_response` | `Process exited with code 0` but the `Output:` section is empty, whitespace-only, or exactly `0`; indicates a sandboxed network command that the agent later recovered via escalation |
 | `cache_miss` | One-line `Cache miss` tool response |
 | `command_not_found` | exit 127, `command not found`, `ModuleNotFoundError` |
 | `runtime_error` | Python traceback, HTTP errors |

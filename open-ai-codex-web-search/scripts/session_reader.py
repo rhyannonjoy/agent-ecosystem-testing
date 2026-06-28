@@ -8,10 +8,10 @@ Surfaces agent configuration, skills, sandbox policy, token usage, tool calls,
 reasoning presence, and conversation — everything in the session, not just chat.
 
 Usage:
-    python3 scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl
-    python3 scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl -o report.html
-    python3 scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl --list-sessions
-    python3 scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl --session-id <id>
+    python3 scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/{test_id}/rollout-*.jsonl
+    python3 scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/{test_id}/roll out-*.jsonl -o report.html
+    python3 scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/{test_id}/rollout-*.jsonl --list-sessions
+    python3 scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/{test_id}/rollout-*.jsonl --session-id <id>
 """
 
 import argparse
