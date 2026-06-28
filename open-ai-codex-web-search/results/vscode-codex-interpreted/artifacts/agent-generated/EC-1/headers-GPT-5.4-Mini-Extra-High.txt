@@ -1,0 +1,21 @@
+Track 2, 4th run
+GPT-5.4-Mini High
+Version 26.623.42026, Pro
+Exposed in thought panel reasoning/terminal execution, but manually created by user
+
+HTTP/2 200 
+last-modified: Mon, 22 Jun 2026 18:20:45 GMT
+content-type: text/html; charset=utf-8
+vary: Cookie
+content-security-policy: base-uri 'self'; object-src 'none'; script-src 'strict-dynamic' 'unsafe-inline' https: http: 'nonce-1i8vkTqWELhuG87IaTzo+s0eWbAx/W' 'unsafe-eval'; frame-ancestors 'self' https://developers.google.com/_d/analytics-iframe https://aistudio.google.com; report-uri https://csp.withgoogle.com/csp/devsite/v2
+strict-transport-security: max-age=63072000; includeSubdomains; preload
+x-xss-protection: 0
+x-content-type-options: nosniff
+cache-control: no-cache, must-revalidate
+expires: 0
+pragma: no-cache
+x-cloud-trace-context: 33034fd54ccf955453eb3b2270e5059d
+content-length: 120001
+date: Sun, 28 Jun 2026 19:10:51 GMT
+server: Google Frontend
+alt-svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
