@@ -123,20 +123,20 @@ results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-2026-06-11T14-0
 
 ### Session Overview
 
-`session_reader.py` produces a structured report from one or more rollouts including
+`read_session.py` produces a structured report from one or more rollouts including
 session metadata, model, sandbox policy, skills, token usage, tool calls, reasoning
 presence, and the conversation.
 
 ```bash
 # Text report to stdout
-python scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl
+python scripts/read_session.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl
 
 # HTML report
-python scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl -o report.html
+python scripts/read_session.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl -o report.html
 
 # List sessions and filter by ID
-python scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl --list-sessions
-python scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl --session-id <id>
+python scripts/read_session.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl --list-sessions
+python scripts/read_session.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl --session-id <id>
 ```
 
 ### Rollout Audit
@@ -188,6 +188,60 @@ python scripts/rollout_decode.py results/vscode-codex-interpreted/artifacts/roll
 # Write timeline to a Markdown file
 python scripts/rollout_decode.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl --timeline --md decoded.md
 ```
+
+### Artifact Watcher
+
+Codex rollouts don't log temp-file creation or workspace writes. `artifacts_watcher.py` records filesystem events while Codex agents
+write logs of `created`, `modified`, `moved`, and `deleted` events under `~/.codex` and the macOS temp directories; correlate with
+`session_id` and timestamp; ignores macOS service noise such as `com.apple.*`, `.icloud`, `TemporaryItems`:
+
+```bash
+# Start before test
+python scripts/artifacts_watcher.py --test SC-4 --track vscode-codex-interpreted
+
+# Stop with Ctrl-C after turn completes; output lands at
+# results/{track}/artifacts/fs-events/{test}/fs-events-{timestamp}.jsonl
+```
+
+```json
+{
+    "timestamp": "2026-06-27T02:15:03.123456+00:00",
+    "event_type": "modified",
+    "src_path": "/private/tmp/codex-.../data.html",
+    "dest_path": null,
+    "size": 64659,
+    "is_directory": false,
+    "test_id": "SC-4",
+    "track": "vscode-codex-interpreted"
+}
+```
+
+### Failure-Mode Detection
+
+Codex rollouts don't emit structured error events; failures appear as plain text inside tool outputs.
+`scripts/failure_classifier.py` detects the following patterns deterministically so the harness counts failures
+without relying on the agent self-reports:
+
+| **Category** | **Pattern** |
+| --- | --- |
+| `browser_unavailable` | `Browser is not available: iab` |
+| `dns_blocked` | `curl: (6) Could not resolve host: …` |
+| `fetch_failed` | `fetch failed`, `getaddrinfo ENOTFOUND`, other nonzero `curl` exits |
+| `sandbox_empty_response` | `Process exited with code 0` but `Output:` section is empty, whitespace-only,<br>or exactly `0`; indicates sandboxed network command that agent recovered<br>via escalation |
+| `cache_miss` | One-line `Cache miss` tool response |
+| `command_not_found` | exit 127, `command not found`, `ModuleNotFoundError` |
+| `runtime_error` | Python traceback, HTTP errors |
+| `ui_truncation` | `Truncated content`, `was UI-truncated` |
+
+Rollout scripts include classifier content while counting failures separately; if a turn reaches
+`task_complete`, its raw failure categories are still reported, but `recovered_failure_count` records how many of them
+occurred inside a completed turn.
+
+| **Script** | **Output** |
+| --- | --- |
+| `rollout_audit.py` | Adds `failure_count_*`, `failure_categories`, `recovered_failure_count`, `has_failure`, `first_failure_category`, `first_failure_detail` columns to CSV with `FAILURES_DETECTED` |
+| `rollout_decode.py` | Tags failed tool outputs as `FAIL [category]` in `--timeline`; prints a `FAILURES:` summary block |
+| `read_session.py` | Renders per-turn failure badges, dedicated **Issues** panel in HTML report |
 
 ## Logging
 

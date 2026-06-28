@@ -30,6 +30,8 @@ from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
+from failure_classifier import FailureClass, classify_output, recovered, summarize
+
 
 def parse_ts(ts: str) -> datetime:
     return datetime.fromisoformat(ts.replace("Z", "+00:00"))
@@ -118,6 +120,15 @@ def audit_file(path: Path) -> dict:
         "tokens_total": None,
         "context_window": None,
         "flags": [],
+        "failure_classes": [],
+        "failure_count_total": 0,
+        "failure_count_error": 0,
+        "failure_count_warning": 0,
+        "failure_categories": "",
+        "recovered_failure_count": 0,
+        "has_failure": "no",
+        "first_failure_category": "",
+        "first_failure_detail": "",
     }
 
     final_event_texts = []          # final answers as emitted in the live event stream
@@ -126,6 +137,7 @@ def audit_file(path: Path) -> dict:
     last_complete_idx = None
     first_ts = last_ts = None
     last_tokens = None
+    current_turn_failures: list[FailureClass] = []
 
     for i, rec in enumerate(records):
         ts = rec.get("timestamp")
@@ -149,6 +161,7 @@ def audit_file(path: Path) -> dict:
             pt = p.get("type")
             if pt == "task_started":
                 r["turns"] += 1
+                current_turn_failures = []
             elif pt == "user_message":
                 r["user_messages"] += 1
                 msg = p.get("message") or ""
@@ -165,6 +178,14 @@ def audit_file(path: Path) -> dict:
                 r["task_completes"] += 1
                 last_complete_idx = i
                 last_agent_message = p.get("last_agent_message")
+                if current_turn_failures:
+                    # Heuristic: if the turn completed, failures were likely
+                    # recovered via escalation or fallback. Keep the raw
+                    # categories for accurate counts, but record how many
+                    # failures were inside completed turns.
+                    r["failure_classes"].extend(current_turn_failures)
+                    r["recovered_failure_count"] += len(current_turn_failures)
+                    current_turn_failures = []
                 if p.get("duration_ms") is not None:
                     r["duration_s"] = round(p["duration_ms"] / 1000, 1)
                 if p.get("time_to_first_token_ms") is not None:
@@ -175,6 +196,23 @@ def audit_file(path: Path) -> dict:
                 if total is not None:
                     last_tokens = total
                 r["context_window"] = info.get("model_context_window") or r["context_window"]
+            elif pt == "exec_command_end":
+                out = p.get("output") or ""
+                fc = classify_output(out)
+                if fc.category != "ok":
+                    current_turn_failures.append(fc)
+            elif pt == "mcp_tool_call_end":
+                inv = p.get("invocation") or {}
+                tool_name = f"{(inv.get('server') or '')}.{(inv.get('tool') or '')}".strip(".")
+                result = p.get("result") or {}
+                ok = result.get("Ok") or {}
+                text = ""
+                for block in ok.get("content", []) or []:
+                    if isinstance(block, dict) and block.get("type") == "text":
+                        text += block.get("text", "")
+                fc = classify_output(text, tool_name=tool_name)
+                if fc.category != "ok":
+                    current_turn_failures.append(fc)
 
         elif rtype == "response_item":
             it = p.get("type")
@@ -191,6 +229,15 @@ def audit_file(path: Path) -> dict:
                 name = p.get("name", "?")
                 ns = p.get("namespace")
                 r["tools"][f"{ns}.{name}" if ns else name] += 1
+            elif it == "function_call_output":
+                out = p.get("output") or ""
+                fc = classify_output(out)
+                if fc.category != "ok":
+                    current_turn_failures.append(fc)
+
+    # Any failures outside a completed turn are kept as raw failures.
+    if current_turn_failures:
+        r["failure_classes"].extend(current_turn_failures)
 
     r["tokens_total"] = last_tokens
     if first_ts and last_ts:
@@ -241,6 +288,27 @@ def audit_file(path: Path) -> dict:
     if r["turns"] and not r["final_answers_event"]:
         r["flags"].append("NO_FINAL_ANSWER: turn completed without a final answer emission")
 
+    # H. Failure-mode summary (raw categories; recovery counted separately)
+    failure_summary = summarize(r["failure_classes"])
+    r["failure_count_total"] = failure_summary["total"]
+    r["failure_count_error"] = failure_summary["error_count"]
+    r["failure_count_warning"] = failure_summary["warning_count"]
+    r["failure_categories"] = "; ".join(
+        f"{cat}={c}" for cat, c in sorted(failure_summary["category_counts"].items()) if cat != "ok"
+    )
+    r["has_failure"] = "yes" if failure_summary["total"] else "no"
+    first_error = next((fc for fc in r["failure_classes"] if fc.severity == "error"), None)
+    first_warning = next((fc for fc in r["failure_classes"] if fc.severity == "warning"), None)
+    first = first_error or first_warning
+    r["first_failure_category"] = first.category if first else ""
+    r["first_failure_detail"] = first.detail if first else ""
+    if failure_summary["total"]:
+        breakdown = ", ".join(
+            f"{cat}={c}" for cat, c in sorted(failure_summary["category_counts"].items()) if cat != "ok"
+        )
+        rec_note = f" ({r['recovered_failure_count']} recovered)" if r["recovered_failure_count"] else ""
+        r["flags"].append(f"FAILURES_DETECTED: {breakdown}{rec_note}")
+
     return r
 
 
@@ -274,6 +342,8 @@ def main():
               f"{dict(r['tools']) if r['tools'] else ''}")
         print(f"  timing: duration {display_duration(r['duration_s'])} | ttft {display_duration(r['ttft_s'])} | file wallclock {display_duration(r['wallclock_s'])}")
         print(f"  tokens {r['tokens_total']} / {r['context_window']}")
+        if r["failure_count_total"]:
+            print(f"  failures: {r['failure_count_total']} ({r['failure_count_error']} error, {r['failure_count_warning']} warning) | categories: {r['failure_categories']}")
         if r["flags"]:
             any_flags = True
             for fl in r["flags"]:
@@ -285,7 +355,10 @@ def main():
         cols = ["file", "session_id", "model", "effort", "test_id", "turns", "user_messages",
                 "commentary_msgs", "final_answers_event", "final_answers_item", "web_search_calls",
                 "function_calls", "task_completes", "records_after_complete", "duration_s",
-                "ttft_s", "wallclock_s", "tokens_total", "flags"]
+                "ttft_s", "wallclock_s", "tokens_total", "flags", "failure_count_total",
+                "failure_count_error", "failure_count_warning", "failure_categories",
+                "recovered_failure_count", "has_failure", "first_failure_category",
+                "first_failure_detail"]
         with open(args.csv, "w", newline="") as fh:
             w = csv.DictWriter(fh, fieldnames=cols)
             w.writeheader()

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-session_reader.py — Codex Session Observability Log
+read_session.py — Codex Session Observability Log
 Agent Ecosystem Testing · https://rhyannonjoy.github.io/agent-ecosystem-testing/
 
 Converts a Codex .jsonl session file into a structured observability report.
@@ -8,10 +8,10 @@ Surfaces agent configuration, skills, sandbox policy, token usage, tool calls,
 reasoning presence, and conversation — everything in the session, not just chat.
 
 Usage:
-    python3 scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl
-    python3 scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl -o report.html
-    python3 scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl --list-sessions
-    python3 scripts/session_reader.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl --session-id <id>
+    python3 scripts/read_session.py results/vscode-codex-interpreted/artifacts/rollouts/{test_id}/rollout-*.jsonl
+    python3 scripts/read_session.py results/vscode-codex-interpreted/artifacts/rollouts/{test_id}/roll out-*.jsonl -o report.html
+    python3 scripts/read_session.py results/vscode-codex-interpreted/artifacts/rollouts/{test_id}/rollout-*.jsonl --list-sessions
+    python3 scripts/read_session.py results/vscode-codex-interpreted/artifacts/rollouts/{test_id}/rollout-*.jsonl --session-id <id>
 """
 
 import argparse
@@ -21,6 +21,8 @@ import sys
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
+
+from failure_classifier import classify_output, FailureClass
 
 
 # ─────────────────────────────────────────────────────────────
@@ -203,6 +205,26 @@ def extract_turns(events: list) -> list:
             elif msg_type == "user_message" and current is not None:
                 current["user_message"] = payload.get("message", "")
 
+            elif msg_type == "mcp_tool_call_end" and current is not None:
+                inv = payload.get("invocation") or {}
+                tool_name = f"{(inv.get('server') or '')}.{(inv.get('tool') or '')}".strip(".")
+                result = payload.get("result") or {}
+                ok = result.get("Ok") or {}
+                text = ""
+                for block in ok.get("content", []) or []:
+                    if isinstance(block, dict) and block.get("type") == "text":
+                        text += block.get("text", "")
+                fc = classify_output(text, tool_name=tool_name)
+                current["tool_calls"].append({
+                    "kind": "mcp_tool_call",
+                    "name": tool_name,
+                    "args": _trunc(json.dumps(inv.get("arguments") or {}, indent=2), 400),
+                    "call_id": payload.get("call_id", ""),
+                    "status": "completed",
+                    "result": _trunc(text, 400),
+                    "failure_class": fc.to_dict(),
+                })
+
             elif msg_type == "token_count" and current is not None:
                 info = payload.get("info") or {}
                 last = info.get("last_token_usage") or {}
@@ -260,14 +282,17 @@ def extract_turns(events: list) -> list:
                     "args": _trunc(args, 400),
                     "call_id": payload.get("call_id", ""),
                     "result": None,
+                    "failure_class": None,
                 })
 
             elif item_type == "function_call_output":
                 cid = payload.get("call_id", "")
                 out = payload.get("output", "")
+                fc = classify_output(out)
                 for tc in reversed(current["tool_calls"]):
                     if tc.get("call_id") == cid:
                         tc["result"] = _trunc(out, 400)
+                        tc["failure_class"] = fc.to_dict()
                         break
 
             elif item_type == "custom_tool_call":
@@ -281,14 +306,17 @@ def extract_turns(events: list) -> list:
                     "call_id": payload.get("call_id", ""),
                     "status": payload.get("status", ""),
                     "result": None,
+                    "failure_class": None,
                 })
 
             elif item_type == "custom_tool_call_output":
                 cid = payload.get("call_id", "")
                 out = payload.get("output", "")
+                fc = classify_output(out)
                 for tc in reversed(current["tool_calls"]):
                     if tc.get("call_id") == cid:
                         tc["result"] = _trunc(out, 400)
+                        tc["failure_class"] = fc.to_dict()
                         break
 
             elif item_type == "reasoning":
@@ -355,6 +383,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
 .section { margin-bottom: 36px; }
 .section-title { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-family: var(--mono); color: var(--text-dim); padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 .pill { font-size: 9px; padding: 1px 6px; border-radius: 2px; background: var(--surface2); border: 1px solid var(--border2); color: var(--text-faint); letter-spacing: 0.04em; }
+.pill.red { color: var(--accent-red); border-color: #2e1a1a; }
+.pill.yellow { color: var(--accent); border-color: #3a2e10; }
 .kv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
 .kv { background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 8px 10px; }
 .kv-label { font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-faint); font-family: var(--mono); margin-bottom: 3px; }
@@ -470,10 +500,47 @@ def raw_section(label: str, text: str, uid: str) -> str:
     )
 
 
+def collect_issues(turns: list) -> list:
+    """Flatten tool-call failures into an issue list for the Issues panel."""
+    issues = []
+    for i, turn in enumerate(turns, 1):
+        for tc in turn.get("tool_calls", []):
+            fc = tc.get("failure_class") or {}
+            if fc.get("category") and fc.get("category") != "ok":
+                issues.append({
+                    "turn_idx": i,
+                    "tool_name": tc.get("name", "?"),
+                    "category": fc.get("category"),
+                    "severity": fc.get("severity", "error"),
+                    "detail": fc.get("detail", ""),
+                    "result": tc.get("result", ""),
+                })
+    return issues
+
+
+def turn_failure_summary(turn: dict) -> dict:
+    """Return {category_count, severity_count, top_severity} for a turn."""
+    cat_counts = {}
+    sev_counts = {}
+    top_sev = None
+    for tc in turn.get("tool_calls", []):
+        fc = tc.get("failure_class") or {}
+        cat = fc.get("category")
+        sev = fc.get("severity")
+        if not cat or cat == "ok":
+            continue
+        cat_counts[cat] = cat_counts.get(cat, 0) + 1
+        sev_counts[sev] = sev_counts.get(sev, 0) + 1
+        if top_sev is None or (sev == "error" and top_sev == "warning"):
+            top_sev = sev
+    return {"category_count": cat_counts, "severity_count": sev_counts, "top_severity": top_sev}
+
+
 def render_session(sid: str, events: list) -> tuple:
     meta = extract_session_meta(events)
     dev_ctx = extract_developer_context(events)
     turns = extract_turns(events)
+    issues = collect_issues(turns)
 
     short = sid[:8]
     ts_fmt = fmt_ts(meta.get("timestamp", ""))
@@ -492,6 +559,7 @@ def render_session(sid: str, events: list) -> tuple:
         f'<div class="sb-section">session {e(short)}</div>'
         f'<a class="sb-link" href="#sess-{e(short)}">↳ config &amp; context</a>'
         f'<a class="sb-link" href="#skills-{e(short)}">↳ skills ({len(dev_ctx["skills"])})</a>'
+        f'<a class="sb-link" href="#issues-{e(short)}">↳ issues ({len(issues)})</a>'
         f'<a class="sb-link" href="#turns-{e(short)}">↳ turns ({len(turns)})</a>'
         + "".join(turn_links)
     )
@@ -518,6 +586,9 @@ def render_session(sid: str, events: list) -> tuple:
 
     total_tool_calls = sum(len(t["tool_calls"]) for t in turns)
     total_reasoning = sum(t["reasoning_count"] for t in turns)
+    total_errors = sum(1 for issue in issues if issue["severity"] == "error")
+    total_warnings = sum(1 for issue in issues if issue["severity"] == "warning")
+    issue_color = "red" if total_errors else ("yellow" if total_warnings else "")
 
     stats = (
         '<div class="stat-row">'
@@ -526,6 +597,9 @@ def render_session(sid: str, events: list) -> tuple:
         f'<div class="stat"><div class="stat-label">plugins</div><div class="stat-value blue">{len(dev_ctx["plugins"])}</div></div>'
         f'<div class="stat"><div class="stat-label">tool calls</div><div class="stat-value">{total_tool_calls}</div></div>'
         f'<div class="stat"><div class="stat-label">reasoning blocks</div><div class="stat-value">{total_reasoning}</div></div>'
+        f'<div class="stat"><div class="stat-label">issues</div><div class="stat-value {issue_color}">{len(issues)}</div></div>'
+        f'<div class="stat"><div class="stat-label">errors</div><div class="stat-value {"red" if total_errors else ""}">{total_errors}</div></div>'
+        f'<div class="stat"><div class="stat-label">warnings</div><div class="stat-value {"yellow" if total_warnings else ""}">{total_warnings}</div></div>'
         '</div>'
     )
 
@@ -596,6 +670,12 @@ def render_session(sid: str, events: list) -> tuple:
             badges.append(f'<span class="badge purple">reasoning ×{turn["reasoning_count"]}</span>')
         if turn.get("duration_ms"):
             badges.append(f'<span class="badge green">{fmt_dur(turn["duration_ms"])}</span>')
+
+        # Failure badges
+        tf_summary = turn_failure_summary(turn)
+        for cat, count in sorted(tf_summary["category_count"].items()):
+            color = "red" if tf_summary["top_severity"] == "error" and cat != "cache_miss" else "yellow"
+            badges.append(f'<span class="badge {color}">{e(cat)}×{count}</span>')
 
         # Turn context KVs
         tp = turn.get("truncation_policy") or {}
@@ -729,6 +809,28 @@ def render_session(sid: str, events: list) -> tuple:
         )
         turns_html.append(turn_html)
 
+    # ── Issues ─────────────────────────────────────────────────
+    issues_section = ""
+    if issues:
+        issue_cards = ""
+        for issue in issues:
+            sev_color = "red" if issue["severity"] == "error" else "yellow"
+            issue_cards += (
+                f'<div class="card issue-card">'
+                f'<div class="card-name">{e(issue["category"])} '
+                f'<span class="pill {sev_color}">{e(issue["severity"])}</span></div>'
+                f'<div class="card-desc">{e(issue["detail"])}</div>'
+                f'<div class="card-file">turn #{issue["turn_idx"]} · {e(issue["tool_name"])}</div>'
+                f'<div class="tool-result-text" style="margin-top:6px">{e(issue["result"][:300])}</div>'
+                f'</div>'
+            )
+        issues_section = (
+            f'<div class="section" id="issues-{e(short)}">'
+            f'<div class="section-title">Issues <span class="pill">{len(issues)}</span></div>'
+            f'<div class="card-grid">{issue_cards}</div>'
+            '</div>'
+        )
+
     turns_section = (
         f'<div class="section" id="turns-{e(short)}">'
         f'<div class="section-title">Turns <span class="pill">{len(turns)}</span></div>'
@@ -736,20 +838,21 @@ def render_session(sid: str, events: list) -> tuple:
         f'</div>'
     )
 
-    main = (
-        '<div style="margin-bottom:48px">'
+    main_parts = [
+        '<div style="margin-bottom:48px">',
         f'<div class="page-hd">'
         f'<h2>Session <span style="font-family:var(--mono);color:var(--accent)">{e(short)}</span></h2>'
         f'<div style="font-size:11px;color:var(--text-dim);margin-top:4px">'
         f'{e(ts_fmt)} · {e(meta.get("git_branch",""))} · {e(meta.get("model_provider",""))}'
-        f'</div></div>'
-        f'{config_section}'
-        f'<hr class="sep">'
-        f'{skills_section}'
-        f'<hr class="sep">'
-        f'{turns_section}'
-        f'</div>'
-    )
+        f'</div></div>',
+        config_section,
+        '<hr class="sep">',
+        skills_section,
+    ]
+    if issues_section:
+        main_parts.extend(['<hr class="sep">', issues_section])
+    main_parts.extend(['<hr class="sep">', turns_section, '</div>'])
+    main = "".join(main_parts)
 
     return sb, main
 
