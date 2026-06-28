@@ -120,6 +120,9 @@ python open-ai-codex-web-search/scripts/read_session.py results/{track}/artifact
 
 # Watch filesystem artifacts while a Codex session runs; stop with Ctrl-C
 python open-ai-codex-web-search/scripts/artifacts_watcher.py --test {test} --track {track}
+
+# Audit temp files created by Codex (focuses on /private/tmp by default)
+python open-ai-codex-web-search/scripts/artifacts_audit.py results/{track}/artifacts/fs-events/{test}/*.jsonl --csv temp_artifacts.csv
 ```
 
 ### Run a Single Test

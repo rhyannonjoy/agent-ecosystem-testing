@@ -216,6 +216,15 @@ python scripts/artifacts_watcher.py --test SC-4 --track vscode-codex-interpreted
 }
 ```
 
+### Artifact Audit
+
+`artifacts_audit.py` summarizes watcher JSONL logs, focusing on `/private/tmp` by default. It names each temp artifact, shows whether
+agents move or delete them, flags unmoved files, and detects basenames reused across runs.
+
+```bash
+python scripts/artifacts_audit.py results/vscode-codex-interpreted/artifacts/fs-events/EC-1/*.jsonl --csv temp_artifacts.csv
+```
+
 ### Failure-Mode Detection
 
 Codex rollouts don't emit structured error events; failures appear as plain text inside tool outputs.
