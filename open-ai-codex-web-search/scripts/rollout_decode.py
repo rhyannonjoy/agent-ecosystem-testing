@@ -30,6 +30,8 @@ from collections import Counter, defaultdict
 from datetime import datetime
 from pathlib import Path
 
+from failure_classifier import FailureClass, classify_output, summarize as fc_summarize
+
 ELIDE_KEYS = {"encrypted_content"}      # opaque blobs worth hiding by default
 TRUNC = 160                             # summary truncation width
 
@@ -87,50 +89,71 @@ def census(path, records):
 # -------------------------------------------------------------- timeline ----
 
 def summarize(rec):
-    """One readable line per record."""
+    """One readable line per record. Returns (tag, text, failure_class)."""
     t = rec.get("type")
     p = rec.get("payload") or {}
     pt = p.get("type")
+    failure: FailureClass | None = None
+
+    def result(tag, text):
+        return tag, text, failure
 
     if t == "session_meta":
         git = p.get("git") or {}
-        return ("META", f"session {p.get('id','?')[-12:]} | cli {p.get('cli_version')} | "
-                        f"branch {git.get('branch')} | cwd {p.get('cwd')}")
+        return result("META", f"session {p.get('id','?')[-12:]} | cli {p.get('cli_version')} | "
+                              f"branch {git.get('branch')} | cwd {p.get('cwd')}")
     if t == "turn_context":
-        return ("META", f"model {p.get('model')} | effort {p.get('effort')} | "
-                        f"sandbox {(p.get('sandbox_policy') or {}).get('type')} | "
-                        f"approval {p.get('approval_policy')}")
+        return result("META", f"model {p.get('model')} | effort {p.get('effort')} | "
+                              f"sandbox {(p.get('sandbox_policy') or {}).get('type')} | "
+                              f"approval {p.get('approval_policy')}")
     if t == "event_msg":
         if pt == "task_started":
-            return ("TURN", f"task started | context window {p.get('model_context_window')}")
+            return result("TURN", f"task started | context window {p.get('model_context_window')}")
         if pt == "user_message":
-            return ("USER", trunc(p.get("message", "")))
+            return result("USER", trunc(p.get("message", "")))
         if pt == "agent_message":
             phase = p.get("phase", "?")
             tag = "FINAL" if phase == "final_answer" else "AGENT"
-            return (tag, trunc(p.get("message", "")))
+            return result(tag, trunc(p.get("message", "")))
         if pt == "web_search_end":
             a = p.get("action") or {}
-            return ("WEB", f"{a.get('type')} {a.get('url') or p.get('query') or ''}".strip())
+            return result("WEB", f"{a.get('type')} {a.get('url') or p.get('query') or ''}".strip())
         if pt == "mcp_tool_call_end":
             inv = p.get("invocation") or {}
             dur = p.get("duration") or {}
             secs = dur.get("secs", 0) + dur.get("nanos", 0) / 1e9
-            return ("MCP", f"{inv.get('server')}.{inv.get('tool')} "
-                           f"[{(inv.get('arguments') or {}).get('title','')}] {secs:.2f}s")
+            result_block = p.get("result") or {}
+            ok = result_block.get("Ok") or {}
+            text = ""
+            for block in ok.get("content", []) or []:
+                if isinstance(block, dict) and block.get("type") == "text":
+                    text += block.get("text", "")
+            fc = classify_output(text)
+            base = f"{inv.get('server')}.{inv.get('tool')} " \
+                   f"[{(inv.get('arguments') or {}).get('title','')}] {secs:.2f}s"
+            if fc.category != "ok":
+                failure = fc
+                return result("FAIL", f"[{fc.category}] {base}: {trunc(text)}")
+            return result("MCP", base)
         if pt == "exec_command_begin" or pt == "exec_command_end":
             cmd = p.get("command")
             if isinstance(cmd, list):
                 cmd = " ".join(cmd)
-            return ("SHELL", trunc(cmd or pt))
+            out = p.get("output", "")
+            fc = classify_output(out)
+            text = trunc(out or cmd or pt)
+            if fc.category != "ok":
+                failure = fc
+                return result("FAIL", f"[{fc.category}] {text}")
+            return result("SHELL", text)
         if pt == "token_count":
             info = p.get("info") or {}
             tot = (info.get("total_token_usage") or {}).get("total_tokens")
-            return ("TOKENS", f"cumulative {tot}")
+            return result("TOKENS", f"cumulative {tot}")
         if pt == "task_complete":
-            return ("TURN", f"task complete | duration {p.get('duration_ms', 0)/1000:.1f}s | "
-                            f"ttft {p.get('time_to_first_token_ms', 0)/1000:.1f}s")
-        return ("EVENT", pt or "?")
+            return result("TURN", f"task complete | duration {p.get('duration_ms', 0)/1000:.1f}s | "
+                                  f"ttft {p.get('time_to_first_token_ms', 0)/1000:.1f}s")
+        return result("EVENT", pt or "?")
     if t == "response_item":
         if pt == "message":
             role = p.get("role")
@@ -139,13 +162,13 @@ def summarize(rec):
             label = {"assistant": "AGENT*", "user": "USER*", "developer": "DEV*"}.get(role, role)
             if role == "assistant" and phase == "final_answer":
                 label = "FINAL*"
-            return (label, trunc("".join(texts)))
+            return result(label, trunc("".join(texts)))
         if pt == "reasoning":
             blob = p.get("encrypted_content") or ""
-            return ("THINK", f"encrypted reasoning block, {len(blob)} chars (opaque)")
+            return result("THINK", f"encrypted reasoning block, {len(blob)} chars (opaque)")
         if pt == "web_search_call":
             a = p.get("action") or {}
-            return ("WEB*", f"{a.get('type')} {a.get('url','')}".strip())
+            return result("WEB*", f"{a.get('type')} {a.get('url','')}".strip())
         if pt == "function_call":
             name = p.get("name", "?")
             ns = p.get("namespace")
@@ -157,15 +180,21 @@ def summarize(rec):
                     args = " ".join(args)
             except Exception:
                 pass
-            return ("CALL", f"{(ns + '.') if ns else ''}{name}  {trunc(args, 110)}")
+            return result("CALL", f"{(ns + '.') if ns else ''}{name}  {trunc(args, 110)}")
         if pt == "function_call_output":
-            return ("OUT", trunc(p.get("output", "")))
-        return ("ITEM", pt or "?")
-    return (t.upper() if t else "?", "")
+            out = p.get("output", "")
+            fc = classify_output(out)
+            if fc.category != "ok":
+                failure = fc
+                return result("FAIL", f"[{fc.category}] {fc.detail}: {trunc(out)}")
+            return result("OUT", trunc(out))
+        return result("ITEM", pt or "?")
+    return result(t.upper() if t else "?", "")
 
 
 def timeline(path, records, out=sys.stdout, md=False):
     t0 = None
+    failures = []
     hdr = f"TIMELINE  {path.name}  ({len(records)} records)"
     if md:
         out.write(f"## {hdr}\n\n```text\n")
@@ -178,13 +207,26 @@ def timeline(path, records, out=sys.stdout, md=False):
             t = parse_ts(ts)
             t0 = t0 or t
             elapsed = f"+{(t - t0).total_seconds():7.1f}s"
-        tag, text = summarize(rec)
+        tag, text, fc = summarize(rec)
+        if fc is not None:
+            failures.append(fc)
         out.write(f"{elapsed:>9s}  {tag:7s} {text}\n")
     if md:
         out.write("```\n\n")
-    out.write("\nLegend: starred tags (FINAL*, AGENT*, WEB*) are LLM-facing transcript copies of\n"
-              "the corresponding UI event records; THINK blocks are encrypted and\n"
-              "unreadable by design; TOKENS rows are cumulative session usage checkpoints.\n")
+
+    summary = fc_summarize(failures)
+    if summary["total"]:
+        breakdown = ", ".join(
+            f"{cat}={c}" for cat, c in sorted(summary["category_counts"].items()) if cat != "ok"
+        )
+        summary_line = f"\nFAILURES: {summary['total']} total ({summary['error_count']} error, {summary['warning_count']} warning) | {breakdown}\n"
+    else:
+        summary_line = "\nFAILURES: none detected\n"
+    out.write(summary_line)
+    if not md:
+        out.write("\nLegend: starred tags (FINAL*, AGENT*, WEB*) are LLM-facing transcript copies of\n"
+                  "the corresponding UI event records; THINK blocks are encrypted and\n"
+                  "unreadable by design; TOKENS rows are cumulative session usage checkpoints.\n")
 
 
 # ---------------------------------------------------------------- pretty ----

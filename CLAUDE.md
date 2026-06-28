@@ -113,7 +113,7 @@ python open-ai-codex-web-search/analyze.py \
 # Query Track 1 results for a test ID and format selected fields as Markdown
 python open-ai-codex-web-search/scripts/query.py --test SC-1 --models GPT-5.4-Mini,GPT-5.5
 
-# Inspect Codex .jsonl rollout logs
+# Inspect Codex .jsonl rollout logs (audit CSV includes failure-mode columns)
 python open-ai-codex-web-search/scripts/rollout_audit.py results/{track}/artifacts/rollouts/*/*.jsonl --csv audit.csv
 python open-ai-codex-web-search/scripts/rollout_decode.py results/{track}/artifacts/rollouts/{test}/rollout-*.jsonl --timeline
 python open-ai-codex-web-search/scripts/session_reader.py results/{track}/artifacts/rollouts/{test}/rollout-*.jsonl -o report.html

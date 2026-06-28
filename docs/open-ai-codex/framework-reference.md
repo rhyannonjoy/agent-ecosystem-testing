@@ -189,6 +189,30 @@ python scripts/rollout_decode.py results/vscode-codex-interpreted/artifacts/roll
 python scripts/rollout_decode.py results/vscode-codex-interpreted/artifacts/rollouts/SC-2/rollout-*.jsonl --timeline --md decoded.md
 ```
 
+### Failure-Mode Detection
+
+Codex rollouts do not emit structured error events; failures appear as plain text inside tool outputs. `scripts/failure_classifier.py` detects the following patterns deterministically so the harness counts failures without relying on the agent to report them:
+
+| **Category** | **Pattern** |
+| --- | --- |
+| `browser_unavailable` | `Browser is not available: iab` |
+| `dns_blocked` | `curl: (6) Could not resolve host: …` |
+| `fetch_failed` | `fetch failed`, `getaddrinfo ENOTFOUND`, other nonzero `curl` exits |
+| `cache_miss` | One-line `Cache miss` tool response |
+| `command_not_found` | exit 127, `command not found`, `ModuleNotFoundError` |
+| `runtime_error` | Python traceback, HTTP errors |
+| `ui_truncation` | `Truncated content`, `was UI-truncated` |
+
+The classifier is wired into the rollout scripts:
+
+| **Script** | **Failure output** |
+| --- | --- |
+| `rollout_audit.py` | Adds `failure_count_*`, `failure_categories`, `recovered_failure_count`, `has_failure`, `first_failure_category`, and `first_failure_detail` columns to the CSV, plus a `FAILURES_DETECTED` flag. |
+| `rollout_decode.py` | Tags failed tool outputs as `FAIL [category]` in `--timeline`; prints a `FAILURES:` summary block. |
+| `session_reader.py` | Renders per-turn failure badges and a dedicated **Issues** panel in the HTML report. |
+
+Recovered failures are counted separately: if a turn reaches `task_complete`, its raw failure categories are still reported, but `recovered_failure_count` records how many of them occurred inside a completed turn.
+
 ## Logging
 
 Run the interactive logger and follow the prompts. Fields grouped by track:
