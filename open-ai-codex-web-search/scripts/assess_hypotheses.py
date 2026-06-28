@@ -172,10 +172,16 @@ def assess_h2(obs: dict) -> tuple[str, str]:
 
     A token ceiling can only be supported when a truncation event was actually
     observed, the token count describes the returned excerpt or a stated tool
-    limit, and that count sits near a recognized ceiling tier with a plausible
-    chars/token ratio. Full-page size estimates (e.g., "the curl response is
-    ~200K tokens") do not support the hypothesis because they describe the raw
-    source, not a truncation point.
+    limit, and that count sits near a recognized ceiling tier (e.g., ~2K,
+    ~8K, ~32K, ~128K) with a plausible chars/token ratio (~3-5 chars/token).
+
+    Full-page size estimates (e.g., "the curl response is ~200K tokens") do not
+    support the hypothesis because they describe the raw source, not a
+    truncation point.  However, if the full page or a large returned excerpt was
+    retrieved without truncation and the token count is well above the lowest
+    recognized ceiling tier (~2,000 tokens), that is active counter-evidence
+    against a low token ceiling and the result is ``no`` rather than
+    ``indeterminate``.
     """
     token_count = obs.get("token_count") or 0
     output_chars = obs.get("output_chars") or 0
