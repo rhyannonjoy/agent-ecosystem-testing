@@ -51,6 +51,7 @@ Styling rules:
 1. Don't use parentheses
 2. Spell out seconds, don't abbreviate
 3. Use contractions
-4. Use backticks for anything code-like: `curl`, `python3`, `GPT-5.5 Low`, `L266`, `T1`, `SC-4`
+4. Use backticks for anything code-like including test ids: `curl`, `python3`, `GPT-5.5 Low`, `L266`, `T1`, `SC-4`
 5. Don't use dashes, use commas
 6. Honor the line length of the example summary
+7. Write in active voice, not passive voice
