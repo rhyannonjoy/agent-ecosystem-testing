@@ -7,13 +7,16 @@ events under ~/.codex and the macOS temp directories. The resulting JSONL log
 can be correlated with rollout_audit.py CSV output by session id and timestamp.
 
 Usage:
-    # Start before the Codex test
-    python3 scripts/artifacts_watcher.py --test SC-4 --track vscode-codex-interpreted
+    # Start before the Codex test. Pass model and reasoning effort so the
+    # artifact log can be correlated with your first-pass session notes.
+    python3 scripts/artifacts_watcher.py --test SC-4 --track vscode-codex-interpreted \
+        --model gpt-oss-120k --effort high
 
     # Stop with Ctrl-C after the Codex turn completes
 
     # Custom output location
     python3 scripts/artifacts_watcher.py --test SC-4 --track vscode-codex-interpreted \
+        --model gpt-oss-120k --effort high \
         --output /tmp/sc4-fs-events.jsonl
 
 Output format (one JSON object per line):
@@ -25,7 +28,9 @@ Output format (one JSON object per line):
       "size": 64659,
       "is_directory": false,
       "test_id": "SC-4",
-      "track": "vscode-codex-interpreted"
+      "track": "vscode-codex-interpreted",
+      "model": "gpt-oss-120k",
+      "effort": "high"
     }
 """
 
@@ -112,12 +117,16 @@ class ArtifactEventHandler(FileSystemEventHandler):
         self,
         test_id: str,
         track: str,
+        model: str | None,
+        effort: str | None,
         exclude_patterns: list[str],
         path_exclude_patterns: list[str],
         out_fh,
     ):
         self.test_id = test_id
         self.track = track
+        self.model = model
+        self.effort = effort
         self.exclude_patterns = exclude_patterns
         self.path_exclude_patterns = path_exclude_patterns
         self.out_fh = out_fh
@@ -154,6 +163,8 @@ class ArtifactEventHandler(FileSystemEventHandler):
             "is_directory": event.is_directory,
             "test_id": self.test_id,
             "track": self.track,
+            "model": self.model,
+            "effort": self.effort,
         }
         self.out_fh.write(json.dumps(record, default=str) + "\n")
         self.out_fh.flush()
@@ -179,6 +190,11 @@ def main():
     )
     ap.add_argument("--test", required=True, help="Test ID, e.g. SC-4")
     ap.add_argument("--track", required=True, help="Track name, e.g. vscode-codex-interpreted")
+    ap.add_argument("--model", help="Model used for this Codex session (e.g. gpt-oss-120k)")
+    ap.add_argument(
+        "--effort",
+        help="Reasoning effort level used for this session (e.g. high, medium, low)",
+    )
     ap.add_argument("--output", "-o", type=Path, help="Output JSONL path")
     ap.add_argument(
         "--watch",
@@ -223,7 +239,8 @@ def main():
     observer = Observer()
     with open(output_path, "w", encoding="utf-8") as out_fh:
         handler = ArtifactEventHandler(
-            args.test, args.track, exclude_patterns, path_exclude_patterns, out_fh
+            args.test, args.track, args.model, args.effort,
+            exclude_patterns, path_exclude_patterns, out_fh
         )
 
         for p in watch_paths:

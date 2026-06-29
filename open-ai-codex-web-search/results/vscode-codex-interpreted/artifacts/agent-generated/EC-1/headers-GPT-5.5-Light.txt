@@ -1,0 +1,21 @@
+Track 2, 9th run
+GPT-5.5 Light
+Version 26.623.42026, Pro
+Agent-generated, wrote-saved /private/tmp/ec1_headers.txt during session
+
+HTTP/2 200 
+last-modified: Mon, 22 Jun 2026 18:20:45 GMT
+content-type: text/html; charset=utf-8
+vary: Cookie
+content-security-policy: base-uri 'self'; object-src 'none'; script-src 'strict-dynamic' 'unsafe-inline' https: http: 'nonce-ErwKwP+7jlTrX5Ba2U7w8uSIu4mmt+' 'unsafe-eval'; frame-ancestors 'self' https://developers.google.com/_d/analytics-iframe https://aistudio.google.com; report-uri https://csp.withgoogle.com/csp/devsite/v2
+strict-transport-security: max-age=63072000; includeSubdomains; preload
+x-xss-protection: 0
+x-content-type-options: nosniff
+cache-control: no-cache, must-revalidate
+expires: 0
+pragma: no-cache
+x-cloud-trace-context: cfb0626000fb26e2677be243423687a4
+date: Sun, 28 Jun 2026 20:27:35 GMT
+server: Google Frontend
+content-length: 120005
+alt-svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
