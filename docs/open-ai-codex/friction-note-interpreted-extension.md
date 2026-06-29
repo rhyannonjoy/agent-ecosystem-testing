@@ -71,6 +71,12 @@ to report successes and not examine failures.
 attempted `Playwright` as an alternative. The `Playwright` attempt produced another failure without examination before the agent moved on.
 Two browser backends failing in sequence confirms the VS Code extention doesn't provision a browser surface by default.
 
+`EC-1`'s `GPT-5.4-Mini High` run is the first `T2` session to reach a working browser path after both `iab` and `Playwright` failures,
+installing `Playwright` Chromium binary, which launched with `SIGABRT`. It invoked it with `--dump-dom`, successfully retrieving the full
+130,202-character page. A third browser automation path exists for the VS Code extension, but it's possibly only reachable after multiple
+failures, a large install, and a manual binary path workaround, at a cost of ~6 minutes and one of the highest rollout log volume
+`T2` to date.
+
 ### Methodology Decision
 
 Log `Browser is not available: iab` as an infrastructural difference, not an agent error. The absence of
@@ -99,6 +105,12 @@ The retirement also introduces a confound for surface comparison findings, as it
 as contributing factors to drift, circumstances in which `T2` behavior diverges from `T1` for the same LLM and LLM-version.
 `H4` assessments are particularly sensitive to this: a behavioral difference between `T1` and `T2` could reflect surface,
 version drift, or both, and the data alone can't always separate them.
+
+`GPT-5.4` became available as a Codex LLM option at `EC-1`, near the end of `T2`, absent for most of it. The trigger, a Pro
+plan upgrade or an extension version bump, isn't confirmed. A `Speed` setting offering `Standard` and `Fast` options appeared
+alongside it and didn't impact the logging schema. This testing framework observes default behavior. `T2` `GPT-5.4` data exists
+only for edge cases `EC-1`, `EC-3`, and `EC-6`. `T1` remains the only `GPT-5.4` reference for all earlier test IDs. The
+version-drift caveat above applies.
 
 ### Methodology Decision
 
