@@ -35,8 +35,8 @@ no exceptions, suggesting this post-hoc over-delivery isn't LLM-specific or inte
 `GPT-5.4-Mini High`'s `SC-2` was the only agent to display output truncation, not finishing the report to include surface
 awareness observations, and the archived session `JSONL` corroborates double-rendering as generation-side and unrepaired.
 
-Without an extension upgrade, double rendering stopped partway through `OP-4`; with an upgrade, returned partway through `BL-3`,
-and repeated `T1` command execution dropdown and reasoning detail clearning post-session throughout. It's possible VS Code's
+Without an extension upgrade, double rendering stopped partway through `OP-4`; with an upgrade, returned partway through `BL-3`
+and `EC-3`, and repeated `T1` command execution dropdown and reasoning detail clearning post-session throughout. It's possible VS Code's
 responsible for double rendering and that Codex's responsible for chat component removal.
 
 ### Methodology Decision
