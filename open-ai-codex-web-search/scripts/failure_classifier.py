@@ -68,9 +68,11 @@ OUTPUT_PATTERNS: tuple[tuple[str, re.Pattern], ...] = (
     ("command_not_found", re.compile(r"Process\s+exited\s+with\s+code\s*127", re.I)),
     (
         "command_not_found",
-        # Match both standard tracebacks ("ModuleNotFoundError: No module named")
-        # and Codex's formatted error line ("ERROR ModuleNotFoundError No module named").
-        re.compile(r"ModuleNotFoundError\s*:?\s*No\s+module\s+named", re.I),
+        # Match standard tracebacks ("ModuleNotFoundError: No module named"),
+        # Codex's formatted error line ("ERROR ModuleNotFoundError No module named"),
+        # and the exception repr emitted by Codex's python tool
+        # ("ModuleNotFoundError('No module named ...')").
+        re.compile(r"ModuleNotFoundError[:'\"(\s]*No\s+module\s+named", re.I),
     ),
     ("command_not_found", re.compile(r"\bcommand\s+not\s+found\b", re.I)),
     ("command_not_found", re.compile(r"\bNo\s+such\s+file\s+or\s+directory\b", re.I)),
