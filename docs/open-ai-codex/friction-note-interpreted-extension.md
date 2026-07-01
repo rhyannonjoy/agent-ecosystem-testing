@@ -39,6 +39,11 @@ Without an extension upgrade, double rendering stopped partway through `OP-4`; w
 and `EC-3`, and repeated `T1` command execution dropdown and reasoning detail clearning post-session throughout. It's possible VS Code's
 responsible for double rendering and that Codex's responsible for chat component removal.
 
+The context window usage counter absent for most of `T2` testing, reappeared in the chat panel across the last test cycle `EC-6`.
+Consistent with the double-rendering and dropdown-clearing behavior, UI elements in the extension surface continue to appear and
+disappear across the collection window independent of any methodology change, another surface instability to track rather than a
+signal about the runs themselves.
+
 ### Methodology Decision
 
 The primary record principle, screenshot at runtime, also applies while testing using the VS Code extension. While the `T2` evidence
@@ -244,6 +249,11 @@ two being independent symptoms.
 the chat panel. The run's broader toolchain suggests the panel may collapse multi-tool batches into fewer summary lines as tool
 variety increases, though this is a hypothesis rather than a confirmed mechanism.
 
+`EC-6`'s `GPT-5.4 Extra High` run adds an instance of this gap. Its rollout audit reports
+[`Cache Miss`](#web-cache-miss-cross-domain-confirmation) events that never appear in the agent's output, the run proceeds as
+though `web` returned a windowed slice rather than failing outright. The panel doesn't just undercount call volume here, but
+fully omits failures.
+
 ### Methodology Decision
 
 Treat the rollout audit's `function_calls` count as authoritative and the chat-counted figure as a lower bound. Capture
@@ -295,10 +305,17 @@ hypothesis as standalone explanations, since neither property is present in `BL-
 candidates, but `BL-3` can't isolate which one drives the failure, since both differ from `EC-6` simultaneously.
 
 The result also marks a layer shift for this specific test ID. `T1` `BL-3` runs against the original URL produced a real, if windowed,
-`web` extraction terminating at `L453` at the page footer, documented in [`web` Line-Indexed Viewer](./friction-note-interpreted-desktop.md#web-line-indexed-viewer).
+`web` extraction terminating at `L453` at the page footer, documented in
+[`web` Line-Indexed Viewer](./friction-note-interpreted-desktop.md#web-line-indexed-viewer).
 `T2` `BL-3` runs against the replacement URL never reached that layer at all. The failure occurs earlier, before `web` has any change of
 producing any windowed extraction. The same test ID moved from a viewer window failure mode in `T1` to a `Cache Miss` failure mode in `T2`,
-which is one more reason `H4` cross-track comparison stays unavailable for `BL-3`, beyond the difference already logged in [URL Retirement](#url-retirement).
+which is one more reason `H4` cross-track comparison stays unavailable for `BL-3`, beyond the difference already logged in
+[URL Retirement](#url-retirement).
+
+`EC-6` complicates assumptions about `Cache Miss`. Only `GPT-5.4 Extra High`'s run emitted it in the rollout log audit, never in the
+agent's visible reasoning or report. Other `web` attempts return a windowed extraction clipped at `L54` rather than an explicit failure,
+surprisingly different from `BL-3`'s consistent, agent-visible string error. The two test IDs may share a failure family without sharing a
+failure signature.
 
 ### Methodology Decision
 
@@ -351,6 +368,12 @@ level-dependent for `GPT-5.4-Mini` and level-independent for `GPT-5.5`, rather t
 [CommonMark spec](https://spec.commonmark.org/0.31.2/) at `L237`, below `OP-1`'s `~L304` band and below `OP-2`'s `L317` to `L318` floor.
 `GPT-5.5 Low` and `High` both clipped at `L616`, close to but not matching `OP-2`'s `~L591`. The window value continues to move across
 test IDs rather than holding at a constant per LLM, suggesting the viewport depends on page architecture rather than tool contraints.
+
+`EC-6` adds the tightest ceiling replication in the cycle. Ten of thirteen runs against
+[the raw GitHub SPEC.md](https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md) clip at `L54` mid-sentence after
+`JSON-LD metadata, ` - the comma and whitespace appeared in each agent report. Unlike `OP-1`'s LLM-split or `OP-2`'s partial split,
+`EC-6`'s value holds across `GPT-5.4-Mini`, `GPT-5.4`, and `GPT-5.5` at every intelligence level, reinforcing that the window tracks page
+architecture rather than diverging based on reasoning capacity.
 
 ### Methodology Decision
 
