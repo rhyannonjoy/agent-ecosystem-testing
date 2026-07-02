@@ -86,6 +86,783 @@ accessibility tier, confirming the JS-rendered failure mode isn't tied to one sp
 > line-ceiling cutoff against its own total line count, so `EC-6`'s `L54` and `SC-4`'s `L657` are comparable as percentages
 > rather than misleadingly compared as raw numbers, is planned as a third pass after those two._
 
+The heatmap below encodes truncation tier, not retrieval path, built directly from the `truncated` column in
+`results/vscode-codex-interpreted/results.csv`. Rows are reasoning level, with LLM version as a sub-grouping; `GPT-5.4` only
+has data for `EC-1`, `EC-3`, and `EC-6` and renders as empty cells elsewhere. Columns are ordered by content accessibility
+difficulty, same three tiers and same order as `T1`'s own heatmap.
+
+{% raw %}
+<div id="cdx-hm3-root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+
+<style>
+.cdx3-wrap { overflow-x: auto; }
+table.cdx3 { border-collapse: collapse; width: 100%; }
+table.cdx3 th { font-size: 10px; font-weight: 500; padding: 3px 4px; text-align: center; white-space: nowrap; color: inherit; }
+table.cdx3 th.cdx3-rh { text-align: left; }
+table.cdx3 th .cdx3-sub { font-weight: 400; font-size: 10px; opacity: 0.55; display: block; }
+table.cdx3 td { padding: 2px 2px; text-align: center; }
+table.cdx3 td.cdx3-rl { font-size: 11px; text-align: left; padding-left: 0; white-space: nowrap; font-weight: 400; padding-right: 6px; color: inherit; vertical-align: middle; }
+table.cdx3 td.cdx3-rl.cdx3-model { font-size: 10px; opacity: 0.65; padding-left: 8px; }
+.cdx3-hint { font-size: 11px; opacity: 0.5; margin-top: 6px; cursor: pointer; color: inherit; }
+.cdx3-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.78);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.cdx3-overlay-inner {
+  border-radius: 10px; padding: 22px 26px;
+  max-width: 99vw; max-height: 93vh;
+  overflow: auto; position: relative;
+}
+.cdx3-close {
+  position: absolute; top: 10px; right: 12px;
+  background: none; border: none; font-size: 20px;
+  cursor: pointer; opacity: 0.5; line-height: 1;
+}
+.cdx3-close:hover { opacity: 1; }
+.cdx3-section-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
+  opacity: 0.45; padding: 6px 0 2px 0; text-align: left;
+}
+.cdx3-divider td { border-top: 1px solid rgba(128,128,128,0.18); height: 4px; }
+</style>
+
+<script>
+(function() {
+  var e = React.createElement;
+
+  function detectDark() {
+    var t = document.documentElement.getAttribute('data-theme');
+    if (t === 'dark') return true;
+    if (t === 'light') return false;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  // Columns ordered by content accessibility difficulty, same order as T1's heatmap:
+  // clean static → large static → JS-rendered/SPA
+  var cols = [
+    {id:'EC-3',  l1:'EC-3',  l2:'254-660 B', tier:'readable', note:'Redirect JSON — tiny payload, truncation untestable at this size'},
+    {id:'BL-2',  l1:'BL-2',  l2:'5.8 KB',    tier:'readable', note:'Raw Markdown — stable 5,805 chars across all 8 runs, no truncation'},
+    {id:'EC-6',  l1:'EC-6',  l2:'92 KB',     tier:'readable', note:'Raw GitHub Markdown — L54 web.open cutoff replicates in 10/13 runs'},
+    {id:'SC-4',  l1:'SC-4',  l2:'65 KB',     tier:'readable', note:'Markdown Guide — L657 of 752 ceiling on GPT-5.5 runs'},
+    {id:'SC-1',  l1:'SC-1',  l2:'125 KB',    tier:'readable', note:'Gemini API docs — widest per-model retrieval strategy spread in the corpus'},
+    {id:'BL-1',  l1:'BL-1',  l2:'509 KB',    tier:'large',    note:'MongoDB docs — L420 ceiling mostly holds, one L119 outlier'},
+    {id:'OP-2',  l1:'OP-2',  l2:'242 KB',    tier:'large',    note:'MDN Array — line ceiling splits by model, ~L317 vs ~L590'},
+    {id:'OP-1',  l1:'OP-1',  l2:'740 KB',    tier:'large',    note:'Wikipedia + #fragment — fragment always dropped; clean L304/L556 model split'},
+    {id:'SC-3',  l1:'SC-3',  l2:'786 KB',    tier:'large',    note:'Wikipedia population table — L353 ceiling near-universal across models'},
+    {id:'OP-4',  l1:'OP-4',  l2:'514 KB',    tier:'large',    note:'CommonMark spec — two clean clusters, L237 vs L616'},
+    {id:'EC-1',  l1:'EC-1',  l2:'120 KB',    tier:'spa',      note:'Gemini API SPA — one task failure, one headless-Chrome recovery run'},
+    {id:'BL-3',  l1:'BL-3',  l2:'4.5-4.85 MB', tier:'spa',    note:'MongoDB Vector Search tutorial, T2 replacement URL — Cache Miss in 8/8 web attempts'},
+    {id:'SC-2',  l1:'SC-2',  l2:'578 KB',    tier:'spa',      note:'Anthropic API docs — Next.js shell, prose absent; 134,804-token display truncation marker'},
+  ];
+
+  var LEVELS = ['L','M','H','XH'];
+  var MODELS = ['5.4m','5.4','5.5'];
+
+  var MODEL_LABELS = {
+    '5.4m': 'GPT-5.4-Mini',
+    '5.4':  'GPT-5.4',
+    '5.5':  'GPT-5.5',
+  };
+  var LEVEL_LABELS = { L:'Light', M:'Medium', H:'High', XH:'Extra High' };
+
+  // Truncation tier per run, sourced from results/vscode-codex-interpreted/results.csv `truncated` column.
+  // One correction applied: SC-2's 5th row has model_observed mislabeled as GPT-5.4-Mini/Extra High in the
+  // CSV; its notes, tools, and output figures match GPT-5.5 Low exactly, so it's keyed here as 5.5:L.
+  // Where a cell had two rows (a failed attempt plus a completed retry, or an accidental duplicate run),
+  // the completed/first run is used here; see the Emergent Findings and Log Label Summary in the matching
+  // test ID doc for the other run.
+  var runs = {
+    'EC-3': {
+      '5.4m:L':'no','5.4m:M':'no','5.4m:H':'no','5.4m:XH':'no',
+      '5.4:L':'no','5.4:M':'no','5.4:H':'no','5.4:XH':'mixed',
+      '5.5:L':'no','5.5:M':'no','5.5:H':'no','5.5:XH':'no',
+    },
+    'BL-2': {
+      '5.4m:L':'no','5.4m:M':'no','5.4m:H':'no','5.4m:XH':'no',
+      '5.5:L':'no','5.5:M':'no','5.5:H':'no','5.5:XH':'no',
+    },
+    'EC-6': {
+      '5.4m:L':'no','5.4m:M':'mixed','5.4m:H':'mixed','5.4m:XH':'yes',
+      '5.4:L':'mixed','5.4:M':'mixed','5.4:H':'yes','5.4:XH':'yes',
+      '5.5:L':'mixed','5.5:M':'mixed','5.5:H':'mixed','5.5:XH':'mixed',
+    },
+    'SC-4': {
+      '5.4m:L':'no','5.4m:M':'implicit','5.4m:H':'mixed','5.4m:XH':'mixed',
+      '5.5:L':'yes','5.5:M':'mixed','5.5:H':'mixed','5.5:XH':'mixed',
+    },
+    'SC-1': {
+      '5.4m:L':'no','5.4m:M':'implicit','5.4m:H':'mixed','5.4m:XH':'implicit',
+      '5.5:L':'implicit','5.5:M':'mixed','5.5:H':'implicit','5.5:XH':'implicit',
+    },
+    'BL-1': {
+      '5.4m:L':'mixed','5.4m:M':'mixed','5.4m:H':'mixed','5.4m:XH':'mixed',
+      '5.5:L':'mixed','5.5:M':'yes','5.5:H':'mixed','5.5:XH':'yes',
+    },
+    'OP-2': {
+      '5.4m:L':'implicit','5.4m:M':'yes','5.4m:H':'yes','5.4m:XH':'implicit',
+      '5.5:L':'yes','5.5:M':'mixed','5.5:H':'mixed','5.5:XH':'mixed',
+    },
+    'OP-1': {
+      '5.4m:L':'implicit','5.4m:M':'yes','5.4m:H':'implicit','5.4m:XH':'mixed',
+      '5.5:L':'yes','5.5:M':'mixed','5.5:H':'no','5.5:XH':'yes',
+    },
+    'SC-3': {
+      '5.4m:L':'yes','5.4m:M':'yes','5.4m:H':'mixed','5.4m:XH':'mixed',
+      '5.5:L':'yes','5.5:M':'mixed','5.5:H':'implicit','5.5:XH':'yes',
+    },
+    'OP-4': {
+      '5.4m:L':'no','5.4m:M':'mixed','5.4m:H':'yes','5.4m:XH':'mixed',
+      '5.5:L':'mixed','5.5:M':'mixed','5.5:H':'mixed','5.5:XH':'no',
+    },
+    'EC-1': {
+      '5.4m:L':'no','5.4m:M':'implicit','5.4m:H':'mixed','5.4m:XH':'no',
+      '5.4:L':'implicit','5.4:M':'mixed','5.4:H':'mixed','5.4:XH':'yes',
+      '5.5:L':'no','5.5:M':'no','5.5:H':'no','5.5:XH':'implicit',
+    },
+    'BL-3': {
+      '5.4m:L':'no','5.4m:M':'no','5.4m:H':'implicit','5.4m:XH':'no',
+      '5.5:L':'mixed','5.5:M':'no','5.5:H':'no','5.5:XH':'no',
+    },
+    'SC-2': {
+      '5.4m:L':'yes','5.4m:M':'no','5.4m:H':'mixed','5.4m:XH':'mixed',
+      '5.5:L':'mixed','5.5:M':'yes','5.5:H':'mixed','5.5:XH':'yes',
+    },
+  };
+
+  var SURFACE_NOTE = {
+    'no':       'no truncation signal, curl-complete or payload too small to test',
+    'implicit': 'escalated to curl without naming the web.open limit',
+    'mixed':    'both paths used, web.open limits explicitly named',
+    'yes':      'web.open hit, truncation reported explicitly',
+  };
+
+  function getColors(dark, tier) {
+    // no       → green  — no truncation signal, best outcome
+    // implicit → amber  — escalated without naming the limit, self-report gap
+    // mixed    → blue   — both paths used, most transparent self-report
+    // yes      → pink   — web.open hit and reported, least complete outcome
+    var map = {
+      'no':       { bg: dark ? '#0F6E56' : '#1D9E75', fg: '#fff',                       label: 'N' },
+      'implicit': { bg: dark ? '#cba452' : '#FFB74D', fg: dark ? '#412402' : '#412402', label: 'I' },
+      'mixed':    { bg: dark ? '#185FA5' : '#378ADD', fg: '#fff',                       label: 'M' },
+      'yes':      { bg: dark ? '#A32D2D' : '#F06292', fg: '#fff',                       label: 'Y' },
+    };
+    return map[tier] || { bg: dark ? '#363634' : '#d0cec7', fg: 'inherit', label: '' };
+  }
+
+  function getTierHeaderBg(dark, tier) {
+    if (tier === 'readable') return dark ? 'rgba(0,120,80,0.12)' : 'rgba(0,160,100,0.07)';
+    if (tier === 'large')    return dark ? 'rgba(30,80,160,0.12)' : 'rgba(40,100,200,0.07)';
+    if (tier === 'spa')      return dark ? 'rgba(140,0,0,0.15)'   : 'rgba(200,30,30,0.07)';
+    return 'transparent';
+  }
+
+  function getTierLabel(tier) {
+    if (tier === 'readable') return 'Readable Static';
+    if (tier === 'large')    return 'Large Static HTML';
+    if (tier === 'spa')      return 'JS-rendered / SPA';
+    return '';
+  }
+
+  function LegendTable(props) {
+    var dark = props.isDark;
+    var tc = props.textColor || 'inherit';
+    var cs = {fontFamily:'monospace', fontSize:10,
+      background:'rgba(128,128,128,0.15)', borderRadius:2, padding:'1px 3px'};
+    var C = function(t) { return e('code', {style:cs}, t); };
+    var items = [
+      { tier: 'no',       desc: ['No truncation signal, ', C('curl'), '-complete or payload too small to test'] },
+      { tier: 'implicit', desc: ['Escalated to ', C('curl'), ' without naming the ', C('web.open'), ' limit'] },
+      { tier: 'mixed',    desc: ['Both paths used, ', C('web.open'), ' limits explicitly named'] },
+      { tier: 'yes',      desc: [C('web.open'), ' hit, truncation reported explicitly'] },
+    ];
+    return e('table', {style:{borderCollapse:'collapse', fontSize:11, marginTop:0}},
+      e('tbody', null, items.map(function(item) {
+        var c = getColors(dark, item.tier);
+        return e('tr', {key:item.tier},
+          e('td', {style:{paddingRight:8, paddingBottom:4, verticalAlign:'middle'}},
+            e('span', {style:{
+              display:'inline-flex', alignItems:'center', justifyContent:'center',
+              width:32, height:16, borderRadius:3,
+              background:c.bg, color:c.fg, fontSize:10, fontWeight:600
+            }}, c.label)
+          ),
+          e('td', {style:{paddingBottom:4, color:tc, opacity:0.8}}, item.desc)
+        );
+      }))
+    );
+  }
+
+  function NoteBlock(props) {
+    var tc = props.textColor || 'inherit';
+    var cs = {fontFamily:'monospace', fontSize:10,
+      background:'rgba(128,128,128,0.15)', borderRadius:2, padding:'1px 3px'};
+    var C = function(t) { return e('code', {style:cs}, t); };
+    return e('p', {style:{fontSize:11, marginTop:8, lineHeight:1.6, opacity:0.65, color:tc}},
+      e('i', null,
+        'Columns grouped left-to-right by content accessibility: static pages where either path returns readable content; large static HTML where ', C('web.open'), ' truncates but ', C('curl'), ' is readable; JS-rendered or SPAs where ', C('curl'), ' returns a text-less shell. ',
+        C('N'), ' = no truncation; ', C('I'), ' = implicit; ', C('M'), ' = mixed; ', C('Y'), ' = yes. ',
+        C('GPT-5.4'), ' only ran ', C('EC-1'), ', ', C('EC-3'), ', and ', C('EC-6'), ', and renders as empty cells elsewhere. ',
+        C('SC-3'), ' has 9 runs; the failed capacity-error attempt is folded into its completed retry\'s cell. Hover over cells for details.'
+      )
+    );
+  }
+
+  function HeatmapTable(props) {
+    var dark = props.isDark;
+    var large = props.large;
+    var tc = props.textColor || 'inherit';
+    var cellW  = large ? 52  : 38;
+    var cellH  = large ? 30  : 24;
+    var labelW = large ? 110 : 86;
+    var fs     = large ? 11  : 10;
+
+    var rows = [];
+    LEVELS.forEach(function(level) {
+      rows.push({ type: 'level-header', level: level });
+      MODELS.forEach(function(model) {
+        rows.push({ type: 'data', model: model, level: level, key: model + ':' + level });
+      });
+    });
+
+    return e('div', {className:'cdx3-wrap'},
+      e('table', {className:'cdx3'},
+        e('thead', null,
+          e('tr', null,
+            e('th', {className:'cdx3-rh', style:{minWidth:labelW, color:tc}},
+              'LLM / Intelligence'
+            ),
+            cols.map(function(col) {
+              return e('th', {key:col.id, title:col.note,
+                style:{color:tc, background:getTierHeaderBg(dark, col.tier)}},
+                col.l1,
+                e('span', {className:'cdx3-sub'}, col.l2)
+              );
+            })
+          ),
+          e('tr', null,
+            e('th', {className:'cdx3-rh', style:{color:tc, fontSize:9, opacity:0.4,
+              fontWeight:400, paddingBottom:4}},''),
+            (function() {
+              var groups = [];
+              cols.forEach(function(col) {
+                if (!groups.length || groups[groups.length-1].tier !== col.tier) {
+                  groups.push({tier:col.tier, count:1});
+                } else {
+                  groups[groups.length-1].count++;
+                }
+              });
+              return groups.map(function(g, i) {
+                return e('th', {key:'tier-'+g.tier+i, colSpan:g.count,
+                  style:{fontSize:9, opacity:0.55, fontWeight:600,
+                    textAlign:'center', color:tc,
+                    background:getTierHeaderBg(dark, g.tier),
+                    borderTop:'1px solid rgba(128,128,128,0.15)',
+                    letterSpacing:'0.04em'}},
+                  getTierLabel(g.tier)
+                );
+              });
+            })()
+          )
+        ),
+        e('tbody', null,
+          rows.map(function(row) {
+            if (row.type === 'level-header') {
+              return e('tr', {key:'lh-'+row.level,
+                style:{borderTop:'1.5px solid rgba(128,128,128,0.22)'}},
+                e('td', {colSpan: cols.length + 1,
+                  style:{fontSize:10, fontWeight:700, letterSpacing:'0.07em',
+                    opacity:0.55, paddingTop:5, paddingBottom:1,
+                    textTransform:'uppercase', textAlign:'center', color:tc}},
+                  LEVEL_LABELS[row.level]
+                )
+              );
+            }
+
+            var rowKey = row.key;
+            return e('tr', {key:rowKey},
+              e('td', {className:'cdx3-rl cdx3-model', style:{color:tc, maxWidth:labelW, width:labelW}},
+                MODEL_LABELS[row.model]
+              ),
+              cols.map(function(col) {
+                var tier = (runs[col.id] || {})[rowKey];
+                if (!tier) {
+                  return e('td', {key:col.id},
+                    e('div', {style:{
+                      width:cellW, height:cellH, margin:'1px auto',
+                      borderRadius:3,
+                      background: dark ? '#2a2a28' : '#e0e0de'
+                    }})
+                  );
+                }
+                var c = getColors(dark, tier);
+                var tip = col.l1 + ' · ' + MODEL_LABELS[row.model] + ' ' +
+                  LEVEL_LABELS[row.level] + '\n' + SURFACE_NOTE[tier];
+                return e('td', {key:col.id,
+                  style:{background:getTierHeaderBg(dark, col.tier)}},
+                  e('div', {title:tip, style:{
+                    borderRadius:3, fontSize:fs, fontWeight:700,
+                    display:'flex', alignItems:'center', justifyContent:'center',
+                    width:cellW, height:cellH, margin:'1px auto',
+                    background:c.bg, color:c.fg, cursor:'help'
+                  }}, c.label)
+                );
+              })
+            );
+          })
+        )
+      )
+    );
+  }
+
+  function App() {
+    var openState = React.useState(false);
+    var isOpen = openState[0];
+    var setOpen = openState[1];
+    var dark = detectDark();
+    var lbBg   = dark ? '#1c1c1a' : '#ffffff';
+    var lbText = dark ? '#e8e6df' : '#1a1a18';
+
+    React.useEffect(function() {
+      function onKey(ev) { if (ev.key === 'Escape') setOpen(false); }
+      if (isOpen) {
+        document.addEventListener('keydown', onKey);
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
+      return function() {
+        document.removeEventListener('keydown', onKey);
+        document.body.style.overflow = '';
+      };
+    }, [isOpen]);
+
+    return e('div', {style:{marginTop:'1.5rem', fontFamily:'inherit'}},
+      e('div', {onClick:function(){ setOpen(true); }, style:{cursor:'pointer'}},
+        e(HeatmapTable, {isDark:dark, large:false}),
+        e('p', {className:'cdx3-hint'}, '\u2197 click to expand')
+      ),
+      e('div', {style:{display:'flex', gap:28, alignItems:'flex-start',
+        flexWrap:'wrap', marginTop:10, justifyContent:'center'}},
+        e('div', {style:{flexShrink:0}}, e(LegendTable, {isDark:dark})),
+        e('div', {style:{flex:1, maxWidth:460}}, e(NoteBlock, {isDark:dark}))
+      ),
+      isOpen && e('div', {
+        className:'cdx3-overlay',
+        onClick:function(ev){ if (ev.target===ev.currentTarget) setOpen(false); }
+      },
+        e('div', {className:'cdx3-overlay-inner',
+          style:{background:lbBg, color:lbText, width:'99vw'}},
+          e('button', {className:'cdx3-close', style:{color:lbText},
+            onClick:function(){ setOpen(false); }, 'aria-label':'Close'}, '\u00d7'),
+          e(HeatmapTable, {isDark:dark, large:true, textColor:lbText}),
+          e('div', {style:{display:'flex', gap:28, alignItems:'flex-start',
+            flexWrap:'wrap', marginTop:10, justifyContent:'center'}},
+            e('div', {style:{flexShrink:0}}, e(LegendTable, {isDark:dark, textColor:lbText})),
+            e('div', {style:{flex:1, maxWidth:460}}, e(NoteBlock, {isDark:dark, textColor:lbText}))
+          )
+        )
+      )
+    );
+  }
+
+  var root = ReactDOM.createRoot(document.getElementById('cdx-hm3-root'));
+  root.render(e(App));
+})();
+</script>
+{% endraw %}
+
+The second heatmap encodes retrieval path, built from `tools_named` cross-checked against `output_chars`: a tool listed as attempted only counts if the reported output actually traces back to it, since `tools_named` is itself an agent self-report and sometimes under-reports what was used. `python3 urllib` and headless Chrome get their own categories, `web+python` and `browser`, rather than folding into `curl`, since which tool an agent reaches for is a real behavioral signal, not a cosmetic difference. One cell, `SC-2`'s `GPT-5.4-Mini High`, is marked `incomplete` rather than classified, since that run never finished its report and the fields that would otherwise corroborate it are just as self-reported as the gap they'd be covering for.
+
+{% raw %}
+<div id="cdx-hm4-root"></div>
+
+<style>
+.cdx4-wrap { overflow-x: auto; }
+table.cdx4 { border-collapse: collapse; width: 100%; }
+table.cdx4 th { font-size: 10px; font-weight: 500; padding: 3px 4px; text-align: center; white-space: nowrap; color: inherit; }
+table.cdx4 th.cdx4-rh { text-align: left; }
+table.cdx4 th .cdx4-sub { font-weight: 400; font-size: 10px; opacity: 0.55; display: block; }
+table.cdx4 td { padding: 2px 2px; text-align: center; }
+table.cdx4 td.cdx4-rl { font-size: 11px; text-align: left; padding-left: 0; white-space: nowrap; font-weight: 400; padding-right: 6px; color: inherit; vertical-align: middle; }
+table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left: 8px; }
+.cdx4-hint { font-size: 11px; opacity: 0.5; margin-top: 6px; cursor: pointer; color: inherit; }
+.cdx4-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.78);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.cdx4-overlay-inner {
+  border-radius: 10px; padding: 22px 26px;
+  max-width: 99vw; max-height: 93vh;
+  overflow: auto; position: relative;
+}
+.cdx4-close {
+  position: absolute; top: 10px; right: 12px;
+  background: none; border: none; font-size: 20px;
+  cursor: pointer; opacity: 0.5; line-height: 1;
+}
+.cdx4-close:hover { opacity: 1; }
+</style>
+
+<script>
+(function() {
+  var e = React.createElement;
+
+  function detectDark() {
+    var t = document.documentElement.getAttribute('data-theme');
+    if (t === 'dark') return true;
+    if (t === 'light') return false;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  var cols = [
+    {id:'EC-3',  l1:'EC-3',  l2:'254-660 B', tier:'readable', note:'Redirect JSON — both paths return usable content, distinction is which path is reported'},
+    {id:'BL-2',  l1:'BL-2',  l2:'5.8 KB',    tier:'readable', note:'Raw Markdown — curl dominant, 7 of 8 runs escalate for a payload this small'},
+    {id:'EC-6',  l1:'EC-6',  l2:'92 KB',     tier:'readable', note:'Raw GitHub Markdown — two GPT-5.4 High/Extra High runs never touch curl at all'},
+    {id:'SC-4',  l1:'SC-4',  l2:'65 KB',     tier:'readable', note:'Markdown Guide — one run used python3 urllib in place of curl, its own category here'},
+    {id:'SC-1',  l1:'SC-1',  l2:'125 KB',    tier:'readable', note:'Gemini API docs — widest per-model strategy spread, all four GPT-5.4-Mini levels differ'},
+    {id:'BL-1',  l1:'BL-1',  l2:'509 KB',    tier:'large',    note:'MongoDB docs — curl succeeds in 6 of 8 runs'},
+    {id:'OP-2',  l1:'OP-2',  l2:'242 KB',    tier:'large',    note:'MDN Array — curl succeeds in only 4 of 8, several curl attempts fail without escalation'},
+    {id:'OP-1',  l1:'OP-1',  l2:'740 KB',    tier:'large',    note:'Wikipedia + #fragment — curl succeeds in 3 of 8; one run converts full HTML via xmllint/pandoc/lynx'},
+    {id:'SC-3',  l1:'SC-3',  l2:'786 KB',    tier:'large',    note:'Wikipedia population table — curl succeeds in 4 of 8 canonical cells'},
+    {id:'OP-4',  l1:'OP-4',  l2:'514 KB',    tier:'large',    note:'CommonMark spec — GPT-5.5 Medium and Extra High bypass web entirely'},
+    {id:'EC-1',  l1:'EC-1',  l2:'120 KB',    tier:'spa',      note:'Gemini API SPA — one total failure, one headless-Chrome recovery via Playwright, its own category here'},
+    {id:'BL-3',  l1:'BL-3',  l2:'4.5-4.85 MB', tier:'spa',    note:'MongoDB Vector Search tutorial, T2 replacement URL — one total failure, one python3-urllib recovery'},
+    {id:'SC-2',  l1:'SC-2',  l2:'578 KB',    tier:'spa',      note:'Anthropic API docs — curl succeeds in 5 of 8; one run never finished its report, marked incomplete rather than guessed at'},
+  ];
+
+  var LEVELS = ['L','M','H','XH'];
+  var MODELS = ['5.4m','5.4','5.5'];
+
+  var MODEL_LABELS = { '5.4m': 'GPT-5.4-Mini', '5.4': 'GPT-5.4', '5.5': 'GPT-5.5' };
+  var LEVEL_LABELS = { L:'Light', M:'Medium', H:'High', XH:'Extra High' };
+
+  // Retrieval path per run, classified by tracing output_chars back to the tool that actually produced it,
+  // not by which tools appear in tools_named, since that field is itself agent self-reported and sometimes
+  // under-reports a tool that was actually used. python3 urllib (SC-4's GPT-5.4-Mini Light, BL-3's
+  // GPT-5.4-Mini Extra High) and headless Chrome via Playwright (EC-1's GPT-5.4-Mini High) get their own
+  // categories rather than folding into curl/web+curl; the mechanism is a genuinely different signal about
+  // what the agent reached for, not a cosmetic difference in tool name. SC-2's GPT-5.4-Mini High never
+  // finished its report, so its output_chars and truncation_note are just as self-reported as the
+  // tools_named gap they'd otherwise be used to override; it's marked incomplete rather than guessed at.
+  // Same duplicate-cell handling as the truncation-tier grid.
+  var runs = {
+    'EC-3': {
+      '5.4m:L':'web','5.4m:M':'web+curl','5.4m:H':'web+curl','5.4m:XH':'web',
+      '5.4:L':'web','5.4:M':'web','5.4:H':'web','5.4:XH':'web',
+      '5.5:L':'web','5.5:M':'web','5.5:H':'web','5.5:XH':'web',
+    },
+    'BL-2': {
+      '5.4m:L':'web+curl','5.4m:M':'web+curl','5.4m:H':'web+curl','5.4m:XH':'web+curl',
+      '5.5:L':'web+curl','5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':'curl',
+    },
+    'EC-6': {
+      '5.4m:L':'curl','5.4m:M':'web+curl','5.4m:H':'web+curl','5.4m:XH':'web',
+      '5.4:L':'web+curl','5.4:M':'web+curl','5.4:H':'web','5.4:XH':'web',
+      '5.5:L':'web+curl','5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':'web+curl',
+    },
+    'SC-4': {
+      '5.4m:L':'web+python','5.4m:M':'web','5.4m:H':'web+curl','5.4m:XH':'web+curl',
+      '5.5:L':'web','5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':'web+curl',
+    },
+    'SC-1': {
+      '5.4m:L':'web+curl','5.4m:M':'web','5.4m:H':'web','5.4m:XH':'web',
+      '5.5:L':'web','5.5:M':'curl','5.5:H':'web+curl','5.5:XH':'web',
+    },
+    'BL-1': {
+      '5.4m:L':'web+curl','5.4m:M':'web+curl','5.4m:H':'web+curl','5.4m:XH':'web+curl',
+      '5.5:L':'web+curl','5.5:M':'web','5.5:H':'web+curl','5.5:XH':'web',
+    },
+    'OP-2': {
+      '5.4m:L':'web','5.4m:M':'web','5.4m:H':'web','5.4m:XH':'web+curl',
+      '5.5:L':'web','5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':'web+curl',
+    },
+    'OP-1': {
+      '5.4m:L':'web','5.4m:M':'web','5.4m:H':'web','5.4m:XH':'web+curl',
+      '5.5:L':'web','5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':'web',
+    },
+    'SC-3': {
+      '5.4m:L':'web','5.4m:M':'web','5.4m:H':'web+curl','5.4m:XH':'web+curl',
+      '5.5:L':'web','5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':'web',
+    },
+    'OP-4': {
+      '5.4m:L':'web','5.4m:M':'web+curl','5.4m:H':'web','5.4m:XH':'web+curl',
+      '5.5:L':'web+curl','5.5:M':'curl','5.5:H':'web+curl','5.5:XH':'curl',
+    },
+    'EC-1': {
+      '5.4m:L':'none','5.4m:M':'web','5.4m:H':'browser','5.4m:XH':'web+curl',
+      '5.4:L':'web+curl','5.4:M':'web+curl','5.4:H':'web+curl','5.4:XH':'web',
+      '5.5:L':'web+curl','5.5:M':'curl','5.5:H':'curl','5.5:XH':'web',
+    },
+    'BL-3': {
+      '5.4m:L':'none','5.4m:M':'web+curl','5.4m:H':'web','5.4m:XH':'web+python',
+      '5.5:L':'web+curl','5.5:M':'curl','5.5:H':'curl','5.5:XH':'web+curl',
+    },
+    'SC-2': {
+      '5.4m:L':'web','5.4m:M':'curl','5.4m:H':'incomplete','5.4m:XH':'web+curl',
+      '5.5:L':'web+curl','5.5:M':'web','5.5:H':'web+curl','5.5:XH':'web',
+    },
+  };
+
+  var SURFACE_NOTE = {
+    'web':        'web.open only, output traces to the rendered extraction',
+    'web+curl':   'output traces to a full-body fetch via curl, web.open also attempted',
+    'curl':       'output traces to a full-body fetch via curl, web.open not attempted',
+    'web+python': 'output traces to a full-body fetch via python3 urllib, web.open also attempted',
+    'browser':    'output traces to headless-Chrome browser automation via Playwright, after curl and other paths failed',
+    'incomplete': 'run ended without a finished report; self-reported fields conflict or can\'t be independently confirmed',
+    'none':       'no usable content retrieved on any path',
+  };
+
+  function getColors(dark, path) {
+    var map = {
+      'web':        { bg: dark ? '#0F6E56' : '#1D9E75', fg: '#fff',                       label: 'W'   },
+      'web+curl':   { bg: dark ? '#185FA5' : '#378ADD', fg: '#fff',                       label: 'W+C' },
+      'curl':       { bg: dark ? '#cba452' : '#FFB74D', fg: dark ? '#412402' : '#412402', label: 'C'   },
+      'web+python': { bg: dark ? '#0e7a8c' : '#26b8cf', fg: '#fff',                       label: 'W+P' },
+      'browser':    { bg: dark ? '#5b3a9e' : '#9575cd', fg: '#fff',                       label: 'B'   },
+      'incomplete': { bg: dark ? '#4a4a48' : '#c4c2ba', fg: dark ? '#c4c2ba' : '#4a4a48', label: '?'   },
+      'none':       { bg: dark ? '#D4537E' : '#FF8A65', fg: '#fff',                       label: '✗'   },
+    };
+    return map[path] || { bg: dark ? '#363634' : '#d0cec7', fg: 'inherit', label: '' };
+  }
+
+  function getTierHeaderBg(dark, tier) {
+    if (tier === 'readable') return dark ? 'rgba(0,120,80,0.12)' : 'rgba(0,160,100,0.07)';
+    if (tier === 'large')    return dark ? 'rgba(30,80,160,0.12)' : 'rgba(40,100,200,0.07)';
+    if (tier === 'spa')      return dark ? 'rgba(140,0,0,0.15)'   : 'rgba(200,30,30,0.07)';
+    return 'transparent';
+  }
+
+  function getTierLabel(tier) {
+    if (tier === 'readable') return 'Readable Static';
+    if (tier === 'large')    return 'Large Static HTML';
+    if (tier === 'spa')      return 'JS-rendered / SPA';
+    return '';
+  }
+
+  function LegendTable(props) {
+    var dark = props.isDark;
+    var tc = props.textColor || 'inherit';
+    var cs = {fontFamily:'monospace', fontSize:10,
+      background:'rgba(128,128,128,0.15)', borderRadius:2, padding:'1px 3px'};
+    var C = function(t) { return e('code', {style:cs}, t); };
+    var items = [
+      { path: 'web',        desc: [C('web.open'), ' only, output traces to the rendered extraction'] },
+      { path: 'web+curl',   desc: ['Output traces to a full-body fetch via ', C('curl'), ', ', C('web.open'), ' also attempted'] },
+      { path: 'curl',       desc: ['Output traces to a full-body fetch via ', C('curl'), ', ', C('web.open'), ' not attempted'] },
+      { path: 'web+python', desc: ['Output traces to a full-body fetch via ', C('python3 urllib'), ' instead of ', C('curl')] },
+      { path: 'browser',    desc: ['Output traces to headless-Chrome browser automation, after ', C('curl'), ' failed'] },
+      { path: 'incomplete', desc: ['Run never finished its report; self-reported fields conflict or can\'t be confirmed'] },
+      { path: 'none',       desc: ['No usable content retrieved on any path'] },
+    ];
+    return e('table', {style:{borderCollapse:'collapse', fontSize:11, marginTop:0}},
+      e('tbody', null, items.map(function(item) {
+        var c = getColors(dark, item.path);
+        return e('tr', {key:item.path},
+          e('td', {style:{paddingRight:8, paddingBottom:4, verticalAlign:'middle'}},
+            e('span', {style:{
+              display:'inline-flex', alignItems:'center', justifyContent:'center',
+              width:32, height:16, borderRadius:3,
+              background:c.bg, color:c.fg, fontSize:10, fontWeight:600
+            }}, c.label)
+          ),
+          e('td', {style:{paddingBottom:4, color:tc, opacity:0.8}}, item.desc)
+        );
+      }))
+    );
+  }
+
+  function NoteBlock(props) {
+    var tc = props.textColor || 'inherit';
+    var cs = {fontFamily:'monospace', fontSize:10,
+      background:'rgba(128,128,128,0.15)', borderRadius:2, padding:'1px 3px'};
+    var C = function(t) { return e('code', {style:cs}, t); };
+    return e('p', {style:{fontSize:11, marginTop:8, lineHeight:1.6, opacity:0.65, color:tc}},
+      e('i', null,
+        C('W'), ' = ', C('web.open'), ' only; ', C('W+C'), ' = both attempted, output from a full curl fetch; ',
+        C('C'), ' = full curl fetch, ', C('web.open'), ' not attempted; ', C('W+P'), ' = full fetch via ', C('python3 urllib'), ' instead of ', C('curl'), '; ',
+        C('B'), ' = headless-Chrome browser automation; ', C('?'), ' = incomplete run, classification withheld rather than guessed; ',
+        C('\u2717'), ' = no usable content on any path. ',
+        C('GPT-5.4'), ' only ran ', C('EC-1'), ', ', C('EC-3'), ', and ', C('EC-6'), ', empty cells elsewhere. ',
+        'No run in this corpus produced a clean "', C('web'), ' attempted and failed, nothing else tried" case; every near-zero output either had real uncounted ', C('web.open'), ' content or was a total multi-tool failure. Hover cells for the specific mechanism.'
+      )
+    );
+  }
+
+  function HeatmapTable(props) {
+    var dark = props.isDark;
+    var large = props.large;
+    var tc = props.textColor || 'inherit';
+    var cellW  = large ? 52  : 38;
+    var cellH  = large ? 30  : 24;
+    var labelW = large ? 110 : 86;
+    var fs     = large ? 11  : 10;
+
+    var rows = [];
+    LEVELS.forEach(function(level) {
+      rows.push({ type: 'level-header', level: level });
+      MODELS.forEach(function(model) {
+        rows.push({ type: 'data', model: model, level: level, key: model + ':' + level });
+      });
+    });
+
+    return e('div', {className:'cdx4-wrap'},
+      e('table', {className:'cdx4'},
+        e('thead', null,
+          e('tr', null,
+            e('th', {className:'cdx4-rh', style:{minWidth:labelW, color:tc}}, 'LLM / Intelligence'),
+            cols.map(function(col) {
+              return e('th', {key:col.id, title:col.note,
+                style:{color:tc, background:getTierHeaderBg(dark, col.tier)}},
+                col.l1, e('span', {className:'cdx4-sub'}, col.l2)
+              );
+            })
+          ),
+          e('tr', null,
+            e('th', {className:'cdx4-rh', style:{color:tc, fontSize:9, opacity:0.4,
+              fontWeight:400, paddingBottom:4}},''),
+            (function() {
+              var groups = [];
+              cols.forEach(function(col) {
+                if (!groups.length || groups[groups.length-1].tier !== col.tier) {
+                  groups.push({tier:col.tier, count:1});
+                } else {
+                  groups[groups.length-1].count++;
+                }
+              });
+              return groups.map(function(g, i) {
+                return e('th', {key:'tier-'+g.tier+i, colSpan:g.count,
+                  style:{fontSize:9, opacity:0.55, fontWeight:600,
+                    textAlign:'center', color:tc,
+                    background:getTierHeaderBg(dark, g.tier),
+                    borderTop:'1px solid rgba(128,128,128,0.15)',
+                    letterSpacing:'0.04em'}},
+                  getTierLabel(g.tier)
+                );
+              });
+            })()
+          )
+        ),
+        e('tbody', null,
+          rows.map(function(row) {
+            if (row.type === 'level-header') {
+              return e('tr', {key:'lh-'+row.level,
+                style:{borderTop:'1.5px solid rgba(128,128,128,0.22)'}},
+                e('td', {colSpan: cols.length + 1,
+                  style:{fontSize:10, fontWeight:700, letterSpacing:'0.07em',
+                    opacity:0.55, paddingTop:5, paddingBottom:1,
+                    textTransform:'uppercase', textAlign:'center', color:tc}},
+                  LEVEL_LABELS[row.level]
+                )
+              );
+            }
+            var rowKey = row.key;
+            return e('tr', {key:rowKey},
+              e('td', {className:'cdx4-rl cdx4-model', style:{color:tc, maxWidth:labelW, width:labelW}},
+                MODEL_LABELS[row.model]
+              ),
+              cols.map(function(col) {
+                var path = (runs[col.id] || {})[rowKey];
+                if (!path) {
+                  return e('td', {key:col.id},
+                    e('div', {style:{
+                      width:cellW, height:cellH, margin:'1px auto',
+                      borderRadius:3,
+                      background: dark ? '#2a2a28' : '#e0e0de'
+                    }})
+                  );
+                }
+                var c = getColors(dark, path);
+                var tip = col.l1 + ' · ' + MODEL_LABELS[row.model] + ' ' +
+                  LEVEL_LABELS[row.level] + '\n' + SURFACE_NOTE[path];
+                return e('td', {key:col.id,
+                  style:{background:getTierHeaderBg(dark, col.tier)}},
+                  e('div', {title:tip, style:{
+                    borderRadius:3, fontSize:fs, fontWeight:700,
+                    display:'flex', alignItems:'center', justifyContent:'center',
+                    width:cellW, height:cellH, margin:'1px auto',
+                    background:c.bg, color:c.fg, cursor:'help',
+                    border: path === 'incomplete' ? '1.5px dashed ' + (dark ? '#8a8a86' : '#6a6a66') : 'none',
+                    opacity: path === 'incomplete' ? 0.85 : 1
+                  }}, c.label)
+                );
+              })
+            );
+          })
+        )
+      )
+    );
+  }
+
+  function App() {
+    var openState = React.useState(false);
+    var isOpen = openState[0];
+    var setOpen = openState[1];
+    var dark = detectDark();
+    var lbBg   = dark ? '#1c1c1a' : '#ffffff';
+    var lbText = dark ? '#e8e6df' : '#1a1a18';
+
+    React.useEffect(function() {
+      function onKey(ev) { if (ev.key === 'Escape') setOpen(false); }
+      if (isOpen) {
+        document.addEventListener('keydown', onKey);
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
+      return function() {
+        document.removeEventListener('keydown', onKey);
+        document.body.style.overflow = '';
+      };
+    }, [isOpen]);
+
+    return e('div', {style:{marginTop:'1.5rem', fontFamily:'inherit'}},
+      e('div', {onClick:function(){ setOpen(true); }, style:{cursor:'pointer'}},
+        e(HeatmapTable, {isDark:dark, large:false}),
+        e('p', {className:'cdx4-hint'}, '\u2197 click to expand')
+      ),
+      e('div', {style:{display:'flex', gap:28, alignItems:'flex-start',
+        flexWrap:'wrap', marginTop:10, justifyContent:'center'}},
+        e('div', {style:{flexShrink:0}}, e(LegendTable, {isDark:dark})),
+        e('div', {style:{flex:1, maxWidth:460}}, e(NoteBlock, {isDark:dark}))
+      ),
+      isOpen && e('div', {
+        className:'cdx4-overlay',
+        onClick:function(ev){ if (ev.target===ev.currentTarget) setOpen(false); }
+      },
+        e('div', {className:'cdx4-overlay-inner',
+          style:{background:lbBg, color:lbText, width:'99vw'}},
+          e('button', {className:'cdx4-close', style:{color:lbText},
+            onClick:function(){ setOpen(false); }, 'aria-label':'Close'}, '\u00d7'),
+          e(HeatmapTable, {isDark:dark, large:true, textColor:lbText}),
+          e('div', {style:{display:'flex', gap:28, alignItems:'flex-start',
+            flexWrap:'wrap', marginTop:10, justifyContent:'center'}},
+            e('div', {style:{flexShrink:0}}, e(LegendTable, {isDark:dark, textColor:lbText})),
+            e('div', {style:{flex:1, maxWidth:460}}, e(NoteBlock, {isDark:dark, textColor:lbText}))
+          )
+        )
+      )
+    );
+  }
+
+  var root = ReactDOM.createRoot(document.getElementById('cdx-hm4-root'));
+  root.render(e(App));
+})();
+</script>
+{% endraw %}
+
+> _A small-multiples chart normalizing each test ID's line-ceiling cutoff against its own total line count, so `EC-6`'s `L54`
+> and `SC-4`'s `L657` are comparable as percentages rather than raw numbers, remains the one planned visualization not yet
+> built._
+
 ---
 
 ## Truncation Analysis
