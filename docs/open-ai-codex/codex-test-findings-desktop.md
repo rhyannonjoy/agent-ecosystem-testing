@@ -11,7 +11,7 @@ parent: OpenAI Codex
 
 ## [Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search//scripts/framework.py)
 
-1. Run `python framework.py --test {test ID} --track codex-interpreted`
+1. Run `python scripts/framework.py --test {test ID} --track codex-interpreted`
 2. Review terminal output
 3. Copy the provided prompt asking agent to report on fetch results:
    character count, token estimate,<br>truncation status, content completeness,
