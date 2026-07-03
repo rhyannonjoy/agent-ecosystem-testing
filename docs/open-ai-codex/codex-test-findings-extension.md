@@ -60,36 +60,30 @@ parent: OpenAI Codex
 | **`curl` Escalation** | Dominant retrieval path; present 57%, in 68 / 119 runs |
 | **`web` Bypass** | `GPT-5.5` skipped `web` at least one reasoning level in `BL-3`, `EC-1`, `EC-6`, `OP-4`, `SC-1`;<br>`GPT-5.4-Mini`, `GPT-5.4` bypass occasionally, less consistently |
 
-_*Three-model roster reflects OpenAI's retirement of `GPT-5.2`, `GPT-5.3-Codex`, `GPT-5.4` between tracks; `GPT-5.4` reappeared for `EC` tests, analysis in [LLM Retirement](friction-note-interpreted-extension.md#llm-retirement)_
+_*Three-LLM roster reflects OpenAI's retirement of `GPT-5.2`, `GPT-5.3-Codex`, `GPT-5.4` between tracks; `GPT-5.4` reappeared for `EC` tests, analysis in [LLM Retirement](friction-note-interpreted-extension.md#llm-retirement)._
 
-## Content Access x Intelligence
+## Content Access x Reasoning
 
-As in `T1`, agentic task completion isn't a useful signal for page readability on `T2`. Retrieval strategy still governs content
-accessibility more than reasoning level does: `web` returns a line-indexed rendered extraction, and it's up to the agent
-to escalate past it, which most agents eventually did but not consistently. Where `T2` diverges from `T1` is in how tightly the
-`web` ceiling holds across models on several test IDs. `EC-6`'s identical `L54` cutoff across 10 of 13 runs, and `SC-2`'s and
-`SC-3`'s comparably tight `L139-140` and `L353` clusters, suggest the ceiling is set by page structure or a fixed extraction
-default at least as often as by the calling LLM, sharpening rather than overturning `T1`'s own model-version-correlated window
-finding from `OP-1` and `OP-2`, both of which still show real per-model splits within `T2` itself.
+As in [`T1`](codex-test-findings-desktop.md#content-access-x-intelligence), agentic task completion isn't a meaningful signal
+for page readability on `T2`. Retrieval strategy still governs content accessibility more than reasoning level does: `web`
+returns a line-indexed rendered extraction, and it's up to the agent to paginate through the prose or escalate past it,
+which most agents eventually did, but not consistently.
 
-The same three-tier grouping from `T1` still separates the 13 test IDs cleanly on content accessibility. `EC-3`, `BL-2`, `EC-6`,
-`SC-4`, and `SC-1` are readable static payloads where either retrieval path returns usable prose. `BL-1`, `OP-2`, `OP-1`, `SC-3`,
-and `OP-4` are large static HTML where `web` truncates but `curl` remains fully readable. `EC-1`, `BL-3`, and `SC-2` are
-JS-rendered or SPA pages where `curl` returns scaffolding rather than prose regardless of tool sophistication or reasoning
-level. `BL-3`'s specific URL changed between tracks after the original was retired, but the replacement lands in the identical
-accessibility tier, confirming the JS-rendered failure mode isn't tied to one specific page.
+`T2` diverges from `T1` in how tightly the `web` ceiling holds across LLMs. `EC-6`'s identical `L54` cutpoint across 10/13
+runs, and `SC-2`, `SC-3`'s comparably tight `L139-140` and `L353` clusters, show `web` setting ceilings by page structure or a
+fixed extraction default as much as LLM identity, suggesting a sharpening, not overturning, of `T1`'s LLM-dependent window
+finding, most explicit from `OP-1` and `OP-2`, which both still exhibit per-LLM splits across `T2`.
 
-> _A retrieval-path heatmap and a truncation-tier heatmap, mirroring `T1`'s visual but split into two grids rather than one
-> blended scheme, are planned as a follow-up to this section. The truncation-tier grid is buildable directly from each test
-> ID's `Truncated` column; the retrieval-path grid requires hand-classifying the fragmented `tools_named` field per run, since
-> it doesn't collapse into stable categories on its own. A separate small-multiples chart normalizing each test ID's
-> line-ceiling cutoff against its own total line count, so `EC-6`'s `L54` and `SC-4`'s `L657` are comparable as percentages
-> rather than misleadingly compared as raw numbers, is planned as a third pass after those two._
+The same three-tier grouping from `T1` split results regarding content accessibility. `EC-3`, `BL-2`, `EC-6`, `SC-4`, and `SC-1`
+remain readable static payloads where either retrieval path returns usable prose. `BL-1`, `OP-2`, `OP-1`, `SC-3`, and `OP-4`
+are large static HTML where `web` truncates, but `curl` consistently returns coherent responses. The JS-rendered or SPAs of
+`EC-1`, `BL-3`, and `SC-2` `curl` responses include scaffolding rather than prose regardless of tool sophistication or reasoning
+level. `BL-3`'s specific URL changed between tracks after the original's retirement, but the replacement lands in the identical
+accessibility tier, confirming that the JS-rendered failure mode isn't tied to one specific page.
 
-The heatmap below encodes truncation tier, not retrieval path, built directly from the `truncated` column in
-`results/vscode-codex-interpreted/results.csv`. Rows are reasoning level, with LLM version as a sub-grouping; `GPT-5.4` only
-has data for `EC-1`, `EC-3`, and `EC-6` and renders as empty cells elsewhere. Columns are ordered by content accessibility
-difficulty, same three tiers and same order as `T1`'s own heatmap.
+The heatmap below encodes truncation tier, not retrieval path. Rows are reasoning level, with LLM version as a sub-grouping.
+`GPT-5.4` only has data for `EC` tests and renders as empty cells elsewhere. Content accessibility difficulty determines
+column order, mirroring [`T1`'s heatmap](codex-test-findings-desktop.md#content-access-x-intelligence).
 
 {% raw %}
 <div id="cdx-hm3-root"></div>
@@ -105,7 +99,7 @@ table.cdx3 th.cdx3-rh { text-align: left; }
 table.cdx3 th .cdx3-sub { font-weight: 400; font-size: 10px; opacity: 0.55; display: block; }
 table.cdx3 td { padding: 2px 2px; text-align: center; }
 table.cdx3 td.cdx3-rl { font-size: 11px; text-align: left; padding-left: 0; white-space: nowrap; font-weight: 400; padding-right: 6px; color: inherit; vertical-align: middle; }
-table.cdx3 td.cdx3-rl.cdx3-model { font-size: 10px; opacity: 0.65; padding-left: 8px; }
+table.cdx3 td.cdx3-rl.cdx3-llm { font-size: 10px; opacity: 0.65; padding-left: 8px; }
 .cdx3-hint { font-size: 11px; opacity: 0.5; margin-top: 6px; cursor: pointer; color: inherit; }
 .cdx3-overlay {
   position: fixed; inset: 0; z-index: 9999;
@@ -145,18 +139,18 @@ table.cdx3 td.cdx3-rl.cdx3-model { font-size: 10px; opacity: 0.65; padding-left:
   // Columns ordered by content accessibility difficulty, same order as T1's heatmap:
   // clean static → large static → JS-rendered/SPA
   var cols = [
-    {id:'EC-3',  l1:'EC-3',  l2:'254-660 B', tier:'readable', note:'Redirect JSON — tiny payload, truncation untestable at this size'},
-    {id:'BL-2',  l1:'BL-2',  l2:'5.8 KB',    tier:'readable', note:'Raw Markdown — stable 5,805 chars across all 8 runs, no truncation'},
-    {id:'EC-6',  l1:'EC-6',  l2:'92 KB',     tier:'readable', note:'Raw GitHub Markdown — L54 web.open cutoff replicates in 10/13 runs'},
-    {id:'SC-4',  l1:'SC-4',  l2:'65 KB',     tier:'readable', note:'Markdown Guide — L657 of 752 ceiling on GPT-5.5 runs'},
-    {id:'SC-1',  l1:'SC-1',  l2:'125 KB',    tier:'readable', note:'Gemini API docs — widest per-model retrieval strategy spread in the corpus'},
-    {id:'BL-1',  l1:'BL-1',  l2:'509 KB',    tier:'large',    note:'MongoDB docs — L420 ceiling mostly holds, one L119 outlier'},
-    {id:'OP-2',  l1:'OP-2',  l2:'242 KB',    tier:'large',    note:'MDN Array — line ceiling splits by model, ~L317 vs ~L590'},
-    {id:'OP-1',  l1:'OP-1',  l2:'740 KB',    tier:'large',    note:'Wikipedia + #fragment — fragment always dropped; clean L304/L556 model split'},
-    {id:'SC-3',  l1:'SC-3',  l2:'786 KB',    tier:'large',    note:'Wikipedia population table — L353 ceiling near-universal across models'},
-    {id:'OP-4',  l1:'OP-4',  l2:'514 KB',    tier:'large',    note:'CommonMark spec — two clean clusters, L237 vs L616'},
-    {id:'EC-1',  l1:'EC-1',  l2:'120 KB',    tier:'spa',      note:'Gemini API SPA — one task failure, one headless-Chrome recovery run'},
-    {id:'BL-3',  l1:'BL-3',  l2:'4.5-4.85 MB', tier:'spa',    note:'MongoDB Vector Search tutorial, T2 replacement URL — Cache Miss in 8/8 web attempts'},
+    {id:'EC-3',  l1:'EC-3',  l2:'254-660 B', tier:'readable', note:'JSON redirect chain with small payload, truncation untestable'},
+    {id:'BL-2',  l1:'BL-2',  l2:'5.8 KB',    tier:'readable', note:'Raw Markdown stable 5,805 chars across all runs, no truncation'},
+    {id:'EC-6',  l1:'EC-6',  l2:'92 KB',     tier:'readable', note:'Raw GitHub Markdown L54 web cutpoint in 10/13 runs'},
+    {id:'SC-4',  l1:'SC-4',  l2:'65 KB',     tier:'readable', note:'Markdown guide L657 of 752 ceiling on GPT-5.5 runs'},
+    {id:'SC-1',  l1:'SC-1',  l2:'125 KB',    tier:'readable', note:'Gemini API docs widest per-LLM retrieval strategy spread'},
+    {id:'BL-1',  l1:'BL-1',  l2:'509 KB',    tier:'large',    note:'MongoDB docs L420 ceiling holds with L119 outlier'},
+    {id:'OP-2',  l1:'OP-2',  l2:'242 KB',    tier:'large',    note:'MDN reference ceiling splits by LLM, L317 vs L590'},
+    {id:'OP-1',  l1:'OP-1',  l2:'740 KB',    tier:'large',    note:'Wikipedia with URL fragment, fragment dropped with L304/L556 LLM split'},
+    {id:'SC-3',  l1:'SC-3',  l2:'786 KB',    tier:'large',    note:'Table-heavy Wikipedia L353 ceiling near-universal'},
+    {id:'OP-4',  l1:'OP-4',  l2:'514 KB',    tier:'large',    note:'CommonMark Spec with clusters L237 vs L616'},
+    {id:'EC-1',  l1:'EC-1',  l2:'120 KB',    tier:'spa',      note:'Gemini API SPA with one task failure, one headless-Chrome recovery run'},
+    {id:'BL-3',  l1:'BL-3',  l2:'4.5-4.85 MB', tier:'spa',    note:'MongoDB tutorial replacement URL, Cache Miss in all web use'},
     {id:'SC-2',  l1:'SC-2',  l2:'578 KB',    tier:'spa',      note:'Anthropic API docs — Next.js shell, prose absent; 134,804-token display truncation marker'},
   ];
 
@@ -171,7 +165,7 @@ table.cdx3 td.cdx3-rl.cdx3-model { font-size: 10px; opacity: 0.65; padding-left:
   var LEVEL_LABELS = { L:'Light', M:'Medium', H:'High', XH:'Extra High' };
 
   // Truncation tier per run, sourced from results/vscode-codex-interpreted/results.csv `truncated` column.
-  // One correction applied: SC-2's 5th row has model_observed mislabeled as GPT-5.4-Mini/Extra High in the
+  // One correction applied: SC-2's 5th row has LLM_observed mislabeled as GPT-5.4-Mini/Extra High in the
   // CSV; its notes, tools, and output figures match GPT-5.5 Low exactly, so it's keyed here as 5.5:L.
   // Where a cell had two rows (a failed attempt plus a completed retry, or an accidental duplicate run),
   // the completed/first run is used here; see the Emergent Findings and Log Label Summary in the matching
@@ -235,10 +229,10 @@ table.cdx3 td.cdx3-rl.cdx3-model { font-size: 10px; opacity: 0.65; padding-left:
   };
 
   var SURFACE_NOTE = {
-    'no':       'no truncation signal, curl-complete or payload too small to test',
-    'implicit': 'escalated to curl without naming the web.open limit',
-    'mixed':    'both paths used, web.open limits explicitly named',
-    'yes':      'web.open hit, truncation reported explicitly',
+    'no':       'No truncation signal, curl-complete or payload too small to test',
+    'implicit': 'Implicit truncation through reasoning or tooling pivot',
+    'mixed':    'Mixed truncation signal, both paths used, web limits reported',
+    'yes':      'Truncation reported with web use',
   };
 
   function getColors(dark, tier) {
@@ -276,10 +270,10 @@ table.cdx3 td.cdx3-rl.cdx3-model { font-size: 10px; opacity: 0.65; padding-left:
       background:'rgba(128,128,128,0.15)', borderRadius:2, padding:'1px 3px'};
     var C = function(t) { return e('code', {style:cs}, t); };
     var items = [
-      { tier: 'no',       desc: ['No truncation signal, ', C('curl'), '-complete or payload too small to test'] },
-      { tier: 'implicit', desc: ['Escalated to ', C('curl'), ' without naming the ', C('web.open'), ' limit'] },
-      { tier: 'mixed',    desc: ['Both paths used, ', C('web.open'), ' limits explicitly named'] },
-      { tier: 'yes',      desc: [C('web.open'), ' hit, truncation reported explicitly'] },
+      { tier: 'no',       desc: ['No: truncation not reported, ', C('curl'), '-complete and/or payload too small to test'] },
+      { tier: 'implicit', desc: ['Implicit: truncation through tooling pivot and exposed reasoning'] },
+      { tier: 'mixed',    desc: ['Mixed: truncation report split with both paths used, ', C('web'), 'limits named'] },
+      { tier: 'yes',      desc: ['Yes: truncation reported with ', C('web'), 'limits named'] },
     ];
     return e('table', {style:{borderCollapse:'collapse', fontSize:11, marginTop:0}},
       e('tbody', null, items.map(function(item) {
@@ -305,10 +299,9 @@ table.cdx3 td.cdx3-rl.cdx3-model { font-size: 10px; opacity: 0.65; padding-left:
     var C = function(t) { return e('code', {style:cs}, t); };
     return e('p', {style:{fontSize:11, marginTop:8, lineHeight:1.6, opacity:0.65, color:tc}},
       e('i', null,
-        'Columns grouped left-to-right by content accessibility: static pages where either path returns readable content; large static HTML where ', C('web.open'), ' truncates but ', C('curl'), ' is readable; JS-rendered or SPAs where ', C('curl'), ' returns a text-less shell. ',
-        C('N'), ' = no truncation; ', C('I'), ' = implicit; ', C('M'), ' = mixed; ', C('Y'), ' = yes. ',
-        C('GPT-5.4'), ' only ran ', C('EC-1'), ', ', C('EC-3'), ', and ', C('EC-6'), ', and renders as empty cells elsewhere. ',
-        C('SC-3'), ' has 9 runs; the failed capacity-error attempt is folded into its completed retry\'s cell. Hover over cells for details.'
+        'Columns grouped left-to-right by content accessibility: static pages where tools return readable content; large static HTML where ', C('web'), ' truncates but ', C('curl'), 'is readable; JS-rendered/SPAs ', C('curl'), ' returns a text-less shell. ',
+        C('GPT-5.4'), ' only ran ', C('EC'), ' tests, renders as empty cells elsewhere. ',
+        C('SC-3'), ' has 9 runs; failed capacity-error attempt folded into completed retry\'s cell. Hover over cells for details.'
       )
     );
   }
@@ -325,8 +318,8 @@ table.cdx3 td.cdx3-rl.cdx3-model { font-size: 10px; opacity: 0.65; padding-left:
     var rows = [];
     LEVELS.forEach(function(level) {
       rows.push({ type: 'level-header', level: level });
-      MODELS.forEach(function(model) {
-        rows.push({ type: 'data', model: model, level: level, key: model + ':' + level });
+      MODELS.forEach(function(llm) {
+        rows.push({ type: 'data', llm: llm, level: level, key: llm + ':' + level });
       });
     });
 
@@ -386,8 +379,8 @@ table.cdx3 td.cdx3-rl.cdx3-model { font-size: 10px; opacity: 0.65; padding-left:
 
             var rowKey = row.key;
             return e('tr', {key:rowKey},
-              e('td', {className:'cdx3-rl cdx3-model', style:{color:tc, maxWidth:labelW, width:labelW}},
-                MODEL_LABELS[row.model]
+              e('td', {className:'cdx3-rl cdx3-llm', style:{color:tc, maxWidth:labelW, width:labelW}},
+                MODEL_LABELS[row.llm]
               ),
               cols.map(function(col) {
                 var tier = (runs[col.id] || {})[rowKey];
@@ -401,7 +394,7 @@ table.cdx3 td.cdx3-rl.cdx3-model { font-size: 10px; opacity: 0.65; padding-left:
                   );
                 }
                 var c = getColors(dark, tier);
-                var tip = col.l1 + ' · ' + MODEL_LABELS[row.model] + ' ' +
+                var tip = col.l1 + ' · ' + MODEL_LABELS[row.llm] + ' ' +
                   LEVEL_LABELS[row.level] + '\n' + SURFACE_NOTE[tier];
                 return e('td', {key:col.id,
                   style:{background:getTierHeaderBg(dark, col.tier)}},
@@ -490,7 +483,7 @@ table.cdx4 th.cdx4-rh { text-align: left; }
 table.cdx4 th .cdx4-sub { font-weight: 400; font-size: 10px; opacity: 0.55; display: block; }
 table.cdx4 td { padding: 2px 2px; text-align: center; }
 table.cdx4 td.cdx4-rl { font-size: 11px; text-align: left; padding-left: 0; white-space: nowrap; font-weight: 400; padding-right: 6px; color: inherit; vertical-align: middle; }
-table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left: 8px; }
+table.cdx4 td.cdx4-rl.cdx4-llm { font-size: 10px; opacity: 0.65; padding-left: 8px; }
 .cdx4-hint { font-size: 11px; opacity: 0.5; margin-top: 6px; cursor: pointer; color: inherit; }
 .cdx4-overlay {
   position: fixed; inset: 0; z-index: 9999;
@@ -527,7 +520,7 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
     {id:'BL-2',  l1:'BL-2',  l2:'5.8 KB',    tier:'readable', note:'Raw Markdown — curl dominant, 7 of 8 runs escalate for a payload this small'},
     {id:'EC-6',  l1:'EC-6',  l2:'92 KB',     tier:'readable', note:'Raw GitHub Markdown — two GPT-5.4 High/Extra High runs never touch curl at all'},
     {id:'SC-4',  l1:'SC-4',  l2:'65 KB',     tier:'readable', note:'Markdown Guide — one run used python3 urllib in place of curl, its own category here'},
-    {id:'SC-1',  l1:'SC-1',  l2:'125 KB',    tier:'readable', note:'Gemini API docs — widest per-model strategy spread, all four GPT-5.4-Mini levels differ'},
+    {id:'SC-1',  l1:'SC-1',  l2:'125 KB',    tier:'readable', note:'Gemini API docs — widest per-llm strategy spread, all four GPT-5.4-Mini levels differ'},
     {id:'BL-1',  l1:'BL-1',  l2:'509 KB',    tier:'large',    note:'MongoDB docs — curl succeeds in 6 of 8 runs'},
     {id:'OP-2',  l1:'OP-2',  l2:'242 KB',    tier:'large',    note:'MDN Array — curl succeeds in only 4 of 8, several curl attempts fail without escalation'},
     {id:'OP-1',  l1:'OP-1',  l2:'740 KB',    tier:'large',    note:'Wikipedia + #fragment — curl succeeds in 3 of 8; one run converts full HTML via xmllint/pandoc/lynx'},
@@ -709,8 +702,8 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
     var rows = [];
     LEVELS.forEach(function(level) {
       rows.push({ type: 'level-header', level: level });
-      MODELS.forEach(function(model) {
-        rows.push({ type: 'data', model: model, level: level, key: model + ':' + level });
+      MODELS.forEach(function(llm) {
+        rows.push({ type: 'data', llm: llm, level: level, key: llm + ':' + level });
       });
     });
 
@@ -766,8 +759,8 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
             }
             var rowKey = row.key;
             return e('tr', {key:rowKey},
-              e('td', {className:'cdx4-rl cdx4-model', style:{color:tc, maxWidth:labelW, width:labelW}},
-                MODEL_LABELS[row.model]
+              e('td', {className:'cdx4-rl cdx4-llm', style:{color:tc, maxWidth:labelW, width:labelW}},
+                MODEL_LABELS[row.llm]
               ),
               cols.map(function(col) {
                 var path = (runs[col.id] || {})[rowKey];
@@ -781,7 +774,7 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
                   );
                 }
                 var c = getColors(dark, path);
-                var tip = col.l1 + ' · ' + MODEL_LABELS[row.model] + ' ' +
+                var tip = col.l1 + ' · ' + MODEL_LABELS[row.llm] + ' ' +
                   LEVEL_LABELS[row.level] + '\n' + SURFACE_NOTE[path];
                 return e('td', {key:col.id,
                   style:{background:getTierHeaderBg(dark, col.tier)}},
@@ -878,9 +871,9 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
 | 6 | **Session contamination reduced in structure but not eliminated** | `EC-6` `OP-4`<br>`BL-1` `BL-2` `EC-1` | Confirmed workspace substitution in 1/119 runs, `SC-4`'s `GPT-5.4-Mini Extra High`; filename collision risk recurs across at least 16 runs spanning 5 test IDs, most heavily `EC-6` and `OP-4`'s two independent collision pairs | **`/private/tmp` clearing between sessions reduces but doesn't eliminate contamination risk; collisions now arise more from repeated default filenames across independent fresh fetches than from genuine cross-session artifact reuse** |
 | 7 | **JS-rendered pages remain a structural retrieval failure, confirmed on a new URL** | `SC-2` `BL-3` | `SC-2`: Next.js hydrated shell, ~578,000 chars, prose absent across all 8 runs; `BL-3`: a replacement URL, different from `T1`'s retired original, independently reproduces the same JS-rendered tutorial-body-absent pattern | **Neither `web` nor `curl` returns prose for CSP-gated or client-hydrated pages regardless of surface, and the pattern holds even when the underlying URL changes entirely** |
 | 8 | **`Cache Miss` is no longer systematic for the URL that originally defined it** | `EC-6` `BL-3` | Only 1 of 13 `EC-6` runs shows the literal `Cache Miss` string, versus 17/20 in `T1`; the other 12 return a windowed `L54` extraction instead. `BL-3`'s replacement URL produces `Cache Miss` in 8 of 8 attempts | **The failure signature is URL-specific rather than a stable property of raw or large payloads; the same URL that anchored `T1`'s `Cache Miss` finding now mostly fails silently into a windowed view on this surface instead** |
-| 9 | **`web` line ceiling is overwhelmingly page-architecture-driven on the most-replicated test IDs, sharpening `T1`'s finding** | `EC-6` `SC-2` `SC-3` | `EC-6`'s `L54` cutoff replicates identically across 10 of 13 runs spanning all 3 LLM families and all 4 reasoning levels; `SC-2`'s `L139-140` and `SC-3`'s `L353` show comparably tight cross-model clustering | **Where `T1` found LLM-version-correlated windows, `T2`'s tightest test IDs show the opposite: the same ceiling regardless of model. `OP-1`, `OP-2`, and `OP-4` still show real model-family splits, so both mechanisms coexist depending on the page** |
+| 9 | **`web` line ceiling is overwhelmingly page-architecture-driven on the most-replicated test IDs, sharpening `T1`'s finding** | `EC-6` `SC-2` `SC-3` | `EC-6`'s `L54` cutoff replicates identically across 10 of 13 runs spanning all 3 LLM families and all 4 reasoning levels; `SC-2`'s `L139-140` and `SC-3`'s `L353` show comparably tight cross-LLM clustering | **Where `T1` found LLM-version-correlated windows, `T2`'s tightest test IDs show the opposite: the same ceiling regardless of LLM. `OP-1`, `OP-2`, and `OP-4` still show real LLM-family splits, so both mechanisms coexist depending on the page** |
 | 10 | **`wordlim:200` confirmed directly in a `T2` tool trace, not just inferred from agent language** | `OP-4` | `GPT-5.4-Mini Extra High`'s tool trace lists `wordlim:200` explicitly alongside `web` and `turn0view0` | **Confirms `T1`'s `SC-1` inference, a soft default, agent-adjustable parameter, with a literal parameter name rather than a reconstruction from reasoning text** |
-| 11 | **`multi_tool_use.parallel` reappears outside the `GPT-5.5` family at the identical model-and-level pairing `T1` first observed it at** | `EC-6` | Confirmed once, in `EC-6`'s `GPT-5.4 Extra High` run, matching `T1`'s own `EC-6` finding that the same combination was first to break `GPT-5.5` exclusivity | **The identifier's appearance tracks a specific model-and-reasoning-level pairing independent of surface, suggesting it's gated by LLM-version-and-level rather than by track** |
+| 11 | **`multi_tool_use.parallel` reappears outside the `GPT-5.5` family at the identical LLM-and-level pairing `T1` first observed it at** | `EC-6` | Confirmed once, in `EC-6`'s `GPT-5.4 Extra High` run, matching `T1`'s own `EC-6` finding that the same combination was first to break `GPT-5.5` exclusivity | **The identifier's appearance tracks a specific LLM-and-reasoning-level pairing independent of surface, suggesting it's gated by LLM-version-and-level rather than by track** |
 
 ## Retrieval Outcomes
 
@@ -894,14 +887,14 @@ page architecture:<br> _raw files → static HTML → reference/wiki → JS-rend
 | --- | --- | --- | --- | --- |
 | **[`EC-3`](https://httpbin.org/redirect/5)<br>Redirect JSON** | ~2 KB | `web`: 660 chars<br>`curl`: 254 chars | 100% | _Complete on both paths_: `GPT-5.4-Mini` favors `curl` as the authoritative measurement path at `Medium` and `High`, the inverse of its own `T1` pattern at those levels |
 | **[`BL-2`](https://www.mongodb.com/docs/manual/reference/change-events/create.md)<br>Raw Markdown** | ~20 KB | 5,805 chars, all 8 runs | 100% | _Complete and internally consistent_: the 219-char gap against `T1`'s 6,024 chars most likely reflects a source update between collection windows, not surface behavior |
-| **[`EC-6`](https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md)<br>Raw GitHub Markdown** | ~60 KB | `curl`: 91,869 chars, 9/13 runs<br>`web`: `L54` cutoff, 10/13 runs | ~100% body where `curl` succeeds; line-capped elsewhere | _No HTTP-layer truncation on any successful `curl` run_: the `L54` `web` cutoff is the single most consistent finding across the whole `T2` corpus, identical regardless of model or reasoning level; one run failed to retrieve any content at all |
+| **[`EC-6`](https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md)<br>Raw GitHub Markdown** | ~60 KB | `curl`: 91,869 chars, 9/13 runs<br>`web`: `L54` cutoff, 10/13 runs | ~100% body where `curl` succeeds; line-capped elsewhere | _No HTTP-layer truncation on any successful `curl` run_: the `L54` `web` cutoff is the single most consistent finding across the whole `T2` corpus, identical regardless of LLM or reasoning level; one run failed to retrieve any content at all |
 | **[`SC-4`](https://www.markdownguide.org/basic-syntax/)<br>Markdown Guide** | ~30 KB | `curl`: 64,527 chars, most runs<br>`web`: `L657` of 752 | `curl` 100%, `web` ~87% | _Complete via `curl`_: `L657` ceiling consistent across `GPT-5.5` runs; `GPT-5.4-Mini Extra High` sourced metrics from a prior rollout log rather than fetching, a fallback mode not seen in `T1` |
-| **[`SC-1`](https://ai.google.dev/gemini-api/docs/url-context)<br>Gemini<br>API Docs** | ~40 KB | `curl`: 125,248-125,252 chars, 3/8 runs<br>`web`: 16,390-34,000 chars | `curl` 100%, `web` 13-27% | _Complete via `curl` where attempted_: `GPT-5.4-Mini` shows four different retrieval strategies across its four reasoning levels, the widest intra-model spread in the `T2` corpus |
-| **[`OP-2`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)<br>MDN Reference** | ~120 KB | `curl`: 241,720 chars, 4/8 runs | `curl` 100%, `web` 13-25% | _Complete via `curl`_: line ceiling splits by model, `~L317-318` for `GPT-5.4-Mini High`/`Extra High` versus `~L590-591` for `Medium` and all `GPT-5.5` runs, extending `T1`'s `OP-1` finding that the ceiling can be model-dependent |
+| **[`SC-1`](https://ai.google.dev/gemini-api/docs/url-context)<br>Gemini<br>API Docs** | ~40 KB | `curl`: 125,248-125,252 chars, 3/8 runs<br>`web`: 16,390-34,000 chars | `curl` 100%, `web` 13-27% | _Complete via `curl` where attempted_: `GPT-5.4-Mini` shows four different retrieval strategies across its four reasoning levels, the widest intra-LLM spread in the `T2` corpus |
+| **[`OP-2`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)<br>MDN Reference** | ~120 KB | `curl`: 241,720 chars, 4/8 runs | `curl` 100%, `web` 13-25% | _Complete via `curl`_: line ceiling splits by LLM, `~L317-318` for `GPT-5.4-Mini High`/`Extra High` versus `~L590-591` for `Medium` and all `GPT-5.5` runs, extending `T1`'s `OP-1` finding that the ceiling can be LLM-dependent |
 | **[`BL-1`](https://www.mongodb.com/docs/manual/reference/change-events/create/)<br>MongoDB Reference** | ~85 KB | `curl`: 509,025 chars, 6/8 runs | `curl` 100%, `web` ~15-17% | _Complete via `curl`_: the `L420` ceiling isn't as tightly held as `EC-6`'s `L54` - one run, `GPT-5.4-Mini Extra High`, cut at `L119` instead, so this test ID's ceiling is real but less deterministic than the corpus's strongest cases |
 | **[`OP-4`](https://spec.commonmark.org/0.31.2/)<br>CommonMark Spec** | ~500 KB | `curl`: 514,092 chars, 6/8 runs | `curl` 100%, `web` 2-3% | _Complete via `curl`_: two clean line-ceiling clusters, `L237` for `GPT-5.4-Mini Medium`/`Extra High` and `L616` for `GPT-5.5 Low`/`High`; two independent filename-collision pairs recurred in this test ID alone |
-| **[`OP-1`](https://en.wikipedia.org/wiki/Machine_learning#History)<br>Wikipedia<br>with URL Fragment** | ~40 KB | `curl`: 740,370 chars, 3/8 runs | `curl` 100%, `web` ~0.5-4% | _Complete via `curl`_: `#History` silently dropped on every run, consistent with `T1`; the corpus's clearest model-family split, `L304` for `GPT-5.4-Mini` versus `L556` for `GPT-5.5`, held across all 4 reasoning levels each |
-| **[`SC-3`](https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population)<br>Wikipedia<br>Table-Heavy** | ~100 KB | `curl`: 786,213 chars, 5/9 runs | `curl` 100%, `web` 1-3% | _Complete via `curl`_: `L353` ceiling holds across every model and level where observable, one of the tightest single-value clusters in the corpus alongside `EC-6`'s `L54`; one run failed outright on a model capacity error |
+| **[`OP-1`](https://en.wikipedia.org/wiki/Machine_learning#History)<br>Wikipedia<br>with URL Fragment** | ~40 KB | `curl`: 740,370 chars, 3/8 runs | `curl` 100%, `web` ~0.5-4% | _Complete via `curl`_: `#History` silently dropped on every run, consistent with `T1`; the corpus's clearest LLM-family split, `L304` for `GPT-5.4-Mini` versus `L556` for `GPT-5.5`, held across all 4 reasoning levels each |
+| **[`SC-3`](https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population)<br>Wikipedia<br>Table-Heavy** | ~100 KB | `curl`: 786,213 chars, 5/9 runs | `curl` 100%, `web` 1-3% | _Complete via `curl`_: `L353` ceiling holds across every LLM and level where observable, one of the tightest single-value clusters in the corpus alongside `EC-6`'s `L54`; one run failed outright on a LLM capacity error |
 | **[`EC-1`](https://ai.google.dev/gemini-api/docs)<br>Gemini<br>API Docs** | ~100 KB | `curl`: 119,785-120,001 chars, 8/13 runs | `curl` 100%, `web` 7-18% | _Complete via `curl`_: one run, `GPT-5.4-Mini Light`, is a full task failure with zero usable metrics; one run reached content via headless Chrome rather than `curl`, the corpus's only instance of that recovery path |
 | **[`SC-2`](https://docs.anthropic.com/en/api/messages)<br>Anthropic API Docs** | ~80 KB | `curl`: 578,233-578,275 chars, 5/8 runs | Not accessible | _Complete HTML shell, prose absent regardless of path_: JS-hydrated reference content never appears in any run's output; `L139-140` ceiling on `web` near-universal; a token-denominated terminal display truncation, `134,804 tokens truncated`, appeared for the first time in the `T2` corpus |
 | **[`BL-3`](https://www.mongodb.com/docs/vector-search/tutorials/quick-start/?deployment-type=atlas&interface=atlas-ui&embedding=auto)<br>MongoDB Vector Search Tutorial** | ~4,531 KB | `curl`: 4,640,208-4,848,853 chars, 5/8 runs | Not accessible | _Complete HTML shell, prose absent_: every `web` attempt returned a literal `Cache Miss`, unlike `EC-6`'s mostly windowed failure mode; one run silently substituted the canonical URL without query parameters, weakening its contribution to every hypothesis; no `T1` baseline exists for this replacement URL |
