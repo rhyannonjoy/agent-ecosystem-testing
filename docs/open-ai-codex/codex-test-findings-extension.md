@@ -47,7 +47,7 @@ parent: OpenAI Codex
 | --- | --- |
 | **Track** | `T2` GPT-interpreted, VS Code with Codex Extension |
 | **Agents Observed** | `GPT-5.4-Mini`, `GPT-5.4`, `GPT-5.5`* |
-| **Intelligence Levels** | `Light`/`Low`, `Medium`, `High`, `Extra High` |
+| **Reasoning Levels** | `Light`/`Low`, `Medium`, `High`, `Extra High` |
 | **Total Runs** | 119 |
 | **Distinct URLs** | 13 |
 | **Input Size Range** | `EC-3` 254 chars to `BL-3` ~4.85M chars |
@@ -62,7 +62,7 @@ parent: OpenAI Codex
 
 _*Three-LLM roster reflects OpenAI's retirement of `GPT-5.2`, `GPT-5.3-Codex`, `GPT-5.4` between tracks; `GPT-5.4` reappeared for `EC` tests, analysis in [LLM Retirement](friction-note-interpreted-extension.md#llm-retirement)._
 
-## Content Access x Reasoning
+## Truncation Self-Report
 
 As in [`T1`](codex-test-findings-desktop.md#content-access-x-intelligence), agentic task completion isn't a meaningful signal
 for page readability on `T2`. Retrieval strategy still governs content accessibility more than reasoning level does: `web`
@@ -81,9 +81,9 @@ are large static HTML where `web` truncates, but `curl` consistently returns coh
 level. `BL-3`'s specific URL changed between tracks after the original's retirement, but the replacement lands in the identical
 accessibility tier, confirming that the JS-rendered failure mode isn't tied to one specific page.
 
-The heatmap below encodes truncation tier, not retrieval path. Rows are reasoning level, with LLM version as a sub-grouping.
+The heat map below encodes truncation tier, not retrieval path. Rows are reasoning level, with LLM version as a sub-grouping.
 `GPT-5.4` only has data for `EC` tests and renders as empty cells elsewhere. Content accessibility difficulty determines
-column order, mirroring [`T1`'s heatmap](codex-test-findings-desktop.md#content-access-x-intelligence).
+column order, mirroring [`T1`'s heat map](codex-test-findings-desktop.md#content-access-x-intelligence).
 
 {% raw %}
 <div id="cdx-hm3-root"></div>
@@ -136,7 +136,7 @@ table.cdx3 td.cdx3-rl.cdx3-llm { font-size: 10px; opacity: 0.65; padding-left: 8
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 
-  // Columns ordered by content accessibility difficulty, same order as T1's heatmap:
+  // Columns ordered by content accessibility difficulty, same order as T1's heat map:
   // clean static → large static → JS-rendered/SPA
   var cols = [
     {id:'EC-3',  l1:'EC-3',  l2:'254-660 B', tier:'readable', note:'JSON redirect chain with small payload, truncation untestable'},
@@ -328,7 +328,7 @@ table.cdx3 td.cdx3-rl.cdx3-llm { font-size: 10px; opacity: 0.65; padding-left: 8
         e('thead', null,
           e('tr', null,
             e('th', {className:'cdx3-rh', style:{minWidth:labelW, color:tc}},
-              'LLM / Intelligence'
+              'LLM / Reasoning'
             ),
             cols.map(function(col) {
               return e('th', {key:col.id, title:col.note,
@@ -470,7 +470,28 @@ table.cdx3 td.cdx3-rl.cdx3-llm { font-size: 10px; opacity: 0.65; padding-left: 8
 </script>
 {% endraw %}
 
-The second heatmap encodes retrieval path, built from `tools_named` cross-checked against `output_chars`: a tool listed as attempted only counts if the reported output actually traces back to it, since `tools_named` is itself an agent self-report and sometimes under-reports what was used. `python3 urllib` and headless Chrome get their own categories, `web+python` and `browser`, rather than folding into `curl`, since which tool an agent reaches for is a real behavioral signal, not a cosmetic difference. One cell, `SC-2`'s `GPT-5.4-Mini High`, is marked `incomplete` rather than classified, since that run never finished its report and the fields that would otherwise corroborate it are just as self-reported as the gap they'd be covering for.
+---
+
+## Truncation Analysis
+
+{: .table-findings}
+| **#** | **Finding** | **Tests** | **Observed** | **Conclusion** |
+| --- | --- | --- | --- | --- |
+| 1 | **`web` returns line-indexed, rendered text, extraction window, not full page** | All<br>tests | Returns a line-numbered, HTML-to-text-extracted viewport; `OP-4`'s toolchain includes `wordlim: 200`; most reports include `Total lines: N` | **Output chars on `web` path reflect viewport depth, not retrieval ceiling; `curl` remains only path to raw HTTP body** |
+| 2 | **No fixed character or token ceiling detected with `curl`** | `BL-1`<br>`BL-3`<br>`OP-1` `OP-2`<br>`OP-4` `SC-3` `EC-6` | `BL-3`: `GPT-5.5 Low`, `Medium`, `High` retrieved ~4.85M chars; `OP-4`: 6/8 runs retrieved 514,092 chars, several in under a minute | **Char/token access is escalation-test-ID-gated, not architecturally defined** |
+| 3 | **Truncation layers conflict within test cycles** | `BL-3` `EC-6` `SC-2` | `BL-3` cutpoint at structural boundary against terminal display cutoff at arbitrary position; `EC-6` confirms `web` line ceiling independent from HTTP body; `SC-2`'s terminal display shows token-count marker independent of both | **Self-reported truncation tool-dependent, disambiguating layers requires per-run, per-page-architecture analysis** |
+| 4 | **`curl` escalation success size and LLM-version-dependent** | All<br>tests | 68/119 runs, 57% success rate; ranges `EC-3`'s 2/12 to `BL-2`'s 8/8 depending on agent's choice and/or whether payload size requires escalation | **Unlike `T1`'s cleaner per-version threshold, same `T2` LLM bypasses `web` entirely on one test, fails to escalate on another** |
+| 5 | **Higher reasoning levels continue to show inconsistent and/or diminishing or returns** | `BL-3` `EC-6`<br>`SC-1` `SC-3` | `EC-6`'s `GPT-5.4-Mini Extra High` spent 11m37s across three failed tool paths to retrieve nothing, while `Light` completed same test in 29 seconds; `SC-3`'s<br>`GPT-5.5 Extra High` ran most streamlined path in its cycle | **`Extra High` doesn't reliably improve retrieval outcomes; in several test cycles actively underperforms against `Light`/`Low`** |
+| 6 | **Session contamination reduced in structure,<br>but not eliminated** | `BL-1` `BL-2` `EC-1` `EC-6` `OP-4` | Confirmed workspace substitution in 1/119 runs, `SC-4`'s `GPT-5.4-Mini Extra High`; filename collision risk recurs across at least 16 runs spanning 5 test IDs, most heavily `EC-6` and `OP-4`'s two independent collision pairs | **`/private/tmp` clearing between sessions reduces but doesn't eliminate contamination risk; collisions now arise more from repeated default filenames across independent fresh fetches than from genuine cross-session artifact reuse** |
+| 7 | **JS-rendered pages remain a structural retrieval failure, confirmed on a new URL** | `SC-2` `BL-3` | `SC-2`: Next.js hydrated shell, ~578,000 chars, prose absent across all 8 runs; `BL-3`: a replacement URL, different from `T1`'s retired original, independently reproduces the same JS-rendered tutorial-body-absent pattern | **Neither `web` nor `curl` returns prose for CSP-gated or client-hydrated pages regardless of surface, and the pattern holds even when the underlying URL changes entirely** |
+| 8 | **`Cache Miss` is no longer systematic for the URL that originally defined it** | `EC-6` `BL-3` | Only 1 of 13 `EC-6` runs shows the literal `Cache Miss` string, versus 17/20 in `T1`; the other 12 return a windowed `L54` extraction instead. `BL-3`'s replacement URL produces `Cache Miss` in 8 of 8 attempts | **The failure signature is URL-specific rather than a stable property of raw or large payloads; the same URL that anchored `T1`'s `Cache Miss` finding now mostly fails silently into a windowed view on this surface instead** |
+| 9 | **`web` line ceiling is overwhelmingly page-architecture-driven on the most-replicated test IDs, sharpening `T1`'s finding** | `EC-6` `SC-2` `SC-3` | `EC-6`'s `L54` cutoff replicates identically across 10 of 13 runs spanning all 3 LLM families and all 4 reasoning levels; `SC-2`'s `L139-140` and `SC-3`'s `L353` show comparably tight cross-LLM clustering | **Where `T1` found LLM-version-correlated windows, `T2`'s tightest test IDs show the opposite: the same ceiling regardless of LLM. `OP-1`, `OP-2`, and `OP-4` still show real LLM-family splits, so both mechanisms coexist depending on the page** |
+| 10 | **`wordlim:200` confirmed directly in a `T2` tool trace, not just inferred from agent language** | `OP-4` | `GPT-5.4-Mini Extra High`'s tool trace lists `wordlim:200` explicitly alongside `web` and `turn0view0` | **Confirms `T1`'s `SC-1` inference, a soft default, agent-adjustable parameter, with a literal parameter name rather than a reconstruction from reasoning text** |
+| 11 | **`multi_tool_use.parallel` reappears outside the `GPT-5.5` family at the identical LLM-and-level pairing `T1` first observed it at** | `EC-6` | Confirmed once, in `EC-6`'s `GPT-5.4 Extra High` run, matching `T1`'s own `EC-6` finding that the same combination was first to break `GPT-5.5` exclusivity | **The identifier's appearance tracks a specific LLM-and-reasoning-level pairing independent of surface, suggesting it's gated by LLM-version-and-level rather than by track** |
+
+## Retrival Paths
+
+The second heat map encodes retrieval path, built from `tools_named` cross-checked against `output_chars` and, where needed, the source screenshot: a tool listed as attempted only counts if the reported output actually traces back to it, since `tools_named` is itself an agent self-report and sometimes under-reports what was used. `python3 urllib` and headless Chrome get their own categories, `web+python` and `browser`, rather than folding into `curl`, since which tool an agent reaches for is a real behavioral signal, not a cosmetic difference.
 
 {% raw %}
 <div id="cdx-hm4-root"></div>
@@ -483,7 +504,7 @@ table.cdx4 th.cdx4-rh { text-align: left; }
 table.cdx4 th .cdx4-sub { font-weight: 400; font-size: 10px; opacity: 0.55; display: block; }
 table.cdx4 td { padding: 2px 2px; text-align: center; }
 table.cdx4 td.cdx4-rl { font-size: 11px; text-align: left; padding-left: 0; white-space: nowrap; font-weight: 400; padding-right: 6px; color: inherit; vertical-align: middle; }
-table.cdx4 td.cdx4-rl.cdx4-llm { font-size: 10px; opacity: 0.65; padding-left: 8px; }
+table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left: 8px; }
 .cdx4-hint { font-size: 11px; opacity: 0.5; margin-top: 6px; cursor: pointer; color: inherit; }
 .cdx4-overlay {
   position: fixed; inset: 0; z-index: 9999;
@@ -520,7 +541,7 @@ table.cdx4 td.cdx4-rl.cdx4-llm { font-size: 10px; opacity: 0.65; padding-left: 8
     {id:'BL-2',  l1:'BL-2',  l2:'5.8 KB',    tier:'readable', note:'Raw Markdown — curl dominant, 7 of 8 runs escalate for a payload this small'},
     {id:'EC-6',  l1:'EC-6',  l2:'92 KB',     tier:'readable', note:'Raw GitHub Markdown — two GPT-5.4 High/Extra High runs never touch curl at all'},
     {id:'SC-4',  l1:'SC-4',  l2:'65 KB',     tier:'readable', note:'Markdown Guide — one run used python3 urllib in place of curl, its own category here'},
-    {id:'SC-1',  l1:'SC-1',  l2:'125 KB',    tier:'readable', note:'Gemini API docs — widest per-llm strategy spread, all four GPT-5.4-Mini levels differ'},
+    {id:'SC-1',  l1:'SC-1',  l2:'125 KB',    tier:'readable', note:'Gemini API docs — widest per-model strategy spread, all four GPT-5.4-Mini levels differ'},
     {id:'BL-1',  l1:'BL-1',  l2:'509 KB',    tier:'large',    note:'MongoDB docs — curl succeeds in 6 of 8 runs'},
     {id:'OP-2',  l1:'OP-2',  l2:'242 KB',    tier:'large',    note:'MDN Array — curl succeeds in only 4 of 8, several curl attempts fail without escalation'},
     {id:'OP-1',  l1:'OP-1',  l2:'740 KB',    tier:'large',    note:'Wikipedia + #fragment — curl succeeds in 3 of 8; one run converts full HTML via xmllint/pandoc/lynx'},
@@ -528,7 +549,7 @@ table.cdx4 td.cdx4-rl.cdx4-llm { font-size: 10px; opacity: 0.65; padding-left: 8
     {id:'OP-4',  l1:'OP-4',  l2:'514 KB',    tier:'large',    note:'CommonMark spec — GPT-5.5 Medium and Extra High bypass web entirely'},
     {id:'EC-1',  l1:'EC-1',  l2:'120 KB',    tier:'spa',      note:'Gemini API SPA — one total failure, one headless-Chrome recovery via Playwright, its own category here'},
     {id:'BL-3',  l1:'BL-3',  l2:'4.5-4.85 MB', tier:'spa',    note:'MongoDB Vector Search tutorial, T2 replacement URL — one total failure, one python3-urllib recovery'},
-    {id:'SC-2',  l1:'SC-2',  l2:'578 KB',    tier:'spa',      note:'Anthropic API docs — curl succeeds in 5 of 8; one run never finished its report, marked incomplete rather than guessed at'},
+    {id:'SC-2',  l1:'SC-2',  l2:'578 KB',    tier:'spa',      note:'Anthropic API docs — curl succeeds in 5 of 8; one run resolved from the source screenshot after tools_named omitted both a failed node fetch and the successful curl step'},
   ];
 
   var LEVELS = ['L','M','H','XH'];
@@ -542,9 +563,11 @@ table.cdx4 td.cdx4-rl.cdx4-llm { font-size: 10px; opacity: 0.65; padding-left: 8
   // under-reports a tool that was actually used. python3 urllib (SC-4's GPT-5.4-Mini Light, BL-3's
   // GPT-5.4-Mini Extra High) and headless Chrome via Playwright (EC-1's GPT-5.4-Mini High) get their own
   // categories rather than folding into curl/web+curl; the mechanism is a genuinely different signal about
-  // what the agent reached for, not a cosmetic difference in tool name. SC-2's GPT-5.4-Mini High never
-  // finished its report, so its output_chars and truncation_note are just as self-reported as the
-  // tools_named gap they'd otherwise be used to override; it's marked incomplete rather than guessed at.
+  // what the agent reached for, not a cosmetic difference in tool name. SC-2's GPT-5.4-Mini High looked
+  // unresolvable from tools_named alone ("web.open, turn0view0" only), but the source screenshot shows the
+  // full sequence directly: web.open, then a failed node fetch (DNS ENOTFOUND), then a successful curl
+  // fetch matching the full 578,233-char body every other successful SC-2 run reports. Classified
+  // web+curl on that direct evidence rather than the incomplete CSV field.
   // Same duplicate-cell handling as the truncation-tier grid.
   var runs = {
     'EC-3': {
@@ -599,7 +622,7 @@ table.cdx4 td.cdx4-rl.cdx4-llm { font-size: 10px; opacity: 0.65; padding-left: 8
       '5.5:L':'web+curl','5.5:M':'curl','5.5:H':'curl','5.5:XH':'web+curl',
     },
     'SC-2': {
-      '5.4m:L':'web','5.4m:M':'curl','5.4m:H':'incomplete','5.4m:XH':'web+curl',
+      '5.4m:L':'web','5.4m:M':'curl','5.4m:H':'web+curl','5.4m:XH':'web+curl',
       '5.5:L':'web+curl','5.5:M':'web','5.5:H':'web+curl','5.5:XH':'web',
     },
   };
@@ -610,7 +633,6 @@ table.cdx4 td.cdx4-rl.cdx4-llm { font-size: 10px; opacity: 0.65; padding-left: 8
     'curl':       'output traces to a full-body fetch via curl, web.open not attempted',
     'web+python': 'output traces to a full-body fetch via python3 urllib, web.open also attempted',
     'browser':    'output traces to headless-Chrome browser automation via Playwright, after curl and other paths failed',
-    'incomplete': 'run ended without a finished report; self-reported fields conflict or can\'t be independently confirmed',
     'none':       'no usable content retrieved on any path',
   };
 
@@ -621,7 +643,6 @@ table.cdx4 td.cdx4-rl.cdx4-llm { font-size: 10px; opacity: 0.65; padding-left: 8
       'curl':       { bg: dark ? '#cba452' : '#FFB74D', fg: dark ? '#412402' : '#412402', label: 'C'   },
       'web+python': { bg: dark ? '#0e7a8c' : '#26b8cf', fg: '#fff',                       label: 'W+P' },
       'browser':    { bg: dark ? '#5b3a9e' : '#9575cd', fg: '#fff',                       label: 'B'   },
-      'incomplete': { bg: dark ? '#4a4a48' : '#c4c2ba', fg: dark ? '#c4c2ba' : '#4a4a48', label: '?'   },
       'none':       { bg: dark ? '#D4537E' : '#FF8A65', fg: '#fff',                       label: '✗'   },
     };
     return map[path] || { bg: dark ? '#363634' : '#d0cec7', fg: 'inherit', label: '' };
@@ -653,7 +674,6 @@ table.cdx4 td.cdx4-rl.cdx4-llm { font-size: 10px; opacity: 0.65; padding-left: 8
       { path: 'curl',       desc: ['Output traces to a full-body fetch via ', C('curl'), ', ', C('web.open'), ' not attempted'] },
       { path: 'web+python', desc: ['Output traces to a full-body fetch via ', C('python3 urllib'), ' instead of ', C('curl')] },
       { path: 'browser',    desc: ['Output traces to headless-Chrome browser automation, after ', C('curl'), ' failed'] },
-      { path: 'incomplete', desc: ['Run never finished its report; self-reported fields conflict or can\'t be confirmed'] },
       { path: 'none',       desc: ['No usable content retrieved on any path'] },
     ];
     return e('table', {style:{borderCollapse:'collapse', fontSize:11, marginTop:0}},
@@ -682,8 +702,7 @@ table.cdx4 td.cdx4-rl.cdx4-llm { font-size: 10px; opacity: 0.65; padding-left: 8
       e('i', null,
         C('W'), ' = ', C('web.open'), ' only; ', C('W+C'), ' = both attempted, output from a full curl fetch; ',
         C('C'), ' = full curl fetch, ', C('web.open'), ' not attempted; ', C('W+P'), ' = full fetch via ', C('python3 urllib'), ' instead of ', C('curl'), '; ',
-        C('B'), ' = headless-Chrome browser automation; ', C('?'), ' = incomplete run, classification withheld rather than guessed; ',
-        C('\u2717'), ' = no usable content on any path. ',
+        C('B'), ' = headless-Chrome browser automation; ', C('\u2717'), ' = no usable content on any path. ',
         C('GPT-5.4'), ' only ran ', C('EC-1'), ', ', C('EC-3'), ', and ', C('EC-6'), ', empty cells elsewhere. ',
         'No run in this corpus produced a clean "', C('web'), ' attempted and failed, nothing else tried" case; every near-zero output either had real uncounted ', C('web.open'), ' content or was a total multi-tool failure. Hover cells for the specific mechanism.'
       )
@@ -702,8 +721,8 @@ table.cdx4 td.cdx4-rl.cdx4-llm { font-size: 10px; opacity: 0.65; padding-left: 8
     var rows = [];
     LEVELS.forEach(function(level) {
       rows.push({ type: 'level-header', level: level });
-      MODELS.forEach(function(llm) {
-        rows.push({ type: 'data', llm: llm, level: level, key: llm + ':' + level });
+      MODELS.forEach(function(model) {
+        rows.push({ type: 'data', model: model, level: level, key: model + ':' + level });
       });
     });
 
@@ -711,7 +730,7 @@ table.cdx4 td.cdx4-rl.cdx4-llm { font-size: 10px; opacity: 0.65; padding-left: 8
       e('table', {className:'cdx4'},
         e('thead', null,
           e('tr', null,
-            e('th', {className:'cdx4-rh', style:{minWidth:labelW, color:tc}}, 'LLM / Intelligence'),
+            e('th', {className:'cdx4-rh', style:{minWidth:labelW, color:tc}}, 'LLM / Reasoning'),
             cols.map(function(col) {
               return e('th', {key:col.id, title:col.note,
                 style:{color:tc, background:getTierHeaderBg(dark, col.tier)}},
@@ -759,8 +778,8 @@ table.cdx4 td.cdx4-rl.cdx4-llm { font-size: 10px; opacity: 0.65; padding-left: 8
             }
             var rowKey = row.key;
             return e('tr', {key:rowKey},
-              e('td', {className:'cdx4-rl cdx4-llm', style:{color:tc, maxWidth:labelW, width:labelW}},
-                MODEL_LABELS[row.llm]
+              e('td', {className:'cdx4-rl cdx4-model', style:{color:tc, maxWidth:labelW, width:labelW}},
+                MODEL_LABELS[row.model]
               ),
               cols.map(function(col) {
                 var path = (runs[col.id] || {})[rowKey];
@@ -774,7 +793,7 @@ table.cdx4 td.cdx4-rl.cdx4-llm { font-size: 10px; opacity: 0.65; padding-left: 8
                   );
                 }
                 var c = getColors(dark, path);
-                var tip = col.l1 + ' · ' + MODEL_LABELS[row.llm] + ' ' +
+                var tip = col.l1 + ' · ' + MODEL_LABELS[row.model] + ' ' +
                   LEVEL_LABELS[row.level] + '\n' + SURFACE_NOTE[path];
                 return e('td', {key:col.id,
                   style:{background:getTierHeaderBg(dark, col.tier)}},
@@ -782,9 +801,7 @@ table.cdx4 td.cdx4-rl.cdx4-llm { font-size: 10px; opacity: 0.65; padding-left: 8
                     borderRadius:3, fontSize:fs, fontWeight:700,
                     display:'flex', alignItems:'center', justifyContent:'center',
                     width:cellW, height:cellH, margin:'1px auto',
-                    background:c.bg, color:c.fg, cursor:'help',
-                    border: path === 'incomplete' ? '1.5px dashed ' + (dark ? '#8a8a86' : '#6a6a66') : 'none',
-                    opacity: path === 'incomplete' ? 0.85 : 1
+                    background:c.bg, color:c.fg, cursor:'help'
                   }}, c.label)
                 );
               })
@@ -852,28 +869,7 @@ table.cdx4 td.cdx4-rl.cdx4-llm { font-size: 10px; opacity: 0.65; padding-left: 8
 </script>
 {% endraw %}
 
-> _A small-multiples chart normalizing each test ID's line-ceiling cutoff against its own total line count, so `EC-6`'s `L54`
-> and `SC-4`'s `L657` are comparable as percentages rather than raw numbers, remains the one planned visualization not yet
-> built._
-
 ---
-
-## Truncation Analysis
-
-{: .table-findings}
-| **#** | **Finding** | **Tests** | **Observed** | **Conclusion** |
-| --- | --- | --- | --- | --- |
-| 1 | **`web` returns a line-indexed rendered text extraction window, not the full page** | All tests | Returns a line-numbered extraction; `wordlim:200` confirmed directly in `OP-4`'s tool trace; `Total lines: N` reported for most URLs | **Output chars on the `web` path reflect viewport depth, not retrieval ceiling; `curl` remains the only path to the raw HTTP body** |
-| 2 | **No fixed character or token ceiling detected on the `curl` path** | `BL-1` `BL-3`<br>`OP-1` `OP-2`<br>`OP-4` `SC-3` `EC-6` | `BL-3`: `GPT-5.5 Low`, `Medium`, and `High` all retrieved ~4.85M chars; `OP-4`: six of eight runs retrieved 514,092 chars, several in under a minute | **Char/token access is escalation-and-test-ID-gated, not architecturally defined** |
-| 3 | **Truncation layers now conflict within a single test ID, not just diverge across test IDs** | `EC-6` `SC-2` `BL-3` | `EC-6` confirms the `web` line ceiling as independent from the HTTP body; `SC-2`'s terminal display shows a token-count marker independent of both; `BL-3` shows a Viewer Window cutoff at a structural boundary in direct tension with a Terminal Display cutoff at an arbitrary position in the same 8-run set | **Self-reported truncation stays tool-dependent, and disambiguating layers now requires per-run, not just per-test-ID, attention** |
-| 4 | **`curl` escalation success is test-ID-dependent as much as LLM-version-dependent** | All tests, manually verified | 68 of 119 runs, 57%, confirmed successful; ranges from `EC-3`'s 2/12 to `BL-2`'s 8/8 depending on whether the payload needs escalation at all | **Unlike `T1`'s cleaner per-version threshold, the same `T2` LLM bypasses `web` entirely on one test ID and fails to escalate at all on another** |
-| 5 | **Higher reasoning levels continue to show diminishing or inconsistent returns** | `BL-3` `EC-6`<br>`SC-1` `SC-3` | `EC-6`'s `GPT-5.4-Mini Extra High` spent 11 minutes 37 seconds across three failed tool paths and retrieved nothing, while `Light` completed the same test in 29 seconds; `SC-3`'s `GPT-5.5 Extra High` ran the simplest tool chain in its series despite the highest reasoning level | **`Extra High` doesn't reliably improve retrieval outcomes and in several test IDs actively underperforms `Light`/`Low` on the identical URL** |
-| 6 | **Session contamination reduced in structure but not eliminated** | `EC-6` `OP-4`<br>`BL-1` `BL-2` `EC-1` | Confirmed workspace substitution in 1/119 runs, `SC-4`'s `GPT-5.4-Mini Extra High`; filename collision risk recurs across at least 16 runs spanning 5 test IDs, most heavily `EC-6` and `OP-4`'s two independent collision pairs | **`/private/tmp` clearing between sessions reduces but doesn't eliminate contamination risk; collisions now arise more from repeated default filenames across independent fresh fetches than from genuine cross-session artifact reuse** |
-| 7 | **JS-rendered pages remain a structural retrieval failure, confirmed on a new URL** | `SC-2` `BL-3` | `SC-2`: Next.js hydrated shell, ~578,000 chars, prose absent across all 8 runs; `BL-3`: a replacement URL, different from `T1`'s retired original, independently reproduces the same JS-rendered tutorial-body-absent pattern | **Neither `web` nor `curl` returns prose for CSP-gated or client-hydrated pages regardless of surface, and the pattern holds even when the underlying URL changes entirely** |
-| 8 | **`Cache Miss` is no longer systematic for the URL that originally defined it** | `EC-6` `BL-3` | Only 1 of 13 `EC-6` runs shows the literal `Cache Miss` string, versus 17/20 in `T1`; the other 12 return a windowed `L54` extraction instead. `BL-3`'s replacement URL produces `Cache Miss` in 8 of 8 attempts | **The failure signature is URL-specific rather than a stable property of raw or large payloads; the same URL that anchored `T1`'s `Cache Miss` finding now mostly fails silently into a windowed view on this surface instead** |
-| 9 | **`web` line ceiling is overwhelmingly page-architecture-driven on the most-replicated test IDs, sharpening `T1`'s finding** | `EC-6` `SC-2` `SC-3` | `EC-6`'s `L54` cutoff replicates identically across 10 of 13 runs spanning all 3 LLM families and all 4 reasoning levels; `SC-2`'s `L139-140` and `SC-3`'s `L353` show comparably tight cross-LLM clustering | **Where `T1` found LLM-version-correlated windows, `T2`'s tightest test IDs show the opposite: the same ceiling regardless of LLM. `OP-1`, `OP-2`, and `OP-4` still show real LLM-family splits, so both mechanisms coexist depending on the page** |
-| 10 | **`wordlim:200` confirmed directly in a `T2` tool trace, not just inferred from agent language** | `OP-4` | `GPT-5.4-Mini Extra High`'s tool trace lists `wordlim:200` explicitly alongside `web` and `turn0view0` | **Confirms `T1`'s `SC-1` inference, a soft default, agent-adjustable parameter, with a literal parameter name rather than a reconstruction from reasoning text** |
-| 11 | **`multi_tool_use.parallel` reappears outside the `GPT-5.5` family at the identical LLM-and-level pairing `T1` first observed it at** | `EC-6` | Confirmed once, in `EC-6`'s `GPT-5.4 Extra High` run, matching `T1`'s own `EC-6` finding that the same combination was first to break `GPT-5.5` exclusivity | **The identifier's appearance tracks a specific LLM-and-reasoning-level pairing independent of surface, suggesting it's gated by LLM-version-and-level rather than by track** |
 
 ## Retrieval Outcomes
 

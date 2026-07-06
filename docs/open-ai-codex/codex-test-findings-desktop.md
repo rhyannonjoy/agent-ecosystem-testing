@@ -68,7 +68,7 @@ started with `web`, recognized its limits, and pivoted to `curl` to complete the
 page's architecture. For JS-rendered pages, `curl` delivers app shells with prose absent. Agents rarely distinguished between having fetched a URL and
 having read it.
 
-The heatmap below encodes retrieval strategy, not task outcome. Rows are reasoning/intelligence levels, with LLM version as a sub-grouping. Columns are URLs ordered
+The heat map below encodes retrieval strategy, not task outcome. Rows are reasoning/intelligence levels, with LLM version as a sub-grouping. Columns are URLs ordered
 by content accessibility difficulty, left to right: static payloads → large static HTML → JS-rendered and/or SPAs where `curl` returns mostly scaffolding.
 
 {% raw %}
