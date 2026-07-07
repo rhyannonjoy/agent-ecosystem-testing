@@ -140,7 +140,7 @@ table.cdx3 td.cdx3-rl.cdx3-llm { font-size: 10px; opacity: 0.65; padding-left: 8
   // clean static → large static → JS-rendered/SPA
   var cols = [
     {id:'EC-3',  l1:'EC-3',  l2:'254-660 B', tier:'readable', note:'JSON redirect chain with small payload, truncation untestable'},
-    {id:'BL-2',  l1:'BL-2',  l2:'5.8 KB',    tier:'readable', note:'Raw Markdown stable 5,805 chars across all runs, no truncation'},
+    {id:'BL-2',  l1:'BL-2',  l2:'5.8 KB',    tier:'readable', note:'Mixed format HTML/Markdown stable 5,805 chars across all runs, no truncation'},
     {id:'EC-6',  l1:'EC-6',  l2:'92 KB',     tier:'readable', note:'Raw GitHub Markdown L54 web cutpoint in 10/13 runs'},
     {id:'SC-4',  l1:'SC-4',  l2:'65 KB',     tier:'readable', note:'Markdown guide L657 of 752 ceiling on GPT-5.5 runs'},
     {id:'SC-1',  l1:'SC-1',  l2:'125 KB',    tier:'readable', note:'Gemini API docs widest per-LLM retrieval strategy spread'},
@@ -470,8 +470,6 @@ table.cdx3 td.cdx3-rl.cdx3-llm { font-size: 10px; opacity: 0.65; padding-left: 8
 </script>
 {% endraw %}
 
----
-
 ## Truncation Analysis
 
 {: .table-findings}
@@ -491,7 +489,15 @@ table.cdx3 td.cdx3-rl.cdx3-llm { font-size: 10px; opacity: 0.65; padding-left: 8
 
 ## Retrieval Paths
 
-The second heat map encodes retrieval path, built from `tools_named` cross-checked against `output_chars` and, where needed, the source screenshot: a tool listed as attempted only counts if the reported output actually traces back to it, since `tools_named` is itself an agent self-report and sometimes under-reports what was used. `python3 urllib` and headless Chrome get their own categories, `web+python` and `browser`, rather than folding into `curl`, since which tool an agent reaches for is a real behavioral signal, not a cosmetic difference.
+This heat map encodes retrieval path built from `tools_named` cross-checked against `output_chars` and, where needed, the source screenshot
+cross-checked against audits of session rollout `JSON` logs. A tool listed as attempted only counts if the session data traces back to it;
+`tools_named` is agent self-reported and [agents intermittently under-report](friction-note-interpreted-extension.md#undercounting-agent-activity).
+The primary retrieval method defines the cell category. Column notes include more comprehensive toolchains, including common verification of
+fetched responses and failed methods.
+
+Tool paths identify default capacity and configuration discoverability gaps. In spite of workspace access to AET documentation, an advantage
+over `T1` agents operating on the isolated Codex desktop app, `T2` agents of all reasoning levels tend to rediscover default limitations each
+session without advising ways to improve fetch quality through in-house features.
 
 {% raw %}
 <div id="cdx-hm4-root"></div>
@@ -537,19 +543,19 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
   }
 
   var cols = [
-    {id:'EC-3',  l1:'EC-3',  l2:'254-660 B', tier:'readable', note:'Redirect JSON — both paths return usable content, distinction is which path is reported'},
-    {id:'BL-2',  l1:'BL-2',  l2:'5.8 KB',    tier:'readable', note:'Raw Markdown — curl dominant, 7 of 8 runs escalate for a payload this small'},
-    {id:'EC-6',  l1:'EC-6',  l2:'92 KB',     tier:'readable', note:'Raw GitHub Markdown — two GPT-5.4 High/Extra High runs never touch curl at all'},
-    {id:'SC-4',  l1:'SC-4',  l2:'65 KB',     tier:'readable', note:'Markdown Guide — one run used python3 urllib in place of curl, its own category here'},
-    {id:'SC-1',  l1:'SC-1',  l2:'125 KB',    tier:'readable', note:'Gemini API docs — widest per-model strategy spread, all four GPT-5.4-Mini levels differ'},
-    {id:'BL-1',  l1:'BL-1',  l2:'509 KB',    tier:'large',    note:'MongoDB docs — curl succeeds in 6 of 8 runs'},
-    {id:'OP-2',  l1:'OP-2',  l2:'242 KB',    tier:'large',    note:'MDN Array — curl succeeds in only 4 of 8, several curl attempts fail without escalation'},
-    {id:'OP-1',  l1:'OP-1',  l2:'740 KB',    tier:'large',    note:'Wikipedia + #fragment — curl succeeds in 3 of 8; one run converts full HTML via xmllint/pandoc/lynx'},
-    {id:'SC-3',  l1:'SC-3',  l2:'786 KB',    tier:'large',    note:'Wikipedia population table — curl succeeds in 4 of 8 canonical cells'},
-    {id:'OP-4',  l1:'OP-4',  l2:'514 KB',    tier:'large',    note:'CommonMark spec — GPT-5.5 Medium and Extra High bypass web entirely'},
-    {id:'EC-1',  l1:'EC-1',  l2:'120 KB',    tier:'spa',      note:'Gemini API SPA — one total failure, one headless-Chrome recovery via Playwright, its own category here'},
-    {id:'BL-3',  l1:'BL-3',  l2:'4.5-4.85 MB', tier:'spa',    note:'MongoDB Vector Search tutorial, T2 replacement URL — one total failure, one python3-urllib recovery'},
-    {id:'SC-2',  l1:'SC-2',  l2:'578 KB',    tier:'spa',      note:'Anthropic API docs — curl succeeds in 5 of 8; one run resolved from the source screenshot after tools_named omitted both a failed node fetch and the successful curl step'},
+    {id:'EC-3',  l1:'EC-3',  l2:'254-660 B', tier:'readable', note:'JSON redirect chain: web dominant with python/node verification'},
+    {id:'BL-2',  l1:'BL-2',  l2:'5.8 KB',    tier:'readable', note:'Mixed Format HTML/Markdown: web+curl dominant with shell commands and/or python verification'},
+    {id:'EC-6',  l1:'EC-6',  l2:'92 KB',     tier:'readable', note:'Raw GitHub Markdown: web+curl dominant with python/node verification; Browser, Playwright failures'},
+    {id:'SC-4',  l1:'SC-4',  l2:'65 KB',     tier:'readable', note:'Markdown Guide: web+curl dominant with python/node verification; Browser failures'},
+    {id:'SC-1',  l1:'SC-1',  l2:'125 KB',    tier:'readable', note:'Gemini API docs: web dominant, verification varies mcp__node_repl.js, ruby'},
+    {id:'BL-1',  l1:'BL-1',  l2:'509 KB',    tier:'large',    note:'MongoDB docs: web+curl dominant with shell command verification; Browser failure'},
+    {id:'OP-2',  l1:'OP-2',  l2:'242 KB',    tier:'large',    note:'MDN docs: web, web+curl split, verification varies node fetch/shell commands; unexamined curl, Browser failures'},
+    {id:'OP-1',  l1:'OP-1',  l2:'740 KB',    tier:'large',    note:'Wikipedia with URL Fragment: web dominant, verification varies mcp__node_repl.js, shell commands; curl outlier converts HTML via xmllint/pandoc/lynx; Browser failures'},
+    {id:'SC-3',  l1:'SC-3',  l2:'786 KB',    tier:'large',    note:'Table-heavy Wikipedia: web, web+curl split, verification varies mcp__node_repl.js, shell commands; Browser failure'},
+    {id:'OP-4',  l1:'OP-4',  l2:'514 KB',    tier:'large',    note:'CommonMark Spec: web+curl dominant, verification varies shell commands, python, ruby; curl, node fetch failures'},
+    {id:'EC-1',  l1:'EC-1',  l2:'120 KB',    tier:'spa',      note:'Gemini API docs: web+curl dominant but most varied cycle, verification with shell commands, mcp__node_repl.js, python; Browser, Playwright failures'},
+    {id:'BL-3',  l1:'BL-3',  l2:'4.5-4.85 MB', tier:'spa',    note:'MongoDB Vector Search docs: web+curl dominant but varied cycle, verification shell commands, node; mcp__node_repl.js fetch, web cache miss failures'},
+    {id:'SC-2',  l1:'SC-2',  l2:'578 KB',    tier:'spa',      note:'Anthropic API docs: web+curl dominant with shell commands, node verification; curl, mcp__node.repl.js fetch failures'},
   ];
 
   var LEVELS = ['L','M','H','XH'];
@@ -561,7 +567,7 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
   // Retrieval path per run, classified by tracing output_chars back to the tool that actually produced it,
   // not by which tools appear in tools_named, since that field is itself agent self-reported and sometimes
   // under-reports a tool that was actually used. python3 urllib (SC-4's GPT-5.4-Mini Light, BL-3's
-  // GPT-5.4-Mini Extra High) and headless Chrome via Playwright (EC-1's GPT-5.4-Mini High) get their own
+  // GPT-5.4-Mini Extra High) and a directly shell-invoked Playwright-downloaded Chrome binary (EC-1's GPT-5.4-Mini High) get their own
   // categories rather than folding into curl/web+curl; the mechanism is a genuinely different signal about
   // what the agent reached for, not a cosmetic difference in tool name. SC-2's GPT-5.4-Mini High looked
   // unresolvable from tools_named alone ("web.open, turn0view0" only), but the source screenshot shows the
@@ -613,7 +619,7 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
       '5.5:L':'web+curl','5.5:M':'curl','5.5:H':'web+curl','5.5:XH':'curl',
     },
     'EC-1': {
-      '5.4m:L':'none','5.4m:M':'web','5.4m:H':'browser','5.4m:XH':'web+curl',
+      '5.4m:L':'none','5.4m:M':'web','5.4m:H':{path:'W+HC', detail:'Browser(iab), Playwright.launch, and Node attempts failed; Playwright-downloaded headless Chrome binary with --dump-dom succeeded.'},'5.4m:XH':'web+curl',
       '5.4:L':'web+curl','5.4:M':'web+curl','5.4:H':'web+curl','5.4:XH':'web',
       '5.5:L':'web+curl','5.5:M':'curl','5.5:H':'curl','5.5:XH':'web',
     },
@@ -628,11 +634,11 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
   };
 
   var SURFACE_NOTE = {
-    'web':        'web.open only, output traces to the rendered extraction',
-    'web+curl':   'output traces to a full-body fetch via curl, web.open also attempted',
-    'curl':       'output traces to a full-body fetch via curl, web.open not attempted',
-    'web+python': 'output traces to a full-body fetch via python3 urllib, web.open also attempted',
-    'browser':    'output traces to headless-Chrome browser automation via Playwright, after curl and other paths failed',
+    'web':        'web only, output includes rendered extraction',
+    'web+curl':   'output includes full fetch with curl after web attempted, identified unsuitable for task',
+    'curl':       'output includes full fetch with curl, web not attempted or reasoned about',
+    'web+python': 'output includes full fetch with python after web, curl not attempted or failed',
+    'W+HC':         'output includes a directly shell-invoked headless Chrome binary after other paths failed',
     'none':       'no usable content retrieved on any path',
   };
 
@@ -642,7 +648,7 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
       'web+curl':   { bg: dark ? '#185FA5' : '#378ADD', fg: '#fff',                       label: 'W+C' },
       'curl':       { bg: dark ? '#cba452' : '#FFB74D', fg: dark ? '#412402' : '#412402', label: 'C'   },
       'web+python': { bg: dark ? '#0e7a8c' : '#26b8cf', fg: '#fff',                       label: 'W+P' },
-      'browser':    { bg: dark ? '#5b3a9e' : '#9575cd', fg: '#fff',                       label: 'B'   },
+      'W+HC':         { bg: dark ? '#5b3a9e' : '#9575cd', fg: '#fff',                       label: 'W+HC'  },
       'none':       { bg: dark ? '#D4537E' : '#FF8A65', fg: '#fff',                       label: '✗'   },
     };
     return map[path] || { bg: dark ? '#363634' : '#d0cec7', fg: 'inherit', label: '' };
@@ -669,11 +675,11 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
       background:'rgba(128,128,128,0.15)', borderRadius:2, padding:'1px 3px'};
     var C = function(t) { return e('code', {style:cs}, t); };
     var items = [
-      { path: 'web',        desc: [C('web.open'), ' only, output traces to the rendered extraction'] },
-      { path: 'web+curl',   desc: ['Output traces to a full-body fetch via ', C('curl'), ', ', C('web.open'), ' also attempted'] },
-      { path: 'curl',       desc: ['Output traces to a full-body fetch via ', C('curl'), ', ', C('web.open'), ' not attempted'] },
-      { path: 'web+python', desc: ['Output traces to a full-body fetch via ', C('python3 urllib'), ' instead of ', C('curl')] },
-      { path: 'browser',    desc: ['Output traces to headless-Chrome browser automation, after ', C('curl'), ' failed'] },
+      { path: 'web',        desc: ['Output includes rendered extraction, ', C('web'), ' only'] },
+      { path: 'web+curl',   desc: ['Output includes full fetch with ', C('curl'), ', ', C('web'), ' limits identified'] },
+      { path: 'curl',       desc: ['Output includes full fetch with ', C('curl'), ', ', C('web'), ' not attempted'] },
+      { path: 'web+python', desc: ['Output includes a full fetch with ', C('python'), ' after ', C('web'), ', ', C('curl'), ' failure/not attempted'] },
+      { path: 'W+HC',         desc: ['Output includes headless-Chrome binary after ', C('web'), ' and other failures'] },
       { path: 'none',       desc: ['No usable content retrieved on any path'] },
     ];
     return e('table', {style:{borderCollapse:'collapse', fontSize:11, marginTop:0}},
@@ -693,18 +699,16 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
     );
   }
 
-  function NoteBlock(props) {
+function NoteBlock(props) {
     var tc = props.textColor || 'inherit';
     var cs = {fontFamily:'monospace', fontSize:10,
       background:'rgba(128,128,128,0.15)', borderRadius:2, padding:'1px 3px'};
     var C = function(t) { return e('code', {style:cs}, t); };
     return e('p', {style:{fontSize:11, marginTop:8, lineHeight:1.6, opacity:0.65, color:tc}},
       e('i', null,
-        C('W'), ' = ', C('web.open'), ' only; ', C('W+C'), ' = both attempted, output from a full curl fetch; ',
-        C('C'), ' = full curl fetch, ', C('web.open'), ' not attempted; ', C('W+P'), ' = full fetch via ', C('python3 urllib'), ' instead of ', C('curl'), '; ',
-        C('B'), ' = headless-Chrome browser automation; ', C('\u2717'), ' = no usable content on any path. ',
-        C('GPT-5.4'), ' only ran ', C('EC-1'), ', ', C('EC-3'), ', and ', C('EC-6'), ', empty cells elsewhere. ',
-        'No run in this corpus produced a clean "', C('web'), ' attempted and failed, nothing else tried" case; every near-zero output either had real uncounted ', C('web.open'), ' content or was a total multi-tool failure. Hover cells for the specific mechanism.'
+        C('GPT-5.4'), ' only available during ', C('EC'), ' - edge case testing, empty cells elsewhere. ',
+        'No run produced a ', C('web'), ' failure without pivoting to different tools; task failures included combinations of undercounted ', C('web'), ' content or multi-tool errors. ',
+        'Most common failures include ', C('Browser(iab)'), ', ', C('Playwright'), ', and ', C('Node'), ' attempts. Hover over column test IDs and row cells for details.'
       )
     );
   }
@@ -782,8 +786,8 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
                 MODEL_LABELS[row.model]
               ),
               cols.map(function(col) {
-                var path = (runs[col.id] || {})[rowKey];
-                if (!path) {
+                var cell = (runs[col.id] || {})[rowKey];
+                if (!cell) {
                   return e('td', {key:col.id},
                     e('div', {style:{
                       width:cellW, height:cellH, margin:'1px auto',
@@ -792,9 +796,11 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
                     }})
                   );
                 }
+                var path = typeof cell === 'object' ? cell.path : cell;
                 var c = getColors(dark, path);
+                var detail = (typeof cell === 'object' && cell.detail) ? cell.detail : SURFACE_NOTE[path];
                 var tip = col.l1 + ' · ' + MODEL_LABELS[row.model] + ' ' +
-                  LEVEL_LABELS[row.level] + '\n' + SURFACE_NOTE[path];
+                  LEVEL_LABELS[row.level] + '\n' + detail;
                 return e('td', {key:col.id,
                   style:{background:getTierHeaderBg(dark, col.tier)}},
                   e('div', {title:tip, style:{
@@ -868,8 +874,6 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
 })();
 </script>
 {% endraw %}
-
----
 
 ## Retrieval Outcomes
 
