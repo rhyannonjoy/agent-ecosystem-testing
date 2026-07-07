@@ -152,7 +152,7 @@ series rely on the 4 chars per token heuristic, making cross-run token compariso
 
 12. **`GPT-5.4-Mini Light`'s dual `curl` DNS failures went unexamined.** The agent substituted `python3 urllib` without reporting the failure
 pattern or offering to retry with escalated permissions. The substitution succeeded but the failure mode wasn't disclosed, consistent with
-`GPT-5.4-Mini Low`'s unreported `curl` failure in SC-3.
+`GPT-5.4-Mini Low`'s unreported `curl` failure in `SC-3`.
 
 ---
 

@@ -145,7 +145,7 @@ bypassed `web` entirely and went straight to `curl`. The split doesn't track cle
 12. **Double rendering extended to `GPT-5.5` within `T2` `BL-3`.** First confirmed on a non `Mini` model in `GPT-5.5 Low`, then continuing in `GPT-5.5 Medium` and `GPT-5.5 High`.
 Consistent with the existing `T2` double rendering pattern, no new handling required beyond the established methodology of treating runtime capture as the primary record.
 
-13. **Byte and character counts diverged by a consistent margin whenever both were measured on a full fetch.** `GPT-5.4-Mini Medium` showed a 180 unit gap between `wc -c` and the
+13. **Byte and character counts diverged by a consistent margin whenever both measured on a full fetch.** `GPT-5.4-Mini Medium` showed a 180 unit gap between `wc -c` and the
 saved character count; `GPT-5.5 Low` and `GPT-5.5 Medium` showed the identical 180 unit gap on what appears to be the same cached page snapshot. Likely reflects multi-byte
 UTF-8 characters in the source page rather than a measurement inconsistency, but worth tracking if the gap ever shifts on a future run.
 

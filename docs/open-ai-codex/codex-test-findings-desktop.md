@@ -51,7 +51,7 @@ parent: OpenAI Codex
 | **Total Runs** | 261 |
 | **Distinct URLs** | 13 |
 | **Input Size Range** | `EC-3`: ~660 chars to `BL-3`: ~3.1 MB |
-| **Truncation Events** | 195 / 261 - 78% of agents report truncation in some form<br>- `web`-only path with limits reported explicitly: 42 <br>- `web`&rarr;`curl` path with `web` limits reported explicitly: 114<br>- `web`&rarr;`curl` path with `web` limits implied in reasoning: 39<br>- `curl`-only path and/or no truncation signal: 66 |
+| **Truncation Events** | 195 / 261 ~75% of agents report truncation in some form<br>- `web`-only path with limits reported explicitly: 42 <br>- `web`&rarr;`curl` path with `web` limits reported explicitly: 114<br>- `web`&rarr;`curl` path with `web` limits implied in reasoning: 39<br>- `curl`-only path and/or no truncation signal: 66 |
 | **Average Output Size** | 351,961 chars |
 | **Output Size Range** | 95 - 3,103,342 chars |
 | **Average Token Use** | 88,489 tokens |
