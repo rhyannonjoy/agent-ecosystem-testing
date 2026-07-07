@@ -490,14 +490,18 @@ table.cdx3 td.cdx3-rl.cdx3-llm { font-size: 10px; opacity: 0.65; padding-left: 8
 ## Retrieval Paths
 
 This heat map encodes retrieval path built from `tools_named` cross-checked against `output_chars` and, where needed, the source screenshot
-cross-checked against audits of session rollout `JSON` logs. A tool listed as attempted only counts if the session data traces back to it;
+cross-checked against audits of session rollout `JSON` logs. A tool listed as attempted only counts if the session data traces back to it, as
 `tools_named` is agent self-reported and [agents intermittently under-report](friction-note-interpreted-extension.md#undercounting-agent-activity).
 The primary retrieval method defines the cell category. Column notes include more comprehensive toolchains, including common verification of
 fetched responses and failed methods.
 
-Tool paths identify default capacity and configuration discoverability gaps. In spite of workspace access to AET documentation, an advantage
-over `T1` agents operating on the isolated Codex desktop app, `T2` agents of all reasoning levels tend to rediscover default limitations each
-session without advising ways to improve fetch quality through in-house features.
+Tool paths identify default capacity and configuration discoverability gaps. Despite workspace access to AET documentation and research
+concerns, an advantage `T1` agents on the isolated Codex desktop app didn't have, `T2` agents of all reasoning levels still rediscover
+default limitations each session rather than drawing on that access, and don't advise ways to improve fetch quality through in-house
+features. While agents relied on Codex's fetch mechanism `web`, they often reasoned it unsuitable for fetching and describing web content,
+pivoting to `curl`; paginating through text-extraction slices is expensive compared to tapping a server for `content-length`. Multiple
+extension upgrades across the test cycle didn't change this pattern or improve report quality. Workspace access, version updates, and reasoning
+level all failed to move agents toward exposing debugging or sharing product knowledge that may help a user learn Codex.
 
 {% raw %}
 <div id="cdx-hm4-root"></div>
@@ -619,7 +623,7 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
       '5.5:L':'web+curl','5.5:M':'curl','5.5:H':'web+curl','5.5:XH':'curl',
     },
     'EC-1': {
-      '5.4m:L':'none','5.4m:M':'web','5.4m:H':{path:'W+HC', detail:'Browser(iab), Playwright.launch, and Node attempts failed; Playwright-downloaded headless Chrome binary with --dump-dom succeeded.'},'5.4m:XH':'web+curl',
+      '5.4m:L':'none','5.4m:M':'web','5.4m:H':{path:'W+HC', detail:'Browser(iab), Playwright.launch, and Node attempts failed; Playwright-downloaded headless Chrome binary with --dump-dom succeeded'},'5.4m:XH':'web+curl',
       '5.4:L':'web+curl','5.4:M':'web+curl','5.4:H':'web+curl','5.4:XH':'web',
       '5.5:L':'web+curl','5.5:M':'curl','5.5:H':'curl','5.5:XH':'web',
     },
@@ -634,11 +638,11 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
   };
 
   var SURFACE_NOTE = {
-    'web':        'web only, output includes rendered extraction',
+    'web':        'output includes rendered extraction, web only',
     'web+curl':   'output includes full fetch with curl after web attempted, identified unsuitable for task',
     'curl':       'output includes full fetch with curl, web not attempted or reasoned about',
     'web+python': 'output includes full fetch with python after web, curl not attempted or failed',
-    'W+HC':         'output includes a directly shell-invoked headless Chrome binary after other paths failed',
+    'W+HC':         'output includes headless Chrome binary after multi-tool failures',
     'none':       'no usable content retrieved on any path',
   };
 
