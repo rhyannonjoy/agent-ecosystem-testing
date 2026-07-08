@@ -492,8 +492,8 @@ table.cdx3 td.cdx3-rl.cdx3-llm { font-size: 10px; opacity: 0.65; padding-left: 8
 This heat map encodes retrieval path built from `tools_named` cross-checked against `output_chars` and, where needed, the source screenshot
 cross-checked against audits of session rollout `JSON` logs. A tool listed as attempted only counts if the session data traces back to it, as
 `tools_named` is agent self-reported and [agents intermittently under-report](friction-note-interpreted-extension.md#undercounting-agent-activity).
-The primary retrieval method defines the cell category. Column notes include more comprehensive toolchains, including common verification of
-fetched responses and failed methods.
+The primary retrieval method defines the cell category; cell notes include rare ~10 instances in which agents paginated through `web` text
+extractions. Column notes include more comprehensive toolchains, including common verification of fetched responses and failed methods.
 
 Tool paths identify default capacity and configuration discoverability gaps. Despite workspace access to AET documentation and research
 concerns, an advantage `T1` agents on the isolated Codex desktop app didn't have, `T2` agents of all reasoning levels still rediscover
@@ -591,12 +591,12 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
     },
     'EC-6': {
       '5.4m:L':'curl','5.4m:M':'web+curl','5.4m:H':'web+curl','5.4m:XH':'web',
-      '5.4:L':'web+curl','5.4:M':'web+curl','5.4:H':'web','5.4:XH':'web',
+      '5.4:L':'web+curl','5.4:M':'web+curl','5.4:H':{path:'web', detail:'called web to paginate turn0view0/turn1view0/turn2view0 after L33 clip, deepest pass L54'},'5.4:XH':{path:'web', detail:'called web to paginate turn0view0/turn1view0, stopped at common L54 cutpoint'},
       '5.5:L':'web+curl','5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':'web+curl',
     },
     'SC-4': {
-      '5.4m:L':'web+python','5.4m:M':'web','5.4m:H':'web+curl','5.4m:XH':'web+curl',
-      '5.5:L':'web','5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':'web+curl',
+      '5.4m:L':'web+python','5.4m:M':{path:'web', detail:'called web to paginate turn0view0/turn1view0, reached footer but last 50 chars cutoff mid-word'},'5.4m:H':'web+curl','5.4m:XH':'web+curl',
+      '5.5:L':'web','5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':{path:'web+curl', detail:'called web to paginate, first stop L657 of 752, follow-up view reached end; used curl for metrics'},
     },
     'SC-1': {
       '5.4m:L':'web+curl','5.4m:M':'web','5.4m:H':'web','5.4m:XH':'web',
@@ -604,23 +604,23 @@ table.cdx4 td.cdx4-rl.cdx4-model { font-size: 10px; opacity: 0.65; padding-left:
     },
     'BL-1': {
       '5.4m:L':'web+curl','5.4m:M':'web+curl','5.4m:H':'web+curl','5.4m:XH':'web+curl',
-      '5.5:L':'web+curl','5.5:M':'web','5.5:H':'web+curl','5.5:XH':'web',
+      '5.5:L':{path:'web+curl', detail:'called web to paginate at least two views, reached page end ~L545; used curl for metrics'},'5.5:M':{path:'web', detail:'called web to paginate, first view stopped L420 despite Total lines: 545, follow-up view reached L544'},'5.5:H':'web+curl','5.5:XH':'web',
     },
     'OP-2': {
       '5.4m:L':'web','5.4m:M':'web','5.4m:H':'web','5.4m:XH':'web+curl',
-      '5.5:L':'web','5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':'web+curl',
+      '5.5:L':{path:'web', detail:'called web to paginate L0-591, second view L903-1267; L592-902 not recovered'},'5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':'web+curl',
     },
     'OP-1': {
-      '5.4m:L':'web','5.4m:M':'web','5.4m:H':'web','5.4m:XH':'web+curl',
+      '5.4m:L':'web','5.4m:M':{path:'web', detail:'called web to paginate turn0view0-turn3view0 after initial L304 clip, reached L1940 footer; most extensive single-tool pagination'},'5.4m:H':'web','5.4m:XH':'web+curl',
       '5.5:L':'web','5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':'web',
     },
     'SC-3': {
-      '5.4m:L':'web','5.4m:M':'web','5.4m:H':'web+curl','5.4m:XH':'web+curl',
-      '5.5:L':'web','5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':'web',
+      '5.4m:L':{path:'web', detail:'called web to paginate, scattered sampling middle sections, then later sections; no contiguous full payload'},'5.4m:M':'web','5.4m:H':'web+curl','5.4m:XH':'web+curl',
+      '5.5:L':{path:'web', detail:'called web to paginate, stopped at L353 of 1225 in population table, reached L1224'},'5.5:M':'web+curl','5.5:H':'web+curl','5.5:XH':'web',
     },
     'OP-4': {
-      '5.4m:L':'web','5.4m:M':'web+curl','5.4m:H':'web','5.4m:XH':'web+curl',
-      '5.5:L':'web+curl','5.5:M':'curl','5.5:H':'web+curl','5.5:XH':'curl',
+      '5.4m:L':'web','5.4m:M':'web+curl','5.4m:H':{path:'web', detail:'called web to paginate turn0view0/turn1view0/turn2view0; auto-chunking rather than reasoned'},'5.4m:XH':'web+curl',
+      '5.5:L':{path:'web+curl', detail:'called web to paginate L0-616, later view reached end but omitted middle content; used curl for metrics'},'5.5:M':'curl','5.5:H':'web+curl','5.5:XH':'curl',
     },
     'EC-1': {
       '5.4m:L':'none','5.4m:M':'web','5.4m:H':{path:'W+HC', detail:'Browser(iab), Playwright.launch, and Node attempts failed; Playwright-downloaded headless Chrome binary with --dump-dom succeeded'},'5.4m:XH':'web+curl',
