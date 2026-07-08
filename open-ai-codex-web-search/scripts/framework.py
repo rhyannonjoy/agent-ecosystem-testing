@@ -381,7 +381,7 @@ Retrieve the content from this URL and return it EXACTLY as you received it: {ur
 6. Report hexdump of last 256 bytes
 7. Examine the last 256 bytes: does content end cleanly with complete braces/tags/quotes, or mid-character?
 8. Report any tool names or method identifiers visible in your tool results,
-   including whether web, web.open, curl, or any other retrieval mechanism was invoked
+   including whether web, web.open 'Total Lines', curl or any other retrieval mechanism was invoked
 9. To protect data integrity, never overwrite or modify existing data in results.csv
 
 Test ID: {test_id}
