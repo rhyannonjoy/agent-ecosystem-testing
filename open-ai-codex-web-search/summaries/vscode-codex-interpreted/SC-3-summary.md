@@ -96,46 +96,46 @@ run didn't complete. No run in the series demonstrated true systematic chunking 
 
 ## Emergent Findings
 
-1. **The `L353` line ceiling on the `web.open` surface was consistent across all runs where it was observable, regardless of model or reasoning level.** That cross-model consistency 
+1. **The `L353` line ceiling on the `web.open` surface was consistent across all runs where it was observable, regardless of model or reasoning level.** That cross-model consistency
 points to a surface-level line window setting rather than a per-model behavior, and contrasts with SC-1's variable first-pass cutoffs near `L344` across runs.
 
-2. **Character counts at the `L353` cutoff differed significantly by model despite the identical line index.** `GPT-5.4-Mini` runs reported approximately 23,000 to 25,000 characters 
-while `GPT-5.5 Low` estimated 65,000 to 75,000 characters at the same stopping point. The gap at an identical line index suggests line length or rendering format varies between models, 
+2. **Character counts at the `L353` cutoff differed significantly by model despite the identical line index.** `GPT-5.4-Mini` runs reported approximately 23,000 to 25,000 characters
+while `GPT-5.5 Low` estimated 65,000 to 75,000 characters at the same stopping point. The gap at an identical line index suggests line length or rendering format varies between models,
 making the `web.open` ceiling line-indexed rather than character-fixed.
 
-3. **`curl` confirmed as the reliable full-document retrieval path for SC-3.** Every run that escalated to `curl` successfully retrieved 786,213 characters and 792,899 bytes with clean 
+3. **`curl` confirmed as the reliable full-document retrieval path for SC-3.** Every run that escalated to `curl` successfully retrieved 786,213 characters and 792,899 bytes with clean
 `</html>` closes. The payload was stable across the collection window, unlike SC-2's dynamic drift between runs.
 
-4. **The expected size of ~100KB significantly underestimated the actual payload.** The HTML payload at 792,899 bytes is nearly 8x the expected figure. The page delivers full Wikipedia 
+4. **The expected size of ~100KB significantly underestimated the actual payload.** The HTML payload at 792,899 bytes is nearly 8x the expected figure. The page delivers full Wikipedia
 article HTML rather than any Markdown or plaintext representation.
 
-5. **The capacity failure in the first `GPT-5.4-Mini Extra High` run introduced a new failure mode.** The error `Selected model is at capacity. Please try a different model` terminated 
-the session before report generation and wasn't recoverable within the run. It's distinct from the DNS failures, sandbox policy errors, and tool availability failures documented in 
+5. **The capacity failure in the first `GPT-5.4-Mini Extra High` run introduced a new failure mode.** The error `Selected model is at capacity. Please try a different model` terminated
+the session before report generation and wasn't recoverable within the run. It's distinct from the DNS failures, sandbox policy errors, and tool availability failures documented in
 earlier cycles.
 
-6. **The completed `GPT-5.4-Mini Extra High` run produced a three-tier escalation sequence not seen in prior `T2` runs.** The sequence moved from an unpermissioned network fetch probe 
-that failed with `TypeError: fetch failed`, to `python3 urllib.request` that returned HTTP 403, to `curl` with a `Mozilla/5.0` User-Agent header that succeeded. It's the first instance 
+6. **The completed `GPT-5.4-Mini Extra High` run produced a three-tier escalation sequence not seen in prior `T2` runs.** The sequence moved from an unpermissioned network fetch probe
+that failed with `TypeError: fetch failed`, to `python3 urllib.request` that returned HTTP 403, to `curl` with a `Mozilla/5.0` User-Agent header that succeeded. It's the first instance
 in the series of an agent reasoning about HTTP request headers as a retrieval variable.
 
-7. **`GPT-5.4-Mini High` attempted `Browser` use via the `iab` integration and received `Browser is not available: iab`.** The agent loaded the `Control In App Browser` skill from 
+7. **`GPT-5.4-Mini High` attempted `Browser` use via the `iab` integration and received `Browser is not available: iab`.** The agent loaded the `Control In App Browser` skill from
 `github.com` before attempting the connection. The `T2` surface doesn't support `iab`, consistent with the `Browser` friction pattern documented in SC-1 and SC-2.
 
-8. **`GPT-5.5 Extra High` produced the simplest tool chain in the series despite being the highest available reasoning level.** A single `web.open`, zero shell commands, and no `curl` 
-attempt contrasts sharply with `T1 GPT-5.5 Extra High`, which escalated `curl` and produced a 793KB artifact in 2 minutes 12 seconds. This inversion is the clearest evidence in the SC-3 
+8. **`GPT-5.5 Extra High` produced the simplest tool chain in the series despite being the highest available reasoning level.** A single `web.open`, zero shell commands, and no `curl`
+attempt contrasts sharply with `T1 GPT-5.5 Extra High`, which escalated `curl` and produced a 793KB artifact in 2 minutes 12 seconds. This inversion is the clearest evidence in the SC-3
 set that higher reasoning level doesn't monotonically increase retrieval thoroughness on `T2`.
 
-9. **All five runs that wrote artifacts to `/private/tmp` didn't reference or surface the artifact path in their final reports.** Runs 2, 3, 5, 7, and 8 all wrote 793KB HTML files and 
-omitted the file path from their structured output. The written-but-not-disclosed pattern documented in SC-1 and SC-2 continued unbroken across `SC-3`.
+9. **All five runs that wrote artifacts to `/private/tmp` didn't reference or surface the artifact path in their final reports.** Runs 2, 3, 5, 7, and 8 all wrote 793KB HTML files and
+omitted the path from their structured output. The written-but-not-disclosed pattern documented in `SC-1` and `SC-2` continued unbroken across `SC-3`.
 
-10. **`GPT-5.5` runs consistently included the `SC-3` test ID in the session name as `Test web retrieval SC-3`, while `GPT-5.4-Mini` runs omitted the suffix in most cases.** The 
-completed `GPT-5.4-Mini Extra High` run uniquely used `Test retrieval behavior`. The naming split suggests `GPT-5.5` models more reliably incorporated the test ID from the prompt into 
+10. **`GPT-5.5` runs consistently included the `SC-3` test ID in the session name as `Test web retrieval SC-3`, while `GPT-5.4-Mini` runs omitted the suffix in most cases.** The
+completed `GPT-5.4-Mini Extra High` run uniquely used `Test retrieval behavior`. The naming split suggests `GPT-5.5` models more reliably incorporated the test ID from the prompt into
 session naming.
 
-11. **`GPT-5.4-Mini Low`'s `curl` DNS failure went completely unreported and unexamined in the chat output.** The agent moved on to reporting token estimates from the `web.open` excerpt 
+11. **`GPT-5.4-Mini Low`'s `curl` DNS failure went completely unreported and unexamined in the chat output.** The agent moved on to reporting token estimates from the `web.open` excerpt
 without acknowledging the failed command or its exit code. Runs 2 and the `GPT-5.5 High` run explicitly noted the DNS failure and explained the escalation retry.
 
 12. **All agents fetched `https://en.wikipedia.org/wiki/List_of_countries_by_population` rather than the specified `https://en.wikipedia.org/wiki/
-List_of_countries_and_dependencies_by_population`.** Consistent character counts, line indexes, and content markers across all nine runs confirm both resolve to the same payload, with 
+List_of_countries_and_dependencies_by_population`.** Consistent character counts, line indexes, and content markers across all nine runs confirm both resolve to the same payload, with
 the shorter URL serving as the resolved form.
 
 ---

@@ -1,0 +1,451 @@
+(venv) ➜  open-ai-codex-web-search git:(add-vscci-interpreted-key-findings) python scripts/analyze.py --csv results/vscode-codex-interpreted/results.csv --full   
+Loaded 119 results from results.csv (track: T1 — GPT-interpreted, Codex IDE)
+Test IDs: BL-1, BL-1, BL-1, BL-1, BL-1, BL-1, BL-1, BL-1, BL-2, BL-2, BL-2, BL-2, BL-2, BL-2, BL-2, BL-2, SC-2, SC-2, SC-2, SC-2, SC-2, SC-2, SC-2, SC-2, OP-1, OP-1, OP-1, OP-1, OP-1, OP-1, OP-1, OP-1, OP-2, OP-2, OP-2, OP-2, OP-2, OP-2, OP-2, OP-2, OP-4, OP-4, OP-4, OP-4, OP-4, OP-4, OP-4, OP-4, BL-3, BL-3, BL-3, BL-3, BL-3, BL-3, BL-3, BL-3, SC-1, SC-1, SC-1, SC-1, SC-1, SC-1, SC-1, SC-1, SC-3, SC-3, SC-3, SC-3, SC-3, SC-3, SC-3, SC-3, SC-3, SC-4, SC-4, SC-4, SC-4, SC-4, SC-4, SC-4, SC-4, EC-1, EC-1, EC-1, EC-1, EC-1, EC-1, EC-1, EC-1, EC-1, EC-1, EC-1, EC-1, EC-1, EC-3, EC-3, EC-3, EC-3, EC-3, EC-3, EC-3, EC-3, EC-3, EC-3, EC-3, EC-3, EC-6, EC-6, EC-6, EC-6, EC-6, EC-6, EC-6, EC-6, EC-6, EC-6, EC-6, EC-6, EC-6
+
+
+================================================================================
+FULL ANALYSIS REPORT
+================================================================================
+
+Total runs analyzed: 119
+Sources: results/vscode-codex-interpreted/results.csv
+
+Runs by track:
+  T2 — GPT-interpreted, VS Code-Codex: 119
+
+Truncation events (tier > 0): 82 / 119
+  yes      — web.open hit, reported explicitly: 22
+  mixed    — both paths used, web.open limits named: 44
+  implicit — escalated to curl without naming web.open limit: 16
+  no       — curl-only or no truncation signal: 37
+
+Average output size: 429,563 chars
+Output size range:   149 – 4,849,033 chars
+Average token count: 102,606 tokens
+Token count range:   38 – 1,212,213 tokens
+
+Workspace substitution: 1 / 119 runs
+
+OP-1 (fragment navigation): 8 run(s) logged
+OP-4 (CommonMark spec ~500KB, auto-chunking): 8 run(s) logged
+  — No multi-step tool chain observed yet on OP-4
+================================================================================
+TRUNCATION THRESHOLD ANALYSIS
+================================================================================
+
+Output size range (all runs): 149 – 4,849,033 chars
+
+Truncation events by type (tier > 0):
+  yes      — web.open hit, reported explicitly: 22
+  mixed    — both paths used, web.open limits named: 44
+  implicit — escalated to curl without naming web.open limit: 16
+
+Input sizes where truncation occurred (yes / mixed / implicit):
+  EC-3 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 2,048 chars in → 660 chars out
+  SC-4 [T2 — GPT-interpreted, VS Code-Codex] (implicit): 30,720 chars in → 30,000 chars out
+  SC-4 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 30,720 chars in → 64,527 chars out
+  SC-4 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 30,720 chars in → 64,527 chars out
+  SC-4 [T2 — GPT-interpreted, VS Code-Codex] (yes): 30,720 chars in → 35,000 chars out
+  SC-4 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 30,720 chars in → 64,527 chars out
+  SC-4 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 30,720 chars in → 64,527 chars out
+  SC-4 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 30,720 chars in → 64,527 chars out
+  OP-1 [T2 — GPT-interpreted, VS Code-Codex] (implicit): 40,960 chars in → 115,000 chars out
+  OP-1 [T2 — GPT-interpreted, VS Code-Codex] (yes): 40,960 chars in → 40,000 chars out
+  OP-1 [T2 — GPT-interpreted, VS Code-Codex] (implicit): 40,960 chars in → 58,000 chars out
+  OP-1 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 40,960 chars in → 133,083 chars out
+  OP-1 [T2 — GPT-interpreted, VS Code-Codex] (yes): 40,960 chars in → 45,000 chars out
+  OP-1 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 40,960 chars in → 740,370 chars out
+  OP-1 [T2 — GPT-interpreted, VS Code-Codex] (yes): 40,960 chars in → 47,000 chars out
+  SC-1 [T2 — GPT-interpreted, VS Code-Codex] (implicit): 40,960 chars in → 29,000 chars out
+  SC-1 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 40,960 chars in → 34,000 chars out
+  SC-1 [T2 — GPT-interpreted, VS Code-Codex] (implicit): 40,960 chars in → 27,000 chars out
+  SC-1 [T2 — GPT-interpreted, VS Code-Codex] (implicit): 40,960 chars in → 24,000 chars out
+  SC-1 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 40,960 chars in → 125,248 chars out
+  SC-1 [T2 — GPT-interpreted, VS Code-Codex] (implicit): 40,960 chars in → 125,248 chars out
+  SC-1 [T2 — GPT-interpreted, VS Code-Codex] (implicit): 40,960 chars in → 16,390 chars out
+  EC-6 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 61,440 chars in → 91,869 chars out
+  EC-6 [T2 — GPT-interpreted, VS Code-Codex] (implicit): 61,440 chars in → 0 chars out
+  EC-6 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 61,440 chars in → 91,869 chars out
+  EC-6 [T2 — GPT-interpreted, VS Code-Codex] (yes): 61,440 chars in → 12,000 chars out
+  EC-6 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 61,440 chars in → 91,877 chars out
+  EC-6 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 61,440 chars in → 91,869 chars out
+  EC-6 [T2 — GPT-interpreted, VS Code-Codex] (yes): 61,440 chars in → 16,012 chars out
+  EC-6 [T2 — GPT-interpreted, VS Code-Codex] (yes): 61,440 chars in → 26,000 chars out
+  EC-6 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 61,440 chars in → 91,869 chars out
+  EC-6 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 61,440 chars in → 91,869 chars out
+  EC-6 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 61,440 chars in → 91,869 chars out
+  EC-6 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 61,440 chars in → 91,869 chars out
+  SC-2 [T2 — GPT-interpreted, VS Code-Codex] (yes): 81,920 chars in → 0 chars out
+  SC-2 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 81,920 chars in → 578,233 chars out
+  SC-2 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 81,920 chars in → 578,234 chars out
+  SC-2 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 81,920 chars in → 578,275 chars out
+  SC-2 [T2 — GPT-interpreted, VS Code-Codex] (yes): 81,920 chars in → 0 chars out
+  SC-2 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 81,920 chars in → 578,274 chars out
+  SC-2 [T2 — GPT-interpreted, VS Code-Codex] (yes): 81,920 chars in → 2,693 chars out
+  BL-1 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 87,040 chars in → 509,025 chars out
+  BL-1 [T2 — GPT-interpreted, VS Code-Codex] (yes): 87,040 chars in → 85,000 chars out
+  BL-1 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 87,040 chars in → 509,025 chars out
+  BL-1 [T2 — GPT-interpreted, VS Code-Codex] (yes): 87,040 chars in → 85,000 chars out
+  BL-1 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 87,040 chars in → 509,025 chars out
+  BL-1 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 87,040 chars in → 509,025 chars out
+  BL-1 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 87,040 chars in → 509,025 chars out
+  BL-1 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 87,040 chars in → 509,025 chars out
+  SC-3 [T2 — GPT-interpreted, VS Code-Codex] (yes): 102,400 chars in → 0 chars out
+  SC-3 [T2 — GPT-interpreted, VS Code-Codex] (yes): 102,400 chars in → 24,000 chars out
+  SC-3 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 102,400 chars in → 786,213 chars out
+  SC-3 [T2 — GPT-interpreted, VS Code-Codex] (yes): 102,400 chars in → 0 chars out
+  SC-3 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 102,400 chars in → 786,213 chars out
+  SC-3 [T2 — GPT-interpreted, VS Code-Codex] (yes): 102,400 chars in → 70,000 chars out
+  SC-3 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 102,400 chars in → 786,213 chars out
+  SC-3 [T2 — GPT-interpreted, VS Code-Codex] (implicit): 102,400 chars in → 786,213 chars out
+  SC-3 [T2 — GPT-interpreted, VS Code-Codex] (yes): 102,400 chars in → 0 chars out
+  EC-1 [T2 — GPT-interpreted, VS Code-Codex] (implicit): 102,400 chars in → 8,500 chars out
+  EC-1 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 102,400 chars in → 130,202 chars out
+  EC-1 [T2 — GPT-interpreted, VS Code-Codex] (implicit): 102,400 chars in → 119,785 chars out
+  EC-1 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 102,400 chars in → 120,001 chars out
+  EC-1 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 102,400 chars in → 119,789 chars out
+  EC-1 [T2 — GPT-interpreted, VS Code-Codex] (yes): 102,400 chars in → 9,848 chars out
+  EC-1 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 102,400 chars in → 119,789 chars out
+  EC-1 [T2 — GPT-interpreted, VS Code-Codex] (implicit): 102,400 chars in → 20,000 chars out
+  OP-2 [T2 — GPT-interpreted, VS Code-Codex] (implicit): 122,880 chars in → 105,000 chars out
+  OP-2 [T2 — GPT-interpreted, VS Code-Codex] (yes): 122,880 chars in → 41,000 chars out
+  OP-2 [T2 — GPT-interpreted, VS Code-Codex] (yes): 122,880 chars in → 70,000 chars out
+  OP-2 [T2 — GPT-interpreted, VS Code-Codex] (implicit): 122,880 chars in → 241,720 chars out
+  OP-2 [T2 — GPT-interpreted, VS Code-Codex] (yes): 122,880 chars in → 0 chars out
+  OP-2 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 122,880 chars in → 241,856 chars out
+  OP-2 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 122,880 chars in → 241,720 chars out
+  OP-2 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 122,880 chars in → 241,720 chars out
+  OP-4 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 512,000 chars in → 514,092 chars out
+  OP-4 [T2 — GPT-interpreted, VS Code-Codex] (yes): 512,000 chars in → 40,000 chars out
+  OP-4 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 512,000 chars in → 514,092 chars out
+  OP-4 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 512,000 chars in → 514,092 chars out
+  OP-4 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 512,000 chars in → 514,092 chars out
+  OP-4 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 512,000 chars in → 514,092 chars out
+  BL-3 [T2 — GPT-interpreted, VS Code-Codex] (implicit): 4,639,744 chars in → 60,000 chars out
+  BL-3 [T2 — GPT-interpreted, VS Code-Codex] (mixed): 4,639,744 chars in → 4,849,033 chars out
+
+Input sizes where NO truncation occurred (no):
+  EC-3 [T2 — GPT-interpreted, VS Code-Codex]: 2,048 chars in → 660 chars out (full)
+  EC-3 [T2 — GPT-interpreted, VS Code-Codex]: 2,048 chars in → 254 chars out (full)
+  EC-3 [T2 — GPT-interpreted, VS Code-Codex]: 2,048 chars in → 254 chars out (full)
+  EC-3 [T2 — GPT-interpreted, VS Code-Codex]: 2,048 chars in → 660 chars out (full)
+  EC-3 [T2 — GPT-interpreted, VS Code-Codex]: 2,048 chars in → 660 chars out (full)
+  EC-3 [T2 — GPT-interpreted, VS Code-Codex]: 2,048 chars in → 660 chars out (full)
+  EC-3 [T2 — GPT-interpreted, VS Code-Codex]: 2,048 chars in → 660 chars out (full)
+  EC-3 [T2 — GPT-interpreted, VS Code-Codex]: 2,048 chars in → 660 chars out (full)
+  EC-3 [T2 — GPT-interpreted, VS Code-Codex]: 2,048 chars in → 660 chars out (full)
+  EC-3 [T2 — GPT-interpreted, VS Code-Codex]: 2,048 chars in → 660 chars out (full)
+  EC-3 [T2 — GPT-interpreted, VS Code-Codex]: 2,048 chars in → 660 chars out (full)
+  BL-2 [T2 — GPT-interpreted, VS Code-Codex]: 20,480 chars in → 5,805 chars out (full)
+  BL-2 [T2 — GPT-interpreted, VS Code-Codex]: 20,480 chars in → 5,805 chars out (full)
+  BL-2 [T2 — GPT-interpreted, VS Code-Codex]: 20,480 chars in → 5,805 chars out (full)
+  BL-2 [T2 — GPT-interpreted, VS Code-Codex]: 20,480 chars in → 5,805 chars out (full)
+  BL-2 [T2 — GPT-interpreted, VS Code-Codex]: 20,480 chars in → 5,805 chars out (full)
+  BL-2 [T2 — GPT-interpreted, VS Code-Codex]: 20,480 chars in → 5,805 chars out (full)
+  BL-2 [T2 — GPT-interpreted, VS Code-Codex]: 20,480 chars in → 5,805 chars out (full)
+  BL-2 [T2 — GPT-interpreted, VS Code-Codex]: 20,480 chars in → 5,805 chars out (full)
+  SC-4 [T2 — GPT-interpreted, VS Code-Codex]: 30,720 chars in → 64,659 chars out (full)
+  OP-1 [T2 — GPT-interpreted, VS Code-Codex]: 40,960 chars in → 740,370 chars out (full)
+  SC-1 [T2 — GPT-interpreted, VS Code-Codex]: 40,960 chars in → 125,252 chars out (full)
+  EC-6 [T2 — GPT-interpreted, VS Code-Codex]: 61,440 chars in → 91,869 chars out (full)
+  SC-2 [T2 — GPT-interpreted, VS Code-Codex]: 81,920 chars in → 578,234 chars out (full)
+  EC-1 [T2 — GPT-interpreted, VS Code-Codex]: 102,400 chars in → 0 chars out (full)
+  EC-1 [T2 — GPT-interpreted, VS Code-Codex]: 102,400 chars in → 119,785 chars out (full)
+  EC-1 [T2 — GPT-interpreted, VS Code-Codex]: 102,400 chars in → 119,789 chars out (full)
+  EC-1 [T2 — GPT-interpreted, VS Code-Codex]: 102,400 chars in → 119,789 chars out (full)
+  EC-1 [T2 — GPT-interpreted, VS Code-Codex]: 102,400 chars in → 119,785 chars out (full)
+  OP-4 [T2 — GPT-interpreted, VS Code-Codex]: 512,000 chars in → 0 chars out (full)
+  OP-4 [T2 — GPT-interpreted, VS Code-Codex]: 512,000 chars in → 514,092 chars out (full)
+  BL-3 [T2 — GPT-interpreted, VS Code-Codex]: 4,639,744 chars in → 149 chars out (full)
+  BL-3 [T2 — GPT-interpreted, VS Code-Codex]: 4,639,744 chars in → 4,640,208 chars out (full)
+  BL-3 [T2 — GPT-interpreted, VS Code-Codex]: 4,639,744 chars in → 4,676,652 chars out (full)
+  BL-3 [T2 — GPT-interpreted, VS Code-Codex]: 4,639,744 chars in → 4,848,853 chars out (full)
+  BL-3 [T2 — GPT-interpreted, VS Code-Codex]: 4,639,744 chars in → 4,848,853 chars out (full)
+  BL-3 [T2 — GPT-interpreted, VS Code-Codex]: 4,639,744 chars in → 4,724,953 chars out (full)
+
+================================================================================
+SURFACE EFFECT ANALYSIS (Codex IDE vs VS Code-Codex)
+================================================================================
+
+--- Interpreted tracks — T1 (Codex IDE) vs T2 (VS Code-Codex) ---
+
+  Insufficient data — missing results for: T1 — GPT-interpreted, Codex IDE
+
+--- Raw tracks — T3 (Codex IDE) vs T4 (VS Code-Codex) ---
+
+  Insufficient data — missing results for: T3 — Raw, Codex IDE, T4 — Raw, VS Code-Codex
+
+================================================================================
+PERCEPTION GAP ANALYSIS (interpreted vs raw, per surface)
+================================================================================
+
+--- Codex IDE — T1 (interpreted) vs T3 (raw) ---
+
+  Insufficient data — missing results for: T1 — GPT-interpreted, Codex IDE, T3 — Raw, Codex IDE
+
+--- VS Code-Codex — T2 (interpreted) vs T4 (raw) ---
+
+  Insufficient data — missing results for: T4 — Raw, VS Code-Codex
+
+================================================================================
+FOUR-TRACK COMPARISON (T1 / T2 / T3 / T4)
+================================================================================
+
+================================================================================
+WORKSPACE SUBSTITUTION ANALYSIS
+================================================================================
+
+Workspace substitution across all runs:
+  no (No substitution (web fetch used as intended)): 117 runs
+  yes (Substituted (local execution instead of web fetch)): 1 runs
+  unknown (Not recorded): 1 runs
+
+Workspace substitution by track:
+  T2 — GPT-interpreted, VS Code-Codex: no: 117, unknown: 1, yes: 1
+
+✓ No substitution on T1/T3 — workspace isolation holding
+⚠️  Substitution confirmed on T2/T4: ['SC-4']
+   → These runs should be excluded from surface effect comparison (T1 vs T2, T3 vs T4)
+
+================================================================================
+TOOL VISIBILITY ANALYSIS
+================================================================================
+
+Tools named by track:
+
+  T2 — GPT-interpreted, VS Code-Codex:
+    web.run with open: 53 run(s)
+    web.open: 45 run(s)
+    curl: 40 run(s)
+    wc: 40 run(s)
+    tail: 40 run(s)
+    functions.exec_command: 26 run(s)
+    turn0view0: 22 run(s)
+    multi_tool_use.parallel: 20 run(s)
+    rg: 17 run(s)
+    turn1view0: 14 run(s)
+    file: 11 run(s)
+    node: 10 run(s)
+    escalated succeeded: 10 run(s)
+    functions.exec_command with curl: 10 run(s)
+    python3 pathlib Path: 7 run(s)
+    python3: 7 run(s)
+    wc -c: 6 run(s)
+    wc -m: 6 run(s)
+    turn2view0: 6 run(s)
+    perl: 6 run(s)
+    sed: 5 run(s)
+    head: 4 run(s)
+    tail -c: 4 run(s)
+    grep: 4 run(s)
+    curl -L: 4 run(s)
+    od: 4 run(s)
+    mcp__node_repl.js: 3 run(s)
+    web.find: 3 run(s)
+    exec_command with curl: 3 run(s)
+    search_query: 3 run(s)
+    functions.exec_command for curl: 3 run(s)
+    web.run: 3 run(s)
+    1st curl failed DNS resolution: 3 run(s)
+    2nd succeeded: 3 run(s)
+    exec_command: 3 run(s)
+    functions.exec_command with node: 3 run(s)
+    tail -c 50: 2 run(s)
+    node_repl: 2 run(s)
+    web.search_query: 2 run(s)
+    functions.exec_command with curl -L: 2 run(s)
+    2nd escalated succeeded: 2 run(s)
+    node -e: 2 run(s)
+    turn3view0: 2 run(s)
+    node_repl fetch failed: 2 run(s)
+    functions.exec_command with curl 1st failed DNS resolution: 2 run(s)
+    curl 1st failed DNS resolution: 2 run(s)
+    web.open cache-miss: 2 run(s)
+    wc -l: 2 run(s)
+    mcp__node_repl.js failed 'missing field sandboxPolicy': 2 run(s)
+    web: 2 run(s)
+    curl 1st failed DNS: 2 run(s)
+    python urllib.request: 2 run(s)
+    python3 urllib.request: 2 run(s)
+    web with open: 2 run(s)
+    sys: 2 run(s)
+    functions.exec_command with python3: 2 run(s)
+    ref_id: 1 run(s)
+    lineno: 1 run(s)
+    response_length: 1 run(s)
+    1st sandboxed curl failed DNS: 1 run(s)
+    approved direct network curl succeeded: 1 run(s)
+    attempted in-app browser but 'Browser is not available: iab': 1 run(s)
+    default shell curl failed DNS resolution: 1 run(s)
+    escalated functions.exec_command succeeded: 1 run(s)
+    python3 sys: 1 run(s)
+    turn0search0: 1 run(s)
+    turn1search0: 1 run(s)
+    sandboxed curl failed: 1 run(s)
+    curl 1st sandboxed failed DNS resolution: 1 run(s)
+    awk: 1 run(s)
+    1st curl sandboxed failed DNS resolution: 1 run(s)
+    functions.exec_command with wc: 1 run(s)
+    xxd: 1 run(s)
+    head grouped through multi_tool_use.parallel: 1 run(s)
+    attempted curl but failed with DNS resolution: 1 run(s)
+    Total lines: 140: 1 run(s)
+    curl by functions.exec_command: 1 run(s)
+    mcp__node.repl.js with fetch but failed: 1 run(s)
+    web.open for redirect: 1 run(s)
+    1st sandboxed curl failed DNS resolution: 1 run(s)
+    escalated succeede: 1 run(s)
+    attempted curl: 1 run(s)
+    node fetch but failed: 1 run(s)
+    curl invoked but returned 0 bytes: 1 run(s)
+    mcp__node.repl.js invoked for Browser but 'Browser is not available: iab': 1 run(s)
+    mcp__node_repl.js with fetch failed: 1 run(s)
+    xmllint: 1 run(s)
+    attempted Browser but 'Browser is not available: iab: 1 run(s)
+    ' pandoc: 1 run(s)
+    lynx: 1 run(s)
+    w3m: 1 run(s)
+    html2text: 1 run(s)
+    tidy: 1 run(s)
+    1st sandboxed DNS failed: 1 run(s)
+    find: 1 run(s)
+    curl but failed: 1 run(s)
+    turn0view: 1 run(s)
+    exec_command with curl -L -s: 1 run(s)
+    node_repl with fetch: 1 run(s)
+    curl failed: 1 run(s)
+    Browser 'iab was unavailable': 1 run(s)
+    Browser failed 'Browser is not available: iab': 1 run(s)
+    exec_command with curl failed DNS sandbox: 1 run(s)
+    but escalated network access succeeded: 1 run(s)
+    1st curl failed: 1 run(s)
+    node -e 'fetch' but both failed 'ENOTFOUND' with DNS resolution: 1 run(s)
+    Total lines: 7423: 1 run(s)
+    curl attempt failed: 1 run(s)
+    wordlim:200: 1 run(s)
+    ruby -e: 1 run(s)
+    nonode: 1 run(s)
+    web.open Cache miss: 1 run(s)
+    attempted functions.exe_command with curl - Could not resolve host: 1 run(s)
+    attempted mcp__node_repl fetch got TypeError: fetch failed: 1 run(s)
+    tool_search.tool_search_tool: 1 run(s)
+    mcp__node_repl.js returned fetch failed: 1 run(s)
+    no curl but urllib.request functions.exec_command: 1 run(s)
+    curl -L -o: 1 run(s)
+    file -I: 1 run(s)
+    sort: 1 run(s)
+    uniq: 1 run(s)
+    functions.exec_command with curl 1st sandboxed failed DNS resolution: 1 run(s)
+    curl -L failed: 1 run(s)
+    ruby: 1 run(s)
+    mcp__node_repl.js browser-client 'Browser is not available: iab': 1 run(s)
+    mcp__node_repl.js 'TypeError: fetch failed: 1 run(s)
+    ' python urllib.request 'HTTP Error 403: 1 run(s)
+    ' curl -L with functions.exec_command: 1 run(s)
+    web.open only: 1 run(s)
+    Browser 'not available: iad': 1 run(s)
+    Playwright: 1 run(s)
+    1st sandbox DNS restriction: 1 run(s)
+    2nd escalated succeeeded: 1 run(s)
+    DNS resolution error 'nodename not servname provided: 1 run(s)
+    or not known': 1 run(s)
+    mcp__node_repl.js with fetch: 1 run(s)
+    playwright/browserType.launch: 1 run(s)
+    headless Chrome: 1 run(s)
+    exec_command with node: 1 run(s)
+    subprocess: 1 run(s)
+    python3 json: 1 run(s)
+    tee: 1 run(s)
+    Browser: 1 run(s)
+    web.click: 1 run(s)
+    Node fetch: 1 run(s)
+    playwrght.launch: 1 run(s)
+    Browser 'not available: iab': 1 run(s)
+    Total lines: 55: 1 run(s)
+    turn0view-: 1 run(s)
+    wc -w: 1 run(s)
+
+
+================================================================================
+ELISION MARKER ANALYSIS (...)
+================================================================================
+
+No raw track results available.
+
+================================================================================
+HYPOTHESIS MATCHING
+================================================================================
+
+Hypotheses under evaluation:
+  H1: Character-based truncation at a fixed ceiling
+  H2: Token-based truncation (e.g., 2,000 tokens ≈ 8,000 chars)
+  H3: Structure-aware truncation (respects Markdown boundaries)
+  H4: Surface context (Codex IDE vs VS Code-Codex) changes retrieval ceiling
+  H5: Agent auto-chunks above the truncation ceiling
+
+Hypothesis matches logged in results:
+  H1-no, H2-no, H3-no, H4-partially, H5-no: 8 run(s)
+  H1-indeterminate, H2-indeterminate, H3-indeterminate, H4-partially, H5-no: 7 run(s)
+  H1-no, H2-no, H3-indeterminate, H4-yes, H5-no: 5 run(s)
+  H1-no, H2-no, H3-partially, H4-yes, H5-partially: 5 run(s)
+  H1-no, H2-no, H3-untested, H4-untested, H5-partially: 5 run(s)
+  H1-no, H2-no, H3-indeterminate, H4-partially, H5-partially: 5 run(s)
+  H1-no, H2-no, H3-indeterminate, H4-partially, H5-no: 4 run(s)
+  H1-no, H2-no, H3-no, H4-yes, H5-no: 4 run(s)
+  H1-partially, H2-no, H3-no, H4-no, H5-no: 4 run(s)
+  H1-indeterminate, H2-indeterminate, H3-partially, H4-yes, H5-no: 3 run(s)
+  H1-partially, H2-partially, H3-partially, H4-partially, H5-no: 3 run(s)
+  H1-no, H2-no, H3-partially, H4-partially, H5-partially: 3 run(s)
+  H1-partially, H2-no, H3-partially, H4-yes, H5-no: 3 run(s)
+  H1-partially, H2-no, H3-no, H4-yes, H5-yes: 3 run(s)
+  H1-partially, H2-no, H3-indeterminate, H4-yes, H5-no: 2 run(s)
+  H1-partially, H2-no, H3-no, H4-yes, H5-no: 2 run(s)
+  H1-partially, H2-partially, H3-partially, H4-partially, H5-partially: 2 run(s)
+  H1-no, H2-indeterminate, H3-no, H4-no, H5-partially: 2 run(s)
+  H1-no, H2-no, H3-indeterminate, H4-yes, H5-partially: 2 run(s)
+  H1-partially, H2-no, H3-indeterminate, H4-partially, H5-partially: 2 run(s)
+  H1-no, H2-no, H3-partially, H4-no, H5-partially: 2 run(s)
+  H1-no, H2-no, H3-indeterminate, H4-no, H5-partially: 2 run(s)
+  H1-no, H2-no, H3-indeterminate, H4-no, H5-no: 2 run(s)
+  H1-indeterminate, H2-indeterminate, H3-indeterminate, H4-yes, H5-no: 1 run(s)
+  H1-indeterminate, H2-partially, H3-partially, H4-yes, H5-partially: 1 run(s)
+  H1-no, H2-no,H3-indeterminate, H4-yes, H5-no: 1 run(s)
+  H1-indeterminate, H2-indeterminate, H3-partially, H4-partially, H5-no: 1 run(s)
+  H1-partially, H2-partially, H3-partially, H4-partially, H5-yes: 1 run(s)
+  H1-partially, H2-no, H3-partially, H4-partially, H5-partially: 1 run(s)
+  H1-indeterminate, H2-indeterminate, H3-partially, H4-yes, H5-partially: 1 run(s)
+  H1-indeterminate, H2-indeterminate, H3-partially, H4-yes, H5-yes: 1 run(s)
+  H1-indeterminate, H2-indeterminate, H3-no, H4-yes, H5-partially: 1 run(s)
+  H1-no, H2-indeterminate, H3-no, H4-no, H5-no: 1 run(s)
+  H1-no, H2-indeterminate, H3-partially, H4-yes, H5-yes: 1 run(s)
+  H1-indeterminate, H2-indeterminate, H3-indeterminate, H4-partially, H5-partially: 1 run(s)
+  H1-no, H2-no, H3-partially, H4-partially, H5-yes: 1 run(s)
+  H1-no, H2-no, H3-partially, H4-partially, H5-no: 1 run(s)
+  H1-no, H20no, H3-indeterminate, H4-yes, H5-no: 1 run(s)
+  H1-untested, H2-untested, H3-untested, H4-untested, H5-partially: 1 run(s)
+  H1-partially, H2-no, H3-partially, H4-untested, H5-partially: 1 run(s)
+  H1-no, H2-no, H3-partially, H4-untested, H5-partially: 1 run(s)
+  H1-partially, H2-no, H3-no, H4-yes, H5-partially: 1 run(s)
+  H1-partially, H2-no, H3-partially, H4-yes, H5-yes: 1 run(s)
+  H1-no, H2-no, H3-partially, H4-no, H5-yes: 1 run(s)
+  H1-indeterminate, H2-indeterminate, H3-indeterminate, H4-indeterminate, H5-indeterminate: 1 run(s)
+  H1-yes, H2-no, H3-no, H4-yes, H5-yes: 1 run(s)
+  H1-no, H2-indeterminate, H3-partially, H4-no, H5-partially: 1 run(s)
+  H1-no, H2-no, H3-indeterminate, H4-yes, H5-yes: 1 run(s)
+  H1-partially, H2-no, H3-indeterminate, H4-yes, H5-yes: 1 run(s)
+  H1-no, H2-no, H3-no, H4-yes, H5-yes: 1 run(s)
+  H1-yes, H2-no, H3-no, H4-yes, H5-no: 1 run(s)
+  H1-no, H2-no, H3-no, H4-partially, H5-partially: 1 run(s)
+  H1-partially, H2-no, H3-no, H4-partially, H5-partially: 1 run(s)
+  H1-partially, H2-no, H3-no, H4-partially, H5-yes: 1 run(s)
+  H1-indeterminate, H2-indeterminate, H3-indeterminate, H4-yes, H5-indeterminate: 1 run(s)
+  H1-partially, H2-indeterminate, H3-indeterminate, H4-yes, H5-no: 1 run(s)
+  H1-partially, H2-indeterminate, H3-yes, H4-yes, H5-partially: 1 run(s)
+  H1-indeterminate, H2-indeterminate, H3-indeterminate, H4-yes, H5-partially: 1 run(s)
+  H1-no, H2-no, H3-indeterminate, H4-no, H5-yes: 1 run(s)
+  H1-partially, H2-indeterminate, H3-no, H4-yes, H5-partially: 1 run(s)
+  H1-no, H2-no, H3-no, H4-no, H5-yes: 1 run(s)
+  H1-partially, H2-no, H3-no, H4-no, H5-indeterminate: 1 run(s)
+
+Auto-chunking evidence (H5):
+  — No multi-step tool chains observed yet

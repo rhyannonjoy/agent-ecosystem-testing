@@ -126,6 +126,8 @@ navigation:
         url: "/docs/open-ai-codex/methodology"
       - title: "Findings: Interpreted - Desktop"
         url: "/docs/open-ai-codex/codex-test-findings-desktop"
+      - title: "Findings: Interpreted - Extension"
+        url: "/docs/open-ai-codex/codex-test-findings-extension"
       - title: "Framework Reference"
         url: "/docs/open-ai-codex/framework-reference"
       - title: "Friction: Interpreted - Desktop"
