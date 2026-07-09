@@ -8,7 +8,9 @@ Usage:
     python log.py
 """
 
+import argparse
 import sys
+from pathlib import Path
 from framework import CodexTestingFramework, TEST_URLS, TRACKS
 
 # --- Helpers ---
@@ -256,6 +258,18 @@ def collect_closing_fields() -> dict:
 # --- Entry point ---
 
 def main():
+    parser = argparse.ArgumentParser(
+        description="Interactive logger for the Codex Web Search Testing Framework",
+    )
+    parser.add_argument(
+        "--results-dir",
+        dest="results_dir",
+        type=str,
+        metavar="PATH",
+        help="Custom results directory (default: results/{track}/)",
+    )
+    args = parser.parse_args()
+
     print("\n╔══════════════════════════════════════════════════════════╗")
     print("║   Codex Testing Framework — Interactive Logger           ║")
     print("╚══════════════════════════════════════════════════════════╝")
@@ -274,7 +288,11 @@ def main():
 
         closing = collect_closing_fields()
 
-        framework = CodexTestingFramework(track=track)
+        framework_kwargs = {"track": track}
+        if args.results_dir:
+            framework_kwargs["results_dir"] = args.results_dir
+
+        framework = CodexTestingFramework(**framework_kwargs)
         framework.log_result(
             test_id=session["test_id"],
             permission_level=session["permission_level"],

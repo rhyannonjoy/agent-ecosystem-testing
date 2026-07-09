@@ -226,6 +226,18 @@ class TestResult:
     codex_version: str
     notes: str
 
+    # --- Skill-annotation fields (flash-test / H6) ---
+    # Populated by parsing the notes field for skill condition and failure-examination dimensions.
+    skill_condition: Optional[str] = None       # on | opt-in | off | historical
+    skill_referenced: Optional[str] = None        # yes | no | inferred
+    agent_discovered: Optional[str] = None        # yes | no | inferred (opt-in only)
+    prefix: Optional[str] = None                  # COMPLETE | PARTIAL:{marker} | UNVERIFIABLE
+    completeness_accurate: Optional[str] = None   # yes | no
+    error_examined: Optional[str] = None          # yes | no
+    exec_vs_complete: Optional[str] = None      # yes | no
+    no_reframing: Optional[str] = None          # yes | no
+    fix_recommended: Optional[str] = None         # yes | no
+
     # --- Codex-specific behavioral fields (all tracks) ---
     # tools_named: tool names reported in agent output (e.g. "web", "web.open", "curl")
     tools_named: Optional[str] = None
@@ -390,6 +402,23 @@ Note: this is the raw HTML/Markdown source. The agent typically converts and fil
 
         return prompt
 
+    def generate_skill_activation(self, skill_path: str) -> str:
+        """Generate a skill-activation directive to prepend to a prompt.
+
+        The skill file is referenced by path so the agent can read it from the
+        workspace. This keeps skill-on vs skill-off as the only experimental
+        variable and produces a reusable artifact other researchers can drop
+        into their own workspace.
+        """
+        return f"""Before starting this task, read and apply the docs-consumption skill defined in:
+{skill_path}
+
+Follow its disclosure protocol: report whether the fetched content is COMPLETE, PARTIAL, or UNVERIFIABLE before summarizing, and do not synthesize content outside the retrieved view.
+
+---
+
+"""
+
     # ------------------------------------------------------------------
     # Test harness
     # ------------------------------------------------------------------
@@ -485,24 +514,35 @@ Note: this is the raw HTML/Markdown source. The agent typically converts and fil
 
         return {"track_specific": track_fields, "common": common}
 
-    def print_test_harness(self, test_id: str, track: str = None):
-        """Print formatted test harness for manual execution."""
+    def print_test_harness(self, test_id: str, track: str = None, skill_path: Optional[str] = None):
+        """Print formatted test harness for manual execution.
+
+        Args:
+            skill_path: If provided, prepend a skill-activation directive that
+                references the given file path.
+        """
         track = track or self.track
         harness = self.create_test_harness(test_id, track)
         track_info = TRACKS[track]
+
+        prompt = harness["prompt"]
+        if skill_path:
+            prompt = self.generate_skill_activation(skill_path) + prompt
 
         print("\n" + "=" * 80)
         print(f"TEST HARNESS: {harness['test_id']} — {harness['test_name']}")
         print(f"Track: {harness['track_label']}")
         print(f"Surface: {harness['surface']}  |  Method: {harness['method']}  |  Workspace: {harness['workspace_present']}")
         print(f"Category: {harness['category']}")
+        if skill_path:
+            print(f"Skill: {skill_path}")
         print("=" * 80)
         print(f"\nURL: {harness['url']}")
         print(f"Expected Size: ~{harness['expected_size_kb']}KB\n")
 
         print("PROMPT TO COPY INTO CODEX:")
         print("-" * 80)
-        print(harness["prompt"])
+        print(prompt)
         print("-" * 80)
 
         print(f"\nFIELDS TO COMPLETE ({track.upper()}):")
@@ -710,6 +750,10 @@ Examples:
   python framework.py --test BL-1 --track codex-interpreted
   python framework.py --test BL-1 --track codex-raw
 
+  # Print EC-6 prompt with the docs-consumption skill activated
+  python framework.py --test EC-6 --track vscode-codex-interpreted \
+      --skill open-ai-codex-web-search/skills/docs-consumption/SKILL.md
+
   # Log interpreted track result (T1 or T2)
   python framework.py --log BL-1 \\
     --track codex-interpreted \\
@@ -773,6 +817,19 @@ Examples:
         choices=list(TRACKS.keys()),
         default="codex-interpreted",
         help="Test track (default: codex-interpreted)",
+    )
+    parser.add_argument(
+        "--skill",
+        type=str,
+        metavar="PATH",
+        help="Path to a docs-consumption skill file to activate in the printed prompt",
+    )
+    parser.add_argument(
+        "--results-dir",
+        dest="results_dir",
+        type=str,
+        metavar="PATH",
+        help="Custom results directory (default: results/{track}/)",
     )
     parser.add_argument("--log", type=str, help="Log result for test ID")
 
@@ -850,20 +907,24 @@ Examples:
 
     args = parser.parse_args()
 
+    framework_kwargs = {"track": args.track}
+    if args.results_dir:
+        framework_kwargs["results_dir"] = args.results_dir
+
     if args.list_tests:
-        framework = CodexTestingFramework(track=args.track)
+        framework = CodexTestingFramework(**framework_kwargs)
         framework.list_tests()
 
     elif args.list_tracks:
-        framework = CodexTestingFramework(track=args.track)
+        framework = CodexTestingFramework(**framework_kwargs)
         framework.list_tracks()
 
     elif args.test:
-        framework = CodexTestingFramework(track=args.track)
-        framework.print_test_harness(args.test, args.track)
+        framework = CodexTestingFramework(**framework_kwargs)
+        framework.print_test_harness(args.test, args.track, skill_path=args.skill)
 
     elif args.log:
-        framework = CodexTestingFramework(track=args.track)
+        framework = CodexTestingFramework(**framework_kwargs)
         required = [args.permission_level, args.model_observed, args.model_intelligence_level,
                     args.codex_version, args.hypothesis]
         if not all(required):
