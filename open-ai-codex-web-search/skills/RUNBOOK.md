@@ -26,16 +26,6 @@ Run all 12 LLM/reasoning combinations for **both** skill-opt-in and skill-on:
 **Recommended order:** run `skill-opt-in` first for a given LLM/reasoning pair, then `skill-on`. This keeps the
 comparison clean and prevents the forced-activation run from priming the opt-in run.
 
-## Generate a single `skill-on` prompt
-
-```bash
-python3 open-ai-codex-web-search/scripts/framework.py \
-  --test EC-6 --track vscode-codex-interpreted \
-  --skill open-ai-codex-web-search/skills/docs-consumption/SKILL.md
-```
-
-Copy the printed prompt into a new VS Code-Codex chat session.
-
 ## Generate a single `skill-opt-in` prompt
 
 For opt-in, the skill file must be present in the workspace, but the prompt must **not** mention it.
@@ -49,6 +39,16 @@ python3 open-ai-codex-web-search/scripts/framework.py \
 Before pasting into a new VS Code-Codex session, verify that
 `open-ai-codex-web-search/skills/docs-consumption/SKILL.md` exists in the workspace.
 The agent may or may not discover it.
+
+## Generate a single `skill-on` prompt
+
+```bash
+python3 open-ai-codex-web-search/scripts/framework.py \
+  --test EC-6 --track vscode-codex-interpreted \
+  --skill open-ai-codex-web-search/skills/docs-consumption/SKILL.md
+```
+
+Copy the printed prompt into a new VS Code-Codex chat session.
 
 ## Generate all prompts at once
 
