@@ -78,6 +78,75 @@ def parse_skills(records: list[dict]) -> list[dict]:
     return skills
 
 
+# --- Skill-language detection --------------------------------------------
+
+SKILL_PATH = ".agents/skills/docs-consumption/SKILL.md"
+PROTOCOL_PREFIX_RE = re.compile(r"\b(COMPLETE|PARTIAL|UNVERIFIABLE)\b", re.IGNORECASE)
+
+# Phrases and keywords that indicate the agent reasoned with the docs-consumption
+# skill protocol, even when it did not use the formal COMPLETE/PARTIAL/UNVERIFIABLE
+# prefix or cite the skill file.
+SKILL_LANGUAGE_PATTERNS = [
+    re.compile(r"\bthe tool ran\b", re.IGNORECASE),
+    re.compile(r"\bfull content\b", re.IGNORECASE),
+    re.compile(r"\bnot verified\b", re.IGNORECASE),
+    re.compile(r"\bcannot confirm\b", re.IGNORECASE),
+    re.compile(r"\bunverifiable\b", re.IGNORECASE),
+    re.compile(r"\btruncation\b", re.IGNORECASE),
+    re.compile(r"\blimitation\b", re.IGNORECASE),
+    re.compile(r"\bcache miss\b", re.IGNORECASE),
+    re.compile(r"\b0 bytes\b", re.IGNORECASE),
+    re.compile(r"\bdns resolution failed\b", re.IGNORECASE),
+    re.compile(r"\buse curl\b", re.IGNORECASE),
+]
+
+
+def _collect_texts_by_source(texts: list[str]) -> dict[str, list[str]]:
+    """Return lowercase texts keyed by source bucket."""
+    return {
+        "final_answer": [t.lower() for t in texts],
+        "commentary": [],
+    }
+
+
+def _first_match(patterns: list[re.Pattern], texts: list[str]) -> str | None:
+    """Return the first matching text fragment for the given patterns."""
+    for text in texts:
+        for pattern in patterns:
+            match = pattern.search(text)
+            if match:
+                return match.group(0)
+    return None
+
+
+def _detect_in_sources(
+    patterns: list[re.Pattern],
+    final_texts: list[str],
+    commentary_texts: list[str],
+) -> tuple[str | None, str]:
+    """Return (matched_fragment, source) where source is final_answer/commentary/both/none."""
+    in_final = any(
+        pattern.search(text)
+        for text in final_texts
+        for pattern in patterns
+    )
+    in_commentary = any(
+        pattern.search(text)
+        for text in commentary_texts
+        for pattern in patterns
+    )
+    source = "both" if in_final and in_commentary else ("final_answer" if in_final else ("commentary" if in_commentary else "none"))
+    if source == "none":
+        return None, "none"
+    search_texts = []
+    if in_final:
+        search_texts.extend(final_texts)
+    if in_commentary:
+        search_texts.extend(commentary_texts)
+    fragment = _first_match(patterns, search_texts)
+    return fragment, source
+
+
 def format_duration(seconds) -> str | None:
     """Convert seconds to a human-readable minutes/seconds string.
 
@@ -144,6 +213,11 @@ def audit_file(path: Path) -> dict:
         "skill_docs_consumption_loaded": "false",
         "skill_docs_consumption_path": "",
         "skill_docs_consumption_desc": "",
+        "skill_path_mentioned": "false",
+        "protocol_prefix": "",
+        "protocol_prefix_source": "none",
+        "skill_language": "false",
+        "skill_language_source": "none",
         "turns": 0,
         "user_messages": 0,
         "commentary_msgs": 0,
@@ -175,6 +249,7 @@ def audit_file(path: Path) -> dict:
 
     final_event_texts = []          # final answers as emitted in the live event stream
     final_item_texts = []           # final answers as stored in the durable transcript
+    commentary_texts = []           # agent commentary messages (thought panel)
     last_agent_message = None
     last_complete_idx = None
     first_ts = last_ts = None
@@ -211,11 +286,13 @@ def audit_file(path: Path) -> dict:
                     if line.strip().lower().startswith("test id:"):
                         r["test_id"] = line.split(":", 1)[1].strip()
             elif pt == "agent_message":
+                msg = p.get("message") or ""
                 if p.get("phase") == "commentary":
                     r["commentary_msgs"] += 1
+                    commentary_texts.append(msg)
                 elif p.get("phase") == "final_answer":
                     r["final_answers_event"] += 1
-                    final_event_texts.append(p.get("message") or "")
+                    final_event_texts.append(msg)
             elif pt == "task_complete":
                 r["task_completes"] += 1
                 last_complete_idx = i
@@ -296,6 +373,26 @@ def audit_file(path: Path) -> dict:
         r["skill_docs_consumption_loaded"] = "true"
         r["skill_docs_consumption_path"] = docs_consumption["path"]
         r["skill_docs_consumption_desc"] = docs_consumption["description"][:120]
+
+    # ---- Skill-language detection ------------------------------------------
+    final_texts = [t.lower() for t in final_event_texts + final_item_texts]
+    commentary_texts_lower = [t.lower() for t in commentary_texts]
+
+    r["skill_path_mentioned"] = "true" if any(
+        SKILL_PATH.lower() in text for text in final_texts + commentary_texts_lower
+    ) else "false"
+
+    protocol_match, protocol_source = _detect_in_sources(
+        [PROTOCOL_PREFIX_RE], final_texts, commentary_texts_lower
+    )
+    r["protocol_prefix"] = (protocol_match or "").upper()
+    r["protocol_prefix_source"] = protocol_source
+
+    language_match, language_source = _detect_in_sources(
+        SKILL_LANGUAGE_PATTERNS, final_texts, commentary_texts_lower
+    )
+    r["skill_language"] = "true" if language_match else "false"
+    r["skill_language_source"] = language_source
 
     # Records appended after the last task_complete: the post-hoc alteration check
     if last_complete_idx is not None:
@@ -394,6 +491,16 @@ def main():
         if r["skill_docs_consumption_loaded"] == "true":
             skill_summary += " | docs-consumption: yes"
         print(f"  skills: {skill_summary} | names: {r['skill_names']}")
+        if r["skill_docs_consumption_loaded"] == "true":
+            lang_bits = []
+            if r["skill_path_mentioned"] == "true":
+                lang_bits.append("path mentioned")
+            if r["protocol_prefix"]:
+                lang_bits.append(f"prefix={r['protocol_prefix']} ({r['protocol_prefix_source']})")
+            if r["skill_language"] == "true":
+                lang_bits.append(f"skill-language ({r['skill_language_source']})")
+            if lang_bits:
+                print(f"  skill-signals: {' | '.join(lang_bits)}")
         print(f"  turns {r['turns']} | user msgs {r['user_messages']} | commentary {r['commentary_msgs']} | "
               f"final answers: event {r['final_answers_event']}, transcript {r['final_answers_item']}")
         print(f"  api calls: web_search {r['web_search_calls']} | function {r['function_calls']} "
@@ -413,6 +520,8 @@ def main():
         cols = ["file", "session_id", "model", "effort", "test_id",
                 "skills_loaded_count", "skill_names", "skill_docs_consumption_loaded",
                 "skill_docs_consumption_path", "skill_docs_consumption_desc",
+                "skill_path_mentioned", "protocol_prefix", "protocol_prefix_source",
+                "skill_language", "skill_language_source",
                 "turns", "user_messages",
                 "commentary_msgs", "final_answers_event", "final_answers_item", "web_search_calls",
                 "function_calls", "task_completes", "records_after_complete", "duration_s",

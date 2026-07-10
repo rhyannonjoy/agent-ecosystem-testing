@@ -153,6 +153,41 @@ python3 open-ai-codex-web-search/scripts/docs_consumption_skill_analysis.py \
 The analyzer skips any missing CSVs with a warning, so the same command works
 before any logging flash-test rows.
 
+## Observability: rollout audit
+
+`rollout_audit.py` has been extended to report skill-related signals found in the
+Codex session logs. These columns help separate "the skill was loaded" from "the
+skill influenced the agent's output":
+
+| Field | Meaning |
+|---|---|
+| `skill_docs_consumption_loaded` | Was the `docs-consumption` skill present in the agent's loaded skills? |
+| `skill_path_mentioned` | Did the agent literally mention `.agents/skills/docs-consumption/SKILL.md`? |
+| `protocol_prefix` | Did the output contain `COMPLETE`, `PARTIAL`, or `UNVERIFIABLE`? |
+| `protocol_prefix_source` | Was the prefix in the `final_answer`, `commentary`, or `both`? |
+| `skill_language` | Did the output use broader skill-protocol phrases (`tool ran`, `full content`, `not verified`, `truncation`, `limitation`, etc.)? |
+| `skill_language_source` | Was that language in `final_answer`, `commentary`, or `both`? |
+
+Run the audit after collecting rollouts:
+
+```bash
+python3 open-ai-codex-web-search/scripts/rollout_audit.py \
+  open-ai-codex-web-search/results/docs-consumption-skill-flash/artifacts/rollouts/EC-6/*.jsonl \
+  --csv audit.csv
+```
+
+### Expected patterns by condition
+
+| Condition | Expected load rate | Expected protocol prefix | Expected skill language |
+|---|---|---|---|
+| `opt-in` (file in `.agents/`) | Variable by model/effort | Low unless discovered | Low unless discovered |
+| `on` (explicit prompt) | ~100% | High | High |
+| Baseline | 0% | Incidental | Incidental |
+
+A useful finding would be `skill_docs_consumption_loaded: true` but low or no
+protocol/skill-language — that means the skill was injected into context without
+changing the agent's behavior.
+
 ## Disclosure taxonomy
 
 Use the same `truncated` values already in the framework:
