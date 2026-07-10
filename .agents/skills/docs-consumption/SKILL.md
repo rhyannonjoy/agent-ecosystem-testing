@@ -1,7 +1,6 @@
 ---
 name: docs-consumption
-description: Improve agent self-reporting when retrieving documentation from a URL by requiring explicit examination of errors, disclosure of partial or unverifiable content, and recommendations for tooling or prompt fixes.
-version: 1.0.0
+description: When fetching a URL for web retrieval testing, report response metrics, truncation status, tool identifiers, workspace access, and completeness. Label the result COMPLETE, PARTIAL, or UNVERIFIABLE and recommend fixes for gaps.
 ---
 
 # Docs-Consumption Skill
