@@ -2,12 +2,9 @@
 
 **Goal:** test whether activating a reusable docs-consumption skill improves agent reporting of
 truncation, errors, and tool limitations on `EC-6` in the VS Code-Codex extension, `T2`.
-[`SKILL.md`](./docs-consumption/) requires failure examination, distinguishes _"tool ran"_ from
-_"content is complete,"_ prohibits reframing failures as successes, and asks for fix recommendations
-when a gap is addressable.
-
-**Skill file:** `open-ai-codex-web-search/skills/docs-consumption/SKILL.md`  
-**Skill path:** `open-ai-codex-web-search/skills/docs-consumption/SKILL.md`
+[`SKILL.md`](../../.agents/skills/docs-consumption/SKILL.md) requires failure examination, distinguishes
+_"tool ran"_ from _"content is complete,"_ prohibits reframing failures as successes, and asks for fix
+recommendations when a gap is addressable.
 
 ## Comparisons
 
@@ -37,7 +34,7 @@ python3 open-ai-codex-web-search/scripts/framework.py \
 ```
 
 Before pasting into a new VS Code-Codex session, verify that
-`open-ai-codex-web-search/skills/docs-consumption/SKILL.md` exists in the workspace.
+`.agents/skills/docs-consumption/SKILL.md` exists in the workspace.
 The agent may or may not discover it.
 
 ## Generate a single `skill-on` prompt
@@ -45,7 +42,7 @@ The agent may or may not discover it.
 ```bash
 python3 open-ai-codex-web-search/scripts/framework.py \
   --test EC-6 --track vscode-codex-interpreted \
-  --skill open-ai-codex-web-search/skills/docs-consumption/SKILL.md
+  --skill .agents/skills/docs-consumption/SKILL.md
 ```
 
 Copy the printed prompt into a new VS Code-Codex chat session.
@@ -60,7 +57,7 @@ for model in "GPT-5.4-Mini" "GPT-5.4" "GPT-5.5"; do
     echo "===== SKILL-ON $model / $level ====="
     python3 open-ai-codex-web-search/scripts/framework.py \
       --test EC-6 --track vscode-codex-interpreted \
-      --skill open-ai-codex-web-search/skills/docs-consumption/SKILL.md
+      --skill .agents/skills/docs-consumption/SKILL.md
     echo
   done
 done
@@ -92,7 +89,7 @@ Paste each prompt into a **separate, fresh** VS Code-Codex session to avoid cont
 ### `Skill-opt-in` session
 
 1. Open a new VS Code-Codex chat.
-2. Ensure the skill file `open-ai-codex-web-search/skills/docs-consumption/SKILL.md` is present in the workspace.
+2. Ensure the skill file `.agents/skills/docs-consumption/SKILL.md` is present in the workspace.
 3. Paste the standard `EC-6` prompt, without specifying skill.
 4. Don't tell the agent about the skill.
 5. Observe whether the agent discovers and reads the skill file on its own.
@@ -101,7 +98,7 @@ Paste each prompt into a **separate, fresh** VS Code-Codex session to avoid cont
 ### `Skill-on` session
 
 1. Open a new VS Code-Codex chat.
-2. Ensure the skill file `open-ai-codex-web-search/skills/docs-consumption/SKILL.md` is present in the workspace.
+2. Ensure the skill file `.agents/skills/docs-consumption/SKILL.md` is present in the workspace.
 3. Paste the `skill-on` prompt, with the activation directive.
 4. Let the agent complete the task without proceeding to other tests.
 5. Capture the agent's output and any relevant tool-call details.

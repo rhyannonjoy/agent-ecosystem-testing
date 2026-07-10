@@ -752,7 +752,7 @@ Examples:
 
   # Print EC-6 prompt with the docs-consumption skill activated
   python framework.py --test EC-6 --track vscode-codex-interpreted \
-      --skill open-ai-codex-web-search/skills/docs-consumption/SKILL.md
+      --skill .agents/skills/docs-consumption/SKILL.md
 
   # Log interpreted track result (T1 or T2)
   python framework.py --log BL-1 \\
