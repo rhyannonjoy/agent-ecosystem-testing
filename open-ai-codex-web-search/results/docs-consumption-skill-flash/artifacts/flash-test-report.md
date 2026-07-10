@@ -11,4 +11,4 @@
 | skill-opt-in | 0 | — | unknown | — |
 | skill-on | 0 | — | unknown | — |
 
-_No skill-opt-in or skill-on rows yet. Run the prompts and log results with notes prefixed `skill: opt-in; ` or `skill: on; `._
+_No skill-opt-in or skill-on rows yet. Run the prompts and log results with notes prefixed `skill: opt-in;` or `skill: on;`._
