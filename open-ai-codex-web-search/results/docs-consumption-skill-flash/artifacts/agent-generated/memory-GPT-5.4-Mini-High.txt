@@ -1,0 +1,12 @@
+GPT-5.4 Mini High, 8th run
+v26.707.31428
+Didn't generate/save to the project, but was exposed in chat thought panel, user manually saved
+
+`$rg -n "web retrieval|SC-1|EC-6|raw.githubusercontent.com|missing field `sandboxPolicy`" /Users/rhyannonjoy/.codex/memories/MEMORY.md`
+
+zsh:1: command not found: sandboxPolicy
+1:# Task Group: Agent Ecosystem Testing web retrieval characterization
+14:- raw.githubusercontent.com, SPEC.md, EC-6, web.open, curl, perl, character count, last 50 characters, markdown completeness, truncation
+24:- ai.google.dev/gemini-api/docs/url-context, SC-1, curl, wc -m, wc -c, tail -c 50, rg -o, devsite-code, Could not resolve host, /private/tmp/sc-1-url-context.html
+36:- web.open, open({"ref_id":"https://ai.google.dev/gemini-api/docs/url-context"}), lineno:345, L437, Last updated 2026-06-22 UTC., node_repl, missing field `sandboxPolicy`, approximate size, rendered extraction
+58:- Symptom: `node_repl` ad hoc fetching fails with `missing field 'sandboxPolicy'`. Cause: the tool path is not configured for that fetch in this environment. Fix: avoid relying on `node_repl` for retrieval measurement unless sandbox metadata is known-good; use a different raw-fetch path [Task 3]
