@@ -25,6 +25,7 @@ import csv
 import glob
 import hashlib
 import json
+import re
 import sys
 from collections import Counter
 from datetime import datetime
@@ -39,6 +40,42 @@ def parse_ts(ts: str) -> datetime:
 
 def sha(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]
+
+
+# Skills are announced in a developer response_item containing a
+# <skills_instructions> block. Each skill is one Markdown bullet:
+#   - name: description (locator: path)
+# The name may contain colons (e.g. plugin:skill-name), so we split on
+# the first ": " and treat the trailing "(locator: path)" as the source.
+SKILLS_BLOCK_RE = re.compile(r"<skills_instructions>(.*?)</skills_instructions>", re.DOTALL)
+SKILL_LINE_RE = re.compile(
+    r"^- (?P<name>.+?):\s+(?P<desc>.+?)\s+\((?P<locator>[^:)]+):\s+(?P<path>[^)]+)\)",
+    re.MULTILINE,
+)
+
+
+def parse_skills(records: list[dict]) -> list[dict]:
+    """Return skill entries observed in developer <skills_instructions> blocks."""
+    skills = []
+    for rec in records:
+        if rec.get("type") != "response_item":
+            continue
+        payload = rec.get("payload", {}) or {}
+        if payload.get("type") != "message" or payload.get("role") != "developer":
+            continue
+        for block in payload.get("content", []) or []:
+            text = block.get("text", "")
+            for block_match in SKILLS_BLOCK_RE.finditer(text):
+                for line_match in SKILL_LINE_RE.finditer(block_match.group(1)):
+                    skills.append(
+                        {
+                            "name": line_match.group("name").strip(),
+                            "description": line_match.group("desc").strip(),
+                            "locator": line_match.group("locator").strip(),
+                            "path": line_match.group("path").strip(),
+                        }
+                    )
+    return skills
 
 
 def format_duration(seconds) -> str | None:
@@ -102,6 +139,11 @@ def audit_file(path: Path) -> dict:
         "effort": None,
         "cli_version": None,
         "test_id": None,
+        "skills_loaded_count": 0,
+        "skill_names": "",
+        "skill_docs_consumption_loaded": "false",
+        "skill_docs_consumption_path": "",
+        "skill_docs_consumption_desc": "",
         "turns": 0,
         "user_messages": 0,
         "commentary_msgs": 0,
@@ -243,6 +285,18 @@ def audit_file(path: Path) -> dict:
     if first_ts and last_ts:
         r["wallclock_s"] = round((last_ts - first_ts).total_seconds(), 1)
 
+    # ---- Skill loading ----------------------------------------------------
+    skills = parse_skills(records)
+    r["skills_loaded_count"] = len(skills)
+    r["skill_names"] = ", ".join(s["name"] for s in skills)
+    docs_consumption = next(
+        (s for s in skills if "docs-consumption" in s["name"]), None
+    )
+    if docs_consumption:
+        r["skill_docs_consumption_loaded"] = "true"
+        r["skill_docs_consumption_path"] = docs_consumption["path"]
+        r["skill_docs_consumption_desc"] = docs_consumption["description"][:120]
+
     # Records appended after the last task_complete: the post-hoc alteration check
     if last_complete_idx is not None:
         tail = records[last_complete_idx + 1:]
@@ -336,6 +390,10 @@ def main():
         print("=" * 78)
         print(f"{r['file']}")
         print(f"  session {r['session_id']} | {r['model']} {r['effort']} | cli {r['cli_version']} | test {r['test_id']}")
+        skill_summary = f"{r['skills_loaded_count']} loaded"
+        if r["skill_docs_consumption_loaded"] == "true":
+            skill_summary += " | docs-consumption: yes"
+        print(f"  skills: {skill_summary} | names: {r['skill_names']}")
         print(f"  turns {r['turns']} | user msgs {r['user_messages']} | commentary {r['commentary_msgs']} | "
               f"final answers: event {r['final_answers_event']}, transcript {r['final_answers_item']}")
         print(f"  api calls: web_search {r['web_search_calls']} | function {r['function_calls']} "
@@ -352,7 +410,10 @@ def main():
             print("  OK: single emission, no post-completion records, all three copies match")
 
     if args.csv and results:
-        cols = ["file", "session_id", "model", "effort", "test_id", "turns", "user_messages",
+        cols = ["file", "session_id", "model", "effort", "test_id",
+                "skills_loaded_count", "skill_names", "skill_docs_consumption_loaded",
+                "skill_docs_consumption_path", "skill_docs_consumption_desc",
+                "turns", "user_messages",
                 "commentary_msgs", "final_answers_event", "final_answers_item", "web_search_calls",
                 "function_calls", "task_completes", "records_after_complete", "duration_s",
                 "ttft_s", "wallclock_s", "tokens_total", "flags", "failure_count_total",
