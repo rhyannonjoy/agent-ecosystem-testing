@@ -81,7 +81,16 @@ def parse_skills(records: list[dict]) -> list[dict]:
 # --- Skill-language detection --------------------------------------------
 
 SKILL_PATH = ".agents/skills/docs-consumption/SKILL.md"
-PROTOCOL_PREFIX_RE = re.compile(r"\b(COMPLETE|PARTIAL|UNVERIFIABLE)\b", re.IGNORECASE)
+# SKILL.md requires the report to be prefaced with COMPLETE, PARTIAL, or UNVERIFIABLE.
+# Only count a formal protocol label at the start of the answer: optional leading
+# markdown decoration, the keyword, optional trailing decoration, then a colon,
+# newline, or end of string. This avoids false positives from sentences like
+# "Looks complete" or "Perceived completeness".
+PROTOCOL_PREFIX_RE = re.compile(
+    r"^\s*(?:\*\*|\*|__|_|#+\s*)?(COMPLETE|PARTIAL|UNVERIFIABLE)"
+    r"(?:\*\*|\*|__|_)?\s*(?::|\n|$)",
+    re.IGNORECASE,
+)
 
 # Phrases and keywords that indicate the agent reasoned with the docs-consumption
 # skill protocol, even when it did not use the formal COMPLETE/PARTIAL/UNVERIFIABLE
