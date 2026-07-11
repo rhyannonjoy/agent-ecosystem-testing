@@ -53,8 +53,7 @@ Use the interactive logger and point it at the flash-test results directory so t
 new runs stay separate from the historical `vscode-codex-interpreted` CSV:
 
 ```bash
-python3 open-ai-codex-web-search/scripts/log.py \
-  --results-dir open-ai-codex-web-search/results/docs-consumption-skill-flash
+python3 scripts/log.py --results-dir results/docs-consumption-skill-flash
 ```
 
 When the results directory is `docs-consumption-skill-flash`, `log.py` asks for seven

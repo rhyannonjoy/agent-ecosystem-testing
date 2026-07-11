@@ -97,18 +97,26 @@ def collect_session_fields() -> dict:
         print(f"    {track_id:<28}  {info['method']:<18}  {info['surface']}  ({ws})")
     print()
 
-    track = prompt("Track", choices=list(TRACKS.keys()))
+    while True:
+        track = prompt("Track (not the results directory)")
+        if track in TRACKS:
+            break
+        if "docs-consumption" in track:
+            print("    ✗ docs-consumption-skill-flash is a results directory, not a track.")
+            print("      Pass --results-dir results/docs-consumption-skill-flash and select one of the tracks above.")
+            continue
+        print(f"    ✗ Must be one of: {', '.join(TRACKS.keys())}")
 
     permission_level = prompt("Permission level", choices=["default", "auto-review", "full-access"], default="default")
     model_observed = prompt("Model observed (LLM reported in output, if any)")
     model_intelligence_level = prompt(
         "Intelligence level",
-        choices=["Low", "Medium", "High", "Extra High"],
+        choices=["Low/Light", "Medium", "High", "Extra High"],
         default="Medium",
     )
     codex_version = prompt("Codex version (e.g. 1.0.0)")
     tools_named = prompt(
-        "Tools named in output (e.g. web, web.open, curl)",
+        "Tools named in output (web, web.open, curl)",
         required=False,
     )
     workspace_substitution = prompt(
@@ -326,6 +334,10 @@ def main():
     print("\n╔══════════════════════════════════════════════════════════╗")
     print("║   Codex Testing Framework — Interactive Logger           ║")
     print("╚══════════════════════════════════════════════════════════╝")
+    if args.results_dir:
+        print(f"\n  Custom results directory: {args.results_dir}")
+        print("  The track you choose below still determines row content;")
+        print("  results are written to the directory above.\n")
     print("\nPress Enter to skip optional fields. No quotation marks necessary.\n")
 
     try:
