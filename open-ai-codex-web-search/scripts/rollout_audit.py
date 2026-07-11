@@ -423,9 +423,14 @@ def audit_file(path: Path) -> dict:
     if dupes:
         r["flags"].append(f"DUPLICATE_EMISSION: identical final answer emitted more than once")
 
-    # C. Event stream and durable transcript should be copies of one generation
+    # C. Event stream and durable transcript should be copies of one generation.
+    # Strip <oai-mem-citation> blocks first; they are appended to the durable
+    # transcript but not streamed, so they would otherwise trigger false positives.
+    OAI_MEM_CITATION_RE = re.compile(r"<oai-mem-citation>.*?</oai-mem-citation>", re.DOTALL)
     if final_event_texts and final_item_texts:
-        if [sha(t) for t in final_event_texts] != [sha(t) for t in final_item_texts]:
+        normalized_event = [OAI_MEM_CITATION_RE.sub("", t).rstrip() for t in final_event_texts]
+        normalized_item = [OAI_MEM_CITATION_RE.sub("", t).rstrip() for t in final_item_texts]
+        if [sha(t) for t in normalized_event] != [sha(t) for t in normalized_item]:
             r["flags"].append("STREAM_TRANSCRIPT_MISMATCH: event_msg and response_item final answers differ")
 
     # D. task_complete should carry the same single message
@@ -508,8 +513,7 @@ def main():
                 lang_bits.append(f"prefix={r['protocol_prefix']} ({r['protocol_prefix_source']})")
             if r["skill_language"] == "true":
                 lang_bits.append(f"skill-language ({r['skill_language_source']})")
-            if lang_bits:
-                print(f"  skill-signals: {' | '.join(lang_bits)}")
+            print(f"  skill-signals: {' | '.join(lang_bits) if lang_bits else 'none'}")
         print(f"  turns {r['turns']} | user msgs {r['user_messages']} | commentary {r['commentary_msgs']} | "
               f"final answers: event {r['final_answers_event']}, transcript {r['final_answers_item']}")
         print(f"  api calls: web_search {r['web_search_calls']} | function {r['function_calls']} "
