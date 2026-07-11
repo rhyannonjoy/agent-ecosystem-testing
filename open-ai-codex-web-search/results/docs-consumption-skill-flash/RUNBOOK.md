@@ -87,9 +87,7 @@ _"the skill loaded"_ from _"the skill influenced the agent's output"_:
 Run the audit:
 
 ```bash
-python3 open-ai-codex-web-search/scripts/rollout_audit.py \
-  open-ai-codex-web-search/results/docs-consumption-skill-flash/artifacts/rollouts/EC-6/*.jsonl \
-  --csv audit.csv
+python3 open-ai-codex-web-search/scripts/rollout_audit.py results/docs-consumption-skill-flash/artifacts/rollouts/EC-6/*.jsonl
 ```
 
 ### Expected Patterns
