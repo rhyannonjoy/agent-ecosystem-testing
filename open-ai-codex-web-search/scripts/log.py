@@ -239,6 +239,59 @@ def collect_raw_fields() -> dict:
         "verified_headers": to_int(v_headers),
     }
 
+def collect_h6_fields() -> dict:
+    section("H6 / docs-consumption skill fields (optional)")
+
+    print("  These fields are stored in dedicated CSV columns for the flash analysis.")
+    print("  Leave blank to skip. See RUNBOOK.md for scoring guidance.")
+
+    skill_condition = prompt(
+        "Skill condition",
+        choices=["on", "opt-in"],
+        required=False,
+    )
+    agent_discovered = prompt(
+        "Agent discovered skill (opt-in only)",
+        choices=["yes", "no", "inferred"],
+        required=False,
+    )
+    completeness_accurate = prompt(
+        "Completeness accurate",
+        choices=["yes", "no"],
+        required=False,
+    )
+    error_examined = prompt(
+        "Error examined",
+        choices=["yes", "no"],
+        required=False,
+    )
+    exec_vs_complete = prompt(
+        "Execution vs completeness",
+        choices=["yes", "no"],
+        required=False,
+    )
+    no_reframing = prompt(
+        "No reframing",
+        choices=["yes", "no"],
+        required=False,
+    )
+    fix_recommended = prompt(
+        "Fix recommended",
+        choices=["yes", "no"],
+        required=False,
+    )
+
+    return {
+        "skill_condition": skill_condition,
+        "agent_discovered": agent_discovered,
+        "completeness_accurate": completeness_accurate,
+        "error_examined": error_examined,
+        "exec_vs_complete": exec_vs_complete,
+        "no_reframing": no_reframing,
+        "fix_recommended": fix_recommended,
+    }
+
+
 def collect_closing_fields() -> dict:
     section("Hypothesis and Notes (all tracks)")
 
@@ -288,6 +341,10 @@ def main():
 
         closing = collect_closing_fields()
 
+        # Only prompt for H6 fields when logging to the flash-test results directory.
+        is_flash = args.results_dir and "docs-consumption-skill-flash" in args.results_dir
+        h6 = collect_h6_fields() if is_flash else {}
+
         framework_kwargs = {"track": track}
         if args.results_dir:
             framework_kwargs["results_dir"] = args.results_dir
@@ -304,6 +361,7 @@ def main():
             hypothesis_match=closing["hypothesis_match"],
             notes=closing["notes"],
             **output,
+            **h6,
         )
 
     except KeyboardInterrupt:

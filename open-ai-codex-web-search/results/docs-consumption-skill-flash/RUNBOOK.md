@@ -1,12 +1,27 @@
 # Docs-Consumption Skill Flash Test Runbook
 
-**Goal:** test whether activating a reusable docs-consumption skill improves agent reporting of
-truncation, errors, and tool limitations on `EC-6` in the VS Code-Codex extension, `T2`.
+**Goal:** test whether the presence and activation of a reusable docs-consumption skill changes
+Codex's web retrieval behavior and the quality of its reporting on `EC-6` in the VS Code-Codex
+extension, `T2`.
+
+`H1–H5` measure retrieval ceilings and truncation patterns while `H6` asks whether a skill can
+shift those patterns by changing what the agent retrieves, how it classifies completeness, and
+how it reports errors and limitations.
+
 [`SKILL.md`](../../.agents/skills/docs-consumption/SKILL.md) requires failure examination, distinguishes
 _"tool ran"_ from _"content is complete,"_ prohibits reframing failures as successes, and asks for fix
-recommendations when a gap is addressable.
+recommendations when a gap is addressable. This experiment tests whether that instruction produces
+observable differences in:
+
+1. **Retrieval behavior** - tool choice, escalation, retry patterns, and amount of content fetched
+2. **Reporting quality** - explicit disclosure of truncation, errors, and limitations rather than
+   silent or reframed summaries
 
 ## Comparisons
+
+Run all LLM/reasoning combinations available for **both** `skill-opt-in` and `skill-on`. Run `skill-opt-in`
+first for a given LLM/reasoning pair, then `skill-on`. This keeps the comparison clean and prevents the
+forced-activation run from priming the opt-in run.
 
 | Condition | Data source | Count |
 | ----------- | ------------- | ------- |
@@ -14,28 +29,15 @@ recommendations when a gap is addressable.
 | `skill-opt-in` | New `EC-6` `T2` runs, skill file present but not mentioned in prompt | 12 new runs |
 | `skill-on` | New `EC-6` `T2` runs, skill explicitly activated in prompt | 12 new runs |
 
-Run all 12 LLM/reasoning combinations for **both** skill-opt-in and skill-on:
-
-- `GPT-5.4-Mini`: `Light`, `Medium`, `High`, `Extra High`
-- `GPT-5.4`: `Light`, `Medium`, `High`, `Extra High`
-- `GPT-5.5`: `Light`, `Medium`, `High`, `Extra High`
-
-**Recommended order:** run `skill-opt-in` first for a given LLM/reasoning pair, then `skill-on`. This keeps the
-comparison clean and prevents the forced-activation run from priming the opt-in run.
-
 ## Generate a single `skill-opt-in` prompt
 
-For opt-in, the skill file must be present in the workspace, but the prompt must **not** mention it.
-Use the standard `EC-6` prompt:
+`SKILL.md` file must be present in the workspace without altering the prompt to mention it. The agent
+may or may not discover it, that itself is a finding. Use the standard `EC-6` prompt:
 
 ```bash
 python3 open-ai-codex-web-search/scripts/framework.py \
   --test EC-6 --track vscode-codex-interpreted
 ```
-
-Before pasting into a new VS Code-Codex session, verify that
-`.agents/skills/docs-consumption/SKILL.md` exists in the workspace.
-The agent may or may not discover it.
 
 ## Generate a single `skill-on` prompt
 
@@ -44,64 +46,6 @@ python3 open-ai-codex-web-search/scripts/framework.py \
   --test EC-6 --track vscode-codex-interpreted \
   --skill .agents/skills/docs-consumption/SKILL.md
 ```
-
-Copy the printed prompt into a new VS Code-Codex chat session.
-
-## Generate all prompts at once
-
-### `Skill-on` prompts (12)
-
-```bash
-for model in "GPT-5.4-Mini" "GPT-5.4" "GPT-5.5"; do
-  for level in "Light" "Medium" "High" "Extra High"; do
-    echo "===== SKILL-ON $model / $level ====="
-    python3 open-ai-codex-web-search/scripts/framework.py \
-      --test EC-6 --track vscode-codex-interpreted \
-      --skill .agents/skills/docs-consumption/SKILL.md
-    echo
-  done
-done
-```
-
-### `Skill-opt-in` prompts (12)
-
-```bash
-for model in "GPT-5.4-Mini" "GPT-5.4" "GPT-5.5"; do
-  for level in "Light" "Medium" "High" "Extra High"; do
-    echo "===== SKILL-OPT-IN $model / $level ====="
-    python3 open-ai-codex-web-search/scripts/framework.py \
-      --test EC-6 --track vscode-codex-interpreted
-    echo
-  done
-done
-```
-
-Redirect to a file for a printed run list:
-
-```bash
-bash generate_all_skill_prompts.sh > skill-on-prompts.txt
-```
-
-Paste each prompt into a **separate, fresh** VS Code-Codex session to avoid contamination.
-
-## Running a session
-
-### `Skill-opt-in` session
-
-1. Open a new VS Code-Codex chat.
-2. Ensure the skill file `.agents/skills/docs-consumption/SKILL.md` is present in the workspace.
-3. Paste the standard `EC-6` prompt, without specifying skill.
-4. Don't tell the agent about the skill.
-5. Observe whether the agent discovers and reads the skill file on its own.
-6. Capture the agent's output and any relevant tool-call details.
-
-### `Skill-on` session
-
-1. Open a new VS Code-Codex chat.
-2. Ensure the skill file `.agents/skills/docs-consumption/SKILL.md` is present in the workspace.
-3. Paste the `skill-on` prompt, with the activation directive.
-4. Let the agent complete the task without proceeding to other tests.
-5. Capture the agent's output and any relevant tool-call details.
 
 ## Logging each result
 
@@ -113,62 +57,34 @@ python3 open-ai-codex-web-search/scripts/log.py \
   --results-dir open-ai-codex-web-search/results/docs-consumption-skill-flash
 ```
 
-It prompts for all fields and writes to the flash-test CSV. The critical difference from historical rows is the
-**Notes** field: it must start with the skill condition prefix.
+When the results directory is `docs-consumption-skill-flash`, `log.py` asks for seven
+structured `H6` fields after the `notes` prompt and `docs_consumption_skill_analysis.py` counts them:
 
-### `Skill-on` logging
+| Field | Values | What to answer |
+| --- | --- | --- |
+| `skill_condition` | `on` / `opt-in` | _Was the skill explicitly activated in the prompt,`on`, or only present in the workspace, `opt-in`?_ |
+| `agent_discovered` | `yes` / `no` / `inferred` | For `opt-in`: _did the agent appear to find and follow the skill file on its own?_ `yes` only if it explicitly mentions the file; `inferred` if behavior matches the protocol but no direct evidence; `no` if it ignored the skill. |
+| `completeness_accurate` | `yes` / `no` | _Did the agent classify the fetch correctly against the evidence it had?_ `COMPLETE` only when full retrieval demonstrated; `PARTIAL` when a window/truncation was visible; `UNVERIFIABLE` when it correctly noted it couldn't verify. |
+| `error_examined` | `yes` / `no` | _Did the agent read and report embedded errors like `Cache Miss`, `0 bytes`, or DNS failures?_ |
+| `exec_vs_complete` | `yes` / `no` | _Did the agent distinguish "tool ran" from "full content delivery?"_ |
+| `no_reframing` | `yes` / `no` | _Did the agent avoid calling a partial or error-state fetch "complete" or "successful?"_ |
+| `fix_recommended` | `yes` / `no` | _Did the agent suggest a concrete fix tied to the actual limitation, `use curl` for the `web` line-window limit?_ |
 
-When `log.py` asks for **Notes**, enter something like:
+## Observability
 
-```bash
-skill: on; skill-referenced: inferred; prefix: PARTIAL:L54; completeness-accurate: yes; error-examined: yes; exec-vs-complete: yes; no-reframing: yes; fix-recommended: yes (use curl); agent used protocol-style reporting but did not explicitly cite the skill file.
-```
-
-### `Skill-opt-in` logging
-
-When `log.py` asks for **Notes**, enter something like:
-
-```bash
-skill: opt-in; agent-discovered: inferred; skill-referenced: inferred; prefix: PARTIAL:L54; completeness-accurate: yes; error-examined: yes; exec-vs-complete: yes; no-reframing: yes; fix-recommended: yes (use `curl`); Agent behaved per protocol without prompting, but no direct evidence it read the skill file.
-```
-
-For `skill-off` historical rows, no change required. If you ever re-run a skill-off row, prefix its notes with `skill: off; `.
-
-### Alternative: one-shot `framework.py --log`
-
-If you prefer a non-interactive command, use the long form shown in `framework.py --help`. `log.py`
-
-## Scoring disclosure across all conditions
-
-After logging the new runs, generate the comparison report from both the flash-test
-CSV and the historical baseline CSV:
-
-```bash
-python3 open-ai-codex-web-search/scripts/docs_consumption_skill_analysis.py \
-  --csv open-ai-codex-web-search/results/docs-consumption-skill-flash/results.csv \
-         open-ai-codex-web-search/results/vscode-codex-interpreted/results.csv \
-  --output open-ai-codex-web-search/skills/flash-test-report.md
-```
-
-The analyzer skips any missing CSVs with a warning, so the same command works
-before any logging flash-test rows.
-
-## Observability: rollout audit
-
-`rollout_audit.py` has been extended to report skill-related signals found in the
-Codex session logs. These columns help separate "the skill was loaded" from "the
-skill influenced the agent's output":
+`rollout_audit.py` additions report skill-related signals from Codex session logs. These columns help separate
+_"the skill loaded"_ from _"the skill influenced the agent's output"_:
 
 | Field | Meaning |
-|---|---|
-| `skill_docs_consumption_loaded` | Was the `docs-consumption` skill present in the agent's loaded skills? |
-| `skill_path_mentioned` | Did the agent literally mention `.agents/skills/docs-consumption/SKILL.md`? |
-| `protocol_prefix` | Did the output contain `COMPLETE`, `PARTIAL`, or `UNVERIFIABLE`? |
-| `protocol_prefix_source` | Was the prefix in the `final_answer`, `commentary`, or `both`? |
-| `skill_language` | Did the output use broader skill-protocol phrases (`tool ran`, `full content`, `not verified`, `truncation`, `limitation`, etc.)? |
-| `skill_language_source` | Was that language in `final_answer`, `commentary`, or `both`? |
+| --- | --- |
+| `skill_docs_consumption_loaded` | _Was the `docs-consumption` skill present in the agent's loaded skills?_ |
+| `skill_path_mentioned` | _Did the agent literally mention `.agents/skills/docs-consumption/SKILL.md`?_ |
+| `protocol_prefix` | _Did the output contain `COMPLETE`, `PARTIAL`, or `UNVERIFIABLE`?_ |
+| `protocol_prefix_source` | _Was the prefix in the `final_answer`, `commentary`, or `both`?_ |
+| `skill_language` | _Did the output use broader skill-protocol phrases: `tool ran`, `full content`, `not verified`, `truncation`, `limitation`?_ |
+| `skill_language_source` | _Was that language in `final_answer`, `commentary`, or `both`?_ |
 
-Run the audit after collecting rollouts:
+Run the audit:
 
 ```bash
 python3 open-ai-codex-web-search/scripts/rollout_audit.py \
@@ -176,19 +92,18 @@ python3 open-ai-codex-web-search/scripts/rollout_audit.py \
   --csv audit.csv
 ```
 
-### Expected patterns by condition
+### Expected Patterns
 
 | Condition | Expected load rate | Expected protocol prefix | Expected skill language |
-|---|---|---|---|
-| `opt-in` (file in `.agents/`) | Variable by model/effort | Low unless discovered | Low unless discovered |
-| `on` (explicit prompt) | ~100% | High | High |
+| --- | --- | --- | --- |
+| `opt-in`, skill in `.agents/` | Variable by LLM/effort | Low unless discovered | Low unless discovered |
+| `on`, explicit prompt | ~100% | High | High |
 | Baseline | 0% | Incidental | Incidental |
 
-A useful finding would be `skill_docs_consumption_loaded: true` but low or no
-protocol/skill-language — that means the skill was injected into context without
-changing the agent's behavior.
+`skill_docs_consumption_loaded: true` but low or no protocol/skill-language suggests that skill context
+injection without impact on the agent's behavior.
 
-## Disclosure taxonomy
+## Disclosure Taxonomy
 
 Use the same `truncated` values already in the framework:
 
@@ -197,10 +112,10 @@ Use the same `truncated` values already in the framework:
 - `implicit` agent reasoned around a limitation without naming it
 - `no` no truncation signal detected; silent completion
 
-For `H6`, the primary question is whether `skill-on` shifts the distribution toward
+For `H6`, the question includes whether `skill-on` shifts the distribution toward
 `yes` and `mixed` versus `implicit` and `no`.
 
-## Failure-examination scoring
+## Failure-examination Scoring
 
 Beyond the `truncated` taxonomy, score each `skill-on` run on these four dimensions.
 Add them to the `notes` field as short phrases so the analysis script and future readers can see them.
@@ -230,9 +145,9 @@ A run that reports `PARTIAL: L54`, explains that `web` returned a windowed view,
 skill success. **Explicit-but-incorrect reporting isn't an improvement**: for example, claiming `PARTIAL` when the source arrived
 intact, or recommending a fix that doesn't match the observed limitation, shouldn't score as a failure on the relevant dimensions.
 
-## False-positive checklist
+## False-positive Checklist
 
-Watch for these patterns that look like improvement but are actually the same failure:
+Watch for these patterns that look like improvement, but might be the same failure:
 
 - [ ] **Confident caveat.** Agent writes polished language like _"The available excerpt suggests"_ but still doesn't flag the content as
 partial or name a truncation point.
@@ -249,14 +164,11 @@ read the skill file, `agent-discovered: no` or `inferred`. That's not skill disc
 - [ ] **Explicit but incorrect.** Agent uses the `COMPLETE`/`PARTIAL`/`UNVERIFIABLE` prefix, but the label doesn't match the actual tool result;
 `PARTIAL` when the full source arrived, or `COMPLETE` when it stopped at `L54`.
 
-## Note Guidance
+## Notation Guidance
 
-Beyond the required `skill: on` or `skill: opt-in` prefix, include:
+While capturing agentic performance, consider:
 
-- Whether the agent referenced or followed the skill file `skill-referenced: yes/no/inferred`. You can usually only infer this from observable output:
-use of the `COMPLETE`/`PARTIAL`/`UNVERIFIABLE` prefix, direct quotes from `SKILL.md`, or mention of the skill path. Thought-panel mentions count if you capture them.
-- For `opt-in`: whether the agent discovered the file on its own `agent-discovered: yes/no/inferred`. `yes` only if the final answer or thought panel
-explicitly mentions the skill file; `inferred` if the behavior matches the protocol but you have no direct evidence it read the file.
+- Whether the agent referenced or followed the skill, cross-reference rollout logs with self-reports
 - Whether it used the `COMPLETE/PARTIAL/UNVERIFIABLE` prefix
 - Concrete truncation marker or error if named `L54`, `Cache Miss`, `DNS resolution failed`, `0 bytes`
 - Whether the agent examined the full tool result - error messages, status codes, metadata
@@ -264,18 +176,5 @@ explicitly mentions the skill file; `inferred` if the behavior matches the proto
 - Any fix recommendation tool, prompt, setting, URL
 - Any evidence of synthesis beyond the retrieved view
 - Any reframing of failure as success
-- Tool chain used
+- Changes in tool chain
 - Anything unusual compared to historical skill-off runs
-
-Suggested compact note formats:
-
-```bash
-skill: on; skill-referenced: inferred; prefix: PARTIAL:L54; completeness-accurate: yes; error-examined:
-yes; exec-vs-complete: yes; no-reframing: yes; fix-recommended: yes (use curl); agent used prefix and protocol without explicitly naming the skill file.
-```
-
-```bash
-skill: opt-in; agent-discovered: inferred; skill-referenced: inferred; prefix: PARTIAL:L54; completeness-accurate:
-yes; error-examined: yes; exec-vs-complete: yes; no-reframing: yes; fix-recommended: yes (use curl); Agent behaved per protocol
-without prompting, but no direct evidence it read the skill file.
-```
