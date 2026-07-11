@@ -66,7 +66,7 @@ structured `H6` fields after the `notes` prompt and `docs_consumption_skill_anal
 | `completeness_accurate` | `yes` / `no` | _Did the agent classify the fetch correctly against the evidence it had?_ `COMPLETE` only when full retrieval demonstrated; `PARTIAL` when a window/truncation was visible; `UNVERIFIABLE` when it correctly noted it couldn't verify. |
 | `error_examined` | `yes` / `no` | _Did the agent read and report embedded errors like `Cache Miss`, `0 bytes`, or DNS failures?_ |
 | `exec_vs_complete` | `yes` / `no` | _Did the agent distinguish "tool ran" from "full content delivery?"_ |
-| `no_reframing` | `yes` / `no` | _Did the agent avoid calling a partial or error-state fetch "complete" or "successful?"_ |
+| `avoided_reframing` | `yes` / `no` | _Did the agent avoid reframing a partial or error-state fetch as "complete" or "successful?"_ |
 | `fix_recommended` | `yes` / `no` | _Did the agent suggest a concrete fix tied to the actual limitation, `use curl` for the `web` line-window limit?_ |
 
 ## Observability
@@ -122,7 +122,7 @@ Add them to the `notes` field as short phrases so the analysis script and future
 | **Completeness accurate** | Agent classified the fetch correctly against the evidence it had: `PARTIAL` when a window/truncation is visible, `UNVERIFIABLE` when not yet verified, `COMPLETE` only when full retrieval demonstrated | `completeness-accurate: yes/no` |
 | **Error examined** | Agent read and reported embedded error messages - `Cache Miss`, DNS failure, `0 bytes`, etc. | `error-examined: yes/no` |
 | **Execution vs completeness** | Agent distinguished _"the tool ran"_ from _"the full content arrived"_ | `exec-vs-complete: yes/no` |
-| **No reframing** | Agent didn't call a partial/error-state fetch _"complete"_ or _"successful"_ | `no-reframing: yes/no` |
+| **Avoided reframing** | Agent didn't call a partial/error-state fetch _"complete"_ or _"successful"_ | `avoided-reframing: yes/no` |
 | **Fix recommended** | Agent suggested a concrete fix: different tool, prompt change, setting, or URL | `fix-recommended: yes/no` |
 
 For the original `EC-6`/`T2` observation, a run is only a skill success if **all** of the following are true:
@@ -134,7 +134,7 @@ of full retrieval, repeated `web` calls reaching a stable footer/end marker, `cu
 verification method.
 2. **A concrete marker or limitation named** `L54`, `Cache Miss`, `0 bytes`, `DNS resolution failed`, or "no total-size metadata returned."
 3. **Execution distinguished from completeness** agent says the tool ran, but the returned extraction isn't confirmed to be the full content.
-4. **No reframing** agent doesn't call a partial/error-state fetch "complete" or "successful."
+4. **Avoided reframing** agent didn't call a partial/error-state fetch "complete" or "successful."
 5. **The fix tied to the actual limitation** _"use `curl` with direct network permissions to retrieve the full 91KB source"_
 matches the observed `web` line-window limit; generic or hallucinated recommendation doesn't count.
 

@@ -91,7 +91,7 @@ DIMENSIONS = [
     ("completeness-accurate", "Correctly classified completeness state"),
     ("error-examined", "Examined embedded errors"),
     ("exec-vs-complete", "Distinguished execution from completeness"),
-    ("no-reframing", "Did not reframe failure as success"),
+    ("avoided-reframing", "Avoided reframing failure as success"),
     ("fix-recommended", "Recommended a fix"),
 ]
 

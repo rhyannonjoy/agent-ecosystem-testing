@@ -278,8 +278,8 @@ def collect_h6_fields() -> dict:
         choices=["yes", "no"],
         required=False,
     )
-    no_reframing = prompt(
-        "No reframing",
+    avoided_reframing = prompt(
+        "Avoided reframing",
         choices=["yes", "no"],
         required=False,
     )
@@ -295,7 +295,7 @@ def collect_h6_fields() -> dict:
         "completeness_accurate": completeness_accurate,
         "error_examined": error_examined,
         "exec_vs_complete": exec_vs_complete,
-        "no_reframing": no_reframing,
+        "avoided_reframing": avoided_reframing,
         "fix_recommended": fix_recommended,
     }
 

@@ -233,7 +233,7 @@ class TestResult:
     completeness_accurate: Optional[str] = None   # yes | no
     error_examined: Optional[str] = None          # yes | no
     exec_vs_complete: Optional[str] = None      # yes | no
-    no_reframing: Optional[str] = None          # yes | no
+    avoided_reframing: Optional[str] = None     # yes | no
     fix_recommended: Optional[str] = None         # yes | no
 
     # --- Codex-specific behavioral fields (all tracks) ---
@@ -589,7 +589,7 @@ Follow its disclosure protocol: report whether the fetched content is COMPLETE, 
         completeness_accurate: Optional[str] = None,
         error_examined: Optional[str] = None,
         exec_vs_complete: Optional[str] = None,
-        no_reframing: Optional[str] = None,
+        avoided_reframing: Optional[str] = None,
         fix_recommended: Optional[str] = None,
         # Codex-specific behavioral fields
         tools_named: Optional[str] = None,
@@ -662,7 +662,7 @@ Follow its disclosure protocol: report whether the fetched content is COMPLETE, 
             completeness_accurate=completeness_accurate,
             error_examined=error_examined,
             exec_vs_complete=exec_vs_complete,
-            no_reframing=no_reframing,
+            avoided_reframing=avoided_reframing,
             fix_recommended=fix_recommended,
             tools_named=tools_named,
             workspace_substitution=workspace_substitution,
