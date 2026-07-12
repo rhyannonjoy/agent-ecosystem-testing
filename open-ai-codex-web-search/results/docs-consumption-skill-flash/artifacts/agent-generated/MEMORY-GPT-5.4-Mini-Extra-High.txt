@@ -1,0 +1,64 @@
+GPT-5.4 Mini Extra High, 9th run
+v26.707.31428
+agent referenced in chat, didn't save to project, user manually saved
+
+## Task Group: Agent Ecosystem Testing web retrieval characterization
+
+scope: Single-URL retrieval behavior tests in the Agent Ecosystem Testing workspace, especially when the user wants empirical reporting on size, truncation, tail text, formatting completeness, tool visibility, and filesystem awareness.
+applies_to: cwd=/Users/rhyannonjoy/Documents/GitHub/agent-ecosystem-testing; reuse_rule=safe to reuse for similar retrieval-behavior tests in this workspace and for analogous single-URL measurement tasks, but exact counts/tails are URL- and tool-surface-specific.
+
+## Task 1: Fetch raw SPEC.md and report retrieval characteristics, success
+
+### rollout_summary_files
+
+- rollout_summaries/2026-07-09T19-34-04-ITtF-web_retrieval_behavior_test_spec_md.md (cwd=/Users/rhyannonjoy/Documents/GitHub/agent-ecosystem-testing, rollout_path=/Users/rhyannonjoy/.codex/sessions/2026/07/09/rollout-2026-07-09T12-34-04-019f485f-7800-7d40-b651-c450ab803fcb.jsonl, updated_at=2026-07-09T19:34:53+00:00, thread_id=019f485f-7800-7d40-b651-c450ab803fcb, exact raw Markdown measurement via curl+perl)
+
+### keywords
+
+- raw.githubusercontent.com, SPEC.md, EC-6, web.open, curl, perl, character count, last 50 characters, markdown completeness, truncation
+
+## Task 2: Fetch Gemini URL-context docs with direct measurement and saved-file verification, success
+
+### rollout_summary_files
+
+- rollout_summaries/2026-06-23T04-08-01-tVhf-web_retrieval_sc1_gemini_url_context.md (cwd=/Users/rhyannonjoy/Documents/GitHub/agent-ecosystem-testing, rollout_path=/Users/rhyannonjoy/.codex/archived_sessions/rollout-2026-06-22T21-08-01-019ef2a9-e82a-7d42-add0-5b878b94ec09.jsonl, updated_at=2026-06-23T04:09:51+00:00, thread_id=019ef2a9-e82a-7d42-add0-5b878b94ec09, strongest exact-measurement procedure for external HTML)
+
+### keywords
+
+- ai.google.dev/gemini-api/docs/url-context, SC-1, curl, wc -m, wc -c, tail -c 50, rg -o, devsite-code, Could not resolve host, /private/tmp/sc-1-url-context.html
+
+## Task 3: Fetch Gemini URL-context docs with web.open and characterize completeness from rendered output, mixed success
+
+### rollout_summary_files
+
+- rollout_summaries/2026-06-23T04-02-40-Pro6-web_retrieval_sc1_gemini_url_context.md (cwd=/Users/rhyannonjoy/Documents/GitHub/agent-ecosystem-testing, rollout_path=/Users/rhyannonjoy/.codex/archived_sessions/rollout-2026-06-22T21-02-41-019ef2a5-02db-7f73-bfab-aec7aab696ba.jsonl, updated_at=2026-06-23T04:03:24+00:00, thread_id=019ef2a5-02db-7f73-bfab-aec7aab696ba, structured single-test report with explicit tool-visibility requirement)
+- rollout_summaries/2026-06-23T03-48-37-02CW-web_retrieval_url_context_measurement.md (cwd=/Users/rhyannonjoy/Documents/GitHub/agent-ecosystem-testing, rollout_path=/Users/rhyannonjoy/.codex/archived_sessions/rollout-2026-06-22T20-48-37-019ef298-2542-7bd3-90f6-c7a34f445d16.jsonl, updated_at=2026-06-23T03:55:03+00:00, thread_id=019ef298-2542-7bd3-90f6-c7a34f445d16, partial because exact count path failed with missing sandboxPolicy)
+- rollout_summaries/2026-06-23T03-40-11-Tqm6-web_retrieval_google_gemini_url_context_test.md (cwd=/Users/rhyannonjoy/Documents/GitHub/agent-ecosystem-testing, rollout_path=/Users/rhyannonjoy/.codex/archived_sessions/rollout-2026-06-22T20-40-11-019ef290-6bae-72a0-ac5c-572ec7d58d2a.jsonl, updated_at=2026-06-23T03:43:06+00:00, thread_id=019ef290-6bae-72a0-ac5c-572ec7d58d2a, basic web.open windowing/tail verification pattern)
+
+### keywords
+
+- web.open, open({"ref_id":"https://ai.google.dev/gemini-api/docs/url-context"}), lineno:345, L437, Last updated 2026-06-22 UTC., node_repl, missing field `sandboxPolicy`, approximate size, rendered extraction
+
+## User preferences
+
+- when running controlled retrieval experiments, the user said, "only run this test and don't proceed to any other tests" and "To prevent testing methodology contamination" -> treat single-test scope as a hard boundary, do not branch into extra tests or opportunistic validations unless the user expands scope [Task 1][Task 2][Task 3]
+- when asking for retrieval characterization, the user requested exact reporting fields: "character count, estimated token count, truncation, last 50 characters, markdown completeness, tool visibility, surface awareness" -> future answers should report these categories directly instead of giving a generic summary [Task 1][Task 3]
+- when the task involves tool disclosure, the user wanted to know whether `web`, `web.open`, `curl`, or another method was invoked -> explicitly name the retrieval surface/tooling used, including failed attempts when they affected the result [Task 2][Task 3]
+
+## Reusable knowledge
+
+- `web.open` is useful for quick content inspection and footer checks, but it is a rendered/windowed surface rather than raw bytes; use it to assess visible completeness, not to claim exact length unless another path confirms the count [Task 1][Task 3]
+- For Gemini docs pages that appear cut off, a second `web.open` at a later line can confirm the footer/tail; in these runs, reaching `L437` and `Last updated 2026-06-22 UTC.` was the practical completeness signal [Task 3]
+- For exact measurement on raw GitHub Markdown, `curl -L --silent URL | perl -0ne 'print length($_),"\\n"; print substr($_,-50),"\\n"'` was the working path; it produced `91877` characters for `SPEC.md` and tail `- Notable exclusions with rationale (Appendix B).\n\n` [Task 1]
+- For large external HTML responses, save the fetch to a temp file before measuring it. The saved-file path supported reliable checks with `wc -m`, `wc -c`, `tail -c 50`, and `rg -o` tag counts even when the terminal display clipped the visible output [Task 2]
+- In the successful Gemini direct-fetch run, the file measured `125248` characters and `125491` bytes, ended at `</html>`, and had balanced `7` `<devsite-code>` pairs plus `7` `<pre>` pairs; this is the strongest evidence pattern for "HTML response looked complete" [Task 2]
+- The workspace/filesystem was reported as available at `/Users/rhyannonjoy/Documents/GitHub/agent-ecosystem-testing` across these retrieval tests, so future answers can state local-surface awareness when that same environment context is in scope [Task 1][Task 2][Task 3]
+- Related skill: skills/single-url-retrieval-measurement/SKILL.md [Task 1][Task 2][Task 3]
+
+## Failures and how to do differently
+
+- Symptom: the first `web.open` looks clipped or only shows a windowed excerpt. Cause: the surface is showing a rendered slice, not necessarily the full tail. Fix: either reopen deeper with a later `lineno` for completeness checks or pivot early to a raw fetch if exact counts/tail bytes matter [Task 1][Task 3]
+- Symptom: exact character count is needed but only rendered `web.open` output is available. Cause: the surface does not expose raw-body length. Fix: do not overstate precision; label counts as estimates or switch to direct fetch with a literal length command [Task 1][Task 3]
+- Symptom: `node_repl` ad hoc fetching fails with `missing field 'sandboxPolicy'`. Cause: the tool path is not configured for that fetch in this environment. Fix: avoid relying on `node_repl` for retrieval measurement unless sandbox metadata is known-good; use a different raw-fetch path [Task 3]
+- Symptom: a plain `curl` external fetch fails with `curl: (6) Could not resolve host: ai.google.dev`. Cause: network access from the default sandbox path is insufficient. Fix: use the working network-enabled fetch path for similar direct retrieval tasks, then measure the saved output rather than trusting terminal display [Task 2]
+- Symptom: the terminal transcript truncates a large fetched response. Cause: UI/output clipping, not necessarily incomplete retrieval. Fix: save the response to a file first and inspect the file with `wc`, `tail`, and targeted `rg` checks [Task 2]

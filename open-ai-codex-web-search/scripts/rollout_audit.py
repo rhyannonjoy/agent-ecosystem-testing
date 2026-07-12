@@ -25,6 +25,7 @@ import csv
 import glob
 import hashlib
 import json
+import re
 import sys
 from collections import Counter
 from datetime import datetime
@@ -39,6 +40,120 @@ def parse_ts(ts: str) -> datetime:
 
 def sha(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]
+
+
+# Skills are announced in a developer response_item containing a
+# <skills_instructions> block. Each skill is one Markdown bullet:
+#   - name: description (locator: path)
+# The name may contain colons (e.g. plugin:skill-name), so we split on
+# the first ": " and treat the trailing "(locator: path)" as the source.
+SKILLS_BLOCK_RE = re.compile(r"<skills_instructions>(.*?)</skills_instructions>", re.DOTALL)
+SKILL_LINE_RE = re.compile(
+    r"^- (?P<name>.+?):\s+(?P<desc>.+?)\s+\((?P<locator>[^:)]+):\s+(?P<path>[^)]+)\)",
+    re.MULTILINE,
+)
+
+
+def parse_skills(records: list[dict]) -> list[dict]:
+    """Return skill entries observed in developer <skills_instructions> blocks."""
+    skills = []
+    for rec in records:
+        if rec.get("type") != "response_item":
+            continue
+        payload = rec.get("payload", {}) or {}
+        if payload.get("type") != "message" or payload.get("role") != "developer":
+            continue
+        for block in payload.get("content", []) or []:
+            text = block.get("text", "")
+            for block_match in SKILLS_BLOCK_RE.finditer(text):
+                for line_match in SKILL_LINE_RE.finditer(block_match.group(1)):
+                    skills.append(
+                        {
+                            "name": line_match.group("name").strip(),
+                            "description": line_match.group("desc").strip(),
+                            "locator": line_match.group("locator").strip(),
+                            "path": line_match.group("path").strip(),
+                        }
+                    )
+    return skills
+
+
+# --- Skill-language detection --------------------------------------------
+
+SKILL_PATH = ".agents/skills/docs-consumption/SKILL.md"
+# SKILL.md requires the report to be prefaced with COMPLETE, PARTIAL, or UNVERIFIABLE.
+# Only count a formal protocol label at the start of the answer: optional leading
+# markdown decoration, the keyword, optional trailing decoration, then a colon,
+# newline, or end of string. This avoids false positives from sentences like
+# "Looks complete" or "Perceived completeness".
+PROTOCOL_PREFIX_RE = re.compile(
+    r"^\s*(?:\*\*|\*|__|_|#+\s*)?(COMPLETE|PARTIAL|UNVERIFIABLE)"
+    r"(?:\*\*|\*|__|_)?\s*(?::|\n|$)",
+    re.IGNORECASE,
+)
+
+# Phrases and keywords that indicate the agent reasoned with the docs-consumption
+# skill protocol, even when it did not use the formal COMPLETE/PARTIAL/UNVERIFIABLE
+# prefix or cite the skill file.
+SKILL_LANGUAGE_PATTERNS = [
+    re.compile(r"\bthe tool ran\b", re.IGNORECASE),
+    re.compile(r"\bfull content\b", re.IGNORECASE),
+    re.compile(r"\bnot verified\b", re.IGNORECASE),
+    re.compile(r"\bcannot confirm\b", re.IGNORECASE),
+    re.compile(r"\bunverifiable\b", re.IGNORECASE),
+    re.compile(r"\btruncation\b", re.IGNORECASE),
+    re.compile(r"\blimitation\b", re.IGNORECASE),
+    re.compile(r"\bcache miss\b", re.IGNORECASE),
+    re.compile(r"\b0 bytes\b", re.IGNORECASE),
+    re.compile(r"\bdns resolution failed\b", re.IGNORECASE),
+    re.compile(r"\buse curl\b", re.IGNORECASE),
+]
+
+
+def _collect_texts_by_source(texts: list[str]) -> dict[str, list[str]]:
+    """Return lowercase texts keyed by source bucket."""
+    return {
+        "final_answer": [t.lower() for t in texts],
+        "commentary": [],
+    }
+
+
+def _first_match(patterns: list[re.Pattern], texts: list[str]) -> str | None:
+    """Return the first matching text fragment for the given patterns."""
+    for text in texts:
+        for pattern in patterns:
+            match = pattern.search(text)
+            if match:
+                return match.group(0)
+    return None
+
+
+def _detect_in_sources(
+    patterns: list[re.Pattern],
+    final_texts: list[str],
+    commentary_texts: list[str],
+) -> tuple[str | None, str]:
+    """Return (matched_fragment, source) where source is final_answer/commentary/both/none."""
+    in_final = any(
+        pattern.search(text)
+        for text in final_texts
+        for pattern in patterns
+    )
+    in_commentary = any(
+        pattern.search(text)
+        for text in commentary_texts
+        for pattern in patterns
+    )
+    source = "both" if in_final and in_commentary else ("final_answer" if in_final else ("commentary" if in_commentary else "none"))
+    if source == "none":
+        return None, "none"
+    search_texts = []
+    if in_final:
+        search_texts.extend(final_texts)
+    if in_commentary:
+        search_texts.extend(commentary_texts)
+    fragment = _first_match(patterns, search_texts)
+    return fragment, source
 
 
 def format_duration(seconds) -> str | None:
@@ -102,6 +217,16 @@ def audit_file(path: Path) -> dict:
         "effort": None,
         "cli_version": None,
         "test_id": None,
+        "skills_loaded_count": 0,
+        "skill_names": "",
+        "skill_docs_consumption_loaded": "false",
+        "skill_docs_consumption_path": "",
+        "skill_docs_consumption_desc": "",
+        "skill_path_mentioned": "false",
+        "protocol_prefix": "",
+        "protocol_prefix_source": "none",
+        "skill_language": "false",
+        "skill_language_source": "none",
         "turns": 0,
         "user_messages": 0,
         "commentary_msgs": 0,
@@ -133,6 +258,7 @@ def audit_file(path: Path) -> dict:
 
     final_event_texts = []          # final answers as emitted in the live event stream
     final_item_texts = []           # final answers as stored in the durable transcript
+    commentary_texts = []           # agent commentary messages (thought panel)
     last_agent_message = None
     last_complete_idx = None
     first_ts = last_ts = None
@@ -169,11 +295,13 @@ def audit_file(path: Path) -> dict:
                     if line.strip().lower().startswith("test id:"):
                         r["test_id"] = line.split(":", 1)[1].strip()
             elif pt == "agent_message":
+                msg = p.get("message") or ""
                 if p.get("phase") == "commentary":
                     r["commentary_msgs"] += 1
+                    commentary_texts.append(msg)
                 elif p.get("phase") == "final_answer":
                     r["final_answers_event"] += 1
-                    final_event_texts.append(p.get("message") or "")
+                    final_event_texts.append(msg)
             elif pt == "task_complete":
                 r["task_completes"] += 1
                 last_complete_idx = i
@@ -243,6 +371,38 @@ def audit_file(path: Path) -> dict:
     if first_ts and last_ts:
         r["wallclock_s"] = round((last_ts - first_ts).total_seconds(), 1)
 
+    # ---- Skill loading ----------------------------------------------------
+    skills = parse_skills(records)
+    r["skills_loaded_count"] = len(skills)
+    r["skill_names"] = ", ".join(s["name"] for s in skills)
+    docs_consumption = next(
+        (s for s in skills if "docs-consumption" in s["name"]), None
+    )
+    if docs_consumption:
+        r["skill_docs_consumption_loaded"] = "true"
+        r["skill_docs_consumption_path"] = docs_consumption["path"]
+        r["skill_docs_consumption_desc"] = docs_consumption["description"][:120]
+
+    # ---- Skill-language detection ------------------------------------------
+    final_texts = [t.lower() for t in final_event_texts + final_item_texts]
+    commentary_texts_lower = [t.lower() for t in commentary_texts]
+
+    r["skill_path_mentioned"] = "true" if any(
+        SKILL_PATH.lower() in text for text in final_texts + commentary_texts_lower
+    ) else "false"
+
+    protocol_match, protocol_source = _detect_in_sources(
+        [PROTOCOL_PREFIX_RE], final_texts, commentary_texts_lower
+    )
+    r["protocol_prefix"] = (protocol_match or "").upper()
+    r["protocol_prefix_source"] = protocol_source
+
+    language_match, language_source = _detect_in_sources(
+        SKILL_LANGUAGE_PATTERNS, final_texts, commentary_texts_lower
+    )
+    r["skill_language"] = "true" if language_match else "false"
+    r["skill_language_source"] = language_source
+
     # Records appended after the last task_complete: the post-hoc alteration check
     if last_complete_idx is not None:
         tail = records[last_complete_idx + 1:]
@@ -263,9 +423,14 @@ def audit_file(path: Path) -> dict:
     if dupes:
         r["flags"].append(f"DUPLICATE_EMISSION: identical final answer emitted more than once")
 
-    # C. Event stream and durable transcript should be copies of one generation
+    # C. Event stream and durable transcript should be copies of one generation.
+    # Strip <oai-mem-citation> blocks first; they are appended to the durable
+    # transcript but not streamed, so they would otherwise trigger false positives.
+    OAI_MEM_CITATION_RE = re.compile(r"<oai-mem-citation>.*?</oai-mem-citation>", re.DOTALL)
     if final_event_texts and final_item_texts:
-        if [sha(t) for t in final_event_texts] != [sha(t) for t in final_item_texts]:
+        normalized_event = [OAI_MEM_CITATION_RE.sub("", t).rstrip() for t in final_event_texts]
+        normalized_item = [OAI_MEM_CITATION_RE.sub("", t).rstrip() for t in final_item_texts]
+        if [sha(t) for t in normalized_event] != [sha(t) for t in normalized_item]:
             r["flags"].append("STREAM_TRANSCRIPT_MISMATCH: event_msg and response_item final answers differ")
 
     # D. task_complete should carry the same single message
@@ -336,6 +501,19 @@ def main():
         print("=" * 78)
         print(f"{r['file']}")
         print(f"  session {r['session_id']} | {r['model']} {r['effort']} | cli {r['cli_version']} | test {r['test_id']}")
+        skill_summary = f"{r['skills_loaded_count']} loaded"
+        if r["skill_docs_consumption_loaded"] == "true":
+            skill_summary += " | docs-consumption: yes"
+        print(f"  skills: {skill_summary} | names: {r['skill_names']}")
+        if r["skill_docs_consumption_loaded"] == "true":
+            lang_bits = []
+            if r["skill_path_mentioned"] == "true":
+                lang_bits.append("path mentioned")
+            if r["protocol_prefix"]:
+                lang_bits.append(f"prefix={r['protocol_prefix']} ({r['protocol_prefix_source']})")
+            if r["skill_language"] == "true":
+                lang_bits.append(f"skill-language ({r['skill_language_source']})")
+            print(f"  skill-signals: {' | '.join(lang_bits) if lang_bits else 'none'}")
         print(f"  turns {r['turns']} | user msgs {r['user_messages']} | commentary {r['commentary_msgs']} | "
               f"final answers: event {r['final_answers_event']}, transcript {r['final_answers_item']}")
         print(f"  api calls: web_search {r['web_search_calls']} | function {r['function_calls']} "
@@ -352,7 +530,12 @@ def main():
             print("  OK: single emission, no post-completion records, all three copies match")
 
     if args.csv and results:
-        cols = ["file", "session_id", "model", "effort", "test_id", "turns", "user_messages",
+        cols = ["file", "session_id", "model", "effort", "test_id",
+                "skills_loaded_count", "skill_names", "skill_docs_consumption_loaded",
+                "skill_docs_consumption_path", "skill_docs_consumption_desc",
+                "skill_path_mentioned", "protocol_prefix", "protocol_prefix_source",
+                "skill_language", "skill_language_source",
+                "turns", "user_messages",
                 "commentary_msgs", "final_answers_event", "final_answers_item", "web_search_calls",
                 "function_calls", "task_completes", "records_after_complete", "duration_s",
                 "ttft_s", "wallclock_s", "tokens_total", "flags", "failure_count_total",

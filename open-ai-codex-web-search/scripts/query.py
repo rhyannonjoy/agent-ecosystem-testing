@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-Query Codex Track 1 (codex-interpreted) results and format selected fields as Markdown.
+Query Codex interpreted-track results and format selected fields as Markdown.
+
+Supports Track 1 (codex-interpreted) and Track 2 (vscode-codex-interpreted).
 
 Mirrors the manual RSQL query used for H4 assessment:
 
@@ -22,6 +24,7 @@ Alias mapping:
 Usage:
     # From open-ai-codex-web-search/
     python scripts/query.py --test SC-1 --models GPT-5.4-Mini,GPT-5.5
+    python scripts/query.py --track 2 --test SC-1 --models GPT-5.4-Mini,GPT-5.5
 
     # From repo root
     python open-ai-codex-web-search/scripts/query.py --test SC-1 --models GPT-5.4-Mini,GPT-5.5
@@ -58,9 +61,21 @@ OUTPUT_FIELDS = [
 ]
 
 
-def default_csv_path() -> Path:
-    """Return the default Track 1 CSV path relative to this script."""
-    return Path(__file__).resolve().parent.parent / "results" / "codex-interpreted" / "results.csv"
+# Track number -> default results CSV directory name.
+TRACKS: dict[int, str] = {
+    1: "codex-interpreted",
+    2: "vscode-codex-interpreted",
+}
+
+
+def default_csv_path(track: int) -> Path:
+    """Return the default CSV path for the given track number."""
+    return (
+        Path(__file__).resolve().parent.parent
+        / "results"
+        / TRACKS[track]
+        / "results.csv"
+    )
 
 
 def read_rows(csv_path: Path, test_id: str, models: list[str] | None) -> list[dict[str, str]]:
@@ -95,13 +110,20 @@ def format_markdown(rows: list[dict[str, str]]) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Query Codex Track 1 results and format selected fields as Markdown."
+        description="Query Codex interpreted-track results and format selected fields as Markdown."
+    )
+    parser.add_argument(
+        "--track",
+        type=int,
+        choices=list(TRACKS.keys()),
+        default=1,
+        help="Results track to query: 1=codex-interpreted, 2=vscode-codex-interpreted (default: 1).",
     )
     parser.add_argument(
         "--csv",
         type=Path,
-        default=default_csv_path(),
-        help="Path to the Track 1 results CSV (default: results/codex-interpreted/results.csv).",
+        default=None,
+        help="Path to a results CSV (overrides --track).",
     )
     parser.add_argument("--test", required=True, help="Test ID to filter on, e.g. SC-1.")
     parser.add_argument(
@@ -110,13 +132,14 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    csv_path = args.csv if args.csv else default_csv_path(args.track)
     models = [m.strip() for m in args.models.split(",")] if args.models else None
 
-    if not args.csv.exists():
-        print(f"CSV not found: {args.csv}", file=sys.stderr)
+    if not csv_path.exists():
+        print(f"CSV not found: {csv_path}", file=sys.stderr)
         sys.exit(1)
 
-    rows = read_rows(args.csv, args.test, models)
+    rows = read_rows(csv_path, args.test, models)
     if not rows:
         print(
             f"No rows found for test_id={args.test} and models={models}",

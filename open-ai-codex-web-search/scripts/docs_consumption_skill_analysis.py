@@ -91,7 +91,7 @@ DIMENSIONS = [
     ("completeness-accurate", "Correctly classified completeness state"),
     ("error-examined", "Examined embedded errors"),
     ("exec-vs-complete", "Distinguished execution from completeness"),
-    ("no-reframing", "Did not reframe failure as success"),
+    ("avoided-reframing", "Avoided reframing failure as success"),
     ("fix-recommended", "Recommended a fix"),
 ]
 
@@ -103,6 +103,23 @@ def parse_dimension(notes: str, key: str) -> Optional[str]:
     return match.group(1).lower() if match else None
 
 
+def get_dimension(row: dict, key: str) -> Optional[str]:
+    """Return dimension value from the dedicated CSV column if present, else parse notes."""
+    col = key.replace("-", "_")
+    value = (row.get(col) or "").strip().lower()
+    if value in ("yes", "no"):
+        return value
+    return parse_dimension(row.get("notes", ""), key)
+
+
+def get_skill_condition(row: dict) -> str:
+    """Return skill condition from the CSV column if present, else parse notes."""
+    value = (row.get("skill_condition") or "").strip().lower()
+    if value in ("on", "opt-in", "off"):
+        return value
+    return detect_skill(row.get("notes", ""))
+
+
 def load_rows(csv_paths):
     rows = []
     for csv_path in csv_paths:
@@ -112,11 +129,10 @@ def load_rows(csv_paths):
                 row["model_observed"] = normalize_model(row.get("model_observed", ""))
                 row["model_intelligence_level"] = normalize_level(row.get("model_intelligence_level", ""))
                 row["truncated_lower"] = (row.get("truncated") or "").strip().lower()
-                row["skill"] = detect_skill(row.get("notes", ""))
+                row["skill"] = get_skill_condition(row)
                 row["tier"] = TRUNCATION_TIER.get(row["truncated_lower"], -1)
-                notes = row.get("notes", "")
                 for key, _ in DIMENSIONS:
-                    row[key] = parse_dimension(notes, key)
+                    row[key] = get_dimension(row, key)
                 row["_csv_path"] = str(csv_path)
                 rows.append(row)
     return rows

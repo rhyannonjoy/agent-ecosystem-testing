@@ -110,8 +110,9 @@ python open-ai-codex-web-search/verify.py BL-1 --all
 python open-ai-codex-web-search/analyze.py \
   --csv results/codex-interpreted/results.csv results/codex-raw/results.csv --full
 
-# Query Track 1 results for a test ID and format selected fields as Markdown
+# Query Track 1 or Track 2 results for a test ID and format selected fields as Markdown
 python open-ai-codex-web-search/scripts/query.py --test SC-1 --models GPT-5.4-Mini,GPT-5.5
+python open-ai-codex-web-search/scripts/query.py --track 2 --test SC-1 --models GPT-5.4-Mini,GPT-5.5
 
 # Inspect Codex .jsonl rollout logs (audit CSV includes failure-mode columns)
 python open-ai-codex-web-search/scripts/rollout_audit.py results/{track}/artifacts/rollouts/*/*.jsonl --csv audit.csv

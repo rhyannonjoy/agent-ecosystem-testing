@@ -227,15 +227,13 @@ class TestResult:
     notes: str
 
     # --- Skill-annotation fields (flash-test / H6) ---
-    # Populated by parsing the notes field for skill condition and failure-examination dimensions.
-    skill_condition: Optional[str] = None       # on | opt-in | off | historical
-    skill_referenced: Optional[str] = None        # yes | no | inferred
-    agent_discovered: Optional[str] = None        # yes | no | inferred (opt-in only)
-    prefix: Optional[str] = None                  # COMPLETE | PARTIAL:{marker} | UNVERIFIABLE
+    # Populated by the interactive logger for the docs-consumption skill flash test.
+    skill_condition: Optional[str] = None       # on | opt-in
+    agent_discovered: Optional[str] = None    # yes | no | inferred (opt-in only)
     completeness_accurate: Optional[str] = None   # yes | no
     error_examined: Optional[str] = None          # yes | no
     exec_vs_complete: Optional[str] = None      # yes | no
-    no_reframing: Optional[str] = None          # yes | no
+    avoided_reframing: Optional[str] = None     # yes | no
     fix_recommended: Optional[str] = None         # yes | no
 
     # --- Codex-specific behavioral fields (all tracks) ---
@@ -585,6 +583,14 @@ Follow its disclosure protocol: report whether the fetched content is COMPLETE, 
         hypothesis_match: str,
         notes: str,
         timestamp: str = None,
+        # H6 / docs-consumption skill fields
+        skill_condition: Optional[str] = None,
+        agent_discovered: Optional[str] = None,
+        completeness_accurate: Optional[str] = None,
+        error_examined: Optional[str] = None,
+        exec_vs_complete: Optional[str] = None,
+        avoided_reframing: Optional[str] = None,
+        fix_recommended: Optional[str] = None,
         # Codex-specific behavioral fields
         tools_named: Optional[str] = None,
         workspace_substitution: Optional[str] = None,
@@ -651,6 +657,13 @@ Follow its disclosure protocol: report whether the fetched content is COMPLETE, 
             hypothesis_match=hypothesis_match,
             codex_version=codex_version,
             notes=notes,
+            skill_condition=skill_condition,
+            agent_discovered=agent_discovered,
+            completeness_accurate=completeness_accurate,
+            error_examined=error_examined,
+            exec_vs_complete=exec_vs_complete,
+            avoided_reframing=avoided_reframing,
+            fix_recommended=fix_recommended,
             tools_named=tools_named,
             workspace_substitution=workspace_substitution,
             output_chars=output_chars,
@@ -752,7 +765,7 @@ Examples:
 
   # Print EC-6 prompt with the docs-consumption skill activated
   python framework.py --test EC-6 --track vscode-codex-interpreted \
-      --skill open-ai-codex-web-search/skills/docs-consumption/SKILL.md
+      --skill .agents/skills/docs-consumption/SKILL.md
 
   # Log interpreted track result (T1 or T2)
   python framework.py --log BL-1 \\

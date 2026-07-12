@@ -274,7 +274,7 @@ python scripts/log.py
 ```
 
 > _Verify key metrics before logging raw track runs with `python scripts/verify.py {test_id}`._
-> _When logging Track 2 results, pull the matching Track 1 record with `python scripts/query.py --test {test_id} --models {model}`._
+> _When logging Track 2 results, compare against the matching Track 1 record with `python scripts/query.py --track 1 --test {test_id} --models {model}`._
 
 ### Framework Fields
 
