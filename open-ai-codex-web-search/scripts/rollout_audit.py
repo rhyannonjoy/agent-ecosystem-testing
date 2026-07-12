@@ -92,6 +92,17 @@ PROTOCOL_PREFIX_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Behavioral proxies for the auto-generated Codex memory skill observed in
+# ~/.codex/memories/skills/single-url-retrieval-measurement/SKILL.md. Codex does
+# not emit explicit memory-load events in these rollout logs, so we infer use
+# from the exact shell recipes it prescribes.
+MEMORY_SKILL_FINGERPRINTS: tuple[tuple[str, re.Pattern], ...] = (
+    ("retrieval-check.out", re.compile(r"curl\s+.*--output\s+/tmp/retrieval-check\.out", re.I)),
+    ("perl-length-tail", re.compile(r"perl\s+-0ne\s+['\"].*print\s+length\(\$_\)", re.I)),
+    ("rg-tag-balance", re.compile(r"rg\s+-o\s+['\"]<(/?(?:devsite-code|pre))", re.I)),
+)
+
+
 # Phrases and keywords that indicate the agent reasoned with the docs-consumption
 # skill protocol, even when it did not use the formal COMPLETE/PARTIAL/UNVERIFIABLE
 # prefix or cite the skill file.
@@ -126,6 +137,17 @@ def _first_match(patterns: list[re.Pattern], texts: list[str]) -> str | None:
             if match:
                 return match.group(0)
     return None
+
+
+def _detect_memory_fingerprints(cmds: list[str]) -> list[str]:
+    """Return the memory-skill recipe names matched by the given shell commands."""
+    found = []
+    for cmd in cmds:
+        for name, pattern in MEMORY_SKILL_FINGERPRINTS:
+            if pattern.search(cmd):
+                if name not in found:
+                    found.append(name)
+    return found
 
 
 def _detect_in_sources(
@@ -255,6 +277,8 @@ def audit_file(path: Path) -> dict:
         "first_failure_category": "",
         "first_failure_detail": "",
         "unknown_error_messages": [],
+        "exec_command_cmds": [],
+        "memory_skill_fingerprints": [],
     }
 
     final_event_texts = []          # final answers as emitted in the live event stream
@@ -358,6 +382,14 @@ def audit_file(path: Path) -> dict:
                 name = p.get("name", "?")
                 ns = p.get("namespace")
                 r["tools"][f"{ns}.{name}" if ns else name] += 1
+                if name == "exec_command":
+                    try:
+                        args = json.loads(p.get("arguments", "{}"))
+                        cmd = args.get("cmd", "")
+                    except (json.JSONDecodeError, AttributeError):
+                        cmd = ""
+                    if cmd:
+                        r["exec_command_cmds"].append(cmd)
             elif it == "function_call_output":
                 out = p.get("output") or ""
                 fc = classify_output(out)
@@ -454,6 +486,24 @@ def audit_file(path: Path) -> dict:
     if r["turns"] and not r["final_answers_event"]:
         r["flags"].append("NO_FINAL_ANSWER: turn completed without a final answer emission")
 
+    # I. Tool-mix shift: web_search_call vs exec_command. A retrieval test that
+    # uses zero web calls and only shell commands is a behavioral finding.
+    exec_cmd_count = r["tools"].get("exec_command", 0)
+    if r["web_search_calls"] == 0 and exec_cmd_count > 0:
+        r["flags"].append(
+            f"NO_WEB_SEARCH: 0 web_search calls, {exec_cmd_count} exec_command call(s)"
+        )
+    elif exec_cmd_count > r["web_search_calls"]:
+        r["flags"].append(
+            f"SHELL_DOMINANT: {exec_cmd_count} exec_command call(s) vs {r['web_search_calls']} web_search call(s)"
+        )
+
+    # J. Memory-skill fingerprint flags: Codex does not announce local memory
+    # skills in rollout logs, so we flag the exact shell recipes they prescribe.
+    r["memory_skill_fingerprints"] = _detect_memory_fingerprints(r["exec_command_cmds"])
+    for fp in r["memory_skill_fingerprints"]:
+        r["flags"].append(f"MEMORY_LIKE_RECIPE: {fp}")
+
     # H. Failure-mode summary (raw categories; recovery counted separately)
     failure_summary = summarize(r["failure_classes"])
     r["failure_count_total"] = failure_summary["total"]
@@ -522,6 +572,8 @@ def main():
               f"final answers: event {r['final_answers_event']}, transcript {r['final_answers_item']}")
         print(f"  api calls: web_search {r['web_search_calls']} | function {r['function_calls']} "
               f"{dict(r['tools']) if r['tools'] else ''}")
+        if r["memory_skill_fingerprints"]:
+            print(f"  memory fingerprints: {', '.join(r['memory_skill_fingerprints'])}")
         print(f"  timing: duration {display_duration(r['duration_s'])} | ttft {display_duration(r['ttft_s'])} | file wallclock {display_duration(r['wallclock_s'])}")
         print(f"  tokens {r['tokens_total']} / {r['context_window']}")
         if r["failure_count_total"]:
@@ -547,14 +599,15 @@ def main():
                 "ttft_s", "wallclock_s", "tokens_total", "flags", "failure_count_total",
                 "failure_count_error", "failure_count_warning", "failure_categories",
                 "recovered_failure_count", "has_failure", "first_failure_category",
-                "first_failure_detail", "unknown_error_messages"]
+                "first_failure_detail", "unknown_error_messages", "memory_skill_fingerprints"]
         with open(args.csv, "w", newline="") as fh:
             w = csv.DictWriter(fh, fieldnames=cols)
             w.writeheader()
             for r in results:
-                row = {k: r[k] for k in cols if k not in ("flags", "unknown_error_messages")}
+                row = {k: r[k] for k in cols if k not in ("flags", "unknown_error_messages", "memory_skill_fingerprints")}
                 row["flags"] = "; ".join(r["flags"])
                 row["unknown_error_messages"] = "; ".join(r["unknown_error_messages"])
+                row["memory_skill_fingerprints"] = ", ".join(r["memory_skill_fingerprints"])
                 w.writerow(row)
         print(f"\nCSV written to {args.csv}")
 
