@@ -145,6 +145,40 @@ class FailureClass:
         return cls(category="ok", detail="", severity="info")
 
 
+def _extract_unknown_error_detail(text: str, exit_code: str) -> str:
+    """Return a concise, distinctive message from an unrecognized nonzero output.
+
+    The detail is used as the failure signature in audit CSVs, so it should be
+    stable enough to track recurring errors while still surfacing the actual
+    error string emitted by the tool.
+    """
+    m = OUTPUT_SECTION_RE.search(text)
+    if m:
+        after = m.group(1).strip()
+    else:
+        after = text.strip()
+
+    lines = [line.strip() for line in after.splitlines() if line.strip()]
+    if not lines:
+        return f"exit code {exit_code}"
+
+    # Python-style exceptions usually put the exception name/message on the last
+    # line; shell one-liners usually report the error on the first line.
+    last = lines[-1]
+    if re.search(r"\b\w*?(Error|Exception|Failure)\b", last, re.I) or any(
+        kw in last.lower() for kw in ("syntaxerror", "unmatched", "refused", "denied", "not found")
+    ):
+        msg = last
+    else:
+        msg = lines[0]
+
+    # Normalize whitespace and truncate to keep CSV cells readable.
+    msg = " ".join(msg.split())
+    if len(msg) > 120:
+        msg = msg[:117] + "..."
+    return f"exit code {exit_code}: {msg}"
+
+
 def classify_output(output: str | None, tool_name: str | None = None) -> FailureClass:
     """Classify a raw tool output string.
 
@@ -200,7 +234,7 @@ def classify_output(output: str | None, tool_name: str | None = None) -> Failure
         if len(after) > 6:
             return FailureClass(
                 category="unknown_error",
-                detail=f"exit code {m.group(1)}",
+                detail=_extract_unknown_error_detail(text, m.group(1)),
                 severity="error",
             )
 

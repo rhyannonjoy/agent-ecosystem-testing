@@ -254,6 +254,7 @@ def audit_file(path: Path) -> dict:
         "has_failure": "no",
         "first_failure_category": "",
         "first_failure_detail": "",
+        "unknown_error_messages": [],
     }
 
     final_event_texts = []          # final answers as emitted in the live event stream
@@ -467,6 +468,9 @@ def audit_file(path: Path) -> dict:
     first = first_error or first_warning
     r["first_failure_category"] = first.category if first else ""
     r["first_failure_detail"] = first.detail if first else ""
+    r["unknown_error_messages"] = sorted(
+        {fc.detail for fc in r["failure_classes"] if fc.category == "unknown_error"}
+    )
     if failure_summary["total"]:
         breakdown = ", ".join(
             f"{cat}={c}" for cat, c in sorted(failure_summary["category_counts"].items()) if cat != "ok"
@@ -522,6 +526,8 @@ def main():
         print(f"  tokens {r['tokens_total']} / {r['context_window']}")
         if r["failure_count_total"]:
             print(f"  failures: {r['failure_count_total']} ({r['failure_count_error']} error, {r['failure_count_warning']} warning) | categories: {r['failure_categories']}")
+            for msg in r["unknown_error_messages"]:
+                print(f"  !! unknown error: {msg}")
         if r["flags"]:
             any_flags = True
             for fl in r["flags"]:
@@ -541,13 +547,14 @@ def main():
                 "ttft_s", "wallclock_s", "tokens_total", "flags", "failure_count_total",
                 "failure_count_error", "failure_count_warning", "failure_categories",
                 "recovered_failure_count", "has_failure", "first_failure_category",
-                "first_failure_detail"]
+                "first_failure_detail", "unknown_error_messages"]
         with open(args.csv, "w", newline="") as fh:
             w = csv.DictWriter(fh, fieldnames=cols)
             w.writeheader()
             for r in results:
-                row = {k: r[k] for k in cols if k != "flags"}
+                row = {k: r[k] for k in cols if k not in ("flags", "unknown_error_messages")}
                 row["flags"] = "; ".join(r["flags"])
+                row["unknown_error_messages"] = "; ".join(r["unknown_error_messages"])
                 w.writerow(row)
         print(f"\nCSV written to {args.csv}")
 
