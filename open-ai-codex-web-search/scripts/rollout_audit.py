@@ -28,10 +28,11 @@ import json
 import re
 import sys
 from collections import Counter
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
-from failure_classifier import FailureClass, classify_output, recovered, summarize
+from failure_classifier import FailureClass, classify_output, summarize
 
 
 def parse_ts(ts: str) -> datetime:
@@ -40,6 +41,28 @@ def parse_ts(ts: str) -> datetime:
 
 def sha(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]
+
+
+@dataclass
+class FailureRecord:
+    """A failure classification plus the context needed to map it to Codex chat.
+
+    The classifier stays focused on pattern matching; the audit layer attaches
+    provenance (line number, command, call id) and the nearest agent chat
+    message so failures can be compared against what Codex actually rendered.
+    """
+
+    failure_class: FailureClass
+    line_no: int
+    call_id: str | None
+    tool_name: str
+    command: str | None
+    output_snippet: str
+    chat_before: dict | None
+    chat_after: dict | None
+    chat_nearest: dict | None
+    turn_id: str | None
+    recovered: bool = False
 
 
 # Skills are announced in a developer response_item containing a
@@ -220,14 +243,90 @@ def display_duration(seconds) -> str:
     return formatted
 
 
+def _nearest_chats(line_no: int, chat_history: list[dict], turn_id: str | None) -> tuple[dict | None, dict | None, dict | None]:
+    """Return (nearest_before, nearest_after, nearest_overall) chat messages.
+
+    Prefers messages from the same turn; falls back to the nearest by line
+    number if no turn match exists. Returns None for any position that has no
+    match, so callers can distinguish intent (before) from reaction (after).
+    """
+    if not chat_history:
+        return None, None, None
+    candidates = [c for c in chat_history if turn_id is None or c.get("turn_id") == turn_id]
+    if not candidates:
+        candidates = chat_history
+
+    before = [c for c in candidates if c["line_no"] <= line_no]
+    after = [c for c in candidates if c["line_no"] >= line_no]
+    nearest_overall = min(candidates, key=lambda c: abs(c["line_no"] - line_no))
+    nearest_before = min(before, key=lambda c: line_no - c["line_no"]) if before else None
+    nearest_after = min(after, key=lambda c: c["line_no"] - line_no) if after else None
+    return nearest_before, nearest_after, nearest_overall
+
+
+def _failure_detail(record: FailureRecord) -> str:
+    """Return a concise failure detail, enriching generic patterns when possible."""
+    detail = record.failure_class.detail
+    if record.failure_class.category == "command_not_found" and "No module named" in detail:
+        m = re.search(r"No\s+module\s+named\s*['\"]?([^'\"\n]+)", record.output_snippet, re.I)
+        if m:
+            module = m.group(1).strip().rstrip("'\"")
+            return f"ModuleNotFoundError: No module named '{module}'"
+    return detail
+
+
+def _format_chat_snippet(chat: dict | None, label: str) -> str:
+    """Return a single formatted chat line, or a not-rendered placeholder."""
+    if not chat:
+        return f"        chat ({label}): not rendered in chat"
+    msg = chat["message"].replace("\n", " ")
+    if len(msg) > 200:
+        msg = msg[:197] + "..."
+    return f"        chat ({label}): line {chat['line_no']} {chat['phase']} — \"{msg}\""
+
+
+def _attach_chat_context(failure_records: list[FailureRecord], chat_history: list[dict]) -> None:
+    """Fill in chat correlation for each failure once the full file has been read."""
+    for record in failure_records:
+        chat_before, chat_after, chat_nearest = _nearest_chats(record.line_no, chat_history, record.turn_id)
+        record.chat_before = chat_before
+        record.chat_after = chat_after
+        record.chat_nearest = chat_nearest
+
+
+def _format_failure_console(record: FailureRecord, index: int) -> str:
+    """Return a multi-line, indented failure block for console output."""
+    lines = []
+    status = "recovered" if record.recovered else "not recovered"
+    lines.append(f"    [{index}] {record.failure_class.category} — {status}")
+    lines.append(
+        f"        line {record.line_no} · {record.tool_name}"
+        + (f" · {record.call_id}" if record.call_id else "")
+    )
+    if record.command:
+        cmd = record.command
+        if len(cmd) > 160:
+            cmd = cmd[:157] + "..."
+        lines.append(f"        command: {cmd}")
+    lines.append(f"        detail: {_failure_detail(record)}")
+    if record.chat_before and record.chat_after and record.chat_before["line_no"] != record.chat_after["line_no"]:
+        lines.append(_format_chat_snippet(record.chat_before, "before"))
+        lines.append(_format_chat_snippet(record.chat_after, "after"))
+    else:
+        lines.append(_format_chat_snippet(record.chat_nearest, "nearest"))
+    return "\n".join(lines)
+
+
 def audit_file(path: Path) -> dict:
     records = []
+    line_no_by_index: dict[int, int] = {}
     with open(path) as fh:
         for n, line in enumerate(fh, 1):
             line = line.strip()
             if not line:
                 continue
             try:
+                line_no_by_index[len(records)] = n
                 records.append(json.loads(line))
             except json.JSONDecodeError as e:
                 print(f"  WARNING {path.name}:{n} unparseable line: {e}", file=sys.stderr)
@@ -284,13 +383,16 @@ def audit_file(path: Path) -> dict:
     final_event_texts = []          # final answers as emitted in the live event stream
     final_item_texts = []           # final answers as stored in the durable transcript
     commentary_texts = []           # agent commentary messages (thought panel)
+    chat_history: list[dict] = []   # agent_message records for failure correlation
+    call_id_to_cmd: dict[str, tuple[str, str | None]] = {}  # call_id -> (tool_name, command)
     last_agent_message = None
     last_complete_idx = None
     first_ts = last_ts = None
     last_tokens = None
-    current_turn_failures: list[FailureClass] = []
+    current_turn_failures: list[FailureRecord] = []
 
     for i, rec in enumerate(records):
+        line_no = line_no_by_index.get(i)
         ts = rec.get("timestamp")
         if ts:
             t = parse_ts(ts)
@@ -321,12 +423,20 @@ def audit_file(path: Path) -> dict:
                         r["test_id"] = line.split(":", 1)[1].strip()
             elif pt == "agent_message":
                 msg = p.get("message") or ""
-                if p.get("phase") == "commentary":
+                phase = p.get("phase")
+                if phase == "commentary":
                     r["commentary_msgs"] += 1
                     commentary_texts.append(msg)
-                elif p.get("phase") == "final_answer":
+                elif phase == "final_answer":
                     r["final_answers_event"] += 1
                     final_event_texts.append(msg)
+                chat_history.append({
+                    "line_no": line_no,
+                    "turn_id": (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
+                               or (rec.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id"),
+                    "phase": phase,
+                    "message": msg,
+                })
             elif pt == "task_complete":
                 r["task_completes"] += 1
                 last_complete_idx = i
@@ -336,6 +446,8 @@ def audit_file(path: Path) -> dict:
                     # recovered via escalation or fallback. Keep the raw
                     # categories for accurate counts, but record how many
                     # failures were inside completed turns.
+                    for record in current_turn_failures:
+                        record.recovered = True
                     r["failure_classes"].extend(current_turn_failures)
                     r["recovered_failure_count"] += len(current_turn_failures)
                     current_turn_failures = []
@@ -353,7 +465,20 @@ def audit_file(path: Path) -> dict:
                 out = p.get("output") or ""
                 fc = classify_output(out)
                 if fc.category != "ok":
-                    current_turn_failures.append(fc)
+                    turn_id = (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
+                    current_turn_failures.append(FailureRecord(
+                        failure_class=fc,
+                        line_no=line_no or 0,
+                        call_id=None,
+                        tool_name="exec_command",
+                        command=None,
+                        output_snippet=out,
+                        chat_before=None,
+                        chat_after=None,
+                        chat_nearest=None,
+                        turn_id=turn_id,
+                        recovered=False,
+                    ))
             elif pt == "mcp_tool_call_end":
                 inv = p.get("invocation") or {}
                 tool_name = f"{(inv.get('server') or '')}.{(inv.get('tool') or '')}".strip(".")
@@ -365,7 +490,20 @@ def audit_file(path: Path) -> dict:
                         text += block.get("text", "")
                 fc = classify_output(text, tool_name=tool_name)
                 if fc.category != "ok":
-                    current_turn_failures.append(fc)
+                    turn_id = (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
+                    current_turn_failures.append(FailureRecord(
+                        failure_class=fc,
+                        line_no=line_no or 0,
+                        call_id=None,
+                        tool_name=tool_name,
+                        command=None,
+                        output_snippet=text,
+                        chat_before=None,
+                        chat_after=None,
+                        chat_nearest=None,
+                        turn_id=turn_id,
+                        recovered=False,
+                    ))
 
         elif rtype == "response_item":
             it = p.get("type")
@@ -381,7 +519,10 @@ def audit_file(path: Path) -> dict:
                 r["function_calls"] += 1
                 name = p.get("name", "?")
                 ns = p.get("namespace")
-                r["tools"][f"{ns}.{name}" if ns else name] += 1
+                tool_name = f"{ns}.{name}" if ns else name
+                r["tools"][tool_name] += 1
+                call_id = p.get("call_id")
+                cmd = None
                 if name == "exec_command":
                     try:
                         args = json.loads(p.get("arguments", "{}"))
@@ -390,15 +531,37 @@ def audit_file(path: Path) -> dict:
                         cmd = ""
                     if cmd:
                         r["exec_command_cmds"].append(cmd)
+                if call_id is not None:
+                    call_id_to_cmd[call_id] = (tool_name, cmd)
             elif it == "function_call_output":
                 out = p.get("output") or ""
                 fc = classify_output(out)
                 if fc.category != "ok":
-                    current_turn_failures.append(fc)
+                    call_id = p.get("call_id")
+                    tool_name, cmd = call_id_to_cmd.get(call_id, ("?", None))
+                    turn_id = (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
+                    current_turn_failures.append(FailureRecord(
+                        failure_class=fc,
+                        line_no=line_no or 0,
+                        call_id=call_id,
+                        tool_name=tool_name,
+                        command=cmd,
+                        output_snippet=out,
+                        chat_before=None,
+                        chat_after=None,
+                        chat_nearest=None,
+                        turn_id=turn_id,
+                        recovered=False,
+                    ))
 
     # Any failures outside a completed turn are kept as raw failures.
     if current_turn_failures:
         r["failure_classes"].extend(current_turn_failures)
+
+    # Chat context can only be correlated once every record has been read,
+    # because the agent's reaction message often appears after the failing
+    # tool output in the JSONL stream.
+    _attach_chat_context(r["failure_classes"], chat_history)
 
     r["tokens_total"] = last_tokens
     if first_ts and last_ts:
@@ -505,7 +668,8 @@ def audit_file(path: Path) -> dict:
         r["flags"].append(f"MEMORY_LIKE_RECIPE: {fp}")
 
     # H. Failure-mode summary (raw categories; recovery counted separately)
-    failure_summary = summarize(r["failure_classes"])
+    failure_classes = [rec.failure_class for rec in r["failure_classes"]]
+    failure_summary = summarize(failure_classes)
     r["failure_count_total"] = failure_summary["total"]
     r["failure_count_error"] = failure_summary["error_count"]
     r["failure_count_warning"] = failure_summary["warning_count"]
@@ -513,13 +677,33 @@ def audit_file(path: Path) -> dict:
         f"{cat}={c}" for cat, c in sorted(failure_summary["category_counts"].items()) if cat != "ok"
     )
     r["has_failure"] = "yes" if failure_summary["total"] else "no"
-    first_error = next((fc for fc in r["failure_classes"] if fc.severity == "error"), None)
-    first_warning = next((fc for fc in r["failure_classes"] if fc.severity == "warning"), None)
+    first_error = next((fc for fc in failure_classes if fc.severity == "error"), None)
+    first_warning = next((fc for fc in failure_classes if fc.severity == "warning"), None)
     first = first_error or first_warning
     r["first_failure_category"] = first.category if first else ""
     r["first_failure_detail"] = first.detail if first else ""
     r["unknown_error_messages"] = sorted(
-        {fc.detail for fc in r["failure_classes"] if fc.category == "unknown_error"}
+        {fc.detail for fc in failure_classes if fc.category == "unknown_error"}
+    )
+    r["failure_records"] = json.dumps(
+        [
+            {
+                "category": rec.failure_class.category,
+                "severity": rec.failure_class.severity,
+                "detail": rec.failure_class.detail,
+                "line_no": rec.line_no,
+                "call_id": rec.call_id,
+                "tool_name": rec.tool_name,
+                "command": rec.command,
+                "chat_before": rec.chat_before,
+                "chat_after": rec.chat_after,
+                "chat_nearest": rec.chat_nearest,
+                "turn_id": rec.turn_id,
+                "recovered": rec.recovered,
+            }
+            for rec in r["failure_classes"]
+        ],
+        ensure_ascii=False,
     )
     if failure_summary["total"]:
         breakdown = ", ".join(
@@ -577,9 +761,9 @@ def main():
         print(f"  timing: duration {display_duration(r['duration_s'])} | ttft {display_duration(r['ttft_s'])} | file wallclock {display_duration(r['wallclock_s'])}")
         print(f"  tokens {r['tokens_total']} / {r['context_window']}")
         if r["failure_count_total"]:
-            print(f"  failures: {r['failure_count_total']} ({r['failure_count_error']} error, {r['failure_count_warning']} warning) | categories: {r['failure_categories']}")
-            for msg in r["unknown_error_messages"]:
-                print(f"  !! unknown error: {msg}")
+            print(f"  failures: {r['failure_count_total']} ({r['failure_count_error']} error, {r['failure_count_warning']} warning)")
+            for idx, record in enumerate(r["failure_classes"], 1):
+                print(_format_failure_console(record, idx))
         if r["flags"]:
             any_flags = True
             for fl in r["flags"]:
@@ -599,15 +783,17 @@ def main():
                 "ttft_s", "wallclock_s", "tokens_total", "flags", "failure_count_total",
                 "failure_count_error", "failure_count_warning", "failure_categories",
                 "recovered_failure_count", "has_failure", "first_failure_category",
-                "first_failure_detail", "unknown_error_messages", "memory_skill_fingerprints"]
+                "first_failure_detail", "unknown_error_messages", "memory_skill_fingerprints",
+                "failure_records"]
         with open(args.csv, "w", newline="") as fh:
             w = csv.DictWriter(fh, fieldnames=cols)
             w.writeheader()
             for r in results:
-                row = {k: r[k] for k in cols if k not in ("flags", "unknown_error_messages", "memory_skill_fingerprints")}
+                row = {k: r[k] for k in cols if k not in ("flags", "unknown_error_messages", "memory_skill_fingerprints", "failure_records")}
                 row["flags"] = "; ".join(r["flags"])
                 row["unknown_error_messages"] = "; ".join(r["unknown_error_messages"])
                 row["memory_skill_fingerprints"] = ", ".join(r["memory_skill_fingerprints"])
+                row["failure_records"] = r["failure_records"]
                 w.writerow(row)
         print(f"\nCSV written to {args.csv}")
 
