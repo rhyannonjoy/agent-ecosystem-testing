@@ -656,7 +656,7 @@ def audit_file(path: Path) -> dict:
     protocol_match, protocol_source = _detect_in_sources(
         [PROTOCOL_PREFIX_RE], final_texts, commentary_texts_lower
     )
-    r["protocol_prefix"] = (protocol_match or "").upper()
+    r["protocol_prefix"] = (protocol_match or "").strip().upper()
     r["protocol_prefix_source"] = protocol_source
 
     language_match, language_source = _detect_in_sources(
