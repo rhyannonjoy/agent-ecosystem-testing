@@ -76,6 +76,29 @@ SKILL_LINE_RE = re.compile(
     re.MULTILINE,
 )
 
+# Codex CLI 0.144+ wraps exec_command in a response_item of type
+# `custom_tool_call` named "exec". The `input` field is a JavaScript snippet
+# that passes a `cmd` string to tools.exec_command. We extract every `cmd:`
+# string literal so shell commands and their failures remain auditable when the
+# newer tool shape is used.
+CUSTOM_CMD_RE = re.compile(r'cmd\s*:\s*("(?:\\.|[^"\\])*")', re.S)
+
+
+def _extract_custom_tool_commands(input_text: str | None) -> list[str]:
+    """Return the cmd strings from a custom_tool_call JavaScript input."""
+    if not input_text:
+        return []
+    cmds = []
+    for m in CUSTOM_CMD_RE.finditer(input_text):
+        raw = m.group(1)
+        try:
+            cmd = json.loads(raw)
+        except json.JSONDecodeError:
+            cmd = raw[1:-1]
+        if cmd:
+            cmds.append(cmd)
+    return cmds
+
 
 def parse_skills(records: list[dict]) -> list[dict]:
     """Return skill entries observed in developer <skills_instructions> blocks."""
@@ -533,6 +556,49 @@ def audit_file(path: Path) -> dict:
                         r["exec_command_cmds"].append(cmd)
                 if call_id is not None:
                     call_id_to_cmd[call_id] = (tool_name, cmd)
+            elif it == "custom_tool_call":
+                r["function_calls"] += 1
+                name = p.get("name", "?")
+                # Treat the custom "exec" wrapper as the same shell surface as
+                # the older exec_command function_call so existing counters and
+                # flags (NO_WEB_SEARCH, SHELL_DOMINANT, memory fingerprints)
+                # continue to work.
+                tool_name = "exec_command" if name == "exec" else f"custom.{name}"
+                r["tools"][tool_name] += 1
+                call_id = p.get("call_id")
+                cmds = _extract_custom_tool_commands(p.get("input", ""))
+                for cmd in cmds:
+                    r["exec_command_cmds"].append(cmd)
+                first_cmd = cmds[0] if cmds else None
+                if call_id is not None:
+                    call_id_to_cmd[call_id] = (tool_name, first_cmd)
+            elif it == "custom_tool_call_output":
+                out_blocks = p.get("output") or []
+                if isinstance(out_blocks, str):
+                    out_text = out_blocks
+                else:
+                    out_text = ""
+                    for block in out_blocks:
+                        if isinstance(block, dict):
+                            out_text += block.get("text", "")
+                fc = classify_output(out_text)
+                if fc.category != "ok":
+                    call_id = p.get("call_id")
+                    tool_name, cmd = call_id_to_cmd.get(call_id, ("?", None))
+                    turn_id = (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
+                    current_turn_failures.append(FailureRecord(
+                        failure_class=fc,
+                        line_no=line_no or 0,
+                        call_id=call_id,
+                        tool_name=tool_name,
+                        command=cmd,
+                        output_snippet=out_text,
+                        chat_before=None,
+                        chat_after=None,
+                        chat_nearest=None,
+                        turn_id=turn_id,
+                        recovered=False,
+                    ))
             elif it == "function_call_output":
                 out = p.get("output") or ""
                 fc = classify_output(out)
