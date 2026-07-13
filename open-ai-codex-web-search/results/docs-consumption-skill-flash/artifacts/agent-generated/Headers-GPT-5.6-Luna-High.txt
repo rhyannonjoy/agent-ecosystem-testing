@@ -1,0 +1,46 @@
+GPT-5.6 Luna High, 19th run
+Extension v26.707.41301
+Agent exposed call in chat, didn't write-save to project, user saved manually
+
+curl -L --fail --silent --show-error --output /tmp/ec6-SPEC.md 'https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md' && perl -0777 -ne '
+  my $s = $_;
+  my $chars = length($s);
+  my $bytes = length($s);
+  my $lines = () = $s =~ /\n/g;
+  my $fences = () = $s =~ /^\s*```/mg;
+  my $closed = ($fences % 2 == 0) ? "yes" : "no";
+  my $tail = substr($s, -50);
+  $tail =~ s/\n/\\n/g;
+  $tail =~ s/\r/\\r/g;
+  print "characters=$chars\nbytes=$bytes\nnewline_count=$lines\nfence_delimiter_count=$fences\ncode_blocks_closed=$closed\nlast_50=$tail\n";
+' /tmp/ec6-SPEC.md
+wc -l /tmp/ec6-SPEC.md
+curl -L --fail --silent --show-error --head 'https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md' | sed -n '1,20p
+
+characters=91877
+bytes=91877
+newline_count=1722
+fence_delimiter_count=2
+code_blocks_closed=yes
+last_50=- Notable exclusions with rationale (Appendix B).\n
+    1722 /tmp/ec6-SPEC.md
+HTTP/2 200 
+cache-control: max-age=300
+content-security-policy: default-src 'none'; style-src 'unsafe-inline'; sandbox
+content-type: text/plain; charset=utf-8
+etag: "41a7878b9c1f20b31740904fe0da2557088f5bf7834d7a3fca8e7c684770165e"
+strict-transport-security: max-age=31536000
+x-content-type-options: nosniff
+x-frame-options: deny
+x-xss-protection: 1; mode=block
+x-github-request-id: 4B14:278877:19997D8:1F63965:6A545954
+accept-ranges: bytes
+date: Mon, 13 Jul 2026 03:52:00 GMT
+via: 1.1 varnish
+x-served-by: cache-bfi-krnt7300086-BFI
+x-cache: HIT
+x-cache-hits: 1
+x-timer: S1783914721.819237,VS0,VE2
+vary: Authorization,Accept-Encoding
+access-control-allow-origin: *
+cross-origin-resource-policy: cross-origin
