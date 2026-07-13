@@ -14,20 +14,20 @@ The Codex framework uses a four-track design to isolate deployment surface as a 
 Codex Desktop with no workspace. `T2` is VS Code-Codex Extension with a workspace-scoped sandbox.
 Both use the same GPT LLMs but present different execution environments and tool availability. `T2`'s
 sandbox produces a two-tier network pattern: sandboxed DNS failure on first fetch, followed by
-permission-escalated retry. This is expected surface behavior, not an error. Workspace context is
+permission-escalated retry - expected surface behavior, not an error. Workspace context is
 treated as a variable of interest rather than a confound to control. Cross-track comparisons filter
 `T1` to `GPT-5.4-Mini` and `GPT-5.5` to match `T2` conditions; models retired after `T1` are
 historical record only.
 
 ---
 
-I'm logging my `{test ID}` results for the VS Code-Codex interpreted track. `{test type}` tests are
-designed to test {brief test description}. `{test ID}`'s test URL is specifically a {brief test URL
+I'm logging my `{test ID}` results for the VS Code-Codex interpreted track. `{test type}` tests intend
+to test {brief test description}. `{test ID}`'s test URL is specifically a {brief test URL
 description}:
 
 `{test URL}`
 
-These are  my first-pass observations of the {test number} {test_id} run, which used GPT- using the
+These are  my first-pass observations of the {test number} {test_id} run, which used `GPT`- using the
 {effort name} reasoning level. Do you agree with the hypothesis assessment? In a single sentence per
 hypothesis, assess support from this run. Use the words yes, no, partially, indeterminate, or untested.
 Look at the screenshot carefully before assessing.
