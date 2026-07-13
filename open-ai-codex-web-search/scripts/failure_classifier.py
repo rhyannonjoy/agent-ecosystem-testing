@@ -179,18 +179,45 @@ def _extract_unknown_error_detail(text: str, exit_code: str) -> str:
     return f"exit code {exit_code}: {msg}"
 
 
-def classify_output(output: str | None, tool_name: str | None = None) -> FailureClass:
+def _flatten_output(output: str | list | dict | None) -> str:
+    """Normalize a Codex tool output to a plain string.
+
+    Codex JSONL logs store `function_call_output.output` either as a raw string
+    or as a list of content blocks (e.g. `[{"type": "input_text", "text": ...}]`).
+    This helper extracts all textual pieces and joins them with newlines.
+    """
+    if output is None:
+        return ""
+    if isinstance(output, str):
+        return output
+    if isinstance(output, dict):
+        return str(output.get("text", output))
+    if isinstance(output, list):
+        parts: list[str] = []
+        for block in output:
+            if isinstance(block, dict):
+                text = block.get("text", "")
+                if isinstance(text, str):
+                    parts.append(text)
+            elif isinstance(block, str):
+                parts.append(block)
+        return "\n".join(parts)
+    return str(output)
+
+
+def classify_output(output: str | list | dict | None, tool_name: str | None = None) -> FailureClass:
     """Classify a raw tool output string.
 
     Args:
         output: The raw text returned by a tool (e.g. `function_call_output`).
+                May be a string, a list of content blocks, or a single block dict.
         tool_name: Optional tool name for future disambiguation; currently unused.
 
     Returns:
         A `FailureClass` describing the first matching failure mode, or `ok`.
     """
     _ = tool_name  # reserved for future disambiguation
-    text = (output or "").strip()
+    text = _flatten_output(output).strip()
     if not text:
         return FailureClass.ok()
 
