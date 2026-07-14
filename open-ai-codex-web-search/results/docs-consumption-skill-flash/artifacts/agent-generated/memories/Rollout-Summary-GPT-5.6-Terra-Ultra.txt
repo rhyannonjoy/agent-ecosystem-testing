@@ -1,0 +1,44 @@
+GPT-5.6 Terra Ultra, 30th run
+Extension v26.707.41301
+Referenced in agent self-report, .codex/memories/rollout_summaries/2026-07-13T04-13-40-llPN-ec6_direct_spec_md_retrieval_characterization.md
+
+thread_id: 019f59ae-445e-73b3-a03c-a73530be71a7
+updated_at: 2026-07-13T04:14:27+00:00
+rollout_path: /Users/rhyannonjoy/.codex/sessions/2026/07/12/rollout-2026-07-12T21-13-40-019f59ae-445e-73b3-a03c-a73530be71a7.jsonl
+cwd: /Users/rhyannonjoy/Documents/GitHub/agent-ecosystem-testing
+git_branch: issue-249-add-GPT-5.6-Luna
+
+# The agent completed EC-6 by directly fetching a raw GitHub Markdown URL and reporting retrieval metrics.
+
+Rollout context: The user was testing Codex web retrieval behavior for the Agent Ecosystem Testing project and explicitly asked to run only this test (EC-6) against `https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md`, then report character count, estimated token count, truncation, last 50 characters, markdown completeness, perceived completeness, tool visibility, and filesystem access.
+
+## Task 1: Fetch raw SPEC.md and report retrieval characteristics
+Outcome: success
+
+Preference signals:
+- The user said, "To prevent testing methodology contamination, only run this test and don't proceed to any other tests." -> future similar retrieval tests should stay tightly scoped to the requested test case and avoid opportunistic extra tests or broader probing.
+- The user requested a measurement-style report with specific fields (character count, token estimate, truncation, last 50 characters, markdown assessment, completeness, tool visibility, surface awareness) -> future similar runs should default to returning exactly those observables when asked to characterize a fetch.
+- The user specified "Fetch this URL directly" and named the URL explicitly -> direct source retrieval should be preferred over indirect summaries when doing retrieval characterization.
+
+Key steps:
+- The agent first inspected the `docs-consumption` skill and then attempted a direct `curl` fetch.
+- The first `curl` attempt failed with DNS resolution error: `curl: (6) Could not resolve host: raw.githubusercontent.com`.
+- The agent retried the same fetch with escalated network permission and succeeded, saving the file locally and measuring it.
+- Final measured results from the approved direct fetch: `91877` characters; estimated tokens reported as ~22,970; no truncation; last 50 characters were `- Notable exclusions with rationale (Appendix B).\n`; markdown appeared complete with one properly closed fenced block; the assistant reported the full content seemed present; tool visibility came from shell `curl` via `exec_command`; local workspace/filesystem access was confirmed.
+
+Failures and how to do differently:
+- The sandboxed network fetch failed before approval because DNS/network access was restricted. For similar URL-retrieval tasks, expect an initial failure from plain `curl` and be prepared to retry with approved network access if the environment requires it.
+- The report should clearly distinguish the initial failed attempt from the successful approved fetch so the completeness claim is grounded in the actual response.
+
+Reusable knowledge:
+- In this environment, direct network fetches from the sandbox can fail with `curl: (6) Could not resolve host`, and a retry with escalated permission can succeed.
+- The successful measurement for this specific SPEC.md fetch was `91877` characters, with the tail ending in `- Notable exclusions with rationale (Appendix B).` and only two visible fence markers (`432:` and `450:`), indicating one fenced block was properly closed.
+- The user values contamination-free testing: keep EC-style retrieval tests isolated and avoid proceeding to other tests unless explicitly asked.
+
+References:
+- [1] URL: `https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md`
+- [2] Initial failure: `curl: (6) Could not resolve host: raw.githubusercontent.com`
+- [3] Successful measurement command shape: `curl -L --silent --show-error --fail 'https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md' -o /tmp/ec6-SPEC.md && wc -m -c /tmp/ec6-SPEC.md && tail -c 50 /tmp/ec6-SPEC.md`
+- [4] Final exact measurements: `91877` chars; last 50 chars `- Notable exclusions with rationale (Appendix B).\n`; fenced markers at lines `432` and `450`
+- [5] Tool visibility: the fetch was done via shell `curl` invoked through `exec_command`; no `web` or `web.open` appeared in the tool results
+- [6] Surface awareness: the assistant explicitly reported access to the local workspace/filesystem

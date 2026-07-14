@@ -225,13 +225,13 @@ def _detect_in_sources(
 
 
 def format_duration(seconds) -> str | None:
-    """Convert seconds to a human-readable minutes/seconds string.
+    """Convert seconds to a compact abbreviated string.
 
-    Preserves the original one-decimal precision:
-      303.5  -> "5 minutes, 3.5 seconds"
-      45.2   -> "45.2 seconds"
-      60.0   -> "1 minute"
-      0.5    -> "0.5 seconds"
+    Examples:
+      303.5  -> "5m3.5s"
+      45.2   -> "45.2s"
+      60.0   -> "1m"
+      0.5    -> "0.5s"
     """
     if seconds is None:
         return None
@@ -245,15 +245,10 @@ def format_duration(seconds) -> str | None:
         return f"{n:.1f}" if n != int(n) else str(int(n))
 
     if minutes == 0:
-        second_word = "second" if remaining == 1 else "seconds"
-        return f"{fmt(remaining)} {second_word}"
-
-    minute_word = "minute" if minutes == 1 else "minutes"
+        return f"{fmt(remaining)}s"
     if remaining == 0:
-        return f"{minutes} {minute_word}"
-
-    second_word = "second" if remaining == 1 else "seconds"
-    return f"{minutes} {minute_word}, {fmt(remaining)} {second_word}"
+        return f"{minutes}m"
+    return f"{minutes}m{fmt(remaining)}s"
 
 
 def display_duration(seconds) -> str:
