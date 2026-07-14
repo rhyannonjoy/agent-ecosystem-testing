@@ -1,0 +1,28 @@
+GPT-5.6 Sol Medium, 23rd run
+Extension v26.707.41301
+Agent originally saved in /private/tmp/ec6-headers.txt
+
+HTTP/2 200 
+cache-control: max-age=300
+content-security-policy: default-src 'none'; style-src 'unsafe-inline'; sandbox
+content-type: text/plain; charset=utf-8
+etag: "41a7878b9c1f20b31740904fe0da2557088f5bf7834d7a3fca8e7c684770165e"
+strict-transport-security: max-age=31536000
+x-content-type-options: nosniff
+x-frame-options: deny
+x-xss-protection: 1; mode=block
+x-github-request-id: 612C:1F6F90:A7F7D:C2A40:6A553ED2
+accept-ranges: bytes
+date: Mon, 13 Jul 2026 20:00:25 GMT
+via: 1.1 varnish
+x-served-by: cache-bfi-krnt7300076-BFI
+x-cache: HIT
+x-cache-hits: 0
+x-timer: S1783972825.333914,VS0,VE138
+vary: Authorization,Accept-Encoding
+access-control-allow-origin: *
+cross-origin-resource-policy: cross-origin
+x-fastly-request-id: ca07c7f966a9ebd02af12df4e1b0fc29d461e538
+expires: Mon, 13 Jul 2026 20:05:25 GMT
+source-age: 0
+content-length: 91877

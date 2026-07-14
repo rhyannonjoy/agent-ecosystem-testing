@@ -58,7 +58,6 @@ OUTPUT_PATTERNS: tuple[tuple[str, re.Pattern], ...] = (
         "dns_blocked",
         re.compile(r"curl\s*:\s*\(\s*6\s*\).*Could\s+not\s+resolve\s+host", re.I),
     ),
-    ("dns_blocked", re.compile(r"Could\s+not\s+resolve\s+host", re.I)),
     ("cache_miss", re.compile(r"\bCache\s+miss\b", re.I)),
     ("fetch_failed", re.compile(r"TypeError\s*:\s*fetch\s+failed", re.I)),
     ("fetch_failed", re.compile(r"\bfetch\s+failed\b", re.I)),
@@ -179,18 +178,45 @@ def _extract_unknown_error_detail(text: str, exit_code: str) -> str:
     return f"exit code {exit_code}: {msg}"
 
 
-def classify_output(output: str | None, tool_name: str | None = None) -> FailureClass:
+def _flatten_output(output: str | list | dict | None) -> str:
+    """Normalize a Codex tool output to a plain string.
+
+    Codex JSONL logs store `function_call_output.output` either as a raw string
+    or as a list of content blocks (e.g. `[{"type": "input_text", "text": ...}]`).
+    This helper extracts all textual pieces and joins them with newlines.
+    """
+    if output is None:
+        return ""
+    if isinstance(output, str):
+        return output
+    if isinstance(output, dict):
+        return str(output.get("text", output))
+    if isinstance(output, list):
+        parts: list[str] = []
+        for block in output:
+            if isinstance(block, dict):
+                text = block.get("text", "")
+                if isinstance(text, str):
+                    parts.append(text)
+            elif isinstance(block, str):
+                parts.append(block)
+        return "\n".join(parts)
+    return str(output)
+
+
+def classify_output(output: str | list | dict | None, tool_name: str | None = None) -> FailureClass:
     """Classify a raw tool output string.
 
     Args:
         output: The raw text returned by a tool (e.g. `function_call_output`).
+                May be a string, a list of content blocks, or a single block dict.
         tool_name: Optional tool name for future disambiguation; currently unused.
 
     Returns:
         A `FailureClass` describing the first matching failure mode, or `ok`.
     """
     _ = tool_name  # reserved for future disambiguation
-    text = (output or "").strip()
+    text = _flatten_output(output).strip()
     if not text:
         return FailureClass.ok()
 
@@ -207,7 +233,7 @@ def classify_output(output: str | None, tool_name: str | None = None) -> Failure
                     host_m = re.search(r"getaddrinfo\s+ENOTFOUND\s+(\S+)", text, re.I)
                     detail = f"DNS resolution failed: {host_m.group(1)}" if host_m else "DNS resolution failed"
             elif category == "dns_blocked":
-                host_m = re.search(r"Could\s+not\s+resolve\s+host\s*:\s*(\S+)", text, re.I)
+                host_m = re.search(r"Could\s+not\s+resolve\s+host\s*:\s*([\w.-]+)", text, re.I)
                 detail = f"DNS blocked: {host_m.group(1)}" if host_m else "DNS blocked"
             return FailureClass(
                 category=category,
@@ -299,6 +325,10 @@ def _extract_sample_outputs(path: Path) -> list[str]:
 
             if t == "response_item" and pt == "function_call_output":
                 outputs.append(str(p.get("output", "")))
+            elif t == "response_item" and pt == "custom_tool_call_output":
+                for block in p.get("output", []) or []:
+                    if isinstance(block, dict):
+                        outputs.append(str(block.get("text", "")))
             elif t == "event_msg" and pt == "mcp_tool_call_end":
                 result = p.get("result") or {}
                 ok = result.get("Ok") or {}

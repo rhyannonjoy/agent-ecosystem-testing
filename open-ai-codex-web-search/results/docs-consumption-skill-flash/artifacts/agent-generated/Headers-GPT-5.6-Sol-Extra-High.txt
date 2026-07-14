@@ -1,0 +1,28 @@
+GPT-5.6 Sol Extra High, 25th run
+Extension v26.707.41301
+Agent originally saved as /private/tmp/ec6-spec-md-headers.txt
+
+HTTP/2 200 
+cache-control: max-age=300
+content-security-policy: default-src 'none'; style-src 'unsafe-inline'; sandbox
+content-type: text/plain; charset=utf-8
+etag: "41a7878b9c1f20b31740904fe0da2557088f5bf7834d7a3fca8e7c684770165e"
+strict-transport-security: max-age=31536000
+x-content-type-options: nosniff
+x-frame-options: deny
+x-xss-protection: 1; mode=block
+x-github-request-id: 6022:1F6F90:126672:15525D:6A5549CC
+accept-ranges: bytes
+date: Mon, 13 Jul 2026 20:25:49 GMT
+via: 1.1 varnish
+x-served-by: cache-bfi-krnt7300056-BFI
+x-cache: MISS
+x-cache-hits: 0
+x-timer: S1783974350.566865,VS0,VE315
+vary: Authorization,Accept-Encoding
+access-control-allow-origin: *
+cross-origin-resource-policy: cross-origin
+x-fastly-request-id: e7d6c4b33ffa1136c1c22be972203c5b0efd26ae
+expires: Mon, 13 Jul 2026 20:30:49 GMT
+source-age: 0
+content-length: 91877
