@@ -58,7 +58,6 @@ OUTPUT_PATTERNS: tuple[tuple[str, re.Pattern], ...] = (
         "dns_blocked",
         re.compile(r"curl\s*:\s*\(\s*6\s*\).*Could\s+not\s+resolve\s+host", re.I),
     ),
-    ("dns_blocked", re.compile(r"Could\s+not\s+resolve\s+host", re.I)),
     ("cache_miss", re.compile(r"\bCache\s+miss\b", re.I)),
     ("fetch_failed", re.compile(r"TypeError\s*:\s*fetch\s+failed", re.I)),
     ("fetch_failed", re.compile(r"\bfetch\s+failed\b", re.I)),
@@ -234,7 +233,7 @@ def classify_output(output: str | list | dict | None, tool_name: str | None = No
                     host_m = re.search(r"getaddrinfo\s+ENOTFOUND\s+(\S+)", text, re.I)
                     detail = f"DNS resolution failed: {host_m.group(1)}" if host_m else "DNS resolution failed"
             elif category == "dns_blocked":
-                host_m = re.search(r"Could\s+not\s+resolve\s+host\s*:\s*(\S+)", text, re.I)
+                host_m = re.search(r"Could\s+not\s+resolve\s+host\s*:\s*([\w.-]+)", text, re.I)
                 detail = f"DNS blocked: {host_m.group(1)}" if host_m else "DNS blocked"
             return FailureClass(
                 category=category,
@@ -326,6 +325,10 @@ def _extract_sample_outputs(path: Path) -> list[str]:
 
             if t == "response_item" and pt == "function_call_output":
                 outputs.append(str(p.get("output", "")))
+            elif t == "response_item" and pt == "custom_tool_call_output":
+                for block in p.get("output", []) or []:
+                    if isinstance(block, dict):
+                        outputs.append(str(block.get("text", "")))
             elif t == "event_msg" and pt == "mcp_tool_call_end":
                 result = p.get("result") or {}
                 ok = result.get("Ok") or {}
