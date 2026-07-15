@@ -1,6 +1,6 @@
-# Docs-Consumption Skill Flash Test Runbook
+# Docs-Consumption Skill Flash Experiment Runbook
 
-**Goal:** test whether the presence and activation of a reusable docs-consumption skill changes
+**Goal:** test whether the presence and activation of a reusable `docs-consumption/SKILL` changes
 Codex's web retrieval behavior and the quality of its reporting on `EC-6` in the VS Code-Codex
 extension, `T2`.
 
@@ -13,8 +13,8 @@ _"tool ran"_ from _"content is complete,"_ prohibits reframing failures as succe
 recommendations when a gap is addressable. This experiment tests whether that instruction produces
 observable differences in:
 
-1. **Retrieval behavior** - tool choice, escalation, retry patterns, and amount of content fetched
-2. **Reporting quality** - explicit disclosure of truncation, errors, and limitations rather than
+1. **Retrieval Behavior** - tool choice, escalation, retry patterns, and amount of content fetched
+2. **Reporting Quality** - explicit disclosure of truncation, errors, and limitations rather than
    silent or reframed summaries
 
 ## Track Design
@@ -34,7 +34,7 @@ For `skill-on + memory suppressed`, temporarily move `.codex/memories` out of th
 then restore it. Verify suppression with `memory_audit.py`: `system_memory_instruction` should be `false` and
 no memory references should appear.
 
-## Generate a single `skill-opt-in` prompt
+## Generate `skill-opt-in` Prompts
 
 `SKILL.md` file must be present in the workspace without altering the prompt to mention it. The agent
 may or may not discover it, that itself is a finding. Use the standard `EC-6` prompt:
@@ -44,7 +44,7 @@ python3 open-ai-codex-web-search/scripts/framework.py \
   --test EC-6 --track vscode-codex-interpreted
 ```
 
-## Generate a single `skill-on` prompt
+## Generate `skill-on` Prompts
 
 ```bash
 python3 open-ai-codex-web-search/scripts/framework.py \
@@ -88,58 +88,45 @@ _"the skill loaded"_ from _"the skill influenced the agent's output"_:
 | `skill_language` | _Did the output use broader skill-protocol phrases: `tool ran`, `full content`, `not verified`, `truncation`, `limitation`?_ |
 | `skill_language_source` | _Was that language in `final_answer`, `commentary`, or `both`?_ |
 
-Run the audit:
-
 ```bash
+# Run audit
 python3 open-ai-codex-web-search/scripts/rollout_audit.py results/docs-consumption-skill-flash/artifacts/rollouts/EC-6/*.jsonl
 ```
 
-### Expected Patterns
+### Audit Memories
 
-| Condition | Expected load rate | Expected protocol prefix | Expected skill language |
-| --- | --- | --- | --- |
-| `opt-in`, skill in `.agents/` | Variable by LLM/effort | Low unless discovered | Low unless discovered |
-| `on`, explicit prompt | ~100% | High | High |
-| Baseline | 0% | Incidental | Incidental |
+`memory_audit.py` checks whether `.codex/memories` content is competing with the workspace `docs-consumption` skill. Memory references
+ don't appear in the `<skills_instructions>` block. Codex injects them through the separate system `## Memory` instruction and read by
+the agent; this audit is separate from `rollout_audit.py`.
 
-`skill_docs_consumption_loaded: true` but low or no protocol/skill-language suggests that skill context
-injection without impact on the agent's behavior.
-
-### Memory audit
-
-`memory_audit.py` checks whether `.codex/memories` content is competing with the workspace `docs-consumption` skill. Memory references do **not** appear in the `<skills_instructions>` block; they are injected through the separate system `## Memory` instruction and read by the agent, so this audit is kept separate from `rollout_audit.py`.
-
-| Field | Meaning |
+| **Field** | **Description** |
 | --- | --- |
-| `system_memory_instruction` | System prompt included the `## Memory` directive telling the agent to use its memory folder. |
-| `memory_dot_codex_path`, `memory_md_file`, `raw_memories_file`, `memory_summary_file`, `rollout_summaries_dir`, `memory_skills_dir` | Concrete `.codex/memories` paths or files appeared in the rollout. |
-| `single_url_retrieval_skill` | The competing `.codex/memories/skills/single-url-retrieval-measurement/SKILL.md` was referenced. |
-| `memory_mentioned` | Agent used memory-related language in commentary, reasoning, or final answer. |
-| `memory_sources` | Where the signal appeared: `system_instruction` (the `## Memory` header), `system` (same block where a path matched), `final_answer`, `tool_output`, `commentary`, `reasoning`. |
+| `system_memory_instruction` | System prompt included the `## Memory` directive telling the agent to use its memory folder |
+| `memory_dot_codex_path`, `memory_md_file`, `raw_memories_file`, `memory_summary_file`, `rollout_summaries_dir`, `memory_skills_dir` | Concrete `.codex/memories` paths or files appeared in the rollout |
+| `single_url_retrieval_skill` | The competing `.codex/memories/skills/single-url-retrieval-measurement/SKILL.md` referenced |
+| `memory_mentioned` | Agent used memory-related language in commentary, reasoning, or `final_answer` |
+| `memory_sources` | Where the signal appeared: `system_instruction`, the `## Memory` header, `system`, same block where a path matched, `final_answer`, `tool_output`, `commentary`, `reasoning` |
 | `docs_consumption_loaded`, `docs_consumption_name_mentioned`, `docs_consumption_path_mentioned`, `protocol_prefix`, `skill_language` | Same skill signals as `rollout_audit.py`. |
-| `skill_sources` | Where the skill signal appeared: `system_loaded`, `final_answer`, `commentary`, `tool_output`, `reasoning`. |
-
-Run the audit:
+| `skill_sources` | Where the skill signal appeared: `system_loaded`, `final_answer`, `commentary`, `tool_output`, `reasoning` |
 
 ```bash
+# Run audit
 python3 open-ai-codex-web-search/scripts/memory_audit.py \
   results/docs-consumption-skill-flash/artifacts/rollouts/EC-6/*.jsonl \
   --csv results/docs-consumption-skill-flash/artifacts/memory_audit.csv
 ```
 
-Generate a readable comparison:
-
 ```bash
+# Generate comparison
 python3 open-ai-codex-web-search/scripts/memory_analyzer.py \
   results/docs-consumption-skill-flash/artifacts/memory_audit.csv \
   > results/docs-consumption-skill-flash/artifacts/memory_analyzer_report.md
 ```
 
-Interpretation:
-
-- `memory-instructed only` (system `## Memory` present but no `docs-consumption` loaded) means the prompt and workspace skill are being lost to the memory path.
-- `single-url-retrieval-measurement referenced` is a **system-instructed + agent-read** signal, not a `<skills_instructions>` load.
-- Compare `docs-consumption loaded` with `single-url-retrieval-measurement referenced` to see which skill path dominates the session.
+- `memory-instructed only` in which system `## Memory` present but no `docs-consumption` loaded means the memory path
+dominates the test and derails the prompt and `docs-consumption/SKILL`
+- `single-url-retrieval-measurement referenced` is a **system-instructed + agent-read** signal, not a `<skills_instructions>` load
+- compare `docs-consumption loaded` with `single-url-retrieval-measurement referenced` to see which skill path determines the test results
 
 ## Disclosure Taxonomy
 
