@@ -1,8 +1,8 @@
 ---
 layout: default
-title: "Key Findings for Codex's Web Search Behavior, GPT-interpreted - Extension Flash"
-permalink: /docs/open-ai-codex/codex-test-findings-extension-flash-opt-in
-parent: OpenAI Codex
+title: "Key Findings for Codex's Web Search Behavior, GPT-interpreted - Skill Opt-In"
+permalink: /docs/open-ai-codex-flash/test-findings-skill-opt-in
+parent: OpenAI Codex - Flash
 ---
 
 # Key Findings for Codex's Web Search Behavior, GPT-interpreted - Extension Flash
