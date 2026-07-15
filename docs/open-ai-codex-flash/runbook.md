@@ -1,4 +1,13 @@
-# Docs-Consumption Skill Flash Experiment Runbook
+---
+layout: default
+title: "Flash Runbook"
+permalink: /docs/open-ai-codex-flash/runbook
+parent: OpenAI Codex - Flash
+---
+
+# `docs-consumption/SKILL` Runbook
+
+---
 
 **Goal:** test whether the presence and activation of a reusable `docs-consumption/SKILL` changes
 Codex's web retrieval behavior and the quality of its reporting on `EC-6` in the VS Code-Codex

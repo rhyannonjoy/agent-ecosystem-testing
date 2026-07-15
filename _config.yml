@@ -137,6 +137,8 @@ navigation:
     
   - title: "OpenAI Codex - Flash"
     sections:
+      - title: "Flash Runbook"
+        url: "/docs/open-ai-codex-flash/runbook"
       - title: "Findings: Skill Opt-In"
         url: "//docs/open-ai-codex-flash/test-findings-skill-opt-in"
 
