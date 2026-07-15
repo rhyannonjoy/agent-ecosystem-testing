@@ -9,22 +9,21 @@ parent: OpenAI Codex - Flash
 
 ---
 
-**Goal:** test whether the presence and activation of a reusable `docs-consumption/SKILL` changes
-Codex's web retrieval behavior and the quality of its reporting on `EC-6` in the VS Code-Codex
-extension, `T2`.
+>_**Objective**: test whether the presence-activation of reusable `docs-consumption/SKILL` changes
+Codex's web retrieval behavior and report quality of `EC-6` using `T2` surface VS Code-Codex extension._
+>
+>_`H1–H5` measure retrieval ceilings and truncation patterns while `H6` asks whether a `/SKILL` can
+shift those patterns by changing how agents retrieve and classify completeness._
+>
+>_[`SKILL.md`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/.agents/skills/docs-consumption/SKILL.md)
+requires failure examination, distinguishes "tool ran" from "content is complete," prohibits reframing failures as successes,
+and asks for recommendations when a gap is addressable. This experiment tests whether that instruction produces
+observable differences in:_
+>
+> - _**Retrieval Behavior**: tool choice, escalation, retry patterns, and content delivery state_
+> - _**Report Quality**: explicit disclosure of truncation, errors, and limitations vs silence or reframing_
 
-`H1–H5` measure retrieval ceilings and truncation patterns while `H6` asks whether a skill can
-shift those patterns by changing what the agent retrieves, how it classifies completeness, and
-how it reports errors and limitations.
-
-[`SKILL.md`](../../.agents/skills/docs-consumption/SKILL.md) requires failure examination, distinguishes
-_"tool ran"_ from _"content is complete,"_ prohibits reframing failures as successes, and asks for fix
-recommendations when a gap is addressable. This experiment tests whether that instruction produces
-observable differences in:
-
-1. **Retrieval Behavior** - tool choice, escalation, retry patterns, and amount of content fetched
-2. **Reporting Quality** - explicit disclosure of truncation, errors, and limitations rather than
-   silent or reframed summaries
+---
 
 ## Track Design
 
