@@ -35,49 +35,39 @@ parent: OpenAI Codex - Flash
 
 | **Limit** | **Observed** |
 | --- | --- |
-| **Hard<br>Character<br>Limit** | _None detected with `curl`_: `opt-in` runs retrieved the full response with `curl` use;<br>no new retrieval ceiling attributable to `docs-consumption/SKILL`. |
-| **Hard<br>Token<br>Limit** | _None detected with `curl`_: mirrors [historical `T2`](../open-ai-codex/codex-test-findings-extension.md);<br>token counts stayed within the measured payload range |
+| **Hard<br>Character<br>Limit** | _None detected with `curl`_: most agents retrieved the full response with `curl`;<br>no new retrieval ceiling attributable to `docs-consumption/SKILL`. |
+| **Hard<br>Token<br>Limit** | _None detected with `curl`_: results mirror the [historical `T2` findings](../open-ai-codex/codex-test-findings-extension.md);<br>token counts stayed within the measured payload range |
 | **`/SKILL`<br>Discovery** | _Passive, not guaranteed_: ~87% - 27/31 logs cite `/SKILL` injection from `<skills_instructions>` block;<br>only one agent reported its path; ~55% - 17/31 used `COMPLETE` protocol prefix |
 | **`/SKILL`<br>Retrieval<br>Influence** | _Weak to none_: most bypassed `web` entirely for `curl` without meaningful truncation assessment, [historically agentic retrieval paths](../open-ai-codex/codex-test-findings-extension.md#retrieval-paths) included much more variety; `/SKILL` presence didn't produce evidence of any impact on tool selection |
 | **`/SKILL`<br>Reporting<br>Influence** | _Surface-level_: agents frequently opened reports with `COMPLETE`, echoed _"DNS/sandbox error"_, but these read as shortcuts rather than protocol-driven analysis; most didn't follow deeper requirements to include explicit truncation markers, embedded-error examination, and recommendations for improvement |
 | **`/memories`<br>Confound** | _Strong_: log `## Memory` instruction with its own competing `single-url-retrieval-measurement/SKILL` present/referenced ~77% - 24/31, making `docs-consumption/SKILL` effect isolation challenging |
 | **Recommendations** | _Absent_: despite `/SKILL` requiring suggestions when a gap is addressable, no agent produced one |
 
-## Results Details
+## Results Snapshot
 
-| | |
+| **Metric** | **Results** |
 | --- | --- |
 | **Track** | `T2` `GPT`-interpreted, VS Code with Codex Extension |
 | **Test** | [`EC-6` Raw GitHub Markdown](https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md) |
-| **`/SKILL` Condition** | `opt-in` `docs-consumption/SKILL` present, not named in prompt |
+| **`/SKILL` Condition** | `opt-in` - `docs-consumption/SKILL` present, but the prompt never mentioned it |
 | **LLMs Observed** | `GPT-5.4-Mini`, `GPT-5.4`, `GPT-5.5`, `GPT-5.6 Luna`, `GPT-5.6 Sol`, `GPT-5.6 Terra` |
 | **Reasoning Levels** | `Light`/`Low`, `Medium`, `High`, `Extra High`, `Ultra` |
 | **Total Runs** | 31 |
-| **`/SKILL` Loaded** | 27/31, ~87% |
-| **`/SKILL` Path Emitted** | 1/31, ~3% |
-| **Protocol Prefix Used** | 17 / 31, ~55% |
-| **`/SKILL` Language used** | 31/31, 100% |
-| **Truncation Reported `Yes`** | 1/31 |
-| **Truncation Reported `Mixed`** | 6/31 |
-| **Truncation Reported `Implicit`** | 0/31 |
-| **Truncation Reported `No`** | 24/31 |
-| **Completeness Accurate** | 31 / 31 (100%) |
-| **Errors Examined** | 27 / 31 (87%) |
-| **Execution vs Completeness** | 31 / 31 (100%) |
-| **Avoided Reframing** | 26 / 31 (84%) |
-| **Fix Recommended** | 0 / 31 (0%) |
-| **`/memories` Signals** | 24 / 31 (77%) |
-| **`/memories` + `/SKILL`** | 24 / 31 (77%) |
-
-### What the numbers mean
-
-The high `completeness_accurate` and `exec_vs_complete` scores show that agents did not lie about outcomes: when `curl` returned the full 92 KB body, they correctly labeled the fetch complete, and they distinguished tool execution from content delivery. The `error_examined` and `avoided_reframing` numbers look strong on paper, but they are consistent with behavior already seen on other tracks. Agents regularly describe the `curl` DNS/sandbox warning in reasoning and reporting; that is not a new skill effect.
-
-The dominant disclosure label is **`no`** (24/31). This is not because agents hid truncation, but because most agents bypassed `web` and used `curl` directly. Without a visible `web` `L54` window, there was little truncation to disclose. The skill's intended effect - making agents explicitly name partiality, embedded errors, and limitations - therefore does not show up strongly under opt-in.
-
-The **0% fix-recommendation rate** is the clearest gap. `SKILL.md` asks agents to suggest a concrete fix when a limitation is addressable (for example, using `curl` to escape the `web` line-window). Even when agents correctly noted the DNS sandbox or the `web` limit, none recommended the documented remediation.
-
----
+| **`/SKILL` Loaded** | ~87% of session logs cite `/docs-consumption/SKILL` injected into the agent's context |
+| **`/SKILL` Path Emitted** | One agent wrote the full `/SKILL` path in its own output rather than mentioning it in passing |
+| **Protocol Prefix Used** | ~55% of agents used `/SKILL` summarization prefix to signal completeness |
+| **`/SKILL` Language Used** | 100% - every run contained at least one `/SKILL`-related phrase, but read as a shortcut<br>rather than protocol-driven analysis |
+| **Truncation: `Yes`** | One agent reported incomplete content with the familiar `T2` [`L54` `web`-window cutpoint](../open-ai-codex/codex-test-findings-extension.md#platform-limit-summary) |
+| **Truncation: `Mixed`** | Six agents reported both a `web` limit and a full `curl` result |
+| **Truncation: `Implicit`** | No agent reasoned around a limit without naming it |
+| **Truncation: `No`** | 77% of runs had no truncation signal, largely because agents bypassed `web` for `curl` |
+| **Completeness Accurate** | 100% of agents correctly classified the fetch state against the evidence they had |
+| **Errors Examined** | ~87% of agents accurately described their most common error, but ignored others |
+| **Execution vs. Completeness** | 100% of agents distinguished _"the tool ran"_ from _"the full content arrived"_ |
+| **Avoided Reframing** | ~84% of agents avoided calling a partial or error-state fetch _"complete"_ or _"successful"_ |
+| **Fix Recommended** | 0 - even when agents accurately described a sandbox error or `web` limits,<br>none suggested some form of remediation |
+| **`/memories` Signals** | ~77% of session logs cite the system `## Memory` instruction or the competing<br>`/memories/skills/single-url-retrieval-measurement/SKILL` |
+| **`/memories` + `/SKILL`** | ~77% of runs had both `/docs-consumption/SKILL` and `/memories.../SKILL` injected,<br>making it hard to isolate either effect |
 
 ## Memory vs. Workspace Skill Audit
 
