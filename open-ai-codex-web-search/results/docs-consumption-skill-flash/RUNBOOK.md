@@ -1,6 +1,6 @@
-# Docs-Consumption Skill Flash Test Runbook
+# Docs-Consumption Skill Flash Experiment Runbook
 
-**Goal:** test whether the presence and activation of a reusable docs-consumption skill changes
+**Goal:** test whether the presence and activation of a reusable `docs-consumption/SKILL` changes
 Codex's web retrieval behavior and the quality of its reporting on `EC-6` in the VS Code-Codex
 extension, `T2`.
 
@@ -13,23 +13,28 @@ _"tool ran"_ from _"content is complete,"_ prohibits reframing failures as succe
 recommendations when a gap is addressable. This experiment tests whether that instruction produces
 observable differences in:
 
-1. **Retrieval behavior** - tool choice, escalation, retry patterns, and amount of content fetched
-2. **Reporting quality** - explicit disclosure of truncation, errors, and limitations rather than
+1. **Retrieval Behavior** - tool choice, escalation, retry patterns, and amount of content fetched
+2. **Reporting Quality** - explicit disclosure of truncation, errors, and limitations rather than
    silent or reframed summaries
 
-## Comparisons
+## Track Design
 
-Run all LLM/reasoning combinations available for **both** `skill-opt-in` and `skill-on`. Run `skill-opt-in`
-first for a given LLM/reasoning pair, then `skill-on`. This keeps the comparison clean and prevents the
-forced-activation run from priming the opt-in run.
+Run all LLM/reasoning combinations for the four conditions below. Run `skill-opt-in` first for a given
+LLM/reasoning pair, then `skill-on + memory available`, then `skill-on + memory suppressed`. This keeps
+the comparison clean and prevents the forced-activation runs from priming the opt-in run.
 
 | Condition | Data source | Count |
 | ----------- | ------------- | ------- |
 | `skill-off` | Existing `EC-6` `T2` rows in `results/vscode-codex-interpreted/results.csv` | 13 historical runs |
-| `skill-opt-in` | New `EC-6` `T2` runs, skill file present but not mentioned in prompt | 12 new runs |
-| `skill-on` | New `EC-6` `T2` runs, skill explicitly activated in prompt | 12 new runs |
+| `skill-opt-in` | New `EC-6` `T2` runs, skill file present but not mentioned in prompt | ~25 new runs |
+| `skill-on + memory available` | New `EC-6` `T2` runs, skill explicitly activated in prompt, `.codex/memories` present | ~25 new runs |
+| `skill-on + memory suppressed` | New `EC-6` `T2` runs, skill explicitly activated in prompt, `.codex/memories` removed/renamed | ~25 new runs |
 
-## Generate a single `skill-opt-in` prompt
+For `skill-on + memory suppressed`, temporarily move `.codex/memories` out of the workspace, run the condition,
+then restore it. Verify suppression with `memory_audit.py`: `system_memory_instruction` should be `false` and
+no memory references should appear.
+
+## Generate `skill-opt-in` Prompts
 
 `SKILL.md` file must be present in the workspace without altering the prompt to mention it. The agent
 may or may not discover it, that itself is a finding. Use the standard `EC-6` prompt:
@@ -39,7 +44,7 @@ python3 open-ai-codex-web-search/scripts/framework.py \
   --test EC-6 --track vscode-codex-interpreted
 ```
 
-## Generate a single `skill-on` prompt
+## Generate `skill-on` Prompts
 
 ```bash
 python3 open-ai-codex-web-search/scripts/framework.py \
@@ -47,7 +52,7 @@ python3 open-ai-codex-web-search/scripts/framework.py \
   --skill .agents/skills/docs-consumption/SKILL.md
 ```
 
-## Logging each result
+## Log Results
 
 Use the interactive logger and point it at the flash-test results directory so the
 new runs stay separate from the historical `vscode-codex-interpreted` CSV:
@@ -69,7 +74,7 @@ structured `H6` fields after the `notes` prompt and `docs_consumption_skill_anal
 | `avoided_reframing` | `yes` / `no` | _Did the agent avoid reframing a partial or error-state fetch as "complete" or "successful?"_ |
 | `fix_recommended` | `yes` / `no` | _Did the agent suggest a concrete fix tied to the actual limitation, `use curl` for the `web` line-window limit?_ |
 
-## Observability
+## Observe Session Logs
 
 `rollout_audit.py` additions report skill-related signals from Codex session logs. These columns help separate
 _"the skill loaded"_ from _"the skill influenced the agent's output"_:
@@ -83,22 +88,45 @@ _"the skill loaded"_ from _"the skill influenced the agent's output"_:
 | `skill_language` | _Did the output use broader skill-protocol phrases: `tool ran`, `full content`, `not verified`, `truncation`, `limitation`?_ |
 | `skill_language_source` | _Was that language in `final_answer`, `commentary`, or `both`?_ |
 
-Run the audit:
-
 ```bash
+# Run audit
 python3 open-ai-codex-web-search/scripts/rollout_audit.py results/docs-consumption-skill-flash/artifacts/rollouts/EC-6/*.jsonl
 ```
 
-### Expected Patterns
+### Audit Memories
 
-| Condition | Expected load rate | Expected protocol prefix | Expected skill language |
-| --- | --- | --- | --- |
-| `opt-in`, skill in `.agents/` | Variable by LLM/effort | Low unless discovered | Low unless discovered |
-| `on`, explicit prompt | ~100% | High | High |
-| Baseline | 0% | Incidental | Incidental |
+`memory_audit.py` checks whether `.codex/memories` content is competing with the workspace `docs-consumption` skill. Memory references
+ don't appear in the `<skills_instructions>` block. Codex injects them through the separate system `## Memory` instruction and read by
+the agent; this audit is separate from `rollout_audit.py`.
 
-`skill_docs_consumption_loaded: true` but low or no protocol/skill-language suggests that skill context
-injection without impact on the agent's behavior.
+| **Field** | **Description** |
+| --- | --- |
+| `system_memory_instruction` | System prompt included the `## Memory` directive telling the agent to use its memory folder |
+| `memory_dot_codex_path`, `memory_md_file`, `raw_memories_file`, `memory_summary_file`, `rollout_summaries_dir`, `memory_skills_dir` | Concrete `.codex/memories` paths or files appeared in the rollout |
+| `single_url_retrieval_skill` | The competing `.codex/memories/skills/single-url-retrieval-measurement/SKILL.md` referenced |
+| `memory_mentioned` | Agent used memory-related language in commentary, reasoning, or `final_answer` |
+| `memory_sources` | Where the signal appeared: `system_instruction`, the `## Memory` header, `system`, same block where a path matched, `final_answer`, `tool_output`, `commentary`, `reasoning` |
+| `docs_consumption_loaded`, `docs_consumption_name_mentioned`, `docs_consumption_path_mentioned`, `protocol_prefix`, `skill_language` | Same skill signals as `rollout_audit.py`. |
+| `skill_sources` | Where the skill signal appeared: `system_loaded`, `final_answer`, `commentary`, `tool_output`, `reasoning` |
+
+```bash
+# Run audit
+python3 open-ai-codex-web-search/scripts/memory_audit.py \
+  results/docs-consumption-skill-flash/artifacts/rollouts/EC-6/*.jsonl \
+  --csv results/docs-consumption-skill-flash/artifacts/memory_audit.csv
+```
+
+```bash
+# Generate comparison
+python3 open-ai-codex-web-search/scripts/memory_analyzer.py \
+  results/docs-consumption-skill-flash/artifacts/memory_audit.csv \
+  > results/docs-consumption-skill-flash/artifacts/memory_analyzer_report.md
+```
+
+- `memory-instructed only` in which system `## Memory` present but no `docs-consumption` loaded means the memory path
+dominates the test and derails the prompt and `docs-consumption/SKILL`
+- `single-url-retrieval-measurement referenced` is a **system-instructed + agent-read** signal, not a `<skills_instructions>` load
+- compare `docs-consumption loaded` with `single-url-retrieval-measurement referenced` to see which skill path determines the test results
 
 ## Disclosure Taxonomy
 
@@ -165,7 +193,7 @@ read the skill file, `agent-discovered: no` or `inferred`. That's not skill disc
 
 While capturing agentic performance, consider:
 
-- Whether the agent referenced or followed the skill, cross-reference rollout logs with self-reports
+- Whether the agent referenced or followed the `docs-consumption/SKILL`, cross-reference rollouts vs self-reports
 - Whether it used the `COMPLETE/PARTIAL/UNVERIFIABLE` prefix
 - Concrete truncation marker or error if named `L54`, `Cache Miss`, `DNS resolution failed`, `0 bytes`
 - Whether the agent examined the full tool result - error messages, status codes, metadata
@@ -174,4 +202,4 @@ While capturing agentic performance, consider:
 - Any evidence of synthesis beyond the retrieved view
 - Any reframing of failure as success
 - Changes in tool chain
-- Anything unusual compared to historical skill-off runs
+- Anything unusual compared to historical `skill-off` runs
