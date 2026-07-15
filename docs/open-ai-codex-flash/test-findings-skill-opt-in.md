@@ -69,64 +69,46 @@ parent: OpenAI Codex - Flash
 | **`/memories` Signals** | ~77% of session logs cite the system `## Memory` instruction or the competing<br>`/memories/skills/single-url-retrieval-measurement/SKILL` |
 | **`/memories` + `/SKILL`** | ~77% of runs had both `/docs-consumption/SKILL` and `/memories.../SKILL` injected,<br>making it hard to isolate either effect |
 
-## Memory vs. Workspace Skill Audit
+## `/memories` vs `/docs-consumption`
 
-The `memory_audit.py` and `memory_analyzer.py` outputs separate three things: (1) whether the workspace `docs-consumption` skill loaded in the developer `<skills_instructions>` block; (2) whether the system `## Memory` instruction was present; and (3) whether the agent read or cited the competing `single-url-retrieval-measurement` memory skill.
+Scripts [`memory_audit`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/memory_audit.py) and
+[`memory_analyzer`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/memory_analyzer.py)
+determine whether the `docs-consumption/SKILL` loaded in the `<skills_instructions>` block, the system `## Memory` instruction was present, and
+if the agent read or cited the competing `/memories.../single-url-retrieval-measurement/SKILL`.
 
-### Overall co-occurrence
+### `/memories` and `/docs-consumption` Co-occurrence
 
-| Condition | Count | % of runs |
+| **Condition** | **Count** | **% of Runs** |
 | --- | --- | --- |
-| Workspace skill signals | 27 / 31 | 87% |
-| Memory signals | 24 / 31 | 77% |
-| Both memory and workspace skill | 24 / 31 | 77% |
-| Memory only | 0 / 31 | 0% |
-| Workspace skill only, no `.codex/memories` | 3 / 31 | 10% |
-| Neither | 4 / 31 | 13% |
+| `/docs-consumption` Signals | 27 | 87% |
+| `/memories` Signals | 24 | 77% |
+| Both `/docs-consumption` and `/memories` Signals | 24 | 77% |
+| `/memories...single-url-retrieval-measurement` referenced | 24 | 77% |
+| Only `/docs-consumption` Signals | 3 | 10% |
+| Only `/memories` Signals | 0 | 0% |
+| Neither due to `/docs-consumption` present, but not in `~.agents/skills` or version limited | 4 | 13% |
 
-### Skill signal breakdown
+### `/docs-consumption` Signals
 
-| Signal | Count | % of all runs |
+| **Signal** | **Count** | **% of Runs** |
 | --- | --- | --- |
-| `docs-consumption` loaded | 27 | 87% |
-| Name mentioned by agent | 19 | 61% |
-| Path mentioned by agent | 1 | 3% |
-| Protocol prefix used (`COMPLETE/PARTIAL/UNVERIFIABLE`) | 17 | 55% |
-| Skill language used | 31 | 100% |
+| Session log audits cite `skills: N loaded docs-consumption: yes`* | 27 | 87% |
+| Agent mentions `/docs-consumption` in exposed reasoning or reporting | 19 | 61% |
+| Agent mentions full `/docs-consumption` path | 1 | 3% |
+| Agents use `/SKILL` protocol prefix `COMPLETE` | 17 | 55% |
+| Agents use `/SKILL`-like language | 31 | 100% |
 
-### Memory sources
+>_*`GPT-5.4 Mini` logs cite 9 skills, `GPT-5.5`+ load 10_
 
-| Source | Count | % of memory-positive (24) |
+### `/memories` Session Log Signals
+
+| **Signal** | **Count** | **% of `/memories`-positive** |
 | --- | --- | --- |
-| `system_prompt` (`## Memory` block) | 24 | 100% |
-| `system_memory_instruction` header | 24 | 100% |
-| `final_answer` | 22 | 92% |
-| `tool_output` | 19 | 79% |
-| `commentary` | 5 | 21% |
-
-### Competing skills: system skills block vs. system memory instruction
-
-| Condition | Count | % of all runs |
-| --- | --- | --- |
-| `docs-consumption` loaded (system skills block) | 27 | 87% |
-| System `## Memory` instruction present | 24 | 77% |
-| `single-url-retrieval-measurement` referenced (system-instructed + agent-read) | 24 | 77% |
-| Both present | 24 | 77% |
-| `docs-consumption` only | 3 | 10% |
-| Memory-instructed only | 0 | 0% |
-
-### GPT-5.4-Mini early vs. late split
-
-The first four `GPT-5.4-Mini` rollouts (morning of 2026-07-09) show no memory signals and no workspace skill loading. The later five show the workspace skill loading consistently, with memory references only in the last two.
-
-| Period | Runs | Memory+ | Workspace Skill+ | Both | Memory-only | Workspace-only | Neither |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Early | 4 | 0 | 0 | 0 | 0 | 0 | 4 |
-| Late | 5 | 2 | 5 | 2 | 0 | 3 | 0 |
-
-This split is consistent with a version or rollout change rather than with reasoning level: all four early runs were across different reasoning levels, and all later runs loaded the skill regardless of level.
-
----
+| `system_prompt` includes `## Memory` block | 24 | 100% |
+| `system_memory_instruction` header present | 24 | 100% |
+| `final_answer` includes `/memories`-related text | 22 | 92% |
+| `tool_output` includes `/memories`-related text | 19 | 79% |
+| `commentary` includes `/memories`-related text and/or citations | 5 | 21% |
 
 ## Skill Opt-In Findings
 
