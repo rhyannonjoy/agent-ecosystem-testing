@@ -5,7 +5,7 @@ permalink: /docs/open-ai-codex-flash/runbook
 parent: OpenAI Codex - Flash
 ---
 
-# `docs-consumption/SKILL` Runbook
+# `docs-consumption/SKILL` Flash Experiment Runbook
 
 ---
 
