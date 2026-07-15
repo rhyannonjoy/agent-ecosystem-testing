@@ -5,7 +5,7 @@ permalink: /docs/microsoft-github-copilot/copilot-test-findings
 parent: Microsoft GitHub Copilot
 ---
 
-# Key Findings for Copilot's Web Fetch Behavior, Copilot-interpreted
+# Key Findings for Copilot's Web Fetch Behavior -<br>Copilot-interpreted
 
 ---
 
@@ -43,7 +43,7 @@ parent: Microsoft GitHub Copilot
 | **Model<br>Routing** | _Unstable_: `Auto` dispatches to at least 5 distinct models with no documented routing logic and no UI indication when switching occurs |
 | **Tool<br>Substitution** | _Agent autonomously attempts_ local code execution `pylanceRunCodeSnippet`,<br>`zsh` despite prompt guardrails |
 
-## Results Details
+## Results Snapshot
 
 | --- | --- |
 | **Model Selector** | `Auto` |

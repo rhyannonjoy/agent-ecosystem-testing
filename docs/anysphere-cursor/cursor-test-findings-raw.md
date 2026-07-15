@@ -6,7 +6,7 @@ nav_order: 3
 parent: Anysphere Cursor
 ---
 
-# Key Findings for Cursor's Web Fetch Behavior, Raw
+# Key Findings for Cursor's Web Fetch Behavior - Raw
 
 ---
 
@@ -42,7 +42,7 @@ parent: Anysphere Cursor
 | **Redirect<br>Chains** | _Successfully follows_, tested 5-level redirect chain |
 | **Backend<br>Routing** | _Multiple fetch paths_: `WebFetch` - `MCP-style`, `urllib`, `curl` fallback;<br>each with different size limits |
 
-## Results Details
+## Results Snapshot
 
 | --- | --- |
 | **Model** | `Auto` |

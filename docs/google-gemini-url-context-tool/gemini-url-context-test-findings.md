@@ -6,7 +6,7 @@ nav_order: 3
 parent: Google Gemini URL Context
 ---
 
-# Key Findings for Gemini's URL Context Tool, Gemini-interpreted
+# Key Findings for `Gemini`'s URL Context Tool - <br>`Gemini`-interpreted
 
 ---
 
@@ -26,7 +26,7 @@ parent: Google Gemini URL Context
 
 ---
 
-## Results Summary
+## Results Snapshot
 
 | **Test** | **URLs Req** | **URLs OK** | **Tokens<br>R1/R2/R3** | **Result** |
 | ---- | ------- | ------ | ----------- | ---------- | ------ |

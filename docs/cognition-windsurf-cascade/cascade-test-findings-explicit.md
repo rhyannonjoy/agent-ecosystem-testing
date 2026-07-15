@@ -5,7 +5,7 @@ permalink: /docs/cognition-windsurf-cascade/cascade-test-findings-explicit
 parent: Cognition Windsurf Cascade
 ---
 
-# Key Findings for Cascade's Web Search Behavior, Explicit `@web`
+# Key Findings for Cascade's Web Search Behavior -<br>Explicit `@web`
 
 The explicit track confirms that `@web` doesn't meaningfully change the retrieval behavior the interpreted track
 identified. Core findings hold: chunked architecture, no fixed ceiling, index-size suppression threshold,
@@ -54,7 +54,7 @@ CSS extraction failure, and self-reporting fidelity gaps. Extensions:
 | **`@web` directive** | _Redundant for URL fetch_: `@web` maps to `read_url_content` across all agents, all runs; `search_web` called once for `SC-2`'s `GLM-5.1` run as verification attempt; didn't return usable content |
 | **Agent Self-Reporting Fidelity** | _Unreliable_: thought panels display collapsed passes and/or batch reads, re-reads not disclosed in output; fidelity failures documented across<br>`BL-3`, `OP-4`, `SC-1`, `SC-2`, `SC-4` |
 
-## Results Details
+## Results Snapshot
 
 | | |
 | --- | --- |

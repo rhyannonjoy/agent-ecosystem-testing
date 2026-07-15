@@ -5,7 +5,7 @@ permalink: /docs/cognition-windsurf-cascade/cascade-test-findings-raw
 parent: Cognition Windsurf Cascade
 ---
 
-# Key Findings for Cascade's Web Search Behavior, Raw
+# Key Findings for Cascade's Web Search Behavior - Raw
 
 ---
 
@@ -45,7 +45,7 @@ parent: Cognition Windsurf Cascade
 | **Path Compliance** | _Agent-dependent_: prompt instructs saving to `raw/` which doesn't exist;<br>`BL-2`'s `GLM` created it, later agents referenced `cascade-raw/` and/or failed to save; cross-agent file visibility suggests worktree state is shared across Hybrid Arena slots, not isolated |
 | **URL Fragment Targeting** | _Behavioral, not architectural_: chunk index exposes headers, fragment targets; `OP-1`'s `Grok-3` only agent to use it for navigation; 8 of 10 defaulted to full-doc retrieval; _"EXACTLY as received"_ prompt may suppress targeting, making full retrieval seem like the safer interpretation |
 
-## Results Details
+## Results Snapshot
 
 | | |
 | --- | --- |

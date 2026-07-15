@@ -5,7 +5,7 @@ permalink: /docs/microsoft-github-copilot/copilot-test-findings-raw
 parent: Microsoft GitHub Copilot
 ---
 
-# Key Findings for Copilot's Web Fetch Behavior, Raw
+# Key Findings for Copilot's Web Fetch Behavior - Raw
 
 ---
 
@@ -43,7 +43,7 @@ parent: Microsoft GitHub Copilot
 | **Agentic Over-Delivery** | _Consistent pattern_: agent autonomously produces unrequested artifacts including headers files, hexdump files, analysis reports, and verbatim content in chat; type correlates with retrieval mechanism |
 | **Model Routing** | _Unstable_: `Auto` dispatches across model families within a single test series; tool selection behavior, metric accuracy, and output format all vary by model |
 
-## Results Details
+## Results Snapshot
 
 | --- | --- |
 | **Model Selector** | `Auto` |

@@ -6,7 +6,7 @@ permalink: /docs/open-ai-web-search-tool/open-ai-web-search-test-findings
 parent: OpenAI Web Search
 ---
 
-# Key Findings for OpenAI Web Search, ChatGPT-interpreted
+# Key Findings for OpenAI Web Search - <br>ChatGPT-interpreted
 
 ---
 
@@ -39,7 +39,7 @@ parent: OpenAI Web Search
 | **Domain Filtering** | _Not available_, Chat Completions search models don't support `filters` |
 | **Tool Invocation<br>Visibility** | _Not available_, search is implicit, no `web_search_call` item |
 
-## Results Details
+## Results Snapshot
 
 Model: `gpt-4o-mini-search-preview` · 3 runs
 
