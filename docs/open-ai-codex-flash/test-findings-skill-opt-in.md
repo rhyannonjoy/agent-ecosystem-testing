@@ -110,25 +110,23 @@ if the agent read or cited the competing `/memories.../single-url-retrieval-meas
 | `tool_output` includes `/memories`-related text | 19 | 79% |
 | `commentary` includes `/memories`-related text and/or citations | 5 | 21% |
 
-## Skill Opt-In Findings
+## `/SKILL` `opt-in` Findings
 
 {: .table-findings}
 | **#** | **Finding** | **Tests** | **Observed** | **Conclusion** |
 | --- | --- | --- | --- | --- |
-| 1 | **Skill file is loaded but often only followed in depth superficially** | 31 `EC-6` opt-in runs | 87% loaded, 61% mentioned skill name, 55% used protocol prefix, 100% used surface language like `COMPLETE` | **Loading a skill does not guarantee protocol compliance; even half the runs using the `COMPLETE` prefix did not follow the deeper failure-examination requirements.** |
-| 2 | **Skill opt-in does not shift retrieval strategy** | 31 `EC-6` opt-in runs | Most runs bypassed `web` for `curl`, same as historical `T2`; no new pagination or escalation pattern tied to skill discovery | **When agents can already reach the raw HTTP body, the skill does not change tool choice.** |
-| 3 | **Skill opt-in weakens the visible truncation signal** | 31 `EC-6` opt-in runs | Disclosure distribution: `yes=1`, `mixed=6`, `implicit=0`, `no=24`; average tier 0.48 | **By using `curl`, agents remove the `L54` web-window signal that historical `T2` runs disclosed. Skill opt-in therefore does not increase explicit truncation reporting on this test.** |
-| 4 | **Agents classify completeness accurately but do not recommend fixes** | 31 `EC-6` opt-in runs | `completeness_accurate=100%`, `exec_vs_complete=100%`, `avoided_reframing=84%`, but `fix_recommended=0%` | **The skill's concrete-fix requirement is ignored. Classification and honesty scores may reflect baseline behavior as much as skill influence.** |
-| 5 | **Memory skill is the dominant co-influence** | 31 `EC-6` opt-in runs | 77% of runs had both memory and workspace skill signals; memory skill referenced in 79% of `tool_output` and 92% of `final_answer` | **The workspace `docs-consumption` skill cannot be evaluated in isolation; the system-injected memory skill is at least as visible and may override it.** |
-| 6 | **Skill discovery is not consistent across sessions** | 9 `GPT-5.4-Mini` runs | Early Mini runs loaded neither skill nor memory; later Mini runs loaded the workspace skill consistently | **Skill discovery depends on runtime/version conditions, not only on file presence and reasoning level.** |
+| 1 | **`/SKILL` loaded, but often only followed superficially** | 31 `EC-6` opt-in runs | 87% loaded, 61% mentioned skill name, 55% used protocol prefix, 100% used surface language like `COMPLETE` | **Loading a skill does not guarantee protocol compliance; even half the runs using the `COMPLETE` prefix did not follow the deeper failure-examination requirements.** |
+| 2 | **`/SKILL` `opt-in` doesn't shift retrieval strategy** | 31 `EC-6` opt-in runs | Most runs bypassed `web` for `curl`, same as historical `T2`; no new pagination or escalation pattern tied to skill discovery | **When agents can already reach the raw HTTP body, the skill does not change tool choice.** |
+| 3 | **`/SKILL` `opt-in` weakens visible truncation signal** | 31 `EC-6` opt-in runs | Disclosure distribution: `yes=1`, `mixed=6`, `implicit=0`, `no=24`; average tier 0.48 | **By using `curl`, agents remove the `L54` web-window signal that historical `T2` runs disclosed. Skill opt-in therefore does not increase explicit truncation reporting on this test.** |
+| 4 | **Agents classify completeness accurately, but don't recommend fixes** | 31 `EC-6` opt-in runs | `completeness_accurate=100%`, `exec_vs_complete=100%`, `avoided_reframing=84%`, but `fix_recommended=0%` | **The skill's concrete-fix requirement is ignored. Classification and honesty scores may reflect baseline behavior as much as skill influence.** |
+| 5 | **`/memories.../SKILL` is the dominant influence** | 31 `EC-6` opt-in runs | 77% of runs had both memory and workspace skill signals; memory skill referenced in 79% of `tool_output` and 92% of `final_answer` | **The workspace `docs-consumption` skill cannot be evaluated in isolation; the system-injected memory skill is at least as visible and may override it.** |
+| 6 | **`/SKILL` discovery isn't consistent across sessions** | 9 `GPT-5.4-Mini` runs | Early Mini runs loaded neither skill nor memory; later Mini runs loaded the workspace skill consistently | **Skill discovery depends on runtime/version conditions, not only on file presence and reasoning level.** |
 | 7 | **`COMPLETE` prefix becomes a stylistic shortcut** | 31 `EC-6` opt-in runs | All runs used skill language; many opened reports with `COMPLETE` and included phrases like "DNS/sandbox error" or "use curl" without tying them to the actual limitation | **Agents adopt the easiest surface markers of the protocol without adopting its deeper epistemic discipline.** |
-| 8 | **Avoided reframing is consistent with baseline, not clearly a skill effect** | 31 `EC-6` opt-in runs | 84% avoided reframing; DNS/sandbox errors were described in reasoning and reporting on other tracks too | **Honesty about failure is already part of baseline agent behavior on this surface. The skill does not obviously deepen diagnosis.** |
-| 9 | **Disclosure taxonomy maps poorly onto skill-opt-in behavior** | 31 `EC-6` opt-in runs | `yes/mixed/implicit/no` was designed for web-truncation disclosure; `curl`-complete runs default to `no` even when agents are accurate | **A skill designed to improve disclosure may need a different metric when the dominant strategy avoids the surface that triggers disclosure.** |
-| 10 | **Skill opt-in produces the expected false-positive profile for a first track** | 31 `EC-6` opt-in runs | High surface-compliance scores, zero fix recommendations, weak explicit truncation naming, strong memory confound | **Passive skill presence produces shallow, hard-to-attribute compliance. This is a useful baseline, not evidence that the skill works.** |
+| 8 | **Avoiding reframing is consistent with baseline, not clearly a `/SKILL` effect** | 31 `EC-6` opt-in runs | 84% avoided reframing; DNS/sandbox errors were described in reasoning and reporting on other tracks too | **Honesty about failure is already part of baseline agent behavior on this surface. The skill does not obviously deepen diagnosis.** |
+| 9 | **Truncation taxonomy maps poorly onto `/SKILL` `opt-in` behavior** | 31 `EC-6` opt-in runs | `yes/mixed/implicit/no` was designed for web-truncation disclosure; `curl`-complete runs default to `no` even when agents are accurate | **A skill designed to improve disclosure may need a different metric when the dominant strategy avoids the surface that triggers disclosure.** |
+| 10 | **`/SKILL` `opt-in` produces the expected false-positives profile** | 31 `EC-6` opt-in runs | High surface-compliance scores, zero fix recommendations, weak explicit truncation naming, strong memory confound | **Passive skill presence produces shallow, hard-to-attribute compliance. This is a useful baseline, not evidence that the skill works.** |
 
----
-
-## Reading the Scores as False Positives
+## Data Visualizations
 
 The RUNBOOK's [False-positive Checklist](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/results/docs-consumption-skill-flash/RUNBOOK.md#false-positive-checklist) is the right lens for this track. Most opt-in runs tick several boxes:
 
@@ -140,15 +138,4 @@ The RUNBOOK's [False-positive Checklist](https://github.com/rhyannonjoy/agent-ec
 
 This is expected for a first track that is only measuring baseline skill-injection behavior. The value of the opt-in condition is establishing how much of the apparent compliance is noise before adding the `skill-on` and memory-suppressed conditions.
 
-## Data Visualizations
-
 <!-- TODO: embed disclosure taxonomy heatmap, failure-examination dimension chart, memory/skill co-occurrence chart, and per-model skill-signal breakdown here. -->
-
----
-
-## Raw Evidence
-
-- Flash results CSV: [`open-ai-codex-web-search/results/docs-consumption-skill-flash/results.csv`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/results/docs-consumption-skill-flash/results.csv)
-- Runbook: [`open-ai-codex-web-search/results/docs-consumption-skill-flash/RUNBOOK.md`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/results/docs-consumption-skill-flash/RUNBOOK.md)
-- Memory audit report: [`open-ai-codex-web-search/results/docs-consumption-skill-flash/artifacts/rollouts/T2-skill-opt-in/memory-analysis/T2_memory_analyzer_report.md`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/results/docs-consumption-skill-flash/artifacts/rollouts/T2-skill-opt-in/memory-analysis/T2_memory_analyzer_report.md)
-- Analysis script: [`open-ai-codex-web-search/scripts/docs_consumption_skill_analysis.py`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/docs_consumption_skill_analysis.py)
