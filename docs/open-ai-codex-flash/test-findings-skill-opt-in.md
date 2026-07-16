@@ -87,8 +87,7 @@ parent: OpenAI Codex - Flash
 
 Each row is one of 31 runs, sorted by LLM and reasoning level. Column colors group the signal type; abbreviations expand on hover.
 The rightmost column is the telling one: no run produced a fix recommendation, even when /SKILL loaded and /memories permeated the logs.
-
-> Striped cells = signal present, but reads as baseline behavior or false positive.
+Striped cells indicate signal presence, but reads as false positive, mirroring baseline behavior.
 
 {% raw %}
 <div id="cdx-skill-optin-root"></div>
@@ -160,9 +159,9 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
   var ALL_COLS = INFLUENCE_COLS.concat(REQ_COLS);
   var STRIPE_COLS = {skill_lang: true, complete_acc: true, error_exam: true, exec_vs_comp: true, no_reframe: true};
   var GROUP_COLORS = {
-    mem: {dark: '#4A90D9', light: '#2E6EA5'},
-    req: {dark: '#4CAF7A', light: '#3A8C5D'},
-    reqSub: {dark: '#93E8B1', light: '#6BC785'}
+    mem: {dark: '#185FA5', light: '#378ADD'},
+    req: {dark: '#0F6E56', light: '#1D9E75'},
+    reqSub: {dark: '#3BAE7C', light: '#5DC99A'}
   };
 
   function cellColor(dark, group) {
