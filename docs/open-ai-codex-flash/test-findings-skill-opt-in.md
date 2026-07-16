@@ -126,9 +126,7 @@ if the agent read or cited the competing `/memories.../single-url-retrieval-meas
 
 ## Data Visualizations
 
-The visualization below condenses the opt-in condition into a single heatmap. Rows are model / reasoning-level combinations; columns are six skill/memory signal dimensions. Each cell shows the raw count of runs with that signal out of the total runs in the group — for example, `1/1` means every run in that group showed the signal, and `0/3` means none did. Cell tooltips include the dominant retrieval method and failure mode for that group, following the surface-note pattern used in the extension heatmap.
-
-> **Reading the heatmap:** darker cells mean the signal was present in every run in that row; light/medium cells mean it was present in some runs; empty gray cells mean it was present in none. The numerator is the count of runs with the signal; the denominator is the total runs in that model / reasoning-level group.
+The visualization below condenses the opt-in condition into one model-level heatmap. Rows are models; columns show how often each signal appeared across all runs for that model. Because the denominator is the same for every cell in a row, the colors are comparable across columns. The story is the drop-off from left to right: workspace skill and memory signal almost always appear together, but protocol use and especially fix recommendations drop sharply.
 
 {% raw %}
 <div id="cdx-skill-optin-root"></div>
@@ -179,18 +177,16 @@ table.cdx-skill td.cdx-skill-rl.cdx-skill-model { font-size: 10px; opacity: 0.65
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 
-  var rows = [{"model": "GPT-5.4-Mini", "level": "Light/Low", "n": 3, "method": "curl", "failure": "DNS/sandbox", "loaded": 2, "protocol": 0, "memory": 0, "single_url": 0, "both": 0, "neither": 1}, {"model": "GPT-5.4-Mini", "level": "Medium", "n": 2, "method": "curl", "failure": "DNS/sandbox, truncation", "loaded": 1, "protocol": 0, "memory": 0, "single_url": 0, "both": 0, "neither": 1}, {"model": "GPT-5.4-Mini", "level": "High", "n": 2, "method": "curl", "failure": "none notable", "loaded": 1, "protocol": 0, "memory": 1, "single_url": 1, "both": 1, "neither": 1}, {"model": "GPT-5.4-Mini", "level": "Extra High", "n": 2, "method": "curl", "failure": "DNS/sandbox", "loaded": 1, "protocol": 0, "memory": 1, "single_url": 1, "both": 1, "neither": 1}, {"model": "GPT-5.4", "level": "Light/Low", "n": 1, "method": "curl", "failure": "DNS/sandbox", "loaded": 1, "protocol": 0, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.4", "level": "Medium", "n": 1, "method": "curl", "failure": "none notable", "loaded": 1, "protocol": 0, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.4", "level": "High", "n": 1, "method": "curl", "failure": "none notable", "loaded": 1, "protocol": 0, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.4", "level": "Extra High", "n": 1, "method": "curl", "failure": "none notable", "loaded": 1, "protocol": 0, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.5", "level": "Light/Low", "n": 1, "method": "curl", "failure": "none notable", "loaded": 1, "protocol": 1, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.5", "level": "Medium", "n": 1, "method": "curl", "failure": "none notable", "loaded": 1, "protocol": 1, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.5", "level": "High", "n": 1, "method": "curl", "failure": "none notable", "loaded": 1, "protocol": 1, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.5", "level": "Extra High", "n": 1, "method": "curl", "failure": "DNS/sandbox", "loaded": 1, "protocol": 1, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.6-Luna", "level": "Light/Low", "n": 1, "method": "curl", "failure": "none notable", "loaded": 1, "protocol": 1, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.6-Luna", "level": "Medium", "n": 1, "method": "curl", "failure": "none notable", "loaded": 1, "protocol": 1, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.6-Luna", "level": "High", "n": 1, "method": "curl", "failure": "none notable", "loaded": 1, "protocol": 0, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.6-Luna", "level": "Extra High", "n": 1, "method": "curl", "failure": "none notable", "loaded": 1, "protocol": 1, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.6-Sol", "level": "Light/Low", "n": 1, "method": "curl", "failure": "none notable", "loaded": 1, "protocol": 1, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.6-Sol", "level": "Medium", "n": 1, "method": "curl", "failure": "truncation", "loaded": 1, "protocol": 0, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.6-Sol", "level": "High", "n": 1, "method": "curl", "failure": "none notable", "loaded": 1, "protocol": 0, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.6-Sol", "level": "Extra High", "n": 1, "method": "curl", "failure": "none notable", "loaded": 1, "protocol": 0, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.6-Sol", "level": "Ultra", "n": 1, "method": "curl", "failure": "none notable", "loaded": 1, "protocol": 0, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.6-Terra", "level": "Light/Low", "n": 1, "method": "curl", "failure": "DNS/sandbox", "loaded": 1, "protocol": 0, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.6-Terra", "level": "Medium", "n": 1, "method": "curl", "failure": "none notable", "loaded": 1, "protocol": 0, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.6-Terra", "level": "High", "n": 1, "method": "curl", "failure": "none notable", "loaded": 1, "protocol": 1, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.6-Terra", "level": "Extra High", "n": 1, "method": "curl", "failure": "DNS/sandbox", "loaded": 1, "protocol": 0, "memory": 1, "single_url": 1, "both": 1, "neither": 0}, {"model": "GPT-5.6-Terra", "level": "Ultra", "n": 1, "method": "curl", "failure": "none notable", "loaded": 1, "protocol": 1, "memory": 1, "single_url": 1, "both": 1, "neither": 0}];
+  var rows = [{"model": "GPT-5.4-Mini", "n": 9, "skill_loaded_pct": 56, "memory_present_pct": 44, "both_pct": 22, "protocol_pct": 0, "fix_pct": 0, "tool": "curl", "failure": "DNS/sandbox"}, {"model": "GPT-5.4", "n": 4, "skill_loaded_pct": 100, "memory_present_pct": 100, "both_pct": 100, "protocol_pct": 0, "fix_pct": 0, "tool": "curl", "failure": "none notable"}, {"model": "GPT-5.5", "n": 4, "skill_loaded_pct": 100, "memory_present_pct": 100, "both_pct": 100, "protocol_pct": 100, "fix_pct": 0, "tool": "curl", "failure": "none notable"}, {"model": "GPT-5.6-Luna", "n": 4, "skill_loaded_pct": 100, "memory_present_pct": 100, "both_pct": 100, "protocol_pct": 75, "fix_pct": 0, "tool": "curl", "failure": "none notable"}, {"model": "GPT-5.6-Sol", "n": 5, "skill_loaded_pct": 100, "memory_present_pct": 100, "both_pct": 100, "protocol_pct": 20, "fix_pct": 0, "tool": "curl", "failure": "none notable"}, {"model": "GPT-5.6-Terra", "n": 5, "skill_loaded_pct": 100, "memory_present_pct": 100, "both_pct": 100, "protocol_pct": 40, "fix_pct": 0, "tool": "curl", "failure": "none notable"}];
 
-  var COLS = [{"id": "loaded", "label": "Skill loaded", "sub": "docs-consumption"}, {"id": "protocol", "label": "Protocol prefix", "sub": "COMPLETE"}, {"id": "memory", "label": "Memory signal", "sub": "## Memory"}, {"id": "single_url", "label": "Memory skill", "sub": "single-url"}, {"id": "both", "label": "Both", "sub": "skill + memory"}, {"id": "neither", "label": "Neither", "sub": "no signal"}];
+  var COLS = [{"id": "skill_loaded_pct", "label": "Skill loaded", "sub": "docs-consumption"}, {"id": "memory_present_pct", "label": "Memory signal", "sub": "## Memory"}, {"id": "both_pct", "label": "Both", "sub": "skill + memory"}, {"id": "protocol_pct", "label": "Protocol prefix", "sub": "COMPLETE"}, {"id": "fix_pct", "label": "Fix recommended", "sub": "none produced"}];
 
   var MODEL_ORDER = ['GPT-5.4-Mini','GPT-5.4','GPT-5.5','GPT-5.6-Luna','GPT-5.6-Sol','GPT-5.6-Terra'];
-  var LEVEL_ORDER = ['Light/Low','Medium','High','Extra High','Ultra'];
 
-  function getColor(dark, count, total) {
-    if (total === 0 || count === 0) return { bg: dark ? '#2a2a28' : '#e0e0de', fg: dark ? '#a0a0a0' : '#666666' };
-    var ratio = count / total;
-    if (ratio <= 0.34) return { bg: dark ? '#0F6E56' : '#1D9E75', fg: '#fff' };
-    if (ratio <= 0.67) return { bg: dark ? '#185FA5' : '#378ADD', fg: '#fff' };
+  function getColor(dark, pct) {
+    if (pct === 0) return { bg: dark ? '#2a2a28' : '#e0e0de', fg: dark ? '#a0a0a0' : '#666666' };
+    if (pct <= 33) return { bg: dark ? '#0F6E56' : '#1D9E75', fg: '#fff' };
+    if (pct <= 66) return { bg: dark ? '#185FA5' : '#378ADD', fg: '#fff' };
     return { bg: dark ? '#A32D2D' : '#F06292', fg: '#fff' };
   }
 
@@ -198,27 +194,16 @@ table.cdx-skill td.cdx-skill-rl.cdx-skill-model { font-size: 10px; opacity: 0.65
     var dark = props.isDark;
     var large = props.large;
     var tc = props.textColor || 'inherit';
-    var cellW  = large ? 60  : 36;
-    var cellH  = large ? 32  : 24;
-    var labelW = large ? 150 : 110;
-    var fs     = large ? 11  : 10;
-
-    var tableRows = [];
-    MODEL_ORDER.forEach(function(model) {
-      tableRows.push({ type: 'model-header', model: model });
-      LEVEL_ORDER.forEach(function(level) {
-        var row = rows.find(function(r) { return r.model === model && r.level === level; });
-        if (row) {
-          tableRows.push({ type: 'data', row: row });
-        }
-      });
-    });
+    var cellW  = large ? 60  : 46;
+    var cellH  = large ? 32  : 26;
+    var labelW = large ? 170 : 130;
+    var fs     = large ? 12  : 11;
 
     return e('div', {className: 'cdx-skill-wrap'},
       e('table', {className: 'cdx-skill'},
         e('thead', null,
           e('tr', null,
-            e('th', {className: 'cdx-skill-rh', style: {minWidth: labelW, color: tc}}, 'Model / Reasoning'),
+            e('th', {className: 'cdx-skill-rh', style: {minWidth: labelW, color: tc}}, 'Model (n runs)'),
             COLS.map(function(col) {
               return e('th', {key: col.id, style: {color: tc}},
                 col.label,
@@ -228,31 +213,18 @@ table.cdx-skill td.cdx-skill-rl.cdx-skill-model { font-size: 10px; opacity: 0.65
           )
         ),
         e('tbody', null,
-          tableRows.map(function(item, i) {
-            if (item.type === 'model-header') {
-              return e('tr', {key: 'm-' + item.model, style: {borderTop: '1.5px solid rgba(128,128,128,0.22)'}},
-                e('td', {colSpan: COLS.length + 1,
-                  style: {fontSize: 11, fontWeight: 700, letterSpacing: '0.07em',
-                    opacity: 0.55, paddingTop: 5, paddingBottom: 1,
-                    textTransform: 'uppercase', textAlign: 'center', color: tc}},
-                  item.model
-                )
-              );
-            }
-            var row = item.row;
-            return e('tr', {key: row.model + '-' + row.level},
-              e('td', {className: 'cdx-skill-rl cdx-skill-model', style: {color: tc, maxWidth: labelW, width: labelW}},
-                row.level
+          MODEL_ORDER.map(function(model) {
+            var row = rows.find(function(r) { return r.model === model; });
+            return e('tr', {key: row.model},
+              e('td', {className: 'cdx-skill-rl', style: {color: tc, maxWidth: labelW, width: labelW}},
+                row.model + ' (n=' + row.n + ')'
               ),
               COLS.map(function(col) {
-                var count = row[col.id];
-                var total = row.n;
-                var c = getColor(dark, count, total);
-                var ratio = total ? Math.round(count / total * 100) : 0;
-                var label = count + '/' + total;
-                var tip = row.model + ' · ' + row.level + ' (n=' + row.n + ')\n' +
-                  col.label + ': ' + count + ' of ' + total + ' runs (' + ratio + '%)\n' +
-                  'Dominant retrieval: ' + row.method + '\n' +
+                var pct = row[col.id];
+                var c = getColor(dark, pct);
+                var tip = row.model + ' (n=' + row.n + ')\n' +
+                  col.label + ': ' + pct + '% of runs\n' +
+                  'Dominant retrieval: ' + row.tool + '\n' +
                   'Failure mode: ' + row.failure;
                 return e('td', {key: col.id},
                   e('div', {title: tip, style: {
@@ -260,7 +232,7 @@ table.cdx-skill td.cdx-skill-rl.cdx-skill-model { font-size: 10px; opacity: 0.65
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     width: cellW, height: cellH, margin: '1px auto',
                     background: c.bg, color: c.fg, cursor: 'help'
-                  }}, label)
+                  }}, pct + '%')
                 );
               })
             );
@@ -274,21 +246,21 @@ table.cdx-skill td.cdx-skill-rl.cdx-skill-model { font-size: 10px; opacity: 0.65
     var dark = props.isDark;
     var tc = props.textColor || 'inherit';
     var items = [
-      { count: 0, total: 1, label: '0/N — signal absent' },
-      { count: 1, total: 3, label: '1/3 or fewer — rare' },
-      { count: 2, total: 3, label: 'about half — mixed' },
-      { count: 3, total: 3, label: '3/3 or more — dominant' }
+      { pct: 0, label: '0% — signal absent' },
+      { pct: 33, label: '1–33% — rare' },
+      { pct: 66, label: '34–66% — mixed' },
+      { pct: 100, label: '67–100% — dominant' }
     ];
     return e('table', {style: {borderCollapse: 'collapse', fontSize: 11, marginTop: 0}},
-      e('tbody', null, items.map(function(item, i) {
-        var c = getColor(dark, item.count, item.total);
-        return e('tr', {key: i},
+      e('tbody', null, items.map(function(item) {
+        var c = getColor(dark, item.pct);
+        return e('tr', {key: item.pct},
           e('td', {style: {paddingRight: 8, paddingBottom: 4, verticalAlign: 'middle'}},
             e('span', {style: {
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              width: 32, height: 16, borderRadius: 3,
+              width: 36, height: 16, borderRadius: 3,
               background: c.bg, color: c.fg, fontSize: 10, fontWeight: 600
-            }}, item.count + '/' + item.total)
+            }}, item.pct + '%')
           ),
           e('td', {style: {paddingBottom: 4, color: tc, opacity: 0.8}}, item.label)
         );
@@ -320,7 +292,7 @@ table.cdx-skill td.cdx-skill-rl.cdx-skill-model { font-size: 10px; opacity: 0.65
 
     return e('div', {style: {marginTop: '1.5rem', fontFamily: 'inherit'}},
       e('div', {className: 'cdx-skill-fig'},
-        e('h4', null, 'Skill/Memory Signal Co-occurrence by Model and Reasoning Level'),
+        e('h4', null, 'Skill/Memory Influence vs. Protocol Compliance by Model'),
         e('div', {onClick: function(){ setOpen(true); }, style: {cursor: 'pointer'}},
           e(HeatmapTable, {isDark: dark, large: false}),
           e('p', {className: 'cdx-skill-hint'}, '↗ click to expand')
@@ -329,7 +301,7 @@ table.cdx-skill td.cdx-skill-rl.cdx-skill-model { font-size: 10px; opacity: 0.65
           e('div', {style: {flexShrink: 0}}, e(Legend, {isDark: dark})),
           e('div', {style: {flex: 1, maxWidth: 460}},
             e('p', {className: 'cdx-skill-caption'},
-              'Each row is a model / reasoning-level combination. Columns show the count of runs with that signal over the total runs in the group (e.g., 1/1 means every run, 0/3 means none). Cell tooltips include the dominant retrieval method and the most common failure mode for that group. The heatmap makes the memory confound visible: high-end models almost always have both the workspace skill and the ## Memory instruction, so it is hard to isolate either influence.'
+              'Each row is a model; the denominator is the total runs for that model. Columns show the percentage of runs where the signal appeared. Because the denominator is the same across every column in a row, the colors are directly comparable. The pattern is the drop-off from left to right: workspace skill and memory signal almost always co-occur, protocol prefix use is inconsistent, and no model produced a fix recommendation.'
             )
           )
         )
@@ -347,7 +319,7 @@ table.cdx-skill td.cdx-skill-rl.cdx-skill-model { font-size: 10px; opacity: 0.65
             e('div', {style: {flexShrink: 0}}, e(Legend, {isDark: dark, textColor: lbText})),
             e('div', {style: {flex: 1, maxWidth: 460}},
               e('p', {className: 'cdx-skill-caption', style: {color: lbText}},
-                'Expanded view. Hover cells for the dominant retrieval method and failure mode. Most groups rely on curl and report no meaningful truncation, so the real variation is in skill/memory signal co-occurrence, not retrieval outcome.'
+                'Expanded view. Each row is one model; every column shares the same n. The story is the cliff between signal presence (left) and meaningful protocol compliance (right): skill and memory almost always appear together, yet no run produced a fix recommendation.'
               )
             )
           )
