@@ -126,14 +126,4 @@ if the agent read or cited the competing `/memories.../single-url-retrieval-meas
 
 ## Data Visualizations
 
-The RUNBOOK's [False-positive Checklist](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/results/docs-consumption-skill-flash/RUNBOOK.md#false-positive-checklist) is the right lens for this track. Most opt-in runs tick several boxes:
-
-- **Confident caveat.** Agents write polished language like "searched the web" or "curl succeeded" without flagging the actual limitation.
-- **Tool rerouting without disclosure.** Most agents bypass `web` for `curl`, but they do not explain why. The strategy changes, but the report does not.
-- **Skill ignored.** Even when the skill file loaded, many runs did not use the `COMPLETE/PARTIAL/UNVERIFIABLE` format or show protocol-aligned reasoning.
-- **Fix recommended without diagnosis.** No run produced a concrete fix tied to the observed `L54`/DNS limitation.
-- **Explicit but incorrect.** Runs that opened with `COMPLETE` after only a `curl` fetch were technically accurate for that path, but they did not demonstrate the protocol's failure-examination intent.
-
-This is expected for a first track that is only measuring baseline skill-injection behavior. The value of the opt-in condition is establishing how much of the apparent compliance is noise before adding the `skill-on` and memory-suppressed conditions.
-
 <!-- TODO: embed disclosure taxonomy heatmap, failure-examination dimension chart, memory/skill co-occurrence chart, and per-model skill-signal breakdown here. -->
