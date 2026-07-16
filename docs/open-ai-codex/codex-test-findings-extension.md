@@ -41,7 +41,7 @@ parent: OpenAI Codex
 | **`Cache Miss`<br>Failure** | _No longer systematic for the URL that defined it_: only 1/13 `EC-6` runs emitted `Cache Miss` versus 17/20 in `T1`; most return windowed `L54` extraction instead of failure; `BL-3` `Cache Miss` 6/8 `web` attempts |
 | **Self-reported Completeness** | _Failure abstraction mirrors `T1`_: agents sanitize issues into success language rather than debugging or correcting misuse, users lose learning opportunities, analysis in [Retrieved-Report Mismatches](friction-note-interpreted-extension.md#retrieved-report-mismatches); `BL-3` `GPT-5.5 Extra High`, `GPT-5.4-Mini Low` include outcome mischaracterizations, `OP-1`, `OP-2`, `OP-4`, `SC-4` name failures without examination |
 
-## Results Details
+## Results Snapshot
 
 | | |
 | --- | --- |

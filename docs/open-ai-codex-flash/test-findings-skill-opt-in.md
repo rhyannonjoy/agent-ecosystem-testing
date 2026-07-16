@@ -27,7 +27,7 @@ parent: OpenAI Codex - Flash
 6. Approve `curl` escalation, shell permission requests; skip requests for runs of existing workspace scripts
 7. Capture the agent's full response; observe whether the agent discovers or acts on `docs-consumption/SKILL.md`
 8. Log structured metadata with `python scripts/log.py --results-dir results/docs-consumption-skill-flash`
-9. Audit session logs with `rollout_audit.py`, `memory_audit.py` to separate `/SKILL` load, mention, and `/memories` influence
+9. Run `rollout_audit.py`, `memory_audit.py` to separate `/SKILL` reference from `/memories` influence
 
 ---
 
@@ -69,6 +69,20 @@ parent: OpenAI Codex - Flash
 | **`/memories` Signals** | ~77% of session logs cite the system `## Memory` instruction or the competing<br>`/memories/skills/single-url-retrieval-measurement/SKILL` |
 | **`/memories` + `/SKILL`** | ~77% of runs had both `/docs-consumption/SKILL` and `/memories.../SKILL` injected,<br>making it hard to isolate either effect |
 
+## Key Findings
+
+{: .table-findings}
+| **#** | **Finding** | **Tests** | **Observed** | **Conclusion** |
+| --- | --- | --- | --- | --- |
+| 1 | **`/SKILL` discovery is location, version-dependent** | `GPT-5.4 Mini` runs | Early `Mini` runs didn't load `/SKILL` due to `~.agents/skills` location requirement; `/memories` didn't due to version limitations; both appeared in later runs | **`/SKILL` discovery depends on specific runtime conditions, not on general file presence, LLM, or reasoning level** |
+| 2 | **`/SKILL` loaded, but followed superficially** | All tests | 87% loaded, 61% mentioned `/docs-consumption` by name, 55% used requested protocol prefix, 100% used somewhat `/SKILL`-like language | **Loading `/SKILL` doesn't guarantee comprehensive protocol compliance; half the runs using protocol prefix didn't follow failure-examination requirements** |
+| 3 | **`COMPLETE` protocol prefix becomes a stylistic shortcut** | All tests | All agents used `/SKILL`-like language; many opened reports with `COMPLETE`, included common error phrasing or tool selection reasoning without tying them to platform limits | **Agents adopt the easiest surface markers of the protocol without adopting the requested, epistemic discipline** |
+| 4 | **`/SKILL` `opt-in` doesn't shift retrieval strategy** | All tests | Most bypassed `web` for `curl`; no new pagination, escalation, or verification patterns tied to `/SKILL` discovery | **`/SKILL` requests for deeper retrieval analysis don't impact retrieval tool selection** |
+| 5 | **`/SKILL` `opt-in` weakens truncation signals** | All tests | Only 22% of agents reported some form of truncation event, which is a 47% drop from the [historical `T2` results](../open-ai-codex/codex-test-findings-extension.md#results-snapshot) | **Agents remove `L54` `web` cutpoint by favoring `curl`; `/SKILL` presence doesn't independently enhance truncation reporting** |
+| 6 | **Agents classify completeness accurately, but don't recommend fixes** | All tests | `completeness_accurate=100%`, `exec_vs_complete=100%`, `avoided_reframing=84%`, but `fix_recommended=0%` | **Agents ignored `/SKILL`'s fix requirement; classification, report integrity scores reflect baseline behavior, not explicit evidence of `/SKILL` influence** |
+| 7 | **`/SKILL` `opt-in` produces expected false positive profile** | All tests | Shallow compliance scores, parroting common error phrasing, no fix recommendations, weak truncation reporting, strong `/memories` confound | **Passive `/SKILL` presence produces trivial compliance; this is a useful baseline, not evidence of `/SKILL` impact on retrieval behavior or report quality** |
+| 8 | **`/memories` is the dominant influence** | All tests | 77% included both `/memories` and `docs-consumption` `/SKILL` signals; `/memories.../SKILL` referenced in 79% of `tool_output`, 92% of `final_answer` | **System-injected `/memories` largely overrides `docs-consumption/SKILL`, making individual evaluation a challenge** |
+
 ## `/memories` vs `/docs-consumption`
 
 Scripts [`memory_audit`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/memory_audit.py) and
@@ -109,22 +123,6 @@ if the agent read or cited the competing `/memories.../single-url-retrieval-meas
 | `final_answer` includes `/memories`-related text | 22 | 92% |
 | `tool_output` includes `/memories`-related text | 19 | 79% |
 | `commentary` includes `/memories`-related text and/or citations | 5 | 21% |
-
-## `/SKILL` `opt-in` Findings
-
-{: .table-findings}
-| **#** | **Finding** | **Tests** | **Observed** | **Conclusion** |
-| --- | --- | --- | --- | --- |
-| 1 | **`/SKILL` loaded, but often only followed superficially** | 31 `EC-6` opt-in runs | 87% loaded, 61% mentioned skill name, 55% used protocol prefix, 100% used surface language like `COMPLETE` | **Loading a skill does not guarantee protocol compliance; even half the runs using the `COMPLETE` prefix did not follow the deeper failure-examination requirements.** |
-| 2 | **`/SKILL` `opt-in` doesn't shift retrieval strategy** | 31 `EC-6` opt-in runs | Most runs bypassed `web` for `curl`, same as historical `T2`; no new pagination or escalation pattern tied to skill discovery | **When agents can already reach the raw HTTP body, the skill does not change tool choice.** |
-| 3 | **`/SKILL` `opt-in` weakens visible truncation signal** | 31 `EC-6` opt-in runs | Disclosure distribution: `yes=1`, `mixed=6`, `implicit=0`, `no=24`; average tier 0.48 | **By using `curl`, agents remove the `L54` web-window signal that historical `T2` runs disclosed. Skill opt-in therefore does not increase explicit truncation reporting on this test.** |
-| 4 | **Agents classify completeness accurately, but don't recommend fixes** | 31 `EC-6` opt-in runs | `completeness_accurate=100%`, `exec_vs_complete=100%`, `avoided_reframing=84%`, but `fix_recommended=0%` | **The skill's concrete-fix requirement is ignored. Classification and honesty scores may reflect baseline behavior as much as skill influence.** |
-| 5 | **`/memories.../SKILL` is the dominant influence** | 31 `EC-6` opt-in runs | 77% of runs had both memory and workspace skill signals; memory skill referenced in 79% of `tool_output` and 92% of `final_answer` | **The workspace `docs-consumption` skill cannot be evaluated in isolation; the system-injected memory skill is at least as visible and may override it.** |
-| 6 | **`/SKILL` discovery isn't consistent across sessions** | 9 `GPT-5.4-Mini` runs | Early Mini runs loaded neither skill nor memory; later Mini runs loaded the workspace skill consistently | **Skill discovery depends on runtime/version conditions, not only on file presence and reasoning level.** |
-| 7 | **`COMPLETE` prefix becomes a stylistic shortcut** | 31 `EC-6` opt-in runs | All runs used skill language; many opened reports with `COMPLETE` and included phrases like "DNS/sandbox error" or "use curl" without tying them to the actual limitation | **Agents adopt the easiest surface markers of the protocol without adopting its deeper epistemic discipline.** |
-| 8 | **Avoiding reframing is consistent with baseline, not clearly a `/SKILL` effect** | 31 `EC-6` opt-in runs | 84% avoided reframing; DNS/sandbox errors were described in reasoning and reporting on other tracks too | **Honesty about failure is already part of baseline agent behavior on this surface. The skill does not obviously deepen diagnosis.** |
-| 9 | **Truncation taxonomy maps poorly onto `/SKILL` `opt-in` behavior** | 31 `EC-6` opt-in runs | `yes/mixed/implicit/no` was designed for web-truncation disclosure; `curl`-complete runs default to `no` even when agents are accurate | **A skill designed to improve disclosure may need a different metric when the dominant strategy avoids the surface that triggers disclosure.** |
-| 10 | **`/SKILL` `opt-in` produces the expected false-positives profile** | 31 `EC-6` opt-in runs | High surface-compliance scores, zero fix recommendations, weak explicit truncation naming, strong memory confound | **Passive skill presence produces shallow, hard-to-attribute compliance. This is a useful baseline, not evidence that the skill works.** |
 
 ## Data Visualizations
 
