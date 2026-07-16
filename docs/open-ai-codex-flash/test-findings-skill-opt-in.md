@@ -85,6 +85,11 @@ parent: OpenAI Codex - Flash
 
 ## `/memories` Dominance
 
+Each row is one of 31 runs, sorted by LLM and reasoning level. Column colors group the signal type; abbreviations expand on hover.
+The rightmost column is the telling one: no run produced a fix recommendation, even when /SKILL loaded and /memories permeated the logs.
+
+> Striped cells = signal present, but reads as baseline behavior or false positive.
+
 {% raw %}
 <div id="cdx-skill-optin-root"></div>
 
@@ -92,7 +97,7 @@ parent: OpenAI Codex - Flash
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 
 <style>
-.cdx-skill-wrap { overflow-x: auto; }
+.cdx-skill-wrap { overflow-x: auto; display: flex; justify-content: center; }
 table.cdx-skill { border-collapse: collapse; width: auto; }
 table.cdx-skill th { font-size: 10px; font-weight: 500; padding: 3px 0; text-align: center; white-space: nowrap; color: inherit; }
 table.cdx-skill th:not(.cdx-skill-rh) { padding-left: 3px; padding-right: 3px; }
@@ -133,30 +138,31 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
 
 
   var INFLUENCE_COLS = [
-    {id: 'mem_system', label: '/mem\nsys', group: 'mem'},
-    {id: 'mem_tool', label: '/mem\ntool_output', group: 'mem'},
-    {id: 'mem_final', label: '/mem\nfinal_answer', group: 'mem'},
-    {id: 'mem_comm', label: '/mem\ncomm', group: 'mem'},
-    {id: 'mem_summary', label: '/mem\nsummary', group: 'mem'},
-    {id: 'skill_loaded', label: '/SKILL\nloaded', group: 'req'},
-    {id: 'skill_lang', label: '/SKILL\nlang', group: 'req'},
-    {id: 'skill_path', label: '/SKILL\npath', group: 'req'}
+    {id: 'mem_system', label: '/mem\nsys', full: '/memories system', group: 'mem'},
+    {id: 'mem_tool', label: '/mem\ntool_output', full: '/memories tool_output', group: 'mem'},
+    {id: 'mem_final', label: '/mem\nfinal_answer', full: '/memories final_answer', group: 'mem'},
+    {id: 'mem_comm', label: '/mem\ncomm', full: '/memories commentary', group: 'mem'},
+    {id: 'mem_summary', label: '/mem\nsummary', full: '/memories summary', group: 'mem'},
+    {id: 'skill_loaded', label: '/SKILL\nloaded', full: '/SKILL loaded', group: 'req'},
+    {id: 'skill_lang', label: '/SKILL\nlang', full: '/SKILL language', group: 'req'},
+    {id: 'skill_path', label: '/SKILL\npath', full: '/SKILL path', group: 'req'}
   ];
 
   var REQ_COLS = [
-    {id: 'complete', label: 'prefix', group: 'req'},
-    {id: 'complete_acc', label: 'accuracy', group: 'req'},
-    {id: 'error_exam', label: 'error\nexam', group: 'req'},
-    {id: 'exec_vs_comp', label: 'exec\ncomp', group: 'req'},
-    {id: 'no_reframe', label: 'no\nreframing', group: 'req'},
-    {id: 'fix_rec', label: 'fix\nrecs', group: 'req'}
+    {id: 'complete', label: 'prefix', full: 'protocol prefix', group: 'reqSub'},
+    {id: 'complete_acc', label: 'accuracy', full: 'completeness accuracy', group: 'reqSub'},
+    {id: 'error_exam', label: 'error\nexam', full: 'error examined', group: 'reqSub'},
+    {id: 'exec_vs_comp', label: 'exec\ncomp', full: 'execution vs completeness', group: 'reqSub'},
+    {id: 'no_reframe', label: 'no\nreframing', full: 'no reframing', group: 'reqSub'},
+    {id: 'fix_rec', label: 'fix\nrecs', full: 'fix recommendation', group: 'reqSub'}
   ];
 
   var ALL_COLS = INFLUENCE_COLS.concat(REQ_COLS);
   var STRIPE_COLS = {skill_lang: true, complete_acc: true, error_exam: true, exec_vs_comp: true, no_reframe: true};
   var GROUP_COLORS = {
     mem: {dark: '#4A90D9', light: '#2E6EA5'},
-    req: {dark: '#4CAF7A', light: '#3A8C5D'}
+    req: {dark: '#4CAF7A', light: '#3A8C5D'},
+    reqSub: {dark: '#93E8B1', light: '#6BC785'}
   };
 
   function cellColor(dark, group) {
@@ -191,7 +197,7 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
         ALL_COLS.map(function(col, i) {
           var spacerClass = i === INFLUENCE_COLS.length ? 'cdx-skill-spacer' : '';
           var lines = col.label.split(/\n/);
-          return e('th', {key: col.id, className: spacerClass, title: col.label.replace(/\n/g, ' '), style: {color: tc, lineHeight: 1.1}},
+          return e('th', {key: col.id, className: spacerClass, title: col.full, style: {color: tc, lineHeight: 1.1}},
             lines.map(function(line, idx) { return e('div', {key: idx}, line); })
           );
         })
@@ -214,7 +220,7 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
       ALL_COLS.map(function(col, i) {
         var spacerClass = i === INFLUENCE_COLS.length ? 'cdx-skill-spacer' : '';
         var val = run[col.id];
-        var tip = col.label + (val ? ': yes' : ': no') + '\n' + surface;
+        var tip = col.full + (val ? ': yes' : ': no') + '\n' + surface;
         return e('td', {key: col.id, className: spacerClass},
           e(Cell, {dark: dark, val: val, tip: tip, textColor: tc, group: col.group, colId: col.id})
         );
@@ -225,24 +231,61 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
   function Legend(props) {
     var dark = props.isDark;
     var tc = props.textColor || 'inherit';
-    var groups = [
-      {key: 'mem', label: '/memories influence', color: cellColor(dark, 'mem')},
-      {key: 'req', label: '/docs-consumption/SKILL', color: cellColor(dark, 'req')}
+    var sections = [
+      {
+        key: 'mem',
+        label: '/memories influence',
+        color: cellColor(dark, 'mem'),
+        cols: [
+          {name: '/mem sys', desc: 'system prompt included ## Memory'},
+          {name: '/mem tool_output', desc: '/memories text in tool output'},
+          {name: '/mem final_answer', desc: '/memories text in final answer'},
+          {name: '/mem comm', desc: '/memories text in commentary'},
+          {name: '/mem summary', desc: '/memories text in summary'}
+        ]
+      },
+      {
+        key: 'req',
+        label: '/docs-consumption/SKILL',
+        color: cellColor(dark, 'req'),
+        cols: [
+          {name: '/SKILL loaded', desc: 'skill present in <skills_instructions>'},
+          {name: '/SKILL lang', desc: 'agent used /SKILL-protocol phrases'},
+          {name: '/SKILL path', desc: 'agent referenced the full /SKILL path'}
+        ]
+      },
+      {
+        key: 'reqSub',
+        label: '/docs-consumption/SKILL requirement',
+        color: cellColor(dark, 'reqSub'),
+        cols: [
+          {name: 'prefix', desc: 'used COMPLETE/PARTIAL/UNVERIFIABLE'},
+          {name: 'accuracy', desc: 'fetch state classified correctly'},
+          {name: 'error exam', desc: 'examined embedded errors or failures'},
+          {name: 'exec comp', desc: 'distinguished tool ran from full content'},
+          {name: 'no reframe', desc: 'avoided reframing partial/error as success'},
+          {name: 'fix recs', desc: 'suggested a remediation or improvement'}
+        ]
+      }
     ];
-    var abbrs = [
-      'filled cell = present / yes · outlined cell = absent / no',
-      'striped cells = signal present, but reads as baseline behavior or false positive'
-    ];
-    return e('div', {style: {fontSize: 11, marginTop: 8}},
-      e('div', {style: {display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 6}},
-        groups.map(function(g) {
-          return e('span', {key: g.key, style: {display: 'inline-flex', alignItems: 'center', gap: 5, color: tc}},
-            e('span', {style: {width: 10, height: 10, borderRadius: 2, background: g.color}}),
-            g.label
-          );
-        })
-      ),
-      e('div', {style: {color: tc, opacity: 0.7}}, abbrs.map(function(a, i) { return e('div', {key: i}, a); }))
+    return e('div', {style: {fontSize: 11, marginTop: 8, display: 'flex', gap: 24, justifyContent: 'center'}},
+      sections.map(function(s) {
+        return e('div', {key: s.key, style: {flex: '1 1 0', minWidth: 180, maxWidth: 320}},
+          e('div', {style: {display: 'inline-flex', alignItems: 'center', gap: 5, color: tc, marginBottom: 4}},
+            e('span', {style: {width: 10, height: 10, borderRadius: 2, background: s.color}}),
+            s.label
+          ),
+          e('div', {style: {display: 'flex', flexDirection: 'column', gap: 2, color: tc, opacity: 0.8, lineHeight: 1.3}},
+            s.cols.map(function(c, i) {
+              return e('div', {key: i},
+                e('span', {style: {fontWeight: 500}}, c.name),
+                ': ',
+                c.desc
+              );
+            })
+          )
+        );
+      })
     );
   }
 
@@ -290,12 +333,7 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
           e('p', {className: 'cdx-skill-hint'}, '↗ click to expand')
         ),
         e('div', {style: {display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap', marginTop: 10, justifyContent: 'center'}},
-          e('div', {style: {flex: 1, maxWidth: 560}},
-            e('p', {className: 'cdx-skill-caption'},
-              'Each row is one of 31 runs, sorted by LLM and reasoning level. Column colors group the signal type; abbreviations expand on hover. The rightmost column is the telling one: no run produced a fix recommendation, even when /SKILL loaded and /memories permeated the logs.'
-            ),
-            e(Legend, {isDark: dark})
-          )
+          e(Legend, {isDark: dark})
         )
       ),
       isOpen && e('div', {
@@ -308,12 +346,7 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
             onClick: function(){ setOpen(false); }, 'aria-label': 'Close'}, '×'),
           e(HeatmapTable, {isDark: dark, large: true, textColor: lbText}),
           e('div', {style: {display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap', marginTop: 10, justifyContent: 'center'}},
-            e('div', {style: {flex: 1, maxWidth: 560}},
-              e('p', {className: 'cdx-skill-caption', style: {color: lbText}},
-                'Expanded view. The /memories skill saturated system instructions, tool output, final answers, and commentary in most runs, while /docs-consumption/SKILL requirements were only shallowly met. Hover cells and row labels for per-run surface notes: retrieval tool and truncation status.'
-              ),
-              e(Legend, {isDark: dark, textColor: lbText})
-            )
+            e(Legend, {isDark: dark, textColor: lbText})
           )
         )
       )
