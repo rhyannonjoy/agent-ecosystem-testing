@@ -83,50 +83,7 @@ parent: OpenAI Codex - Flash
 | 7 | **`/SKILL` `opt-in` produces expected false positive profile** | All tests | Shallow compliance scores, parroting common error phrasing, no fix recommendations, weak truncation reporting, strong `/memories` confound | **Passive `/SKILL` presence produces trivial compliance; this is a useful baseline, not evidence of `/SKILL` impact on retrieval behavior or report quality** |
 | 8 | **`/memories` is the dominant influence** | All tests | 77% included both `/memories` and `docs-consumption` `/SKILL` signals; `/memories.../SKILL` referenced in 79% of `tool_output`, 92% of `final_answer` | **System-injected `/memories` largely overrides `docs-consumption/SKILL`, making individual evaluation a challenge** |
 
-## `/memories` vs `/docs-consumption`
-
-Scripts [`memory_audit`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/memory_audit.py) and
-[`memory_analyzer`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/memory_analyzer.py)
-determine whether the `docs-consumption/SKILL` loaded in the `<skills_instructions>` block, the system `## Memory` instruction was present, and
-if the agent read or cited the competing `/memories.../single-url-retrieval-measurement/SKILL`.
-
-### `/memories` and `/docs-consumption` Co-occurrence
-
-| **Condition** | **Count** | **% of Runs** |
-| --- | --- | --- |
-| `/docs-consumption` Signals | 27 | 87% |
-| `/memories` Signals | 24 | 77% |
-| Both `/docs-consumption` and `/memories` Signals | 24 | 77% |
-| `/memories...single-url-retrieval-measurement` referenced | 24 | 77% |
-| Only `/docs-consumption` Signals | 3 | 10% |
-| Only `/memories` Signals | 0 | 0% |
-| Neither due to `/docs-consumption` present, but not in `~.agents/skills` or version limited | 4 | 13% |
-
-### `/docs-consumption` Signals
-
-| **Signal** | **Count** | **% of Runs** |
-| --- | --- | --- |
-| Session log audits cite `skills: N loaded docs-consumption: yes`* | 27 | 87% |
-| Agent mentions `/docs-consumption` in exposed reasoning or reporting | 19 | 61% |
-| Agent mentions full `/docs-consumption` path | 1 | 3% |
-| Agents use `/SKILL` protocol prefix `COMPLETE` | 17 | 55% |
-| Agents use `/SKILL`-like language | 31 | 100% |
-
->_*`GPT-5.4 Mini` logs cite 9 skills, `GPT-5.5`+ load 10_
-
-### `/memories` Session Log Signals
-
-| **Signal** | **Count** | **% of `/memories`-positive** |
-| --- | --- | --- |
-| `system_prompt` includes `## Memory` block | 24 | 100% |
-| `system_memory_instruction` header present | 24 | 100% |
-| `final_answer` includes `/memories`-related text | 22 | 92% |
-| `tool_output` includes `/memories`-related text | 19 | 79% |
-| `commentary` includes `/memories`-related text and/or citations | 5 | 21% |
-
-## Data Visualizations
-
-The visualization below shows every run as a row. Columns on the left track what influenced the agent (`/memories` and `/SKILL` signals); columns on the right track what the `/docs-consumption/SKILL` actually asked for. Rows are sorted by LLM, then by reasoning level, so each LLM's progression reads top to bottom. The pattern is immediate: `/memories` references appear across nearly every rollout section, while `/SKILL` signals and deeper skill requirements — especially `fix recs` — are shallow or absent.
+## `/memories` Dominance
 
 {% raw %}
 <div id="cdx-skill-optin-root"></div>
@@ -328,7 +285,6 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
 
     return e('div', {style: {marginTop: '1.5rem', fontFamily: 'inherit'}},
       e('div', {className: 'cdx-skill-fig'},
-        e('h4', null, '/memories dominated the opt-in path'),
         e('div', {onClick: function(){ setOpen(true); }, style: {cursor: 'pointer'}},
           e(HeatmapTable, {isDark: dark, large: false}),
           e('p', {className: 'cdx-skill-hint'}, '↗ click to expand')
@@ -336,7 +292,7 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
         e('div', {style: {display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap', marginTop: 10, justifyContent: 'center'}},
           e('div', {style: {flex: 1, maxWidth: 560}},
             e('p', {className: 'cdx-skill-caption'},
-              'Each row is one of 31 runs, sorted by LLM and reasoning level. Column colors group the signal type; abbreviations expand on hover. A filled circle means present; an empty circle means absent. The rightmost column is the telling one: no run produced a fix recommendation, even when /SKILL loaded and /memories permeated the logs.'
+              'Each row is one of 31 runs, sorted by LLM and reasoning level. Column colors group the signal type; abbreviations expand on hover. The rightmost column is the telling one: no run produced a fix recommendation, even when /SKILL loaded and /memories permeated the logs.'
             ),
             e(Legend, {isDark: dark})
           )
@@ -369,3 +325,44 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
 })();
 </script>
 {% endraw %}
+
+## `/memories` vs `/docs-consumption`
+
+Scripts [`memory_audit`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/memory_audit.py) and
+[`memory_analyzer`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/memory_analyzer.py)
+determine whether the `docs-consumption/SKILL` loaded in the `<skills_instructions>` block, the system `## Memory` instruction was present, and
+if the agent read or cited the competing `/memories.../single-url-retrieval-measurement/SKILL`.
+
+### `/memories` and `/docs-consumption` Co-occurrence
+
+| **Condition** | **Count** | **% of Runs** |
+| --- | --- | --- |
+| `/docs-consumption` Signals | 27 | 87% |
+| `/memories` Signals | 24 | 77% |
+| Both `/docs-consumption` and `/memories` Signals | 24 | 77% |
+| `/memories...single-url-retrieval-measurement` referenced | 24 | 77% |
+| Only `/docs-consumption` Signals | 3 | 10% |
+| Only `/memories` Signals | 0 | 0% |
+| Neither due to `/docs-consumption` present, but not in `~.agents/skills` or version limited | 4 | 13% |
+
+### `/docs-consumption` Signals
+
+| **Signal** | **Count** | **% of Runs** |
+| --- | --- | --- |
+| Session log audits cite `skills: N loaded docs-consumption: yes`* | 27 | 87% |
+| Agent mentions `/docs-consumption` in exposed reasoning or reporting | 19 | 61% |
+| Agent mentions full `/docs-consumption` path | 1 | 3% |
+| Agents use `/SKILL` protocol prefix `COMPLETE` | 17 | 55% |
+| Agents use `/SKILL`-like language | 31 | 100% |
+
+>_*`GPT-5.4 Mini` logs cite 9 skills, `GPT-5.5`+ load 10_
+
+### `/memories` Session Log Signals
+
+| **Signal** | **Count** | **% of `/memories`-positive** |
+| --- | --- | --- |
+| `system_prompt` includes `## Memory` block | 24 | 100% |
+| `system_memory_instruction` header present | 24 | 100% |
+| `final_answer` includes `/memories`-related text | 22 | 92% |
+| `tool_output` includes `/memories`-related text | 19 | 79% |
+| `commentary` includes `/memories`-related text and/or citations | 5 | 21% |
