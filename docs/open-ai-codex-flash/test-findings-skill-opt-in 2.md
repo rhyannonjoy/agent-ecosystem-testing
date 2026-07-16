@@ -126,7 +126,7 @@ if the agent read or cited the competing `/memories.../single-url-retrieval-meas
 
 ## Data Visualizations
 
-The visualization below shows every run as a row. Columns on the left track what influenced the agent (`/memories` and `/SKILL` signals); columns on the right track what the `/docs-consumption/SKILL` actually asked for. Rows are sorted by LLM, then by reasoning level, so each LLM's progression reads top to bottom. The pattern is immediate: `/memories` references appear across nearly every rollout section, while `/SKILL` signals and deeper skill requirements — especially `fix recs` — are shallow or absent.
+The visualization below shows every run as a row. Columns on the left track what influenced the agent (`/SKILL` and `/memories` signals); columns on the right track what the `/docs-consumption/SKILL` actually asked for. Rows are sorted by LLM, then by reasoning level, so each LLM's progression reads top to bottom. The pattern is immediate: `/memories` references appear across nearly every rollout section, while deeper skill requirements — especially `fix rec` — are almost entirely absent.
 
 {% raw %}
 <div id="cdx-skill-optin-root"></div>
@@ -137,20 +137,15 @@ The visualization below shows every run as a row. Columns on the left track what
 <style>
 .cdx-skill-wrap { overflow-x: auto; }
 table.cdx-skill { border-collapse: collapse; width: auto; }
-table.cdx-skill th { font-size: 10px; font-weight: 500; padding: 3px 0; text-align: center; white-space: nowrap; color: inherit; }
-table.cdx-skill th:not(.cdx-skill-rh) { padding-left: 3px; padding-right: 3px; }
-table.cdx-skill th.cdx-skill-rh { text-align: left; padding-left: 0; padding-right: 1px; }
+table.cdx-skill th { font-size: 10px; font-weight: 500; padding: 3px 2px; text-align: center; white-space: nowrap; color: inherit; }
+table.cdx-skill th.cdx-skill-rh { text-align: left; }
 table.cdx-skill th.cdx-skill-spacer { border-left: 1.5px solid rgba(128,128,128,0.22); }
 table.cdx-skill th .cdx-skill-sub { font-weight: 400; font-size: 9px; opacity: 0.55; display: block; }
-table.cdx-skill td { padding: 1px 3px; text-align: center; vertical-align: middle; }
+table.cdx-skill td { padding: 1px 0; text-align: center; vertical-align: middle; }
 table.cdx-skill td.cdx-skill-spacer { border-left: 1.5px solid rgba(128,128,128,0.22); }
-table.cdx-skill td.cdx-skill-rl { font-size: 10px; text-align: left; padding-left: 0; white-space: nowrap; font-weight: 400; padding-right: 1px; color: inherit; vertical-align: middle; }
+table.cdx-skill td.cdx-skill-rl { font-size: 10px; text-align: left; padding-left: 0; white-space: nowrap; font-weight: 400; padding-right: 6px; color: inherit; vertical-align: middle; }
 table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
-.cdx-skill-cell { border-radius: 3px; display: block; width: 22px; height: 22px; margin: 1px auto; cursor: help; border: 1.5px solid rgba(128,128,128,0.22); box-sizing: border-box; position: relative; }
-.cdx-skill-cell.cdx-skill-stripe::after { content: ''; position: absolute; inset: 0; border-radius: 3px; background: repeating-linear-gradient(135deg, rgba(255,255,255,0.45), rgba(255,255,255,0.45) 3px, transparent 3px, transparent 6px); pointer-events: none; }
-@media (prefers-color-scheme: dark) {
-  .cdx-skill-cell.cdx-skill-stripe::after { background: repeating-linear-gradient(135deg, rgba(0,0,0,0.35), rgba(0,0,0,0.35) 3px, transparent 3px, transparent 6px); }
-}
+.cdx-skill-cell { border-radius: 3px; font-size: 12px; display: 'flex'; align-items: center; justify-content: center; width: 24px; height: 24px; margin: '1px auto'; cursor: help; }
 .cdx-skill-hint { font-size: 11px; opacity: 0.5; margin-top: 6px; cursor: pointer; }
 .cdx-skill-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.78); display: flex; align-items: center; justify-content: center; padding: 20px; }
 .cdx-skill-overlay-inner { border-radius: 10px; padding: 22px 26px; max-width: 99vw; max-height: 93vh; overflow: auto; position: relative; }
@@ -172,32 +167,32 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 
-  var runs = [{"llm":"GPT-5.4 Mini","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":0,"mem_tool":0,"mem_final":0,"mem_comm":0,"mem_summary":0,"complete":0,"complete_acc":1,"error_exam":0,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"yes","session":"019f4960"},{"llm":"GPT-5.4 Mini","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":0,"mem_tool":0,"mem_final":0,"mem_comm":0,"mem_summary":0,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f4984"},{"llm":"GPT-5.4 Mini","level":"Light","skill_loaded":0,"skill_lang":1,"skill_path":0,"mem_system":0,"mem_tool":0,"mem_final":0,"mem_comm":0,"mem_summary":0,"complete":0,"complete_acc":1,"error_exam":0,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"mixed","session":"019f485f"},{"llm":"GPT-5.4 Mini","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":0,"mem_tool":0,"mem_final":0,"mem_comm":0,"mem_summary":0,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"mixed","session":"019f49ac"},{"llm":"GPT-5.4 Mini","level":"Medium","skill_loaded":0,"skill_lang":1,"skill_path":0,"mem_system":0,"mem_tool":0,"mem_final":0,"mem_comm":0,"mem_summary":0,"complete":0,"complete_acc":1,"error_exam":0,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"mixed","session":"019f486a"},{"llm":"GPT-5.4 Mini","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":1,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f49b8"},{"llm":"GPT-5.4 Mini","level":"High","skill_loaded":0,"skill_lang":1,"skill_path":0,"mem_system":0,"mem_tool":0,"mem_final":0,"mem_comm":0,"mem_summary":0,"complete":0,"complete_acc":1,"error_exam":0,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"mixed","session":"019f4870"},{"llm":"GPT-5.4 Mini","level":"Extra High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":1,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f49c6"},{"llm":"GPT-5.4 Mini","level":"Extra High","skill_loaded":0,"skill_lang":1,"skill_path":0,"mem_system":0,"mem_tool":0,"mem_final":0,"mem_comm":0,"mem_summary":0,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"mixed","session":"019f487a"},{"llm":"GPT-5.4","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":0,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"mixed","session":"019f57b6"},{"llm":"GPT-5.4","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f57d0"},{"llm":"GPT-5.4","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":1,"mem_system":1,"mem_tool":0,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f57e5"},{"llm":"GPT-5.4","level":"Extra High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":1,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f57f1"},{"llm":"GPT-5.5","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":1,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5944"},{"llm":"GPT-5.5","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":1,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5950"},{"llm":"GPT-5.5","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":0,"mem_final":0,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5959"},{"llm":"GPT-5.5","level":"Extra High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5962"},{"llm":"GPT-5.6 Luna","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":0,"mem_final":0,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"no","session":"019f59ae"},{"llm":"GPT-5.6 Luna","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":0,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f59a5"},{"llm":"GPT-5.6 Luna","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5999"},{"llm":"GPT-5.6 Luna","level":"Extra High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f597c"},{"llm":"GPT-5.6 Sol","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5cfb"},{"llm":"GPT-5.6 Sol","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5d10"},{"llm":"GPT-5.6 Sol","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5d19"},{"llm":"GPT-5.6 Sol","level":"Extra High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5d27"},{"llm":"GPT-5.6 Sol","level":"Ultra","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5d98"},{"llm":"GPT-5.6 Terra","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5d5a"},{"llm":"GPT-5.6 Terra","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5d67"},{"llm":"GPT-5.6 Terra","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5d71"},{"llm":"GPT-5.6 Terra","level":"Extra High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5d7a"},{"llm":"GPT-5.6 Terra","level":"Ultra","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5d83"}];
+  var runs = [{"llm":"GPT-5.4 Mini","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":0,"mem_tool":0,"mem_final":0,"mem_comm":0,"mem_summary":0,"complete":0,"complete_acc":1,"error_exam":0,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"yes","session":"019f4960"},{"llm":"GPT-5.4 Mini","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":0,"mem_tool":0,"mem_final":0,"mem_comm":0,"mem_summary":0,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f4984"},{"llm":"GPT-5.4 Mini","level":"Light","skill_loaded":0,"skill_lang":1,"skill_path":0,"mem_system":0,"mem_tool":0,"mem_final":0,"mem_comm":0,"mem_summary":0,"complete":0,"complete_acc":1,"error_exam":0,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"mixed","session":"019f485f"},{"llm":"GPT-5.4 Mini","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":0,"mem_tool":0,"mem_final":0,"mem_comm":0,"mem_summary":0,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"mixed","session":"019f49ac"},{"llm":"GPT-5.4 Mini","level":"Medium","skill_loaded":0,"skill_lang":1,"skill_path":0,"mem_system":0,"mem_tool":0,"mem_final":0,"mem_comm":0,"mem_summary":0,"complete":0,"complete_acc":1,"error_exam":0,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"mixed","session":"019f486a"},{"llm":"GPT-5.4 Mini","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":1,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f49b8"},{"llm":"GPT-5.4 Mini","level":"High","skill_loaded":0,"skill_lang":1,"skill_path":0,"mem_system":0,"mem_tool":0,"mem_final":0,"mem_comm":0,"mem_summary":0,"complete":0,"complete_acc":1,"error_exam":0,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"mixed","session":"019f4870"},{"llm":"GPT-5.4 Mini","level":"Extra High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":1,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f49c6"},{"llm":"GPT-5.4 Mini","level":"Extra High","skill_loaded":0,"skill_lang":1,"skill_path":0,"mem_system":0,"mem_tool":0,"mem_final":0,"mem_comm":0,"mem_summary":0,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"mixed","session":"019f487a"},{"llm":"GPT-5.4","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":0,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"mixed","session":"019f57b6"},{"llm":"GPT-5.4","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f57d0"},{"llm":"GPT-5.4","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":1,"mem_system":1,"mem_tool":0,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f57e5"},{"llm":"GPT-5.4","level":"Extra High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":1,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f57f1"},{"llm":"GPT-5.5","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":1,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5944"},{"llm":"GPT-5.5","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":1,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5950"},{"llm":"GPT-5.5","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":0,"mem_final":0,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5959"},{"llm":"GPT-5.5","level":"Extra High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5962"},{"llm":"GPT-5.6 Luna","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":0,"mem_final":0,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"no","session":"019f59ae"},{"llm":"GPT-5.6 Luna","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":0,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f59a5"},{"llm":"GPT-5.6 Luna","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5999"},{"llm":"GPT-5.6 Luna","level":"Extra High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f597c"},{"llm":"GPT-5.6 Sol","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5cfb"},{"llm":"GPT-5.6 Sol","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5d10"},{"llm":"GPT-5.6 Sol","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5d19"},{"llm":"GPT-5.6 Sol","level":"Extra High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5d27"},{"llm":"GPT-5.6 Sol","level":"Ultra","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5d98"},{"llm":"GPT-5.6 Terra","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5d5a"},{"llm":"GPT-5.6 Terra","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5d67"},{"llm":"GPT-5.6 Terra","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5d71"},{"llm":"GPT-5.6 Terra","level":"Extra High","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":0,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5d7a"},{"llm":"GPT-5.6 Terra","level":"Ultra","skill_loaded":1,"skill_lang":1,"skill_path":0,"mem_system":1,"mem_tool":1,"mem_final":1,"mem_comm":0,"mem_summary":1,"complete":1,"complete_acc":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","session":"019f5d83"}];
 
 
   var INFLUENCE_COLS = [
-    {id: 'mem_system', label: '/mem\nsys', group: 'mem'},
-    {id: 'mem_tool', label: '/mem\ntool_output', group: 'mem'},
-    {id: 'mem_final', label: '/mem\nfinal_answer', group: 'mem'},
-    {id: 'mem_comm', label: '/mem\ncomm', group: 'mem'},
-    {id: 'mem_summary', label: '/mem\nsummary', group: 'mem'},
-    {id: 'skill_loaded', label: '/SKILL\nloaded', group: 'req'},
-    {id: 'skill_lang', label: '/SKILL\nlang', group: 'req'},
-    {id: 'skill_path', label: '/SKILL\npath', group: 'req'}
+    {id: 'skill_loaded', label: '/SKILL loaded', group: 'skill'},
+    {id: 'skill_lang', label: '/SKILL language', group: 'skill'},
+    {id: 'skill_path', label: '/SKILL path', group: 'skill'},
+    {id: 'mem_system', label: '/memories system', group: 'mem'},
+    {id: 'mem_tool', label: '/memories tool_output', group: 'mem'},
+    {id: 'mem_final', label: '/memories final_answer', group: 'mem'},
+    {id: 'mem_comm', label: '/memories commentary', group: 'mem'},
+    {id: 'mem_summary', label: '/memories summary', group: 'mem'}
   ];
 
   var REQ_COLS = [
-    {id: 'complete', label: 'prefix', group: 'req'},
-    {id: 'complete_acc', label: 'accuracy', group: 'req'},
-    {id: 'error_exam', label: 'error\nexam', group: 'req'},
-    {id: 'exec_vs_comp', label: 'exec\ncomp', group: 'req'},
-    {id: 'no_reframe', label: 'no\nreframing', group: 'req'},
-    {id: 'fix_rec', label: 'fix\nrecs', group: 'req'}
+    {id: 'complete', label: 'COMPLETE prefix', group: 'req'},
+    {id: 'complete_acc', label: 'completeness accurate', group: 'req'},
+    {id: 'error_exam', label: 'error examined', group: 'req'},
+    {id: 'exec_vs_comp', label: 'execution vs completeness', group: 'req'},
+    {id: 'no_reframe', label: 'no reframing', group: 'req'},
+    {id: 'fix_rec', label: 'fix recommended', group: 'req'}
   ];
 
   var ALL_COLS = INFLUENCE_COLS.concat(REQ_COLS);
-  var STRIPE_COLS = {skill_lang: true, complete_acc: true, error_exam: true, exec_vs_comp: true, no_reframe: true};
   var GROUP_COLORS = {
+    skill: {dark: '#D87A2A', light: '#B85C1A'},
     mem: {dark: '#4A90D9', light: '#2E6EA5'},
     req: {dark: '#4CAF7A', light: '#3A8C5D'}
   };
@@ -211,17 +206,13 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
     var val = props.val;
     var tip = props.tip;
     var group = props.group;
-    var colId = props.colId;
-    var baseColor = cellColor(dark, group);
-    var filled = {background: baseColor, borderColor: baseColor};
-    var empty = {background: 'transparent', borderColor: dark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.12)'};
-    var className = 'cdx-skill-cell';
-    if (val && STRIPE_COLS[colId]) className += ' cdx-skill-stripe';
+    var filled = {background: cellColor(dark, group), color: '#fff', fontWeight: 700};
+    var empty = {background: 'transparent', color: dark ? '#555' : '#bbb', fontWeight: 400, opacity: 0.35};
     return e('div', {
       title: tip,
-      className: className,
+      className: 'cdx-skill-cell',
       style: val ? filled : empty
-    });
+    }, val ? '●' : '○');
   }
 
   function HeaderRow(props) {
@@ -233,9 +224,8 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
         e('th', {className: 'cdx-skill-rh', style: {minWidth: labelW, color: tc}}, 'LLM / Reasoning'),
         ALL_COLS.map(function(col, i) {
           var spacerClass = i === INFLUENCE_COLS.length ? 'cdx-skill-spacer' : '';
-          var lines = col.label.split(/\n/);
-          return e('th', {key: col.id, className: spacerClass, title: col.label.replace(/\n/g, ' '), style: {color: tc, lineHeight: 1.1}},
-            lines.map(function(line, idx) { return e('div', {key: idx}, line); })
+          return e('th', {key: col.id, className: spacerClass, title: col.full, style: {color: tc}},
+            col.label
           );
         })
       )
@@ -257,9 +247,9 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
       ALL_COLS.map(function(col, i) {
         var spacerClass = i === INFLUENCE_COLS.length ? 'cdx-skill-spacer' : '';
         var val = run[col.id];
-        var tip = col.label + (val ? ': yes' : ': no') + '\n' + surface;
+        var tip = col.full + (val ? ': yes' : ': no') + '\n' + surface;
         return e('td', {key: col.id, className: spacerClass},
-          e(Cell, {dark: dark, val: val, tip: tip, textColor: tc, group: col.group, colId: col.id})
+          e(Cell, {dark: dark, val: val, tip: tip, textColor: tc, group: col.group})
         );
       })
     );
@@ -269,12 +259,12 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
     var dark = props.isDark;
     var tc = props.textColor || 'inherit';
     var groups = [
+      {key: 'skill', label: '/SKILL influence', color: cellColor(dark, 'skill')},
       {key: 'mem', label: '/memories influence', color: cellColor(dark, 'mem')},
-      {key: 'req', label: '/docs-consumption/SKILL', color: cellColor(dark, 'req')}
+      {key: 'req', label: '/docs-consumption/SKILL requirement', color: cellColor(dark, 'req')}
     ];
     var abbrs = [
-      'filled cell = present / yes · outlined cell = absent / no',
-      'striped cells = signal present, but reads as baseline behavior or false positive'
+      '● = present / yes · ○ = absent / no'
     ];
     return e('div', {style: {fontSize: 11, marginTop: 8}},
       e('div', {style: {display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 6}},
@@ -293,7 +283,7 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
     var dark = props.isDark;
     var large = props.large;
     var tc = props.textColor || 'inherit';
-    var labelW = large ? 200 : 150;
+    var labelW = large ? 280 : 200;
     return e('div', {className: 'cdx-skill-wrap'},
       e('table', {className: 'cdx-skill'},
         e(HeaderRow, {tc: tc, dark: dark, labelW: labelW}),
