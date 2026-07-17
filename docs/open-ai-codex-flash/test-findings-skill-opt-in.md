@@ -85,12 +85,30 @@ parent: OpenAI Codex - Flash
 
 ## `/memories` Dominance
 
-## `/memories` vs `/docs-consumption`
-
-Scripts [`memory_audit`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/memory_audit.py) and
+Together [`memory_audit`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/memory_audit.py) and
 [`memory_analyzer`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/memory_analyzer.py)
-determine whether the `docs-consumption/SKILL` loaded in the `<skills_instructions>` block, the system `## Memory` instruction was present, and
-if the agent read or cited the competing `/memories.../single-url-retrieval-measurement/SKILL`.
+extract `/memories` presence while
+[`rollout_audit`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/rollout_audit.py) flags
+`/docs-consumption/SKILL` injection, general session shape, and agent errors from each test's rollout log. Because rollouts include
+what _can render each session_ and don't transcribe what _does render each session_, the visualizations below include a hybrid of
+rollout metadata and agent self-reports from the chat.
+
+While all agents used `/docs-consumption/SKILL`-like phrases and 87% of session logs cite `skills: N loaded docs-consumption: yes`, only 61%
+mentioned it in their output, and even less, 55%, showed direct compliance by using a protocol prefix in their reports. When the `/memories`
+feature became available mid-track, its fingerprint dominated the session logs and in some ways, the agent reports. All session logs included
+the `## Memory` block in the `system_prompt`. 92% of `final_answer`, 79% of `tool_output`, and 21% of `commentary` fields were overrun with
+`/memories`-related language while 58% of agent reports included line-numbered citations from `/memories` content, either `MEMORY.md`, clippings
+of its own rollout summaries, or its own competing `/single-url-retrieval-measurement/SKILL`.
+
+Due to the design of this natural experiment in which runtime conditions shift among LLM-reasoning combinations and extension versions,
+while `/docs-consumption/SKILL` is injected 87% of the track vs `/memories`' 77%, agents never expressed favoring over the other. No
+track has only `/memories`-like behavior.
+
+its content never works alone. The content itself
+is clippings of agentic interpretation of past sessions without user input, creating a cheat sheet of competing conventions.
+
+but 
+creates a type of clipped loop of e
 
 
 | **Condition** | **Count** | **% of Runs** |
@@ -102,6 +120,10 @@ if the agent read or cited the competing `/memories.../single-url-retrieval-meas
 | Only `/docs-consumption` Signals | 3 | 10% |
 | Only `/memories` Signals | 0 | 0% |
 | Neither due to `/docs-consumption` present, but not in `~.agents/skills` or version limited | 4 | 13% |
+
+Each row is one of 31 runs, sorted by LLM and reasoning level. Column colors group the signal type; abbreviations expand on hover.
+The rightmost column is the telling one: no run produced a fix recommendation, even when /SKILL loaded and /memories permeated the logs.
+Striped cells indicate signal presence, but reads as false positive, mirroring baseline behavior.
 
 {% raw %}
 <svg class="cdx-skill-stack" viewBox="0 0 700 80" style="max-width: 700px; margin: 1rem auto; display: block;">
@@ -146,22 +168,6 @@ if the agent read or cited the competing `/memories.../single-url-retrieval-meas
   <text class="legend" x="267" y="65" text-anchor="start">both /docs-consumption + /memories</text>
 </svg>
 {% endraw %}
-
-Each row is one of 31 runs, sorted by LLM and reasoning level. Column colors group the signal type; abbreviations expand on hover.
-The rightmost column is the telling one: no run produced a fix recommendation, even when /SKILL loaded and /memories permeated the logs.
-Striped cells indicate signal presence, but reads as false positive, mirroring baseline behavior.
-
-/docs-consumption signals, text replacement draft
-while all agents used `/SKILL` like language,
-87% session logs cite `skills: N loaded docs-consumption: yes`, only 61% agents mention /docs-consumption in their
-reasoning or reporting, even less complied by using a protocol prefix 55%
-
-/memories signals, text replacement draft
-When /memories functionality became available, all session logs cited `## Memory` block in the `system_prompt`
-92% `final_answer` included `memories`-related phrases
-79% `tool_output` included `memories`-related phrases
-21% include agent `commentary` with `memories`-related phrases
-report notes, memory citations 58%
 
 {% raw %}
 <div id="cdx-skill-optin-root"></div>
