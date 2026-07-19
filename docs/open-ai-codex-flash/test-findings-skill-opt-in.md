@@ -87,7 +87,7 @@ parent: OpenAI Codex - Flash
 
 Together [`memory_audit`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/memory_audit.py) and
 [`memory_analyzer`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/memory_analyzer.py)
-extract `/memories` presence while
+extract `.codex/memories` presence while
 [`rollout_audit`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/rollout_audit.py) flags
 `/docs-consumption/SKILL` injection, general session shape, and agent errors from each test's rollout log. Because rollouts include
 what _can render each session_ and don't transcribe what _does render each session_, the visualizations below include a hybrid of
@@ -95,38 +95,18 @@ rollout metadata and agent self-reports from the chat.
 
 While all agents used `/docs-consumption/SKILL`-like phrases and 87% of session logs cite `skills: N loaded docs-consumption: yes`, only 61%
 mentioned it in their output, and even less, 55%, showed direct compliance by using a protocol prefix in their reports. When the `/memories`
-feature became available mid-track, its fingerprint dominated the session logs and in some ways, the agent reports. All session logs included
+feature became available mid-track, it made a big impact on retrieval paths and outcomes. All session logs included
 the `## Memory` block in the `system_prompt`. 92% of `final_answer`, 79% of `tool_output`, and 21% of `commentary` fields were overrun with
-`/memories`-related language while 58% of agent reports included line-numbered citations from `/memories` content, either `MEMORY.md`, clippings
-of its own rollout summaries, or its own competing `/single-url-retrieval-measurement/SKILL`.
+`/memories`-related language while 58% of agent reports included line-numbered citations from `/memories` content, including but not limited to
+`MEMORY.md`, rollout summaries, or its own competing `/single-url-retrieval-measurement/SKILL`.
 
-Due to the design of this natural experiment in which runtime conditions shift among LLM-reasoning combinations and extension versions,
-while `/docs-consumption/SKILL` is injected 87% of the track vs `/memories`' 77%, agents never expressed favoring over the other. No
-track has only `/memories`-like behavior.
-
-its content never works alone. The content itself
-is clippings of agentic interpretation of past sessions without user input, creating a cheat sheet of competing conventions.
-
-but 
-creates a type of clipped loop of e
-
-
-| **Condition** | **Count** | **% of Runs** |
-| --- | --- | --- |
-| `/docs-consumption` Signals | 27 | 87% |
-| `/memories` Signals | 24 | 77% |
-| Both `/docs-consumption` and `/memories` Signals | 24 | 77% |
-| `/memories...single-url-retrieval-measurement` referenced | 24 | 77% |
-| Only `/docs-consumption` Signals | 3 | 10% |
-| Only `/memories` Signals | 0 | 0% |
-| Neither due to `/docs-consumption` present, but not in `~.agents/skills` or version limited | 4 | 13% |
-
-Each row is one of 31 runs, sorted by LLM and reasoning level. Column colors group the signal type; abbreviations expand on hover.
-The rightmost column is the telling one: no run produced a fix recommendation, even when /SKILL loaded and /memories permeated the logs.
-Striped cells indicate signal presence, but reads as false positive, mirroring baseline behavior.
+Due to the design of this natural experiment in which runtime conditions shift among `/docs-consumption/SKILL` relocation, available LLM-reasoning
+combinations and extension versions, while 87% of the track injected `/docs-consumption/SKILL` vs 77% `/memories`, agents never explicitly
+favored one over the other in chat. If `/docs-consumption/SKILL` loaded correctly and `/memories` were available, agents' rendered reasoning-reporting
+showed a mix. No result exhibited a `/memories`-only profile. On the surface, the most common agent report character was co-occurence:
 
 {% raw %}
-<svg class="cdx-skill-stack" viewBox="0 0 700 80" style="max-width: 700px; margin: 1rem auto; display: block;">
+<svg class="cdx-skill-stack" viewBox="0 0 790 80" style="max-width: 790px; margin: 1rem auto; display: block;">
   <style>
     .cdx-skill-stack .bar { height: 36; }
     .cdx-skill-stack .neither { fill: #d0cec7; }
@@ -148,26 +128,41 @@ Striped cells indicate signal presence, but reads as false positive, mirroring b
   </style>
 
   <!-- Bar spans full width -->
-  <rect class="bar neither" x="10" y="14" width="88.5" height="36"/>
-  <rect class="bar docs" x="98.5" y="14" width="66.3" height="36"/>
-  <rect class="bar both" x="164.8" y="14" width="530.2" height="36"/>
+  <rect class="bar neither" x="10" y="14" width="102.2" height="36"/>
+  <rect class="bar docs" x="112.2" y="14" width="76.4" height="36"/>
+  <rect class="bar both" x="188.6" y="14" width="631.4" height="36"/>
 
   <!-- Inside labels -->
-  <text class="inside-dark" x="54.5" y="37" text-anchor="middle">13%</text>
-  <text class="inside-light" x="131.6" y="37" text-anchor="middle">10%</text>
-  <text class="inside-light" x="429.9" y="37" text-anchor="middle">77%</text>
+  <text class="inside-dark" x="61.1" y="37" text-anchor="middle">13%</text>
+  <text class="inside-light" x="150.4" y="37" text-anchor="middle">10%</text>
+  <text class="inside-light" x="504.3" y="37" text-anchor="middle">77%</text>
 
   <!-- Legend horizontal below the bar -->
   <rect x="10" y="58" width="8" height="8" class="neither"/>
   <text class="legend" x="22" y="65" text-anchor="start">neither</text>
 
-  <rect x="90" y="58" width="8" height="8" class="docs"/>
-  <text class="legend" x="102" y="65" text-anchor="start">only /docs-consumption</text>
+  <rect x="104" y="58" width="8" height="8" class="docs"/>
+  <text class="legend" x="116" y="65" text-anchor="start">only /docs-consumption</text>
 
-  <rect x="255" y="58" width="8" height="8" class="both"/>
-  <text class="legend" x="267" y="65" text-anchor="start">both /docs-consumption + /memories</text>
+  <rect x="305" y="58" width="8" height="8" class="both"/>
+  <text class="legend" x="317" y="65" text-anchor="start">both /docs-consumption + /memories</text>
 </svg>
 {% endraw %}
+
+The rollout logs tells another story of `/memories` domination. `/memories` load first and populate more session fields; its clippings of
+agentic interpretation of past sessions, without user input, create a brittle cheat sheet of competing conventions, flattening the test task
+into `single-URL-retrieval-measurement` instead of truncation assessment. Agents didn't lie about including `/docs-consumption/SKILL` requirements,
+but they complied as little as possible - producing false positive results of historically, baseline behavior. While no `/memories` component
+forbid  `web` use, its `single-URL-retrieval-measurement/SKILL` states _"start with the lightest retrieval surface that can
+answer the question"_ and `memory_summary.md` concludes that _"the durable lesson was to stop trusting the clipped rendered view"_ influencing
+agents to bypass `web`'s text extraction for `curl`'s raw reponse. Each run replayed the same strategy, like an agentic echo chamber of
+stale misinterpretation, burying the prompt and `/docs-consumption/SKILL`.
+
+This heat map organizes runs by LLM-reasoning combination. Column colors group the signal type. Striped cells indicate signal presence, but
+shallow compliance reading as false positives. Columns `SKILL path` and `fix recs` are the most telling: only one agent wrote the full
+`/docs-consumption/SKILL` path, and in spite of `/memories` over-documenting common errors, no agent suggested remediation. Results read
+like a script rather than live reasoning - great for deterministic measurement tasks, but an old fashioned cron would be more efficient than
+an agent.
 
 {% raw %}
 <div id="cdx-skill-optin-root"></div>
@@ -313,54 +308,52 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
     var sections = [
       {
         key: 'mem',
-        label: '/memories influence',
+        label: '<code>/memories</code> presence',
         color: cellColor(dark, 'mem'),
         cols: [
-          {name: '/mem sys', desc: 'system prompt included ## Memory'},
-          {name: '/mem tool_output', desc: '/memories text in tool output'},
-          {name: '/mem final_answer', desc: '/memories text in final answer'},
-          {name: '/mem comm', desc: '/memories text in commentary'},
-          {name: '/mem summary', desc: '/memories text in summary'}
+          {name: '<code>/mem sys</code>', desc: 'inject <code>## Memory</code> block'},
+          {name: '<code>/mem tool_output</code>', desc: 'carry <code>/mem</code>-derived info'},
+          {name: '<code>/mem final_answer</code>', desc: 'include <code>/mem</code> citations'},
+          {name: '<code>/mem comm</code>', desc: 'reasoning invokes <code>/mem</code>'},
+          {name: '<code>/mem summary</code>', desc: 'close with <code>/mem</code> framing'}
         ]
       },
       {
         key: 'req',
-        label: '/docs-consumption/SKILL',
+        label: '<code>/docs-consumption/SKILL</code> presence',
         color: cellColor(dark, 'req'),
         cols: [
-          {name: '/SKILL loaded', desc: 'skill present in <skills_instructions>'},
-          {name: '/SKILL lang', desc: 'agent used /SKILL-protocol phrases'},
-          {name: '/SKILL path', desc: 'agent referenced the full /SKILL path'}
+          {name: '/SKILL loaded', desc: 'in <code>&lt;skills_instructions&gt;</code>'},
+          {name: '/SKILL lang', desc: 'use <code>/SKILL</code>-like phrases'},
+          {name: '/SKILL path', desc: 'reference full path'}
         ]
       },
       {
         key: 'reqSub',
-        label: '/docs-consumption/SKILL requirement',
+        label: '<code>/docs-consumption/SKILL</code> requirement',
         color: cellColor(dark, 'reqSub'),
         cols: [
-          {name: 'prefix', desc: 'used COMPLETE/PARTIAL/UNVERIFIABLE'},
-          {name: 'accuracy', desc: 'fetch state classified correctly'},
-          {name: 'error exam', desc: 'examined embedded errors or failures'},
-          {name: 'exec comp', desc: 'distinguished tool ran from full content'},
-          {name: 'no reframe', desc: 'avoided reframing partial/error as success'},
-          {name: 'fix recs', desc: 'suggested a remediation or improvement'}
+          {name: 'prefix', desc: '<code>COMPLETE/PARTIAL/UNVERIFIABLE</code>'},
+          {name: 'accuracy', desc: 'classify fetch state correctly'},
+          {name: 'error exam', desc: 'examine embedded failures'},
+          {name: 'exec comp', desc: 'flag tool ran from full content'},
+          {name: 'no reframe', desc: 'no reframing error as success'},
+          {name: 'fix recs', desc: 'suggest remediation'}
         ]
       }
     ];
-    return e('div', {style: {fontSize: 11, marginTop: 8, display: 'flex', gap: 24, justifyContent: 'center'}},
+    return e('div', {style: {fontSize: 11, marginTop: 8, display: 'flex', gap: 32, justifyContent: 'center'}},
       sections.map(function(s) {
-        return e('div', {key: s.key, style: {flex: '1 1 0', minWidth: 180, maxWidth: 320}},
+        return e('div', {key: s.key, style: {width: 260}},
           e('div', {style: {display: 'inline-flex', alignItems: 'center', gap: 5, color: tc, marginBottom: 4}},
             e('span', {style: {width: 10, height: 10, borderRadius: 2, background: s.color}}),
-            s.label
+            e('span', {dangerouslySetInnerHTML: {__html: s.label}})
           ),
           e('div', {style: {display: 'flex', flexDirection: 'column', gap: 2, color: tc, opacity: 0.8, lineHeight: 1.3}},
             s.cols.map(function(c, i) {
-              return e('div', {key: i},
-                e('span', {style: {fontWeight: 500}}, c.name),
-                ': ',
-                c.desc
-              );
+              return e('div', {key: i, style: {whiteSpace: 'nowrap'}, dangerouslySetInnerHTML: {__html:
+                '<span style="font-weight: 500;">' + c.name + '</span>: ' + c.desc
+              }});
             })
           )
         );
