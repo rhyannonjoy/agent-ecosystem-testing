@@ -103,7 +103,7 @@ the `## Memory` block in the `system_prompt`. 92% of `final_answer`, 79% of `too
 Due to the design of this natural experiment in which runtime conditions shift among `/docs-consumption/SKILL` relocation, available LLM-reasoning
 combinations and extension versions, while 87% of the track injected `/docs-consumption/SKILL` vs 77% `/memories`, agents never explicitly
 favored one over the other in chat. If `/docs-consumption/SKILL` loaded correctly and `/memories` were available, agents' rendered reasoning-reporting
-showed a mix. No result exhibited a `/memories`-only profile. On the surface, the most common agent report character was co-occurence:
+showed a mix. No result exhibited a `/memories`-only profile. On the surface, the most common agent report character was somewhat balanced co-occurence:
 
 {% raw %}
 <svg class="cdx-skill-stack" viewBox="0 0 790 80" style="max-width: 790px; margin: 1rem auto; display: block;">
@@ -149,7 +149,7 @@ showed a mix. No result exhibited a `/memories`-only profile. On the surface, th
 </svg>
 {% endraw %}
 
-The rollout logs tells another story of `/memories` domination. `/memories` load first and populate more session fields; its clippings of
+The rollout details tell another story. `/memories` load first and populate more session fields; its clippings of
 agentic interpretation of past sessions, without user input, create a brittle cheat sheet of competing conventions, flattening the test task
 into `single-URL-retrieval-measurement` instead of truncation assessment. Agents didn't lie about including `/docs-consumption/SKILL` requirements,
 but they complied as little as possible - producing false positive results of historically, baseline behavior. While no `/memories` component
@@ -161,8 +161,7 @@ stale misinterpretation, burying the prompt and `/docs-consumption/SKILL`.
 This heat map organizes runs by LLM-reasoning combination. Column colors group the signal type. Striped cells indicate signal presence, but
 shallow compliance reading as false positives. Columns `SKILL path` and `fix recs` are the most telling: only one agent wrote the full
 `/docs-consumption/SKILL` path, and in spite of `/memories` over-documenting common errors, no agent suggested remediation. Results read
-like a script rather than live reasoning - great for deterministic measurement tasks, but an old fashioned cron would be more efficient than
-an agent.
+like a script rather than live reasoning, suiting deterministic measurement tasks well, but an old-fashioned cron job would outperform an agent here.
 
 {% raw %}
 <div id="cdx-skill-optin-root"></div>
