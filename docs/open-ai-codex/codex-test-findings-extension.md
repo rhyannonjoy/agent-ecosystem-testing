@@ -5,7 +5,7 @@ permalink: /docs/open-ai-codex/codex-test-findings-extension
 parent: OpenAI Codex
 ---
 
-# Key Findings for Codex's Web Search Behavior, `GPT`-interpreted - Extension
+# Key Findings for Codex's Web Search Behavior,<br>`GPT`-interpreted - Extension
 
 ---
 
