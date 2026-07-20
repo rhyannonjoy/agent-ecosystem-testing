@@ -6,7 +6,7 @@ permalink: /docs/google-gemini-url-context-tool/gemini-interpreted-vs-raw
 parent: Google Gemini URL Context
 ---
 
-# Gemini-interpreted vs Raw
+# `Gemini`-interpreted vs Raw
 
 ---
 

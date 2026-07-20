@@ -6,7 +6,7 @@ permalink: /docs/anysphere-cursor/cursor-test-findings
 parent: Anysphere Cursor
 ---
 
-# Key Findings for Cursor's Web Fetch Behavior, Cursor-interpreted
+# Key Findings for Cursor's Web Fetch Behavior - <br>Cursor-interpreted
 
 ---
 
@@ -43,7 +43,7 @@ parent: Anysphere Cursor
 | **Redirect Chains** | _Successfully follows_, tested 5-level redirect chain |
 | **Self-reported Completeness** | _Unreliable_: model claims "full content" when returning subset |
 
-## Results Details
+## Results Snapshot
 
 | --- | --- |
 | **Model** | `Auto` |

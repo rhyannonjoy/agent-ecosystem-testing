@@ -5,8 +5,7 @@ permalink: /docs/open-ai-codex/friction-note-interpreted-extension
 parent: OpenAI Codex
 ---
 
-# Friction Note: Roadblocks While Refining Methodology
-
+# Friction Note: Roadblocks While Refining Methodology - Extension
 ---
 
 ## Autonomous Post-Hoc Session Double Rendering

@@ -6,7 +6,7 @@ permalink: /docs/open-ai-web-search-tool/open-ai-web-search-test-raw-findings
 parent: OpenAI Web Search
 ---
 
-# Key Findings for OpenAI Web Search, Raw
+# Key Findings for OpenAI Web Search - Raw
 
 ---
 
@@ -39,7 +39,7 @@ parent: OpenAI Web Search
 | **Domain Filtering<br>Block List** | _Never succeeded_, `filters` parameter rejected in<br>all configurations and models tested |
 | **`search_queries_issued`<br>Date Accuracy** | _Unreliable_, model appends training-era year to internal<br>queries despite running in 2026 |
 
-## Results Details
+## Results Snapshot
 
 >_Run 5 = `test_8`, `test_9` only, targeted domain filter retry on `web_search_preview`;<br>run 5 model = `gpt-5` while
 >the remainder of the test runs model = `gpt-4o`_

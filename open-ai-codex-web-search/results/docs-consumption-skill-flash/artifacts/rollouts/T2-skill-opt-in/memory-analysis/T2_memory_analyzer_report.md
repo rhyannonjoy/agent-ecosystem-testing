@@ -108,4 +108,3 @@ but memory references only appear in the last two (18:51 and 19:06).
 - `rollout-2026-07-13T14-20-55-019f5d5a-be38-7a71-b370-f254f406ad41.jsonl` - GPT-5.6 Terra (low)
 - `rollout-2026-07-13T14-35-17-019f5d67-e4c9-76e2-a8ae-0d10d9f64e77.jsonl` - GPT-5.6 Terra (medium)
 - `rollout-2026-07-13T14-56-00-019f5d7a-db04-7b60-aafe-c1f9f071b5e8.jsonl` - GPT-5.6 Terra (extra-high)
-

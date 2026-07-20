@@ -4,7 +4,7 @@ title: "Key Findings Claude's Web Fetch Tool - Raw"
 permalink: /docs/anthropic-claude-api-web-fetch-tool/web-fetch-test-raw-findings
 ---
 
-# Key Findings for Claude's Web Fetch Tool, Raw
+# Key Findings for Claude's Web Fetch Tool - Raw
 
 ---
 
@@ -21,7 +21,7 @@ permalink: /docs/anthropic-claude-api-web-fetch-tool/web-fetch-test-raw-findings
 
 ---
 
-## Results Summary
+## Results Snapshot
 
 | **Finding** | **Detail** |
 | --------- | -------- |

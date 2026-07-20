@@ -90,17 +90,73 @@ def _pct(num: int, denom: int) -> str:
     return f"{num}/{denom} — {round(100 * num / denom)}%"
 
 
+REPORT_MEMORY_CITATIONS_RE = re.compile(
+    r"\bmemory\s+citations?\b", re.IGNORECASE
+)
+
+
+def _normalize_model(value: str) -> str:
+    """Normalize model names so rollout 'gpt-5.4-mini' matches 'GPT-5.4 Mini'."""
+    return value.lower().replace(" ", "-").strip()
+
+
+def _normalize_effort(value: str) -> str:
+    """Normalize effort strings between audit and results.csv."""
+    e = value.lower().strip()
+    if e in ("light/low", "low"):
+        return "low"
+    if e in ("extra-high", "xhigh"):
+        return "xhigh"
+    if e in ("medium", "high", "ultra"):
+        return e
+    return e
+
+
+def _load_notes_by_group(notes_csv: Path) -> dict[tuple[str, str], list[str]]:
+    """Load results.csv notes grouped by (model, effort) and sorted by timestamp.
+
+    Audit rows and results.csv rows share the same (model, effort) distribution,
+    but may be ordered differently within a group. We join by group and sort
+    each group by timestamp so the i-th audit row in a group maps to the i-th
+    results.csv row in the same group.
+    """
+    groups: dict[tuple[str, str], list[tuple[str, str]]] = defaultdict(list)
+    with open(notes_csv, newline="") as fh:
+        reader = csv.DictReader(fh)
+        for row in reader:
+            model = _normalize_model(row.get("model_observed", ""))
+            effort = _normalize_effort(row.get("model_intelligence_level", ""))
+            ts = row.get("timestamp", "").strip()
+            groups[(model, effort)].append((ts, row.get("notes", "")))
+    sorted_groups: dict[tuple[str, str], list[str]] = {}
+    for key, items in groups.items():
+        sorted_groups[key] = [notes for _ts, notes in sorted(items)]
+    return sorted_groups
+
+
 def main():
     ap = argparse.ArgumentParser(
         description="Summarize a memory_audit.csv as a readable comparison"
     )
     ap.add_argument("csv", help="Path to memory_audit.csv")
+    ap.add_argument(
+        "--notes-csv",
+        help="Path to results.csv containing observer notes; used to derive report_memory_citations",
+    )
     args = ap.parse_args()
 
     path = Path(args.csv)
     if not path.exists():
         print(f"File not found: {path}", file=sys.stderr)
         sys.exit(1)
+
+    notes_by_group: dict[tuple[str, str], list[str]] = {}
+    if args.notes_csv:
+        notes_path = Path(args.notes_csv)
+        if not notes_path.exists():
+            print(f"Notes CSV not found: {notes_path}", file=sys.stderr)
+            sys.exit(1)
+        notes_by_group = _load_notes_by_group(notes_path)
 
     rows = []
     with open(path, newline="") as fh:
@@ -131,6 +187,16 @@ def main():
             row["skill_sources_list"] = _parse_sources(row.get("skill_sources", ""))
             row["datetime"] = _extract_datetime(row["file"])
             row["date"] = _extract_date(row["file"])
+
+            # Note-derived signals from observer report; joined by (model, effort)
+            # group and sorted by rollout/observation timestamp.
+            group_key = (_normalize_model(row.get("model", "")), _normalize_effort(row.get("effort", "")))
+            group_notes = notes_by_group.get(group_key, [])
+            notes = group_notes.pop(0) if group_notes else ""
+            row["report_memory_citations"] = bool(
+                REPORT_MEMORY_CITATIONS_RE.search(notes)
+            )
+
             rows.append(row)
 
     total = len(rows)
@@ -180,7 +246,8 @@ def main():
         "This table shows where memory-related content appeared in memory-positive runs. "
         "`system_memory_instruction` marks the separate `## Memory` system prompt. "
         "`system_prompt` marks the same block where a concrete path like `.codex/memories` "
-        "matched."
+        "matched. `report notes` are derived from the observer-written `results.csv` notes "
+        "field, not from the rollout logs."
     )
     memory_source_counts = Counter()
     for r in rows:
@@ -191,6 +258,9 @@ def main():
     for source, count in memory_source_counts.most_common():
         label = MEMORY_SOURCE_LABELS.get(source, source)
         print(f"| {label} | {count} | {round(100 * count / memory_any)}%")
+    if args.notes_csv:
+        report_mem_cits = sum(1 for r in rows if r["memory_positive"] and r["report_memory_citations"])
+        print(f"| report notes — memory citations | {report_mem_cits} | {round(100 * report_mem_cits / memory_any)}%")
 
     # ---- Skill signals -----------------------------------------------------
     print("\n## Workspace Docs-Consumption Skill Signal Breakdown")

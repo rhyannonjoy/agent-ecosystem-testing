@@ -5,7 +5,7 @@ permalink: /docs/open-ai-codex/friction-note-interpreted-desktop
 parent: OpenAI Codex
 ---
 
-# Friction Note: Roadblocks While Refining Methodology
+# Friction Note: Roadblocks While Refining Methodology - Desktop
 
 ---
 

@@ -5,7 +5,7 @@ permalink: /docs/cognition-windsurf-cascade/cascade-test-findings
 parent: Cognition Windsurf Cascade
 ---
 
-# Key Findings for Cascade's Web Search Behavior, Cascade-interpreted
+# Key Findings for Cascade's Web Search Behavior - <br>Cascade-interpreted
 
 ---
 
@@ -44,7 +44,7 @@ parent: Cognition Windsurf Cascade
 | **SPA extraction** | _Lossy by design_: Go Colly static scraper delivers ~25–30% of raw HTML as extracted text; scripts, styles, and metadata discarded before delivery |
 | **Prompt Injection Sensitivity** | _Agent-dependent_: `Claude Sonnet 4.6` triggered safety heuristics twice, refusing tool visibility reporting in one and full prompt execution in another |
 
-## Results Details
+## Results Snapshot
 
 | | |
 | --- | --- |
