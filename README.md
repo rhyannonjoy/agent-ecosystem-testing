@@ -18,10 +18,10 @@ URL-to-response pipeline through layers platforms don't disclose.
 | Platform | Tool | Scripts, Results |
 | -------- | ---- | ------- |
 | Anthropic Claude API | [web fetch](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool) | `claude-api/` |
-| Anysphere Cursor IDE | [`@Web` context attachment](https://cursor.com/docs/agent/prompting) | `cursor-web-fetch/` |
-| Cognition Windsurf<br>Cascade IDE | `read_url_content`,<br>[`@web` directive](https://docs.windsurf.com/windsurf/cascade/web-search) | `windsurf-cascade-web-search/` |
+| Anysphere Cursor | [`@Web` context attachment](https://cursor.com/docs/agent/prompting) | `cursor-web-fetch/` |
+| Cognition Windsurf<br>Cascade | `read_url_content`,<br>[`@web` directive](https://docs.windsurf.com/windsurf/cascade/web-search) | `windsurf-cascade-web-search/` |
 | Google Gemini API | [URL context](https://ai.google.dev/gemini-api/docs/url-context) | `gemini-url-context/` |
-| Microsoft GitHub<br>Copilot Extension | `fetch_webpage` | `copilot-web-content-retrieval/` |
+| Microsoft GitHub<br>Copilot | `fetch_webpage` | `copilot-web-content-retrieval/` |
 | OpenAI APIs<br>Chat Completions,<br>Responses | [web search](https://developers.openai.com/api/docs/guides/tools-web-search) | `open-ai-web-search/` |
 | OpenAI Codex | [web search](https://developers.openai.com/codex/ide/features#web-search) | `open-ai-codex-web-search/` |
 
