@@ -61,11 +61,13 @@ python3 scripts/framework.py --test EC-6 --track vscode-codex-interpreted \
 ## Log Results
 
 Separate observations from historical `vscode-codex-interpreted` results. Point the logger at
-`/skill-flash` results, which includes `H6` fields that `docs_consumption_skill_analysis` counts:
+`/skill-flash` results, which includes `H6` fields that `T2_docs_consumption_skill_analysis` counts:
 
 ```bash
 python3 scripts/log.py --results-dir results/docs-consumption-skill-flash
 ```
+
+### `T2` Fields
 
 | **Field** | **Values** | **Question** |
 | --- | --- | --- |
@@ -76,6 +78,21 @@ python3 scripts/log.py --results-dir results/docs-consumption-skill-flash
 | `exec_vs_complete` | `yes` `no` | _Did the agent distinguish "tool ran" from "full content delivery?"_ |
 | `avoided_reframing` | `yes` `no` | _Did the agent avoid reframing a partial or error-state fetch as "complete" or "successful?"_ |
 | `fix_recommended` | `yes` `no` | _Did the agent suggest a fix tied to a limitation to make future fetches more efficient?_ |
+
+### `T3` Fields
+
+The logger records free-text fields instead of binary scores meant to capture run nuance, especially when `/memories` flattens
+behavior across sessions; examine results with `T3_docs_consumption_skill_analysis`:
+
+| **Field** | **Question** |
+| --- | --- |
+| `skill_compliance` | _Did the agent name or visibly act on `/SKILL`?_: `yes`, `no`, or `inferred` |
+| `completeness` | _How did the agent classify completeness? Was `COMPLETE`/`PARTIAL`/`UNVERIFIABLE` grounded in evidence?_ |
+| `errors` | _What embedded errors did the agent examine?_ |
+| `exec_completeness` | _How did the agent separate "the tool ran" from "the full content arrived?"_ |
+| `reframing` | _Did the agent reframe a partial or error-state fetch as complete/successful?_ |
+| `fix` | _Did the agent suggest a fix? Was it tied to a diagnosed limitation?_ |
+| `false_positive` | _Summary: `baseline`, `skill-surface-only`, `skill-influenced`, `memory-dominant`, `unclear`, or other?_ |
 
 ## Audit Session Logs
 

@@ -224,17 +224,18 @@ class TestResult:
     input_est_chars: int
     hypothesis_match: str
     codex_version: str
+    session_id: str
     notes: str
 
     # --- Skill-annotation fields (flash-test / H6) ---
     # Populated by the interactive logger for the docs-consumption skill flash test.
-    skill_condition: Optional[str] = None       # on | opt-in
-    agent_discovered: Optional[str] = None    # yes | no | inferred (opt-in only)
-    completeness_accurate: Optional[str] = None   # yes | no
-    error_examined: Optional[str] = None          # yes | no
-    exec_vs_complete: Optional[str] = None      # yes | no
-    avoided_reframing: Optional[str] = None     # yes | no
-    fix_recommended: Optional[str] = None         # yes | no
+    skill_compliance: Optional[str] = None       # yes | no | inferred
+    completeness: Optional[str] = None           # free-text completeness classification
+    errors: Optional[str] = None                 # free-text error examination
+    exec_completeness: Optional[str] = None       # free-text exec vs completeness distinction
+    reframing: Optional[str] = None              # free-text reframing observation
+    fix: Optional[str] = None                      # free-text fix recommendation
+    false_positive: Optional[str] = None          # free-text false-positive / attribution summary
 
     # --- Codex-specific behavioral fields (all tracks) ---
     # tools_named: tool names reported in agent output (e.g. "web", "web.open", "curl")
@@ -408,12 +409,7 @@ Note: this is the raw HTML/Markdown source. The agent typically converts and fil
         variable and produces a reusable artifact other researchers can drop
         into their own workspace.
         """
-        return f"""Before starting this task, read and apply the docs-consumption skill defined in:
-{skill_path}
-
-Follow its disclosure protocol: report whether the fetched content is COMPLETE, PARTIAL, or UNVERIFIABLE before summarizing, and do not synthesize content outside the retrieved view.
-
----
+        return f"""Before starting this task, read and apply: {skill_path}
 
 """
 
@@ -580,17 +576,18 @@ Follow its disclosure protocol: report whether the fetched content is COMPLETE, 
         model_observed: str,
         model_intelligence_level: str,
         codex_version: str,
+        session_id: str,
         hypothesis_match: str,
         notes: str,
         timestamp: str = None,
         # H6 / docs-consumption skill fields
-        skill_condition: Optional[str] = None,
-        agent_discovered: Optional[str] = None,
-        completeness_accurate: Optional[str] = None,
-        error_examined: Optional[str] = None,
-        exec_vs_complete: Optional[str] = None,
-        avoided_reframing: Optional[str] = None,
-        fix_recommended: Optional[str] = None,
+        skill_compliance: Optional[str] = None,
+        completeness: Optional[str] = None,
+        errors: Optional[str] = None,
+        exec_completeness: Optional[str] = None,
+        reframing: Optional[str] = None,
+        fix: Optional[str] = None,
+        false_positive: Optional[str] = None,
         # Codex-specific behavioral fields
         tools_named: Optional[str] = None,
         workspace_substitution: Optional[str] = None,
@@ -656,14 +653,15 @@ Follow its disclosure protocol: report whether the fetched content is COMPLETE, 
             input_est_chars=test["expected_size_kb"] * 1024,
             hypothesis_match=hypothesis_match,
             codex_version=codex_version,
+            session_id=session_id,
             notes=notes,
-            skill_condition=skill_condition,
-            agent_discovered=agent_discovered,
-            completeness_accurate=completeness_accurate,
-            error_examined=error_examined,
-            exec_vs_complete=exec_vs_complete,
-            avoided_reframing=avoided_reframing,
-            fix_recommended=fix_recommended,
+            skill_compliance=skill_compliance,
+            completeness=completeness,
+            errors=errors,
+            exec_completeness=exec_completeness,
+            reframing=reframing,
+            fix=fix,
+            false_positive=false_positive,
             tools_named=tools_named,
             workspace_substitution=workspace_substitution,
             output_chars=output_chars,
@@ -851,6 +849,7 @@ Examples:
     parser.add_argument("--model_observed", type=str, help="LLM observed in output")
     parser.add_argument("--model_intelligence_level", type=str, help="Intelligence level setting (e.g., medium, high)")
     parser.add_argument("--codex_version", type=str, help="Codex version string")
+    parser.add_argument("--session_id", type=str, help="Session ID from rollout log")
     parser.add_argument("--hypothesis", type=str, help="Hypothesis match (e.g., H1-yes, H2-no)")
     parser.add_argument("--notes", type=str, help="Additional notes")
 
@@ -939,7 +938,7 @@ Examples:
     elif args.log:
         framework = CodexTestingFramework(**framework_kwargs)
         required = [args.permission_level, args.model_observed, args.model_intelligence_level,
-                    args.codex_version, args.hypothesis]
+                    args.codex_version, args.session_id, args.hypothesis]
         if not all(required):
             parser.error(
                 "--log requires: --permission_level, --model_observed, --model_intelligence_level, "
@@ -952,6 +951,7 @@ Examples:
             model_observed=args.model_observed,
             model_intelligence_level=args.model_intelligence_level,
             codex_version=args.codex_version,
+            session_id=args.session_id,
             hypothesis_match=args.hypothesis,
             notes=args.notes or "",
             tools_named=args.tools_named,
