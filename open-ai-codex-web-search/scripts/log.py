@@ -253,50 +253,44 @@ def collect_h6_fields() -> dict:
     print("  These fields are stored in dedicated CSV columns for the flash analysis.")
     print("  Leave blank to skip. See RUNBOOK.md for scoring guidance.")
 
-    skill_condition = prompt(
-        "Skill condition",
-        choices=["on", "opt-in"],
-        required=False,
-    )
-    agent_discovered = prompt(
-        "Agent discovered skill (opt-in only)",
+    skill_compliance = prompt(
+        "Skill compliance",
         choices=["yes", "no", "inferred"],
         required=False,
     )
-    completeness_accurate = prompt(
-        "Completeness accurate",
-        choices=["yes", "no"],
+    completeness = prompt(
+        "Completeness (how did the agent classify completeness?)",
         required=False,
     )
-    error_examined = prompt(
-        "Error examined",
-        choices=["yes", "no"],
+    errors = prompt(
+        "Errors (what embedded errors did the agent examine?)",
         required=False,
     )
-    exec_vs_complete = prompt(
-        "Execution vs completeness",
-        choices=["yes", "no"],
+    exec_completeness = prompt(
+        "Exec vs completeness (how did the agent separate tool-ran from full content?)",
         required=False,
     )
-    avoided_reframing = prompt(
-        "Avoided reframing",
-        choices=["yes", "no"],
+    reframing = prompt(
+        "Reframing (any reframing of partial/error states as success?)",
         required=False,
     )
-    fix_recommended = prompt(
-        "Fix recommended",
-        choices=["yes", "no"],
+    fix = prompt(
+        "Fix (any fix recommendation and whether tied to a diagnosis?)",
+        required=False,
+    )
+    false_positive = prompt(
+        "False positive (baseline, skill-surface-only, skill-influenced, etc.)",
         required=False,
     )
 
     return {
-        "skill_condition": skill_condition,
-        "agent_discovered": agent_discovered,
-        "completeness_accurate": completeness_accurate,
-        "error_examined": error_examined,
-        "exec_vs_complete": exec_vs_complete,
-        "avoided_reframing": avoided_reframing,
-        "fix_recommended": fix_recommended,
+        "skill_compliance": skill_compliance,
+        "completeness": completeness,
+        "errors": errors,
+        "exec_completeness": exec_completeness,
+        "reframing": reframing,
+        "fix": fix,
+        "false_positive": false_positive,
     }
 
 

@@ -228,13 +228,13 @@ class TestResult:
 
     # --- Skill-annotation fields (flash-test / H6) ---
     # Populated by the interactive logger for the docs-consumption skill flash test.
-    skill_condition: Optional[str] = None       # on | opt-in
-    agent_discovered: Optional[str] = None    # yes | no | inferred (opt-in only)
-    completeness_accurate: Optional[str] = None   # yes | no
-    error_examined: Optional[str] = None          # yes | no
-    exec_vs_complete: Optional[str] = None      # yes | no
-    avoided_reframing: Optional[str] = None     # yes | no
-    fix_recommended: Optional[str] = None         # yes | no
+    skill_compliance: Optional[str] = None       # yes | no | inferred
+    completeness: Optional[str] = None           # free-text completeness classification
+    errors: Optional[str] = None                 # free-text error examination
+    exec_completeness: Optional[str] = None       # free-text exec vs completeness distinction
+    reframing: Optional[str] = None              # free-text reframing observation
+    fix: Optional[str] = None                      # free-text fix recommendation
+    false_positive: Optional[str] = None          # free-text false-positive / attribution summary
 
     # --- Codex-specific behavioral fields (all tracks) ---
     # tools_named: tool names reported in agent output (e.g. "web", "web.open", "curl")
@@ -584,13 +584,13 @@ Follow its disclosure protocol: report whether the fetched content is COMPLETE, 
         notes: str,
         timestamp: str = None,
         # H6 / docs-consumption skill fields
-        skill_condition: Optional[str] = None,
-        agent_discovered: Optional[str] = None,
-        completeness_accurate: Optional[str] = None,
-        error_examined: Optional[str] = None,
-        exec_vs_complete: Optional[str] = None,
-        avoided_reframing: Optional[str] = None,
-        fix_recommended: Optional[str] = None,
+        skill_compliance: Optional[str] = None,
+        completeness: Optional[str] = None,
+        errors: Optional[str] = None,
+        exec_completeness: Optional[str] = None,
+        reframing: Optional[str] = None,
+        fix: Optional[str] = None,
+        false_positive: Optional[str] = None,
         # Codex-specific behavioral fields
         tools_named: Optional[str] = None,
         workspace_substitution: Optional[str] = None,
@@ -657,13 +657,13 @@ Follow its disclosure protocol: report whether the fetched content is COMPLETE, 
             hypothesis_match=hypothesis_match,
             codex_version=codex_version,
             notes=notes,
-            skill_condition=skill_condition,
-            agent_discovered=agent_discovered,
-            completeness_accurate=completeness_accurate,
-            error_examined=error_examined,
-            exec_vs_complete=exec_vs_complete,
-            avoided_reframing=avoided_reframing,
-            fix_recommended=fix_recommended,
+            skill_compliance=skill_compliance,
+            completeness=completeness,
+            errors=errors,
+            exec_completeness=exec_completeness,
+            reframing=reframing,
+            fix=fix,
+            false_positive=false_positive,
             tools_named=tools_named,
             workspace_substitution=workspace_substitution,
             output_chars=output_chars,
