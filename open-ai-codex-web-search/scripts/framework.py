@@ -409,12 +409,7 @@ Note: this is the raw HTML/Markdown source. The agent typically converts and fil
         variable and produces a reusable artifact other researchers can drop
         into their own workspace.
         """
-        return f"""Before starting this task, read and apply the docs-consumption skill defined in:
-{skill_path}
-
-Follow its disclosure protocol: report whether the fetched content is COMPLETE, PARTIAL, or UNVERIFIABLE before summarizing, and do not synthesize content outside the retrieved view.
-
----
+        return f"""Before starting this task, read and apply: {skill_path}
 
 """
 
