@@ -115,6 +115,7 @@ def collect_session_fields() -> dict:
         default="Medium",
     )
     codex_version = prompt("Codex version (e.g. 1.0.0)")
+    session_id = prompt("Session ID (from rollout log filename or session)")
     tools_named = prompt(
         "Tools named in output (web, web.open, curl)",
         required=False,
@@ -132,6 +133,7 @@ def collect_session_fields() -> dict:
         "model_observed": model_observed,
         "model_intelligence_level": model_intelligence_level,
         "codex_version": codex_version,
+        "session_id": session_id,
         "tools_named": tools_named,
         "workspace_substitution": workspace_substitution,
     }
@@ -362,6 +364,7 @@ def main():
             model_observed=session["model_observed"],
             model_intelligence_level=session["model_intelligence_level"],
             codex_version=session["codex_version"],
+            session_id=session["session_id"],
             tools_named=session["tools_named"],
             workspace_substitution=session["workspace_substitution"],
             hypothesis_match=closing["hypothesis_match"],

@@ -224,6 +224,7 @@ class TestResult:
     input_est_chars: int
     hypothesis_match: str
     codex_version: str
+    session_id: str
     notes: str
 
     # --- Skill-annotation fields (flash-test / H6) ---
@@ -580,6 +581,7 @@ Follow its disclosure protocol: report whether the fetched content is COMPLETE, 
         model_observed: str,
         model_intelligence_level: str,
         codex_version: str,
+        session_id: str,
         hypothesis_match: str,
         notes: str,
         timestamp: str = None,
@@ -656,6 +658,7 @@ Follow its disclosure protocol: report whether the fetched content is COMPLETE, 
             input_est_chars=test["expected_size_kb"] * 1024,
             hypothesis_match=hypothesis_match,
             codex_version=codex_version,
+            session_id=session_id,
             notes=notes,
             skill_compliance=skill_compliance,
             completeness=completeness,
@@ -851,6 +854,7 @@ Examples:
     parser.add_argument("--model_observed", type=str, help="LLM observed in output")
     parser.add_argument("--model_intelligence_level", type=str, help="Intelligence level setting (e.g., medium, high)")
     parser.add_argument("--codex_version", type=str, help="Codex version string")
+    parser.add_argument("--session_id", type=str, help="Session ID from rollout log")
     parser.add_argument("--hypothesis", type=str, help="Hypothesis match (e.g., H1-yes, H2-no)")
     parser.add_argument("--notes", type=str, help="Additional notes")
 
@@ -939,7 +943,7 @@ Examples:
     elif args.log:
         framework = CodexTestingFramework(**framework_kwargs)
         required = [args.permission_level, args.model_observed, args.model_intelligence_level,
-                    args.codex_version, args.hypothesis]
+                    args.codex_version, args.session_id, args.hypothesis]
         if not all(required):
             parser.error(
                 "--log requires: --permission_level, --model_observed, --model_intelligence_level, "
@@ -952,6 +956,7 @@ Examples:
             model_observed=args.model_observed,
             model_intelligence_level=args.model_intelligence_level,
             codex_version=args.codex_version,
+            session_id=args.session_id,
             hypothesis_match=args.hypothesis,
             notes=args.notes or "",
             tools_named=args.tools_named,

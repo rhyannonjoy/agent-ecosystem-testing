@@ -61,8 +61,7 @@ python3 scripts/framework.py --test EC-6 --track vscode-codex-interpreted \
 ## Log Results
 
 Separate observations from historical `vscode-codex-interpreted` results. Point the logger at
-`/skill-flash` results, which includes `H6` fields that `docs_consumption_skill_analysis` counts
-for `T2`:
+`/skill-flash` results, which includes `H6` fields that `T2_docs_consumption_skill_analysis` counts:
 
 ```bash
 python3 scripts/log.py --results-dir results/docs-consumption-skill-flash
@@ -83,7 +82,7 @@ python3 scripts/log.py --results-dir results/docs-consumption-skill-flash
 ### `T3` Fields
 
 The logger records free-text fields instead of binary scores meant to capture run nuance, especially when `/memories` flattens
-behavior across sessions:
+behavior across sessions; examine results with `T3_docs_consumption_skill_analysis`:
 
 | **Field** | **Question** |
 | --- | --- |
