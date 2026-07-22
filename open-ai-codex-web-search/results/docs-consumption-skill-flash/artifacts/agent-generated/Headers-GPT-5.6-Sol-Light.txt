@@ -1,0 +1,28 @@
+GPT-5.6 Sol Light, 17th run
+Extension v26.715.31925
+Agent originally wrote-saved as /private/tmp/ec6-headers.txt (872 bytes)
+
+HTTP/2 200 
+cache-control: max-age=300
+content-security-policy: default-src 'none'; style-src 'unsafe-inline'; sandbox
+content-type: text/plain; charset=utf-8
+etag: "41a7878b9c1f20b31740904fe0da2557088f5bf7834d7a3fca8e7c684770165e"
+strict-transport-security: max-age=31536000
+x-content-type-options: nosniff
+x-frame-options: deny
+x-xss-protection: 1; mode=block
+x-github-request-id: 6FE0:32DD51:155789:19A732:6A611DF0
+accept-ranges: bytes
+date: Wed, 22 Jul 2026 19:45:52 GMT
+via: 1.1 varnish
+x-served-by: cache-bfi-krnt7300044-BFI
+x-cache: MISS
+x-cache-hits: 0
+x-timer: S1784749552.084607,VS0,VE145
+vary: Authorization,Accept-Encoding
+access-control-allow-origin: *
+cross-origin-resource-policy: cross-origin
+x-fastly-request-id: 9f5bc417e43d85eaea98853c3b66dfef2f142c2c
+expires: Wed, 22 Jul 2026 19:50:52 GMT
+source-age: 0
+content-length: 91877
