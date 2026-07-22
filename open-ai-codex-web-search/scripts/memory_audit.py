@@ -443,6 +443,7 @@ def main():
             "rollout_summaries_dir",
             "single_url_retrieval_skill",
             "memory_skills_dir",
+            "memory_mentioned",
             "memory_sources",
             "docs_consumption_loaded",
             "docs_consumption_path",
