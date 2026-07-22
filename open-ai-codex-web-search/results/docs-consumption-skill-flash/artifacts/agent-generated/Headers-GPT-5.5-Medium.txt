@@ -1,0 +1,28 @@
+GPT-5.5 Medium, 10th run
+Extension v26.715.61943
+Agent originally saved as /private/tmp/ec6_headers.txt (870 bytes)
+
+HTTP/2 200 
+cache-control: max-age=300
+content-security-policy: default-src 'none'; style-src 'unsafe-inline'; sandbox
+content-type: text/plain; charset=utf-8
+etag: "41a7878b9c1f20b31740904fe0da2557088f5bf7834d7a3fca8e7c684770165e"
+strict-transport-security: max-age=31536000
+x-content-type-options: nosniff
+x-frame-options: deny
+x-xss-protection: 1; mode=block
+x-github-request-id: F912:1C75B5:103577:13E262:6A603BF4
+accept-ranges: bytes
+date: Wed, 22 Jul 2026 03:52:25 GMT
+via: 1.1 varnish
+x-served-by: cache-bfi-krnt7300020-BFI
+x-cache: HIT
+x-cache-hits: 0
+x-timer: S1784692346.787662,VS0,VE91
+vary: Authorization,Accept-Encoding
+access-control-allow-origin: *
+cross-origin-resource-policy: cross-origin
+x-fastly-request-id: 0a8f298f12ae1ec6ffc31cc7a34415590ae92418
+expires: Wed, 22 Jul 2026 03:57:25 GMT
+source-age: 0
+content-length: 91877
