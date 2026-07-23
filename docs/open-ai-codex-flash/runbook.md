@@ -38,9 +38,12 @@ and exclude `/memories` references.
 | `skill-off` | Existing `EC-6` `T2` rows in<br>`results/vscode-codex-interpreted/results.csv` | 13 runs |
 | `skill-opt-in` | New `EC-6` `T2` runs, `/SKILL` present,<br>but not mentioned in prompt | 20+ runs* |
 | `skill-on` +<br>`memory available` | New `EC-6` `T2` runs, `/SKILL` explicitly activated in prompt,<br>`.codex/memories` present | 20+ runs |
-| `skill-on` +<br>`memory suppressed` | New `EC-6` `T2` runs, `/SKILL` explicitly activated in prompt,<br>`.codex/memories` removed/renamed | 20+ runs |
+| `skill-on` +<br>`memory suppressed` | New `EC-6` `T2` runs, `/SKILL` explicitly activated in prompt,<br>`.codex/memories` not enabled | 20+ runs |
 
 > _*Number of runs depends on LLM-reasoning availability for Codex Pro plans_
+>
+> _**CLI 0.145.x:** Codex no longer injects `## Memory` instruction by default, even when
+> `.codex/memories/` exists; `skill-on` runs effectively `memory suppressed` unless enabled_
 
 ---
 
@@ -138,7 +141,9 @@ python3 scripts/memory_analyzer.py \
 | `system_memory_instruction` | System prompt included the `## Memory` directive telling the agent to use `/memories` |
 | `memory_dot_codex_path`, `memory_md_file`, `raw_memories_file`, `memory_summary_file`, `rollout_summaries_dir`, `memory_skills_dir` | `/memories` paths or files present in session rollout logs |
 | `single_url_retrieval_skill` | The competing `.codex/memories/skills/single-url-retrieval-measurement/SKILL` referenced |
-| `memory_mentioned` | Agent used `/memories`-related language in commentary, reasoning, or `final_answer` |
+| `memory_mentioned` | Agent used `/memories`-related language in commentary,<br>reasoning, or `final_answer` |
+| `memory_citation_field_present` | Codex `agent_message` schema includes `memory_citation`,<br>even when no memory content injected |
+| `memory_citation_used` | Agent includes explicit memory reference,<br>`memory_citation` not `null` |
 | `memory_sources` | Signal location: `system_instruction`, `## Memory` header, `system`, same block where a path matched, `final_answer`, `tool_output`, `commentary`, `reasoning` |
 | `docs_consumption_loaded`, `docs_consumption_name_mentioned`, `docs_consumption_path_mentioned`, `protocol_prefix`, `skill_language` | Same `/SKILL` signals as `rollout_audit` |
 | `skill_sources` | `/SKILL` signal location: `system_loaded`, `final_answer`, `commentary`, `tool_output`, `reasoning` |

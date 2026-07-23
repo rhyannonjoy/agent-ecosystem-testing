@@ -205,6 +205,11 @@ def audit_file(path: Path) -> dict:
         "single_url_retrieval_skill": "false",
         "memory_skills_dir": "false",
 
+        # Memory citation field (schema-level signal; present even when memory
+        # content is not injected)
+        "memory_citation_field_present": "false",
+        "memory_citation_used": "false",
+
         # Memory sources
         "memory_sources": [],
 
@@ -248,6 +253,12 @@ def audit_file(path: Path) -> dict:
                     r["commentary_texts"].append(msg)
                 elif phase == "final_answer":
                     r["final_answer_texts"].append(msg)
+                # memory_citation is a schema field that appears whenever Codex
+                # is memory-aware, even if no memory was actually cited.
+                if "memory_citation" in p:
+                    r["memory_citation_field_present"] = "true"
+                    if p.get("memory_citation") is not None:
+                        r["memory_citation_used"] = "true"
 
         elif rtype == "response_item":
             it = p.get("type")
@@ -404,6 +415,10 @@ def main():
         memory_bits = [k for k in MEMORY_PATTERNS if r[k] == "true"]
         if r["system_memory_instruction"] == "true":
             memory_bits.insert(0, "system_memory_instruction")
+        if r["memory_citation_field_present"] == "true":
+            memory_bits.append("memory_citation_field_present")
+        if r["memory_citation_used"] == "true":
+            memory_bits.append("memory_citation_used")
         if memory_bits:
             print(f"  memory signals: {', '.join(memory_bits)}")
             print(f"  memory sources: {', '.join(r['memory_sources'])}")
@@ -444,6 +459,8 @@ def main():
             "single_url_retrieval_skill",
             "memory_skills_dir",
             "memory_mentioned",
+            "memory_citation_field_present",
+            "memory_citation_used",
             "memory_sources",
             "docs_consumption_loaded",
             "docs_consumption_path",
