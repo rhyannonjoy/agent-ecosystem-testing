@@ -29,6 +29,7 @@ CATEGORIES = (
     "runtime_error",
     "ui_truncation",
     "escalation_recovered",
+    "capability_abandonment",
     "unknown_error",
     "ok",
 )
@@ -45,6 +46,7 @@ SEVERITY = {
     "cache_miss": "warning",
     "ui_truncation": "warning",
     "escalation_recovered": "warning",
+    "capability_abandonment": "warning",
     "ok": "info",
 }
 
@@ -204,13 +206,73 @@ def _flatten_output(output: str | list | dict | None) -> str:
     return str(output)
 
 
-def classify_output(output: str | list | dict | None, tool_name: str | None = None) -> FailureClass:
+# Regexes for capability-abandonment probes. These map the command text to a
+# human-readable capability name and an output shape that indicates the
+# capability is unavailable.
+_PYTHON_PROBE_RE = re.compile(
+    r"find_spec\s*\(\s*['\"](?P<name>[^'\"\s]+)['\"]\s*\)",
+    re.I,
+)
+_SHELL_PROBE_RE = re.compile(
+    r"(?:command\s+-v|which)\s+(?P<name>[\w\-:]+)",
+    re.I,
+)
+
+
+def _classify_capability_abandonment(
+    text: str, command: str | None
+) -> FailureClass | None:
+    """Detect probes for preferred capabilities that return "not available".
+
+    The agent often checks whether a tool or library exists before using it.
+    When the probe exits successfully but reports the capability is missing, the
+    agent silently falls back to a less accurate method (e.g., regex token count
+    when tiktoken is absent, curl when Browser is unavailable). These are not
+    hard errors, but they are behavioral findings worth flagging.
+    """
+    if not command:
+        return None
+
+    # Python library probe: importlib.util.find_spec('X') → False
+    m = _PYTHON_PROBE_RE.search(command)
+    if m:
+        name = m.group("name")
+        if re.search(r"Output:\s*\n?\s*False\s*$", text, re.I | re.S):
+            return FailureClass(
+                category="capability_abandonment",
+                detail=f"{name} unavailable; agent used fallback",
+                severity=SEVERITY["capability_abandonment"],
+            )
+
+    # Shell tool probe: command -v X or which X → empty / not found
+    m = _SHELL_PROBE_RE.search(command)
+    if m:
+        name = m.group("name")
+        after = re.split(r"Output\s*:", text, flags=re.I | re.S)[-1].strip()
+        if not after or re.search(r"\bnot\s+found\b", after, re.I):
+            return FailureClass(
+                category="capability_abandonment",
+                detail=f"{name} unavailable; agent used fallback",
+                severity=SEVERITY["capability_abandonment"],
+            )
+
+    return None
+
+
+def classify_output(
+    output: str | list | dict | None,
+    tool_name: str | None = None,
+    command: str | None = None,
+) -> FailureClass:
     """Classify a raw tool output string.
 
     Args:
         output: The raw text returned by a tool (e.g. `function_call_output`).
                 May be a string, a list of content blocks, or a single block dict.
         tool_name: Optional tool name for future disambiguation; currently unused.
+        command: Optional shell command or tool input that produced the output.
+                 Used to correlate benign-looking outputs (e.g. "False") with the
+                 command that generated them.
 
     Returns:
         A `FailureClass` describing the first matching failure mode, or `ok`.
@@ -219,6 +281,12 @@ def classify_output(output: str | list | dict | None, tool_name: str | None = No
     text = _flatten_output(output).strip()
     if not text:
         return FailureClass.ok()
+
+    # Capability abandonment: the agent probes for a preferred tool or library,
+    # finds it missing, and silently falls back to a less capable method.
+    ca = _classify_capability_abandonment(text, command)
+    if ca:
+        return ca
 
     for category, pattern in OUTPUT_PATTERNS:
         m = pattern.search(text)
