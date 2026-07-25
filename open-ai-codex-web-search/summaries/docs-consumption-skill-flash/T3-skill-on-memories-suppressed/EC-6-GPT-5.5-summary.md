@@ -114,10 +114,9 @@ underscore difference, while `Extra High` introduces a new hyphenated variant,
 `ec-6-spec.md`, that doesn't collide with the other three but adds yet another naming
 inconsistency to the batch.
 
-4. **No run invokes `web` at all**, a departure from the
-`GPT-5.4` sub-track, where three of four runs called `web` and surfaced a genuine windowed
-cutoff around `L54`. Every `GPT-5.5` run bypasses the `web` pipeline entirely and relies on
-`curl` alone, so that cutoff pattern never appears here.
+4. **No run invokes `web` at all**, a departure from the `GPT-5.4` sub-track, where three of four
+runs called `web` and surfaced a genuine windowed cutoff around `L54`. Every `GPT-5.5` run bypasses
+the `web` pipeline entirely and relies on `curl` alone, so that cutoff pattern never appears here.
 
 5. **Duration scales cleanly with reasoning level in this sub-track**, unlike the `GPT-5.4`
 sub-track's inversion between `High` and `Extra High`. `Light` finishes in `46` seconds,
