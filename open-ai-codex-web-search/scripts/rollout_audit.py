@@ -576,10 +576,10 @@ def audit_file(path: Path) -> dict:
                     for block in out_blocks:
                         if isinstance(block, dict):
                             out_text += block.get("text", "")
-                fc = classify_output(out_text)
+                call_id = p.get("call_id")
+                tool_name, cmd = call_id_to_cmd.get(call_id, ("?", None))
+                fc = classify_output(out_text, command=cmd)
                 if fc.category != "ok":
-                    call_id = p.get("call_id")
-                    tool_name, cmd = call_id_to_cmd.get(call_id, ("?", None))
                     turn_id = (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
                     current_turn_failures.append(FailureRecord(
                         failure_class=fc,
@@ -596,10 +596,10 @@ def audit_file(path: Path) -> dict:
                     ))
             elif it == "function_call_output":
                 out = p.get("output") or ""
-                fc = classify_output(out)
+                call_id = p.get("call_id")
+                tool_name, cmd = call_id_to_cmd.get(call_id, ("?", None))
+                fc = classify_output(out, command=cmd)
                 if fc.category != "ok":
-                    call_id = p.get("call_id")
-                    tool_name, cmd = call_id_to_cmd.get(call_id, ("?", None))
                     turn_id = (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
                     current_turn_failures.append(FailureRecord(
                         failure_class=fc,
