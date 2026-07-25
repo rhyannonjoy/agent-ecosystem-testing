@@ -205,6 +205,11 @@ def audit_file(path: Path) -> dict:
         "single_url_retrieval_skill": "false",
         "memory_skills_dir": "false",
 
+        # Memory citation field (schema-level signal; present even when memory
+        # content is not injected)
+        "memory_citation_field_present": "false",
+        "memory_citation_used": "false",
+
         # Memory sources
         "memory_sources": [],
 
@@ -248,6 +253,12 @@ def audit_file(path: Path) -> dict:
                     r["commentary_texts"].append(msg)
                 elif phase == "final_answer":
                     r["final_answer_texts"].append(msg)
+                # memory_citation is a schema field that appears whenever Codex
+                # is memory-aware, even if no memory was actually cited.
+                if "memory_citation" in p:
+                    r["memory_citation_field_present"] = "true"
+                    if p.get("memory_citation") is not None:
+                        r["memory_citation_used"] = "true"
 
         elif rtype == "response_item":
             it = p.get("type")
@@ -369,6 +380,31 @@ def audit_file(path: Path) -> dict:
     r["memory_sources"] = sorted(set(memory_sources))
     r["skill_sources"] = sorted(set(skill_sources))
 
+    # Collapse the two boolean citation flags into a single, audit-friendly
+    # status so the terminal output can immediately be compared with the
+    # self-reported memory sources.
+    if r["memory_citation_used"] == "true":
+        r["memory_citation_status"] = "used"
+    elif r["memory_citation_field_present"] == "true":
+        r["memory_citation_status"] = "null"
+    else:
+        r["memory_citation_status"] = "absent"
+
+    # Flag when the rollout's memory_citation field disagrees with the sources
+    # the agent actually produced in its own text.
+    has_sources = bool(r["memory_sources"])
+    citation_used = r["memory_citation_status"] == "used"
+    if citation_used and not has_sources:
+        r["memory_citation_source_discrepancy"] = (
+            "memory_citation used but no memory sources detected"
+        )
+    elif has_sources and not citation_used:
+        r["memory_citation_source_discrepancy"] = (
+            f"memory sources detected but memory_citation is {r['memory_citation_status']}"
+        )
+    else:
+        r["memory_citation_source_discrepancy"] = ""
+
     return r
 
 
@@ -404,9 +440,14 @@ def main():
         memory_bits = [k for k in MEMORY_PATTERNS if r[k] == "true"]
         if r["system_memory_instruction"] == "true":
             memory_bits.insert(0, "system_memory_instruction")
-        if memory_bits:
-            print(f"  memory signals: {', '.join(memory_bits)}")
-            print(f"  memory sources: {', '.join(r['memory_sources'])}")
+        if r["memory_citation_field_present"] == "true" or r["memory_citation_used"] == "true":
+            memory_bits.append(f"memory_citation: {r['memory_citation_status']}")
+
+        if memory_bits or r["memory_sources"] or r["memory_citation_source_discrepancy"]:
+            print(f"  memory signals: {', '.join(memory_bits) if memory_bits else 'none'}")
+            print(f"  memory sources: {', '.join(r['memory_sources']) if r['memory_sources'] else 'none'}")
+            if r["memory_citation_source_discrepancy"]:
+                print(f"  discrepancy: {r['memory_citation_source_discrepancy']}")
         else:
             print("  memory signals: none")
 
@@ -423,7 +464,7 @@ def main():
             skill_bits.append(f"skill-language ({r['skill_language_source']})")
         if skill_bits:
             print(f"  skill signals: {' | '.join(skill_bits)}")
-            print(f"  skill sources: {', '.join(r['skill_sources'])}")
+            print(f"  skill sources: {', '.join(r['skill_sources']) if r['skill_sources'] else 'none'}")
         else:
             print("  skill signals: none")
 
@@ -443,6 +484,9 @@ def main():
             "rollout_summaries_dir",
             "single_url_retrieval_skill",
             "memory_skills_dir",
+            "memory_mentioned",
+            "memory_citation_status",
+            "memory_citation_source_discrepancy",
             "memory_sources",
             "docs_consumption_loaded",
             "docs_consumption_path",
