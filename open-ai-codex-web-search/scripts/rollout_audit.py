@@ -408,6 +408,8 @@ def audit_file(path: Path) -> dict:
     first_ts = last_ts = None
     last_tokens = None
     current_turn_failures: list[FailureRecord] = []
+    web_search_end_count = 0          # web calls reported via the newer event_msg shape
+    legacy_web_search_call_count = 0  # legacy response_item shape without a matching end event
 
     for i, rec in enumerate(records):
         line_no = line_no_by_index.get(i)
@@ -473,6 +475,10 @@ def audit_file(path: Path) -> dict:
                     r["duration_s"] = round(p["duration_ms"] / 1000, 1)
                 if p.get("time_to_first_token_ms") is not None:
                     r["ttft_s"] = round(p["time_to_first_token_ms"] / 1000, 1)
+            elif pt == "web_search_end":
+                # Newer Codex CLI (e.g. GPT-5.6-Luna) reports web calls via
+                # event_msg instead of response_item.web_search_call.
+                web_search_end_count += 1
             elif pt == "token_count":
                 info = p.get("info") or {}
                 total = (info.get("total_token_usage") or {}).get("total_tokens")
@@ -532,7 +538,10 @@ def audit_file(path: Path) -> dict:
             elif it == "reasoning":
                 r["reasoning_blocks"] += 1
             elif it == "web_search_call":
-                r["web_search_calls"] += 1
+                # Legacy shape used by GPT-5.4 Mini through 5.5. We count these
+                # only when the newer web_search_end event is absent so we do
+                # not double-count in logs that contain both shapes.
+                legacy_web_search_call_count += 1
             elif it == "function_call":
                 r["function_calls"] += 1
                 name = p.get("name", "?")
@@ -627,6 +636,11 @@ def audit_file(path: Path) -> dict:
     r["tokens_total"] = last_tokens
     if first_ts and last_ts:
         r["wallclock_s"] = round((last_ts - first_ts).total_seconds(), 1)
+
+    # Canonical web-call count: newer Codex CLI emits event_msg.web_search_end;
+    # older CLI emits response_item.web_search_call. Use the end events when
+    # present so we don't double-count the legacy shape in the same log.
+    r["web_search_calls"] = web_search_end_count if web_search_end_count else legacy_web_search_call_count
 
     # ---- Skill loading ----------------------------------------------------
     skills = parse_skills(records)
