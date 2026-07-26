@@ -64,10 +64,11 @@ SKILL_LINE_RE = re.compile(
 )
 
 # The workspace docs-consumption skill requires the report to be prefaced with
-# COMPLETE, PARTIAL, or UNVERIFIABLE.
+# COMPLETE, PARTIAL, or UNVERIFIABLE, optionally followed by a colon, dash, or
+# newline (some rollouts use an em dash after the prefix).
 PROTOCOL_PREFIX_RE = re.compile(
     r"^\s*(?:\*\*|\*|__|_|#+\s*)?(COMPLETE|PARTIAL|UNVERIFIABLE)"
-    r"(?:\*\*|\*|__|_)?\s*(?::|\n|$)",
+    r"(?:\*\*|\*|__|_)?\s*(?::|—|–|-|\n|$)",
     re.IGNORECASE,
 )
 
