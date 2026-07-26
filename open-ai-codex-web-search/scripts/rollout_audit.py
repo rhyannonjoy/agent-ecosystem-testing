@@ -32,7 +32,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
-from failure_classifier import FailureClass, classify_output, summarize
+from failure_classifier import FailureClass, classify_output, classify_output_all, summarize
 
 
 def parse_ts(ts: str) -> datetime:
@@ -540,8 +540,7 @@ def audit_file(path: Path) -> dict:
                 r["context_window"] = info.get("model_context_window") or r["context_window"]
             elif pt == "exec_command_end":
                 out = p.get("output") or ""
-                fc = classify_output(out)
-                if fc.category != "ok":
+                for fc in classify_output_all(out):
                     turn_id = (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
                     current_turn_failures.append(FailureRecord(
                         failure_class=fc,
@@ -565,8 +564,7 @@ def audit_file(path: Path) -> dict:
                 for block in ok.get("content", []) or []:
                     if isinstance(block, dict) and block.get("type") == "text":
                         text += block.get("text", "")
-                fc = classify_output(text, tool_name=tool_name)
-                if fc.category != "ok":
+                for fc in classify_output_all(text, tool_name=tool_name):
                     turn_id = (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
                     current_turn_failures.append(FailureRecord(
                         failure_class=fc,
@@ -658,8 +656,7 @@ def audit_file(path: Path) -> dict:
                             out_text += block.get("text", "")
                 call_id = p.get("call_id")
                 tool_name, cmd = call_id_to_cmd.get(call_id, ("?", None))
-                fc = classify_output(out_text, command=cmd)
-                if fc.category != "ok":
+                for fc in classify_output_all(out_text, command=cmd):
                     turn_id = (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
                     current_turn_failures.append(FailureRecord(
                         failure_class=fc,
@@ -678,8 +675,7 @@ def audit_file(path: Path) -> dict:
                 out = p.get("output") or ""
                 call_id = p.get("call_id")
                 tool_name, cmd = call_id_to_cmd.get(call_id, ("?", None))
-                fc = classify_output(out, command=cmd)
-                if fc.category != "ok":
+                for fc in classify_output_all(out, command=cmd):
                     turn_id = (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
                     current_turn_failures.append(FailureRecord(
                         failure_class=fc,
