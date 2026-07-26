@@ -30,6 +30,7 @@ CATEGORIES = (
     "ui_truncation",
     "escalation_recovered",
     "capability_abandonment",
+    "escalation_abandonment",
     "unknown_error",
     "ok",
 )
@@ -47,6 +48,7 @@ SEVERITY = {
     "ui_truncation": "warning",
     "escalation_recovered": "warning",
     "capability_abandonment": "warning",
+    "escalation_abandonment": "warning",
     "ok": "info",
 }
 
@@ -77,6 +79,8 @@ OUTPUT_PATTERNS: tuple[tuple[str, re.Pattern], ...] = (
     ),
     ("command_not_found", re.compile(r"\bcommand\s+not\s+found\b", re.I)),
     ("command_not_found", re.compile(r"\bNo\s+such\s+file\s+or\s+directory\b", re.I)),
+    # Shell runtime errors the agent often does not mention in its own summary.
+    ("runtime_error", re.compile(r"\bread[- ]only\s+variable\b", re.I)),
     ("runtime_error", re.compile(r"Traceback\s+\(most\s+recent\s+call\s+last\)", re.I)),
     ("runtime_error", re.compile(r"HTTP\s+Error\s+\d{3}", re.I)),
     ("runtime_error", re.compile(r"urllib\.error\.HTTPError", re.I)),
@@ -277,23 +281,56 @@ def classify_output(
     Returns:
         A `FailureClass` describing the first matching failure mode, or `ok`.
     """
+    classes = classify_output_all(output, tool_name=tool_name, command=command)
+    if not classes:
+        return FailureClass.ok()
+    return classes[0]
+
+
+def classify_output_all(
+    output: str | list | dict | None,
+    tool_name: str | None = None,
+    command: str | None = None,
+) -> list[FailureClass]:
+    """Classify a raw tool output string and return all matching failure modes.
+
+    A single tool output can contain more than one failure signature (for
+    example, a DNS-blocked curl followed by a zsh read-only variable error).
+    This helper returns every distinct failure so callers can surface compound
+    failures rather than stopping at the first match.
+
+    Args:
+        output: The raw text returned by a tool.
+        tool_name: Optional tool name for future disambiguation; currently unused.
+        command: Optional shell command or tool input that produced the output.
+
+    Returns:
+        A list of `FailureClass` instances, one per distinct matched failure.
+        Empty list means the output is classified as `ok`.
+    """
     _ = tool_name  # reserved for future disambiguation
     text = _flatten_output(output).strip()
     if not text:
-        return FailureClass.ok()
+        return []
+
+    found: list[FailureClass] = []
 
     # Capability abandonment: the agent probes for a preferred tool or library,
     # finds it missing, and silently falls back to a less capable method.
     ca = _classify_capability_abandonment(text, command)
     if ca:
-        return ca
+        found.append(ca)
 
+    seen_match_starts: set[int] = set()
     for category, pattern in OUTPUT_PATTERNS:
-        m = pattern.search(text)
-        if m:
+        for m in pattern.finditer(text):
+            # Skip overlapping matches from the same failure signature.
+            if m.start() in seen_match_starts:
+                continue
+            seen_match_starts.add(m.start())
+
             detail = m.group(0)
             if category == "fetch_failed":
-                # Surface the curl exit number, if present.
                 cm = re.search(r"curl\s*:\s*\(\s*(\d+)\s*\)", text, re.I)
                 if cm:
                     detail = f"curl exit {cm.group(1)}"
@@ -303,36 +340,38 @@ def classify_output(
             elif category == "dns_blocked":
                 host_m = re.search(r"Could\s+not\s+resolve\s+host\s*:\s*([\w.-]+)", text, re.I)
                 detail = f"DNS blocked: {host_m.group(1)}" if host_m else "DNS blocked"
-            return FailureClass(
-                category=category,
-                detail=detail,
-                severity=SEVERITY[category],
+            found.append(
+                FailureClass(
+                    category=category,
+                    detail=detail,
+                    severity=SEVERITY[category],
+                )
             )
 
-    # Codex sandbox sometimes silently blocks network commands: the process
-    # exits 0 but the body is completely empty. Detect that so recovery via
-    # `sandbox_permissions: require_escalated` is still counted as a failure.
+    # Codex sandbox sometimes silently blocks network commands.
     if _looks_like_sandbox_empty_response(text):
-        return FailureClass(
-            category="sandbox_empty_response",
-            detail="sandbox returned empty body with exit code 0",
-            severity=SEVERITY["sandbox_empty_response"],
+        found.append(
+            FailureClass(
+                category="sandbox_empty_response",
+                detail="sandbox returned empty body with exit code 0",
+                severity=SEVERITY["sandbox_empty_response"],
+            )
         )
 
-    # If nothing else matched but we have a nonzero shell exit with actual error
-    # content, treat it as an unknown error. Empty-output nonzero exits (e.g.
-    # `grep` returning 1) are intentionally kept as `ok` to avoid false positives.
+    # Unrecognized nonzero shell exit with actual error content.
     m = NONZERO_EXIT_RE.search(text)
     if m:
         after = text.split("Output:", 1)[-1].strip()
         if len(after) > 6:
-            return FailureClass(
-                category="unknown_error",
-                detail=_extract_unknown_error_detail(text, m.group(1)),
-                severity="error",
+            found.append(
+                FailureClass(
+                    category="unknown_error",
+                    detail=_extract_unknown_error_detail(text, m.group(1)),
+                    severity="error",
+                )
             )
 
-    return FailureClass.ok()
+    return found
 
 
 def recovered(fc: FailureClass) -> FailureClass:
