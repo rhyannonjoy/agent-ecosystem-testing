@@ -83,6 +83,30 @@ SKILL_LINE_RE = re.compile(
 # newer tool shape is used.
 CUSTOM_CMD_RE = re.compile(r'cmd\s*:\s*("(?:\\.|[^"\\])*")', re.S)
 
+# Codex represents an escalation request differently across CLI versions:
+# - legacy function_call arguments JSON: {"sandbox_permissions": "require_escalated"}
+# - newer custom_tool_call JavaScript input: tools.exec_command({..., sandbox_permissions: "require_escalated"})
+_ESCALATION_RE = re.compile(r'sandbox_?permissions\s*:\s*["\']require_escalated["\']', re.I)
+_LOGIN_ESCALATION_RE = re.compile(r'"?login"?\s*:\s*true', re.I)
+
+
+def _is_escalated_request(args: dict | str | None) -> bool:
+    """Return True if a tool call explicitly requests sandbox escalation."""
+    if not args:
+        return False
+    if isinstance(args, dict):
+        if args.get("sandbox_permissions") == "require_escalated":
+            return True
+        if args.get("login") is True:
+            return True
+        return False
+    text = args
+    if _ESCALATION_RE.search(text):
+        return True
+    if _LOGIN_ESCALATION_RE.search(text):
+        return True
+    return False
+
 
 def _extract_custom_tool_commands(input_text: str | None) -> list[str]:
     """Return the cmd strings from a custom_tool_call JavaScript input."""
@@ -410,6 +434,8 @@ def audit_file(path: Path) -> dict:
     current_turn_failures: list[FailureRecord] = []
     web_search_end_count = 0          # web calls reported via the newer event_msg shape
     legacy_web_search_call_count = 0  # legacy response_item shape without a matching end event
+    current_turn_id: str | None = None
+    escalated_call_line_nos: dict[str, list[int]] = {}  # turn_id -> line numbers of escalation requests
 
     for i, rec in enumerate(records):
         line_no = line_no_by_index.get(i)
@@ -435,6 +461,7 @@ def audit_file(path: Path) -> dict:
             if pt == "task_started":
                 r["turns"] += 1
                 current_turn_failures = []
+                current_turn_id = p.get("turn_id")
             elif pt == "user_message":
                 r["user_messages"] += 1
                 msg = p.get("message") or ""
@@ -470,6 +497,32 @@ def audit_file(path: Path) -> dict:
                         record.recovered = True
                     r["failure_classes"].extend(current_turn_failures)
                     r["recovered_failure_count"] += len(current_turn_failures)
+                    # Detect network failures that were never followed by an
+                    # explicit sandbox escalation request in the same turn.
+                    turn_id = current_turn_id or p.get("turn_id")
+                    escalated_lines = escalated_call_line_nos.get(turn_id or "", [])
+                    eligible_categories = {"dns_blocked", "fetch_failed", "sandbox_empty_response"}
+                    for record in current_turn_failures:
+                        if record.failure_class.category in eligible_categories:
+                            if not any(line > record.line_no for line in escalated_lines):
+                                abandoned = FailureRecord(
+                                    failure_class=FailureClass(
+                                        category="escalation_abandonment",
+                                        detail=f"{record.failure_class.detail}; no require_escalated retry",
+                                        severity="warning",
+                                    ),
+                                    line_no=record.line_no,
+                                    call_id=record.call_id,
+                                    tool_name=record.tool_name,
+                                    command=record.command,
+                                    output_snippet=record.output_snippet,
+                                    chat_before=record.chat_before,
+                                    chat_after=record.chat_after,
+                                    chat_nearest=record.chat_nearest,
+                                    turn_id=record.turn_id,
+                                    recovered=False,
+                                )
+                                r["failure_classes"].append(abandoned)
                     current_turn_failures = []
                 if p.get("duration_ms") is not None:
                     r["duration_s"] = round(p["duration_ms"] / 1000, 1)
@@ -550,6 +603,7 @@ def audit_file(path: Path) -> dict:
                 r["tools"][tool_name] += 1
                 call_id = p.get("call_id")
                 cmd = None
+                args = None
                 if name == "exec_command":
                     try:
                         args = json.loads(p.get("arguments", "{}"))
@@ -560,6 +614,14 @@ def audit_file(path: Path) -> dict:
                         r["exec_command_cmds"].append(cmd)
                 if call_id is not None:
                     call_id_to_cmd[call_id] = (tool_name, cmd)
+                # Track explicit sandbox escalation requests for abandonment detection.
+                if _is_escalated_request(args):
+                    turn_id = current_turn_id or (
+                        (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
+                        or (rec.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
+                    )
+                    if turn_id:
+                        escalated_call_line_nos.setdefault(turn_id, []).append(line_no or 0)
             elif it == "custom_tool_call":
                 r["function_calls"] += 1
                 name = p.get("name", "?")
@@ -570,12 +632,21 @@ def audit_file(path: Path) -> dict:
                 tool_name = "exec_command" if name == "exec" else f"custom.{name}"
                 r["tools"][tool_name] += 1
                 call_id = p.get("call_id")
-                cmds = _extract_custom_tool_commands(p.get("input", ""))
+                input_text = p.get("input", "")
+                cmds = _extract_custom_tool_commands(input_text)
                 for cmd in cmds:
                     r["exec_command_cmds"].append(cmd)
                 first_cmd = cmds[0] if cmds else None
                 if call_id is not None:
                     call_id_to_cmd[call_id] = (tool_name, first_cmd)
+                # Track explicit sandbox escalation requests in the newer tool shape.
+                if _is_escalated_request(input_text):
+                    turn_id = current_turn_id or (
+                        (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
+                        or (rec.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
+                    )
+                    if turn_id:
+                        escalated_call_line_nos.setdefault(turn_id, []).append(line_no or 0)
             elif it == "custom_tool_call_output":
                 out_blocks = p.get("output") or []
                 if isinstance(out_blocks, str):
@@ -751,6 +822,13 @@ def audit_file(path: Path) -> dict:
     r["failure_categories"] = "; ".join(
         f"{cat}={c}" for cat, c in sorted(failure_summary["category_counts"].items()) if cat != "ok"
     )
+    # Surface escalation abandonment as its own concise flag so it is visible
+    # without parsing the failure_records JSON blob.
+    escalation_abandoned_count = failure_summary["category_counts"].get("escalation_abandonment", 0)
+    if escalation_abandoned_count:
+        r["flags"].append(
+            f"ESCALATION_ABANDONED: {escalation_abandoned_count} network failure(s) not retried with escalation"
+        )
     r["has_failure"] = "yes" if failure_summary["total"] else "no"
     first_error = next((fc for fc in failure_classes if fc.severity == "error"), None)
     first_warning = next((fc for fc in failure_classes if fc.severity == "warning"), None)

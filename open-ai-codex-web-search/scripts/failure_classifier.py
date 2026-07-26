@@ -30,6 +30,7 @@ CATEGORIES = (
     "ui_truncation",
     "escalation_recovered",
     "capability_abandonment",
+    "escalation_abandonment",
     "unknown_error",
     "ok",
 )
@@ -47,6 +48,7 @@ SEVERITY = {
     "ui_truncation": "warning",
     "escalation_recovered": "warning",
     "capability_abandonment": "warning",
+    "escalation_abandonment": "warning",
     "ok": "info",
 }
 
