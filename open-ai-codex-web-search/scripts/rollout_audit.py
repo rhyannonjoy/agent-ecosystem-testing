@@ -86,8 +86,8 @@ CUSTOM_CMD_RE = re.compile(r'cmd\s*:\s*("(?:\\.|[^"\\])*")', re.S)
 # Codex represents an escalation request differently across CLI versions:
 # - legacy function_call arguments JSON: {"sandbox_permissions": "require_escalated"}
 # - newer custom_tool_call JavaScript input: tools.exec_command({..., sandbox_permissions: "require_escalated"})
-_ESCALATION_RE = re.compile(r'sandbox_?permissions\s*:\s*["\']require_escalated["\']', re.I)
-_LOGIN_ESCALATION_RE = re.compile(r'"?login"?\s*:\s*true', re.I)
+_ESCALATION_RE = re.compile(r'["\']?sandbox_?permissions["\']?\s*:\s*["\']require_escalated["\']', re.I)
+_LOGIN_ESCALATION_RE = re.compile(r'["\']?login["\']?\s*:\s*true', re.I)
 
 
 def _is_escalated_request(args: dict | str | None) -> bool:
