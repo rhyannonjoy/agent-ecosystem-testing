@@ -144,6 +144,20 @@ def _extract_custom_tool_commands(input_text: str | None) -> list[str]:
     return cmds
 
 
+# Codex CLI 0.145 wraps one or more native tool invocations inside a single
+# custom_tool_call named "exec". The JavaScript body calls tools.<name>(...).
+# We disaggregate the wrapper so web__run and exec_command are counted against
+# the same categories used for legacy function_call records.
+_CUSTOM_INNER_TOOL_RE = re.compile(r"tools\.(\w+)\s*\(", re.S)
+
+
+def _extract_custom_inner_tools(input_text: str | None) -> list[str]:
+    """Return the names of native tools invoked inside a custom_tool_call wrapper."""
+    if not input_text:
+        return []
+    return _CUSTOM_INNER_TOOL_RE.findall(input_text)
+
+
 def parse_skills(records: list[dict]) -> list[dict]:
     """Return skill entries observed in developer <skills_instructions> blocks."""
     skills = []
@@ -419,6 +433,8 @@ def audit_file(path: Path) -> dict:
         "web_search_calls": 0,
         "function_calls": 0,
         "rendered_function_calls": 0,
+        "inner_web_search_calls": 0,
+        "inner_exec_command_calls": 0,
         "tools": Counter(),
         "rendered_tools": Counter(),
         "task_completes": 0,
@@ -645,22 +661,43 @@ def audit_file(path: Path) -> dict:
             elif it == "custom_tool_call":
                 r["function_calls"] += 1
                 name = p.get("name", "?")
-                # Treat the custom "exec" wrapper as the same shell surface as
-                # the older exec_command function_call so existing counters and
-                # flags (NO_WEB_SEARCH, SHELL_DOMINANT, memory fingerprints)
-                # continue to work.
-                tool_name = "exec_command" if name == "exec" else f"custom.{name}"
-                r["tools"][tool_name] += 1
                 call_id = p.get("call_id")
                 input_text = p.get("input", "")
+                # Codex CLI 0.145 wraps native tool invocations inside a single
+                # custom_tool_call named "exec". Disaggregate the wrapper so the
+                # real tool mix is visible in the audit report and flags.
+                inner_tools = _extract_custom_inner_tools(input_text)
+                if name == "exec" and inner_tools:
+                    # Count each distinct inner native tool, but keep the wrapper
+                    # record count intact in function_calls. The rendered count is
+                    # the number of native operations the chat UI would show if it
+                    # expanded the wrapper.
+                    rendered_count = len(inner_tools)
+                    for inner_name in inner_tools:
+                        if inner_name == "web__run":
+                            r["inner_web_search_calls"] += 1
+                            r["rendered_tools"]["web__run"] += 1
+                        elif inner_name == "exec_command":
+                            r["inner_exec_command_calls"] += 1
+                            r["rendered_tools"]["exec_command"] += 1
+                        else:
+                            r["rendered_tools"][f"custom.{inner_name}"] += 1
+                    # Treat exec_command as the representative wrapper name for
+                    # memory-fingerprint and command-escalation bookkeeping.
+                    tool_name = "exec_command"
+                else:
+                    tool_name = "exec_command" if name == "exec" else f"custom.{name}"
+                    rendered_count = 1
+                    r["rendered_tools"][tool_name] += 1
+                r["tools"][tool_name] += 1
                 cmds = _extract_custom_tool_commands(input_text)
-                # Codex can batch multiple shell commands into a single exec
-                # custom_tool_call via Promise.all. The chat UI renders each
-                # inner command as its own tool call, so we also count rendered
-                # calls to document the discrepancy.
-                rendered_count = max(1, len(cmds))
+                # Codex can also batch multiple shell commands into a single
+                # exec_command custom_tool_call via Promise.all. The chat UI
+                # renders each inner command as its own tool call, so we also
+                # count rendered calls to document that discrepancy.
+                if cmds:
+                    rendered_count = max(rendered_count, len(cmds))
                 r["rendered_function_calls"] += rendered_count
-                r["rendered_tools"][tool_name] += rendered_count
                 for cmd in cmds:
                     r["exec_command_cmds"].append(cmd)
                 first_cmd = cmds[0] if cmds else None
@@ -823,15 +860,18 @@ def audit_file(path: Path) -> dict:
     # I. Tool-mix shift: web_search_call vs exec_command. A retrieval test that
     # uses zero web calls and only shell commands is a behavioral finding.
     # Use rendered_tools because the chat UI expands batched commands and that
-    # is what a human observer compares against.
+    # is what a human observer compares against. For Codex CLI 0.145 wrappers,
+    # also include inner web__run calls so a fetch wrapped in exec is not flagged
+    # as shell-dominant.
+    effective_web_calls = r["web_search_calls"] + r["inner_web_search_calls"]
     exec_cmd_count = r["rendered_tools"].get("exec_command", 0)
-    if r["web_search_calls"] == 0 and exec_cmd_count > 0:
+    if effective_web_calls == 0 and exec_cmd_count > 0:
         r["flags"].append(
             f"NO_WEB_SEARCH: 0 web_search calls, {exec_cmd_count} exec_command call(s)"
         )
-    elif exec_cmd_count > r["web_search_calls"]:
+    elif exec_cmd_count > effective_web_calls:
         r["flags"].append(
-            f"SHELL_DOMINANT: {exec_cmd_count} exec_command call(s) vs {r['web_search_calls']} web_search call(s)"
+            f"SHELL_DOMINANT: {exec_cmd_count} exec_command call(s) vs {effective_web_calls} web_search call(s)"
         )
 
     # K. Batched tool-call discrepancy: when a single custom_tool_call record
@@ -942,7 +982,9 @@ def main():
             print(f"  skill-signals: {' | '.join(lang_bits) if lang_bits else 'none'}")
         print(f"  turns {r['turns']} | user msgs {r['user_messages']} | commentary {r['commentary_msgs']} | "
               f"final answers: event {r['final_answers_event']}, transcript {r['final_answers_item']}")
-        print(f"  api calls: web_search {r['web_search_calls']} | function {r['function_calls']} records "
+        inner_web = f" (+{r['inner_web_search_calls']} inner)" if r["inner_web_search_calls"] else ""
+        inner_exec = f" (+{r['inner_exec_command_calls']} inner)" if r["inner_exec_command_calls"] else ""
+        print(f"  api calls: web_search {r['web_search_calls']}{inner_web} | function {r['function_calls']} records "
               f"({r['rendered_function_calls']} rendered) {dict(r['tools']) if r['tools'] else ''}")
         if r["rendered_function_calls"] > r["function_calls"]:
             print(f"  rendered tools: {dict(r['rendered_tools'])}")
@@ -954,12 +996,19 @@ def main():
             print(f"  failures: {r['failure_count_total']} ({r['failure_count_error']} error, {r['failure_count_warning']} warning)")
             for idx, record in enumerate(r["failure_classes"], 1):
                 print(_format_failure_console(record, idx))
+        # Baseline structural sanity: duplication and post-completion drift are
+        # independent of behavioral anomaly flags, so report them separately.
+        base_ok = (
+            r["final_answers_event"] <= r["turns"]
+            and r["task_completes"] <= r["turns"]
+            and r["records_after_complete"] == 0
+        )
+        if base_ok:
+            print("  OK: single emission, no post-completion records, all three copies match")
         if r["flags"]:
             any_flags = True
             for fl in r["flags"]:
                 print(f"  !! {fl}")
-        else:
-            print("  OK: single emission, no post-completion records, all three copies match")
 
     if args.csv and results:
         cols = ["file", "session_id", "model", "effort", "test_id",
@@ -969,6 +1018,7 @@ def main():
                 "skill_language", "skill_language_source",
                 "turns", "user_messages",
                 "commentary_msgs", "final_answers_event", "final_answers_item", "web_search_calls",
+                "inner_web_search_calls", "inner_exec_command_calls",
                 "function_calls", "task_completes", "records_after_complete", "duration_s",
                 "ttft_s", "wallclock_s", "tokens_total", "flags", "failure_count_total",
                 "failure_count_error", "failure_count_warning", "failure_categories",
