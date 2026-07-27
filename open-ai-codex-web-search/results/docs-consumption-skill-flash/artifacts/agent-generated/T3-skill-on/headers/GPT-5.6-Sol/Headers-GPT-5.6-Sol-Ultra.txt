@@ -1,0 +1,28 @@
+GPT-5.6 Sol Ultra, 21st run
+Extension v26.715.31925
+Agent originally wrote-saved as /private/tmp/ec6_headers.txt (871 bytes)
+
+HTTP/2 200 
+cache-control: max-age=300
+content-security-policy: default-src 'none'; style-src 'unsafe-inline'; sandbox
+content-type: text/plain; charset=utf-8
+etag: "41a7878b9c1f20b31740904fe0da2557088f5bf7834d7a3fca8e7c684770165e"
+strict-transport-security: max-age=31536000
+x-content-type-options: nosniff
+x-frame-options: deny
+x-xss-protection: 1; mode=block
+x-github-request-id: 1DD8:BE866:1B8919:20D6B7:6A61267B
+accept-ranges: bytes
+date: Wed, 22 Jul 2026 20:22:19 GMT
+via: 1.1 varnish
+x-served-by: cache-bfi-krnt7300051-BFI
+x-cache: MISS
+x-cache-hits: 0
+x-timer: S1784751739.478797,VS0,VE126
+vary: Authorization,Accept-Encoding
+access-control-allow-origin: *
+cross-origin-resource-policy: cross-origin
+x-fastly-request-id: e8671ac3df4567b996d4fc62fe8dd42da88d9831
+expires: Wed, 22 Jul 2026 20:27:19 GMT
+source-age: 0
+content-length: 91877
