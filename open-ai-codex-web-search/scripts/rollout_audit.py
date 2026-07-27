@@ -83,6 +83,15 @@ SKILL_LINE_RE = re.compile(
 # newer tool shape is used.
 CUSTOM_CMD_RE = re.compile(r'cmd\s*:\s*("(?:\\.|[^"\\])*")', re.S)
 
+# Codex can also batch multiple shell commands into a single exec
+# custom_tool_call via `const cmds = [["label", "command"], ...]` followed by
+# Promise.all. The regex below captures the string pairs in such arrays.
+CUSTOM_CMDS_ARRAY_RE = re.compile(
+    r'const\s+cmds\s*=\s*\[\s*(\[\s*"[^"]*"\s*,\s*"(?:\\.|[^"\\])*"\s*\]\s*(?:,\s*\[\s*"[^"]*"\s*,\s*"(?:\\.|[^"\\])*"\s*\]\s*)*)\]',
+    re.S,
+)
+CUSTOM_CMDS_PAIR_RE = re.compile(r'\[\s*"[^"]*"\s*,\s*("(?:\\.|[^"\\])*")\s*\]', re.S)
+
 # Codex represents an escalation request differently across CLI versions:
 # - legacy function_call arguments JSON: {"sandbox_permissions": "require_escalated"}
 # - newer custom_tool_call JavaScript input: tools.exec_command({..., sandbox_permissions: "require_escalated"})
@@ -113,6 +122,7 @@ def _extract_custom_tool_commands(input_text: str | None) -> list[str]:
     if not input_text:
         return []
     cmds = []
+    # Single commands passed as `cmd: "..."` (or `cmd:` shorthand).
     for m in CUSTOM_CMD_RE.finditer(input_text):
         raw = m.group(1)
         try:
@@ -121,6 +131,16 @@ def _extract_custom_tool_commands(input_text: str | None) -> list[str]:
             cmd = raw[1:-1]
         if cmd:
             cmds.append(cmd)
+    # Batched commands passed as `const cmds = [["label", "..."], ...]`.
+    for array_match in CUSTOM_CMDS_ARRAY_RE.finditer(input_text):
+        for pair_match in CUSTOM_CMDS_PAIR_RE.finditer(array_match.group(1)):
+            raw = pair_match.group(1)
+            try:
+                cmd = json.loads(raw)
+            except json.JSONDecodeError:
+                cmd = raw[1:-1]
+            if cmd:
+                cmds.append(cmd)
     return cmds
 
 
@@ -398,7 +418,9 @@ def audit_file(path: Path) -> dict:
         "reasoning_blocks": 0,
         "web_search_calls": 0,
         "function_calls": 0,
+        "rendered_function_calls": 0,
         "tools": Counter(),
+        "rendered_tools": Counter(),
         "task_completes": 0,
         "records_after_complete": 0,
         "after_complete_types": [],
@@ -632,6 +654,13 @@ def audit_file(path: Path) -> dict:
                 call_id = p.get("call_id")
                 input_text = p.get("input", "")
                 cmds = _extract_custom_tool_commands(input_text)
+                # Codex can batch multiple shell commands into a single exec
+                # custom_tool_call via Promise.all. The chat UI renders each
+                # inner command as its own tool call, so we also count rendered
+                # calls to document the discrepancy.
+                rendered_count = max(1, len(cmds))
+                r["rendered_function_calls"] += rendered_count
+                r["rendered_tools"][tool_name] += rendered_count
                 for cmd in cmds:
                     r["exec_command_cmds"].append(cmd)
                 first_cmd = cmds[0] if cmds else None
@@ -793,7 +822,9 @@ def audit_file(path: Path) -> dict:
 
     # I. Tool-mix shift: web_search_call vs exec_command. A retrieval test that
     # uses zero web calls and only shell commands is a behavioral finding.
-    exec_cmd_count = r["tools"].get("exec_command", 0)
+    # Use rendered_tools because the chat UI expands batched commands and that
+    # is what a human observer compares against.
+    exec_cmd_count = r["rendered_tools"].get("exec_command", 0)
     if r["web_search_calls"] == 0 and exec_cmd_count > 0:
         r["flags"].append(
             f"NO_WEB_SEARCH: 0 web_search calls, {exec_cmd_count} exec_command call(s)"
@@ -801,6 +832,14 @@ def audit_file(path: Path) -> dict:
     elif exec_cmd_count > r["web_search_calls"]:
         r["flags"].append(
             f"SHELL_DOMINANT: {exec_cmd_count} exec_command call(s) vs {r['web_search_calls']} web_search call(s)"
+        )
+
+    # K. Batched tool-call discrepancy: when a single custom_tool_call record
+    # contains multiple rendered commands, document the gap between raw records
+    # and chat-visible calls.
+    if r["rendered_function_calls"] > r["function_calls"]:
+        r["flags"].append(
+            f"TOOL_CALL_BATCHING: {r['function_calls']} tool-call record(s) rendered as {r['rendered_function_calls']} calls"
         )
 
     # J. Memory-skill fingerprint flags: Codex does not announce local memory
@@ -903,8 +942,10 @@ def main():
             print(f"  skill-signals: {' | '.join(lang_bits) if lang_bits else 'none'}")
         print(f"  turns {r['turns']} | user msgs {r['user_messages']} | commentary {r['commentary_msgs']} | "
               f"final answers: event {r['final_answers_event']}, transcript {r['final_answers_item']}")
-        print(f"  api calls: web_search {r['web_search_calls']} | function {r['function_calls']} "
-              f"{dict(r['tools']) if r['tools'] else ''}")
+        print(f"  api calls: web_search {r['web_search_calls']} | function {r['function_calls']} records "
+              f"({r['rendered_function_calls']} rendered) {dict(r['tools']) if r['tools'] else ''}")
+        if r["rendered_function_calls"] > r["function_calls"]:
+            print(f"  rendered tools: {dict(r['rendered_tools'])}")
         if r["memory_skill_fingerprints"]:
             print(f"  memory fingerprints: {', '.join(r['memory_skill_fingerprints'])}")
         print(f"  timing: duration {display_duration(r['duration_s'])} | ttft {display_duration(r['ttft_s'])} | file wallclock {display_duration(r['wallclock_s'])}")
