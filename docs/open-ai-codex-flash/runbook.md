@@ -38,9 +38,12 @@ and exclude `/memories` references.
 | `skill-off` | Existing `EC-6` `T2` rows in<br>`results/vscode-codex-interpreted/results.csv` | 13 runs |
 | `skill-opt-in` | New `EC-6` `T2` runs, `/SKILL` present,<br>but not mentioned in prompt | 20+ runs* |
 | `skill-on` +<br>`memory available` | New `EC-6` `T2` runs, `/SKILL` explicitly activated in prompt,<br>`.codex/memories` present | 20+ runs |
-| `skill-on` +<br>`memory suppressed` | New `EC-6` `T2` runs, `/SKILL` explicitly activated in prompt,<br>`.codex/memories` removed/renamed | 20+ runs |
+| `skill-on` +<br>`memory suppressed` | New `EC-6` `T2` runs, `/SKILL` explicitly activated in prompt,<br>`.codex/memories` not enabled | 20+ runs |
 
 > _*Number of runs depends on LLM-reasoning availability for Codex Pro plans_
+>
+> _**CLI 0.145.x:** Codex no longer injects `## Memory` instruction by default, even when
+> `.codex/memories/` exists; `skill-on` runs effectively `memory suppressed` unless enabled_
 
 ---
 
@@ -133,30 +136,29 @@ python3 scripts/memory_analyzer.py \
   results/docs-consumption-skill-flash/artifacts/memory_analyzer_report.md
 ```
 
-| **Fields** | **Description** |
-| --- | --- |
-| `system_memory_instruction` | System prompt included the `## Memory` directive telling the agent to use `/memories` |
-| `memory_dot_codex_path`, `memory_md_file`, `raw_memories_file`, `memory_summary_file`, `rollout_summaries_dir`, `memory_skills_dir` | `/memories` paths or files present in session rollout logs |
-| `single_url_retrieval_skill` | The competing `.codex/memories/skills/single-url-retrieval-measurement/SKILL` referenced |
-| `memory_mentioned` | Agent used `/memories`-related language in commentary, reasoning, or `final_answer` |
-| `memory_sources` | Signal location: `system_instruction`, `## Memory` header, `system`, same block where a path matched, `final_answer`, `tool_output`, `commentary`, `reasoning` |
-| `docs_consumption_loaded`, `docs_consumption_name_mentioned`, `docs_consumption_path_mentioned`, `protocol_prefix`, `skill_language` | Same `/SKILL` signals as `rollout_audit` |
-| `skill_sources` | `/SKILL` signal location: `system_loaded`, `final_answer`, `commentary`, `tool_output`, `reasoning` |
-
-- `memory-instructed only` in which system `## Memory` present but no `docs-consumption` loaded means `/memories`
-dominates the test, derails prompt and `docs-consumption/SKILL`_
-- `single-url-retrieval-measurement referenced` is a **system-instructed, agent-read** signal, not a `<skills_instructions>` load
-- compare `docs-consumption loaded` with `single-url-retrieval-measurement referenced` to determine which `/SKILL` leads the test
-
----
+| **Field** | **Value** | **Measurement** |
+| --- | --- | --- |
+| `docs_consumption_loaded` | `true`<br>`false` | `docs-consumption/SKILL` presence in `<skills_instructions>` block |
+| `docs_consumption_name_mentioned` | `true`<br>`false` | Agent referenced `/SKILL` by name: `docs-consumption` |
+| `docs_consumption_path_mentioned` | `true`<br>`false` | Agent referenced full `/SKILL` path: `.agents/skills/docs-consumption/SKILL.md` |
+| `protocol_prefix` | `COMPLETE` `PARTIAL` `UNVERIFIABLE` `{ empty }` | Agent prefaced report with `/SKILL`-required protocol prefix |
+| `skill_language` | `true`<br>`false` | Agent used protocol phrases: `tool ran`, `full content`, `truncation`, or `limitation` |
+| `memory_citation_status` | `absent`<br>`null`<br>`used` | State of rollout’s `memory_citation` field: not present, present but empty, or present with a value |
+| `memory_citation_source_discrepancy` | free-text<br>`{ empty }` | Whether rollout’s `memory_citation` field conflicts with the agent’s self-reported `/memories` sources |
+| `memory_dot_codex_path`, `memory_md_file`, `raw_memories_file`, `memory_summary_file`, `rollout_summaries_dir`, `memory_skills_dir` | `true`<br>`false` | Whether corresponding `/memories` path appeared |
+| `memory_mentioned` | `true`<br>`false` | Agent used `/memories`-related language in commentary, reasoning, or `final_answer` |
+| `memory_sources` | comma-separated list<br>or `none` | Locations of `/memories` signals: `system_instruction`, `system`, `commentary`, `reasoning`, `final_answer`, `tool_output` |
+| `single_url_retrieval_skill` | `true`<br>`false` | Reference of competing `/memories...single-url-retrieval-measurement/SKILL`; not auto-loaded<br>from `<skills_instructions>` |
+| `skill_sources` | comma-separated list<br>or `none` | Locations of `/SKILL` signals: `system_loaded`, `commentary`, `reasoning`, `final_answer`, `tool_output` |
+| `system_memory_instruction` | `true`<br>`false` | System prompt included `## Memory` directive telling agent to use `/memories` |
 
 ## False-positive Guidance
 
-More consistently confident or polished agentic reporting may look like an improvement while obscuring the same failure:
+More polished agentic reporting may look like an improvement while obscuring the same failure:
 
 - **Fix Recommended, No Diagnosis**: suggests a fix but can't point to the failure that motivates it
 - **Longer Synthesis, Same Partial View**: produces more details without protocol analysis
-- **Loud, Wrong**: uses `COMPLETE`/`PARTIAL`/`UNVERIFIABLE` prefix, but the label doesn't match the tool result
-- **Reframing Failures**: describes references while reporting _"the fetch worked"_ or _"the content is complete"_
-- **`/SKILL` Ignored**: doesn't use `COMPLETE/PARTIAL/UNVERIFIABLE` or show any protocol-aligned behavior
+- **Loud, Wrong**: uses `COMPLETE`,`PARTIAL`,`UNVERIFIABLE`, but label doesn't match tool result
+- **Reframing Failures**: describes errors while reporting _"the fetch worked"_ or _"the content is complete"_
+- **`/SKILL` Ignored**: doesn't use report completion prefix or show any protocol-aligned behavior
 - **Tool Rerouting, No Disclosure**: bypass `web` for `curl` without explanation

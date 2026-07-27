@@ -1,0 +1,34 @@
+GPT-5.4 Mini Medium, 2nd run
+Extension v26.715.31925
+Agent exposed call in chat, didn't write-save to project, user saved manually
+
+curl -L --silent --show-error --dump-header - https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md -o /tmp/agent-docs-spec-SPEC.md && wc -c /tmp/agent-docs-spec-SPEC.md && tail -c 80 /tmp/agent-docs-spec-SPEC.md
+
+HTTP/2 200 
+cache-control: max-age=300
+content-security-policy: default-src 'none'; style-src 'unsafe-inline'; sandbox
+content-type: text/plain; charset=utf-8
+etag: "41a7878b9c1f20b31740904fe0da2557088f5bf7834d7a3fca8e7c684770165e"
+strict-transport-security: max-age=31536000
+x-content-type-options: nosniff
+x-frame-options: deny
+x-xss-protection: 1; mode=block
+x-github-request-id: C838:3CA755:122EC6:15BF95:6A6002BE
+accept-ranges: bytes
+date: Tue, 21 Jul 2026 23:37:35 GMT
+via: 1.1 varnish
+x-served-by: cache-bfi-krnt7300068-BFI
+x-cache: MISS
+x-cache-hits: 0
+x-timer: S1784677055.032523,VS0,VE129
+vary: Authorization,Accept-Encoding
+access-control-allow-origin: *
+cross-origin-resource-policy: cross-origin
+x-fastly-request-id: fe46fca060ba299f4f133bed2f945a679c6052dc
+expires: Tue, 21 Jul 2026 23:42:35 GMT
+source-age: 0
+content-length: 91877
+
+   91877 /tmp/agent-docs-spec-SPEC.md
+uncation limits (Appendix A).
+- Notable exclusions with rationale (Appendix B).

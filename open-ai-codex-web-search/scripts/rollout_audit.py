@@ -32,7 +32,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
-from failure_classifier import FailureClass, classify_output, summarize
+from failure_classifier import FailureClass, classify_output, classify_output_all, summarize
 
 
 def parse_ts(ts: str) -> datetime:
@@ -83,12 +83,46 @@ SKILL_LINE_RE = re.compile(
 # newer tool shape is used.
 CUSTOM_CMD_RE = re.compile(r'cmd\s*:\s*("(?:\\.|[^"\\])*")', re.S)
 
+# Codex can also batch multiple shell commands into a single exec
+# custom_tool_call via `const cmds = [["label", "command"], ...]` followed by
+# Promise.all. The regex below captures the string pairs in such arrays.
+CUSTOM_CMDS_ARRAY_RE = re.compile(
+    r'const\s+cmds\s*=\s*\[\s*(\[\s*"[^"]*"\s*,\s*"(?:\\.|[^"\\])*"\s*\]\s*(?:,\s*\[\s*"[^"]*"\s*,\s*"(?:\\.|[^"\\])*"\s*\]\s*)*)\]',
+    re.S,
+)
+CUSTOM_CMDS_PAIR_RE = re.compile(r'\[\s*"[^"]*"\s*,\s*("(?:\\.|[^"\\])*")\s*\]', re.S)
+
+# Codex represents an escalation request differently across CLI versions:
+# - legacy function_call arguments JSON: {"sandbox_permissions": "require_escalated"}
+# - newer custom_tool_call JavaScript input: tools.exec_command({..., sandbox_permissions: "require_escalated"})
+_ESCALATION_RE = re.compile(r'["\']?sandbox_?permissions["\']?\s*:\s*["\']require_escalated["\']', re.I)
+_LOGIN_ESCALATION_RE = re.compile(r'["\']?login["\']?\s*:\s*true', re.I)
+
+
+def _is_escalated_request(args: dict | str | None) -> bool:
+    """Return True if a tool call explicitly requests sandbox escalation."""
+    if not args:
+        return False
+    if isinstance(args, dict):
+        if args.get("sandbox_permissions") == "require_escalated":
+            return True
+        if args.get("login") is True:
+            return True
+        return False
+    text = args
+    if _ESCALATION_RE.search(text):
+        return True
+    if _LOGIN_ESCALATION_RE.search(text):
+        return True
+    return False
+
 
 def _extract_custom_tool_commands(input_text: str | None) -> list[str]:
     """Return the cmd strings from a custom_tool_call JavaScript input."""
     if not input_text:
         return []
     cmds = []
+    # Single commands passed as `cmd: "..."` (or `cmd:` shorthand).
     for m in CUSTOM_CMD_RE.finditer(input_text):
         raw = m.group(1)
         try:
@@ -97,6 +131,16 @@ def _extract_custom_tool_commands(input_text: str | None) -> list[str]:
             cmd = raw[1:-1]
         if cmd:
             cmds.append(cmd)
+    # Batched commands passed as `const cmds = [["label", "..."], ...]`.
+    for array_match in CUSTOM_CMDS_ARRAY_RE.finditer(input_text):
+        for pair_match in CUSTOM_CMDS_PAIR_RE.finditer(array_match.group(1)):
+            raw = pair_match.group(1)
+            try:
+                cmd = json.loads(raw)
+            except json.JSONDecodeError:
+                cmd = raw[1:-1]
+            if cmd:
+                cmds.append(cmd)
     return cmds
 
 
@@ -374,7 +418,9 @@ def audit_file(path: Path) -> dict:
         "reasoning_blocks": 0,
         "web_search_calls": 0,
         "function_calls": 0,
+        "rendered_function_calls": 0,
         "tools": Counter(),
+        "rendered_tools": Counter(),
         "task_completes": 0,
         "records_after_complete": 0,
         "after_complete_types": [],
@@ -408,6 +454,10 @@ def audit_file(path: Path) -> dict:
     first_ts = last_ts = None
     last_tokens = None
     current_turn_failures: list[FailureRecord] = []
+    web_search_end_count = 0          # web calls reported via the newer event_msg shape
+    legacy_web_search_call_count = 0  # legacy response_item shape without a matching end event
+    current_turn_id: str | None = None
+    escalated_call_line_nos: dict[str, list[int]] = {}  # turn_id -> line numbers of escalation requests
 
     for i, rec in enumerate(records):
         line_no = line_no_by_index.get(i)
@@ -433,6 +483,7 @@ def audit_file(path: Path) -> dict:
             if pt == "task_started":
                 r["turns"] += 1
                 current_turn_failures = []
+                current_turn_id = p.get("turn_id")
             elif pt == "user_message":
                 r["user_messages"] += 1
                 msg = p.get("message") or ""
@@ -468,11 +519,41 @@ def audit_file(path: Path) -> dict:
                         record.recovered = True
                     r["failure_classes"].extend(current_turn_failures)
                     r["recovered_failure_count"] += len(current_turn_failures)
+                    # Detect network failures that were never followed by an
+                    # explicit sandbox escalation request in the same turn.
+                    turn_id = current_turn_id or p.get("turn_id")
+                    escalated_lines = escalated_call_line_nos.get(turn_id or "", [])
+                    eligible_categories = {"dns_blocked", "fetch_failed", "sandbox_empty_response"}
+                    for record in current_turn_failures:
+                        if record.failure_class.category in eligible_categories:
+                            if not any(line > record.line_no for line in escalated_lines):
+                                abandoned = FailureRecord(
+                                    failure_class=FailureClass(
+                                        category="escalation_abandonment",
+                                        detail=f"{record.failure_class.detail}; no require_escalated retry",
+                                        severity="warning",
+                                    ),
+                                    line_no=record.line_no,
+                                    call_id=record.call_id,
+                                    tool_name=record.tool_name,
+                                    command=record.command,
+                                    output_snippet=record.output_snippet,
+                                    chat_before=record.chat_before,
+                                    chat_after=record.chat_after,
+                                    chat_nearest=record.chat_nearest,
+                                    turn_id=record.turn_id,
+                                    recovered=False,
+                                )
+                                r["failure_classes"].append(abandoned)
                     current_turn_failures = []
                 if p.get("duration_ms") is not None:
                     r["duration_s"] = round(p["duration_ms"] / 1000, 1)
                 if p.get("time_to_first_token_ms") is not None:
                     r["ttft_s"] = round(p["time_to_first_token_ms"] / 1000, 1)
+            elif pt == "web_search_end":
+                # Newer Codex CLI (e.g. GPT-5.6-Luna) reports web calls via
+                # event_msg instead of response_item.web_search_call.
+                web_search_end_count += 1
             elif pt == "token_count":
                 info = p.get("info") or {}
                 total = (info.get("total_token_usage") or {}).get("total_tokens")
@@ -481,8 +562,7 @@ def audit_file(path: Path) -> dict:
                 r["context_window"] = info.get("model_context_window") or r["context_window"]
             elif pt == "exec_command_end":
                 out = p.get("output") or ""
-                fc = classify_output(out)
-                if fc.category != "ok":
+                for fc in classify_output_all(out):
                     turn_id = (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
                     current_turn_failures.append(FailureRecord(
                         failure_class=fc,
@@ -506,8 +586,7 @@ def audit_file(path: Path) -> dict:
                 for block in ok.get("content", []) or []:
                     if isinstance(block, dict) and block.get("type") == "text":
                         text += block.get("text", "")
-                fc = classify_output(text, tool_name=tool_name)
-                if fc.category != "ok":
+                for fc in classify_output_all(text, tool_name=tool_name):
                     turn_id = (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
                     current_turn_failures.append(FailureRecord(
                         failure_class=fc,
@@ -532,7 +611,10 @@ def audit_file(path: Path) -> dict:
             elif it == "reasoning":
                 r["reasoning_blocks"] += 1
             elif it == "web_search_call":
-                r["web_search_calls"] += 1
+                # Legacy shape used by GPT-5.4 Mini through 5.5. We count these
+                # only when the newer web_search_end event is absent so we do
+                # not double-count in logs that contain both shapes.
+                legacy_web_search_call_count += 1
             elif it == "function_call":
                 r["function_calls"] += 1
                 name = p.get("name", "?")
@@ -541,6 +623,7 @@ def audit_file(path: Path) -> dict:
                 r["tools"][tool_name] += 1
                 call_id = p.get("call_id")
                 cmd = None
+                args = None
                 if name == "exec_command":
                     try:
                         args = json.loads(p.get("arguments", "{}"))
@@ -551,6 +634,14 @@ def audit_file(path: Path) -> dict:
                         r["exec_command_cmds"].append(cmd)
                 if call_id is not None:
                     call_id_to_cmd[call_id] = (tool_name, cmd)
+                # Track explicit sandbox escalation requests for abandonment detection.
+                if _is_escalated_request(args):
+                    turn_id = current_turn_id or (
+                        (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
+                        or (rec.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
+                    )
+                    if turn_id:
+                        escalated_call_line_nos.setdefault(turn_id, []).append(line_no or 0)
             elif it == "custom_tool_call":
                 r["function_calls"] += 1
                 name = p.get("name", "?")
@@ -561,12 +652,28 @@ def audit_file(path: Path) -> dict:
                 tool_name = "exec_command" if name == "exec" else f"custom.{name}"
                 r["tools"][tool_name] += 1
                 call_id = p.get("call_id")
-                cmds = _extract_custom_tool_commands(p.get("input", ""))
+                input_text = p.get("input", "")
+                cmds = _extract_custom_tool_commands(input_text)
+                # Codex can batch multiple shell commands into a single exec
+                # custom_tool_call via Promise.all. The chat UI renders each
+                # inner command as its own tool call, so we also count rendered
+                # calls to document the discrepancy.
+                rendered_count = max(1, len(cmds))
+                r["rendered_function_calls"] += rendered_count
+                r["rendered_tools"][tool_name] += rendered_count
                 for cmd in cmds:
                     r["exec_command_cmds"].append(cmd)
                 first_cmd = cmds[0] if cmds else None
                 if call_id is not None:
                     call_id_to_cmd[call_id] = (tool_name, first_cmd)
+                # Track explicit sandbox escalation requests in the newer tool shape.
+                if _is_escalated_request(input_text):
+                    turn_id = current_turn_id or (
+                        (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
+                        or (rec.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
+                    )
+                    if turn_id:
+                        escalated_call_line_nos.setdefault(turn_id, []).append(line_no or 0)
             elif it == "custom_tool_call_output":
                 out_blocks = p.get("output") or []
                 if isinstance(out_blocks, str):
@@ -576,10 +683,9 @@ def audit_file(path: Path) -> dict:
                     for block in out_blocks:
                         if isinstance(block, dict):
                             out_text += block.get("text", "")
-                fc = classify_output(out_text)
-                if fc.category != "ok":
-                    call_id = p.get("call_id")
-                    tool_name, cmd = call_id_to_cmd.get(call_id, ("?", None))
+                call_id = p.get("call_id")
+                tool_name, cmd = call_id_to_cmd.get(call_id, ("?", None))
+                for fc in classify_output_all(out_text, command=cmd):
                     turn_id = (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
                     current_turn_failures.append(FailureRecord(
                         failure_class=fc,
@@ -596,10 +702,9 @@ def audit_file(path: Path) -> dict:
                     ))
             elif it == "function_call_output":
                 out = p.get("output") or ""
-                fc = classify_output(out)
-                if fc.category != "ok":
-                    call_id = p.get("call_id")
-                    tool_name, cmd = call_id_to_cmd.get(call_id, ("?", None))
+                call_id = p.get("call_id")
+                tool_name, cmd = call_id_to_cmd.get(call_id, ("?", None))
+                for fc in classify_output_all(out, command=cmd):
                     turn_id = (p.get("internal_chat_message_metadata_passthrough") or {}).get("turn_id")
                     current_turn_failures.append(FailureRecord(
                         failure_class=fc,
@@ -627,6 +732,11 @@ def audit_file(path: Path) -> dict:
     r["tokens_total"] = last_tokens
     if first_ts and last_ts:
         r["wallclock_s"] = round((last_ts - first_ts).total_seconds(), 1)
+
+    # Canonical web-call count: newer Codex CLI emits event_msg.web_search_end;
+    # older CLI emits response_item.web_search_call. Use the end events when
+    # present so we don't double-count the legacy shape in the same log.
+    r["web_search_calls"] = web_search_end_count if web_search_end_count else legacy_web_search_call_count
 
     # ---- Skill loading ----------------------------------------------------
     skills = parse_skills(records)
@@ -712,7 +822,9 @@ def audit_file(path: Path) -> dict:
 
     # I. Tool-mix shift: web_search_call vs exec_command. A retrieval test that
     # uses zero web calls and only shell commands is a behavioral finding.
-    exec_cmd_count = r["tools"].get("exec_command", 0)
+    # Use rendered_tools because the chat UI expands batched commands and that
+    # is what a human observer compares against.
+    exec_cmd_count = r["rendered_tools"].get("exec_command", 0)
     if r["web_search_calls"] == 0 and exec_cmd_count > 0:
         r["flags"].append(
             f"NO_WEB_SEARCH: 0 web_search calls, {exec_cmd_count} exec_command call(s)"
@@ -720,6 +832,14 @@ def audit_file(path: Path) -> dict:
     elif exec_cmd_count > r["web_search_calls"]:
         r["flags"].append(
             f"SHELL_DOMINANT: {exec_cmd_count} exec_command call(s) vs {r['web_search_calls']} web_search call(s)"
+        )
+
+    # K. Batched tool-call discrepancy: when a single custom_tool_call record
+    # contains multiple rendered commands, document the gap between raw records
+    # and chat-visible calls.
+    if r["rendered_function_calls"] > r["function_calls"]:
+        r["flags"].append(
+            f"TOOL_CALL_BATCHING: {r['function_calls']} tool-call record(s) rendered as {r['rendered_function_calls']} calls"
         )
 
     # J. Memory-skill fingerprint flags: Codex does not announce local memory
@@ -737,6 +857,13 @@ def audit_file(path: Path) -> dict:
     r["failure_categories"] = "; ".join(
         f"{cat}={c}" for cat, c in sorted(failure_summary["category_counts"].items()) if cat != "ok"
     )
+    # Surface escalation abandonment as its own concise flag so it is visible
+    # without parsing the failure_records JSON blob.
+    escalation_abandoned_count = failure_summary["category_counts"].get("escalation_abandonment", 0)
+    if escalation_abandoned_count:
+        r["flags"].append(
+            f"ESCALATION_ABANDONED: {escalation_abandoned_count} network failure(s) not retried with escalation"
+        )
     r["has_failure"] = "yes" if failure_summary["total"] else "no"
     first_error = next((fc for fc in failure_classes if fc.severity == "error"), None)
     first_warning = next((fc for fc in failure_classes if fc.severity == "warning"), None)
@@ -815,8 +942,10 @@ def main():
             print(f"  skill-signals: {' | '.join(lang_bits) if lang_bits else 'none'}")
         print(f"  turns {r['turns']} | user msgs {r['user_messages']} | commentary {r['commentary_msgs']} | "
               f"final answers: event {r['final_answers_event']}, transcript {r['final_answers_item']}")
-        print(f"  api calls: web_search {r['web_search_calls']} | function {r['function_calls']} "
-              f"{dict(r['tools']) if r['tools'] else ''}")
+        print(f"  api calls: web_search {r['web_search_calls']} | function {r['function_calls']} records "
+              f"({r['rendered_function_calls']} rendered) {dict(r['tools']) if r['tools'] else ''}")
+        if r["rendered_function_calls"] > r["function_calls"]:
+            print(f"  rendered tools: {dict(r['rendered_tools'])}")
         if r["memory_skill_fingerprints"]:
             print(f"  memory fingerprints: {', '.join(r['memory_skill_fingerprints'])}")
         print(f"  timing: duration {display_duration(r['duration_s'])} | ttft {display_duration(r['ttft_s'])} | file wallclock {display_duration(r['wallclock_s'])}")
