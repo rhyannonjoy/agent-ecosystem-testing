@@ -79,11 +79,12 @@ OUTPUT_PATTERNS: tuple[tuple[str, re.Pattern], ...] = (
     ),
     ("command_not_found", re.compile(r"\bcommand\s+not\s+found\b", re.I)),
     ("command_not_found", re.compile(r"\bNo\s+such\s+file\s+or\s+directory\b", re.I)),
-    # Shell runtime errors the agent often does not mention in its own summary.
+    # Shell/runtime errors the agent often does not mention in its own summary.
     ("runtime_error", re.compile(r"\bread[- ]only\s+variable\b", re.I)),
     ("runtime_error", re.compile(r"Traceback\s+\(most\s+recent\s+call\s+last\)", re.I)),
     ("runtime_error", re.compile(r"HTTP\s+Error\s+\d{3}", re.I)),
     ("runtime_error", re.compile(r"urllib\.error\.HTTPError", re.I)),
+    ("runtime_error", re.compile(r"TextEncoder\s+is\s+not\s+defined", re.I)),
 )
 
 
