@@ -500,7 +500,9 @@ def main():
             "skill_language_source",
             "skill_sources",
         ]
-        with open(args.csv, "w", newline="") as fh:
+        csv_path = Path(args.csv)
+        csv_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(csv_path, "w", newline="") as fh:
             w = csv.DictWriter(fh, fieldnames=cols)
             w.writeheader()
             for r in results:
