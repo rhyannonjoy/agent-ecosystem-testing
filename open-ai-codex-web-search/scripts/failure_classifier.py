@@ -58,6 +58,13 @@ SEVERITY = {
 OUTPUT_PATTERNS: tuple[tuple[str, re.Pattern], ...] = (
     ("browser_unavailable", re.compile(r"Browser\s+is\s+not\s+available\s*:\s*iab", re.I)),
     ("ui_truncation", re.compile(r"Truncated\s+content|was\s+UI-truncated", re.I)),
+    # Codex CLI wrapper scripts often JSON.stringify large result objects; when the
+    # output exceeds max_output_tokens the runtime emits this warning. The agent may
+    # mention it in chat, but the raw tool output is where it is first recorded.
+    (
+        "ui_truncation",
+        re.compile(r"Warning:\s+truncated\s+output\s+\(\s*original\s+token\s+count:\s*\d+", re.I),
+    ),
     (
         "dns_blocked",
         re.compile(r"curl\s*:\s*\(\s*6\s*\).*Could\s+not\s+resolve\s+host", re.I),

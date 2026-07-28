@@ -49,7 +49,7 @@ formatting and section structure.
 Styling rules:
 
 1. Don't use parentheses
-2. Spell out seconds, don't abbreviate
+2. Spell out seconds, don't abbreviate, except for Log Summary
 3. Use contractions
 4. Use backticks for anything code-like including test ids: `curl`, `python3`, `GPT-5.5 Low`, `L266`, `T1`, `SC-4`
 5. Don't use dashes, use commas

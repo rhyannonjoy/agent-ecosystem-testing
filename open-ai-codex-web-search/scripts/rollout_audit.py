@@ -118,17 +118,24 @@ def _is_escalated_request(args: dict | str | None) -> bool:
 
 
 def _extract_custom_tool_commands(input_text: str | None) -> list[str]:
-    """Return the cmd strings from a custom_tool_call JavaScript input."""
+    """Return the cmd strings from a custom_tool_call JavaScript input.
+
+    Codex passes shell commands as JSON string literals inside the JavaScript
+    wrapper, so internal quotes are backslash-escaped (e.g. `\"`). The legacy
+    regex only handled plain JS string literals; this version parses the
+    JSON-escaped `cmd` value so long, escaped commands are recovered.
+    """
     if not input_text:
         return []
     cmds = []
-    # Single commands passed as `cmd: "..."` (or `cmd:` shorthand).
-    for m in CUSTOM_CMD_RE.finditer(input_text):
-        raw = m.group(1)
+    # Single commands passed as `"cmd":"..."` inside a JSON-ish object.
+    # Match a JSON string body, then decode it.
+    _JSON_STRING_RE = re.compile(r'"cmd"\s*:\s*"((?:\\.|[^"\\])*)"', re.S)
+    for m in _JSON_STRING_RE.finditer(input_text):
         try:
-            cmd = json.loads(raw)
+            cmd = json.loads('"' + m.group(1) + '"')
         except json.JSONDecodeError:
-            cmd = raw[1:-1]
+            cmd = m.group(1)
         if cmd:
             cmds.append(cmd)
     # Batched commands passed as `const cmds = [["label", "..."], ...]`.
@@ -142,6 +149,57 @@ def _extract_custom_tool_commands(input_text: str | None) -> list[str]:
             if cmd:
                 cmds.append(cmd)
     return cmds
+
+
+def _extract_js_only_summary(input_text: str | None) -> str:
+    """Return a short human-readable summary of a JS-only wrapper.
+
+    JS-only wrappers perform pure analysis (no `tools.*` calls). The summary
+    is the first non-trivial code statement, capped so the table stays readable.
+    """
+    if not input_text:
+        return ""
+    # Drop leading comments and blank lines.
+    lines = input_text.splitlines()
+    code_lines = []
+    for line in lines:
+        stripped = line.strip()
+        if not stripped or stripped.startswith("//"):
+            continue
+        code_lines.append(stripped)
+        if len(code_lines) >= 2:
+            break
+    summary = " ".join(code_lines)
+    if len(summary) > 100:
+        summary = summary[:97] + "..."
+    return summary
+
+
+# Codex CLI 0.145 wraps one or more native tool invocations inside a single
+# custom_tool_call named "exec". The JavaScript body calls tools.<name>(...).
+# We disaggregate the wrapper so web__run and exec_command are counted against
+# the same categories used for legacy function_call records.
+_CUSTOM_INNER_TOOL_RE = re.compile(r"tools\.(\w+)\s*\(", re.S)
+
+
+def _extract_custom_inner_tools(input_text: str | None) -> list[str]:
+    """Return the names of native tools invoked inside a custom_tool_call wrapper."""
+    if not input_text:
+        return []
+    return _CUSTOM_INNER_TOOL_RE.findall(input_text)
+
+
+@dataclass
+class ToolCallRow:
+    """A single auditable tool invocation from a rollout JSONL file."""
+
+    line_no: int
+    record_type: str
+    name: str
+    codex_tool: str | None
+    js_only: bool
+    summary: str
+    call_id: str | None
 
 
 def parse_skills(records: list[dict]) -> list[dict]:
@@ -418,7 +476,10 @@ def audit_file(path: Path) -> dict:
         "reasoning_blocks": 0,
         "web_search_calls": 0,
         "function_calls": 0,
-        "rendered_function_calls": 0,
+        "custom_exec_records": 0,
+        "custom_exec_with_tools": 0,
+        "custom_exec_js_only": 0,
+        "codex_tools_inside_exec": Counter(),
         "tools": Counter(),
         "rendered_tools": Counter(),
         "task_completes": 0,
@@ -442,6 +503,7 @@ def audit_file(path: Path) -> dict:
         "unknown_error_messages": [],
         "exec_command_cmds": [],
         "memory_skill_fingerprints": [],
+        "tool_call_rows": [],
     }
 
     final_event_texts = []          # final answers as emitted in the live event stream
@@ -449,6 +511,7 @@ def audit_file(path: Path) -> dict:
     commentary_texts = []           # agent commentary messages (thought panel)
     chat_history: list[dict] = []   # agent_message records for failure correlation
     call_id_to_cmd: dict[str, tuple[str, str | None]] = {}  # call_id -> (tool_name, command)
+    tool_call_rows: list[ToolCallRow] = []  # auditable per-tool-call table
     last_agent_message = None
     last_complete_idx = None
     first_ts = last_ts = None
@@ -554,6 +617,17 @@ def audit_file(path: Path) -> dict:
                 # Newer Codex CLI (e.g. GPT-5.6-Luna) reports web calls via
                 # event_msg instead of response_item.web_search_call.
                 web_search_end_count += 1
+                action = p.get("action") or {}
+                url = action.get("url", "?")
+                tool_call_rows.append(ToolCallRow(
+                    line_no=line_no or 0,
+                    record_type="web_search_end",
+                    name="web_search",
+                    codex_tool=None,
+                    js_only=False,
+                    summary=url,
+                    call_id=p.get("call_id"),
+                ))
             elif pt == "token_count":
                 info = p.get("info") or {}
                 total = (info.get("total_token_usage") or {}).get("total_tokens")
@@ -615,6 +689,17 @@ def audit_file(path: Path) -> dict:
                 # only when the newer web_search_end event is absent so we do
                 # not double-count in logs that contain both shapes.
                 legacy_web_search_call_count += 1
+                action = (p.get("arguments") or {}).get("action") or {}
+                url = action.get("url", "?")
+                tool_call_rows.append(ToolCallRow(
+                    line_no=line_no or 0,
+                    record_type="web_search_call",
+                    name="web_search",
+                    codex_tool=None,
+                    js_only=False,
+                    summary=url,
+                    call_id=p.get("call_id"),
+                ))
             elif it == "function_call":
                 r["function_calls"] += 1
                 name = p.get("name", "?")
@@ -632,6 +717,16 @@ def audit_file(path: Path) -> dict:
                         cmd = ""
                     if cmd:
                         r["exec_command_cmds"].append(cmd)
+                summary = cmd or ""
+                tool_call_rows.append(ToolCallRow(
+                    line_no=line_no or 0,
+                    record_type="function_call",
+                    name=tool_name,
+                    codex_tool=None,
+                    js_only=False,
+                    summary=summary,
+                    call_id=call_id,
+                ))
                 if call_id is not None:
                     call_id_to_cmd[call_id] = (tool_name, cmd)
                 # Track explicit sandbox escalation requests for abandonment detection.
@@ -645,25 +740,62 @@ def audit_file(path: Path) -> dict:
             elif it == "custom_tool_call":
                 r["function_calls"] += 1
                 name = p.get("name", "?")
-                # Treat the custom "exec" wrapper as the same shell surface as
-                # the older exec_command function_call so existing counters and
-                # flags (NO_WEB_SEARCH, SHELL_DOMINANT, memory fingerprints)
-                # continue to work.
-                tool_name = "exec_command" if name == "exec" else f"custom.{name}"
-                r["tools"][tool_name] += 1
                 call_id = p.get("call_id")
                 input_text = p.get("input", "")
                 cmds = _extract_custom_tool_commands(input_text)
-                # Codex can batch multiple shell commands into a single exec
-                # custom_tool_call via Promise.all. The chat UI renders each
-                # inner command as its own tool call, so we also count rendered
-                # calls to document the discrepancy.
-                rendered_count = max(1, len(cmds))
-                r["rendered_function_calls"] += rendered_count
-                r["rendered_tools"][tool_name] += rendered_count
+                # Codex uses custom_tool_call as a JavaScript wrapper across CLI
+                # versions; the wrapper name has been "exec" (0.145) and
+                # "exec_command" (0.142), and may change again. Anchor on known
+                # wrapper names, then use content to decide whether the wrapper
+                # contains real Codex tool calls or is pure JS analysis.
+                inner_tools = _extract_custom_inner_tools(input_text)
+                is_exec_wrapper = name in ("exec", "exec_command")
+                if is_exec_wrapper:
+                    r["custom_exec_records"] += 1
+                    if inner_tools:
+                        r["custom_exec_with_tools"] += 1
+                        for inner_name in inner_tools:
+                            r["codex_tools_inside_exec"][inner_name] += 1
+                            r["rendered_tools"][inner_name] += 1
+                    else:
+                        r["custom_exec_js_only"] += 1
+                        r["rendered_tools"]["exec_js_only"] += 1
+                    tool_name = "exec_wrapper"
+                else:
+                    tool_name = f"custom.{name}"
+                    r["rendered_tools"][tool_name] += 1
+                r["tools"][tool_name] += 1
                 for cmd in cmds:
                     r["exec_command_cmds"].append(cmd)
                 first_cmd = cmds[0] if cmds else None
+                # Build an auditable row for each real Codex tool inside the wrapper.
+                if inner_tools:
+                    for inner_name in inner_tools:
+                        summary = first_cmd if inner_name == "exec_command" and first_cmd else ""
+                        if inner_name == "web__run":
+                            m = re.search(r'open:\s*\[.*?ref_id:\s*"([^"]+)"', input_text, re.S)
+                            if m:
+                                summary = m.group(1)
+                        tool_call_rows.append(ToolCallRow(
+                            line_no=line_no or 0,
+                            record_type="custom_tool_call",
+                            name=name,
+                            codex_tool=inner_name,
+                            js_only=False,
+                            summary=summary,
+                            call_id=call_id,
+                        ))
+                else:
+                    js_summary = _extract_js_only_summary(input_text) if is_exec_wrapper else (first_cmd or "")
+                    tool_call_rows.append(ToolCallRow(
+                        line_no=line_no or 0,
+                        record_type="custom_tool_call",
+                        name=name,
+                        codex_tool=None,
+                        js_only=is_exec_wrapper,
+                        summary=js_summary,
+                        call_id=call_id,
+                    ))
                 if call_id is not None:
                     call_id_to_cmd[call_id] = (tool_name, first_cmd)
                 # Track explicit sandbox escalation requests in the newer tool shape.
@@ -820,30 +952,20 @@ def audit_file(path: Path) -> dict:
     if r["turns"] and not r["final_answers_event"]:
         r["flags"].append("NO_FINAL_ANSWER: turn completed without a final answer emission")
 
-    # I. Tool-mix shift: web_search_call vs exec_command. A retrieval test that
-    # uses zero web calls and only shell commands is a behavioral finding.
-    # Use rendered_tools because the chat UI expands batched commands and that
-    # is what a human observer compares against.
-    exec_cmd_count = r["rendered_tools"].get("exec_command", 0)
-    if r["web_search_calls"] == 0 and exec_cmd_count > 0:
+    # J. exec wrapper shape: custom_tool_call exec records can contain multiple
+    # Codex tool invocations, one invocation, or none at all (pure JS analysis).
+    # This flag documents the ratio so it is obvious when the wrapper record
+    # count differs from the actual Codex tool calls inside.
+    codex_tools_inside = sum(r["codex_tools_inside_exec"].values())
+    if r["custom_exec_records"] and codex_tools_inside != r["custom_exec_records"]:
         r["flags"].append(
-            f"NO_WEB_SEARCH: 0 web_search calls, {exec_cmd_count} exec_command call(s)"
-        )
-    elif exec_cmd_count > r["web_search_calls"]:
-        r["flags"].append(
-            f"SHELL_DOMINANT: {exec_cmd_count} exec_command call(s) vs {r['web_search_calls']} web_search call(s)"
-        )
-
-    # K. Batched tool-call discrepancy: when a single custom_tool_call record
-    # contains multiple rendered commands, document the gap between raw records
-    # and chat-visible calls.
-    if r["rendered_function_calls"] > r["function_calls"]:
-        r["flags"].append(
-            f"TOOL_CALL_BATCHING: {r['function_calls']} tool-call record(s) rendered as {r['rendered_function_calls']} calls"
+            f"EXEC_WRAPPER_SHAPE: {r['custom_exec_records']} exec wrapper record(s) contain "
+            f"{codex_tools_inside} Codex tool call(s) and {r['custom_exec_js_only']} JS-only analysis block(s)"
         )
 
     # J. Memory-skill fingerprint flags: Codex does not announce local memory
     # skills in rollout logs, so we flag the exact shell recipes they prescribe.
+    r["tool_call_rows"] = tool_call_rows
     r["memory_skill_fingerprints"] = _detect_memory_fingerprints(r["exec_command_cmds"])
     for fp in r["memory_skill_fingerprints"]:
         r["flags"].append(f"MEMORY_LIKE_RECIPE: {fp}")
@@ -893,13 +1015,6 @@ def audit_file(path: Path) -> dict:
         ],
         ensure_ascii=False,
     )
-    if failure_summary["total"]:
-        breakdown = ", ".join(
-            f"{cat}={c}" for cat, c in sorted(failure_summary["category_counts"].items()) if cat != "ok"
-        )
-        rec_note = f" ({r['recovered_failure_count']} recovered)" if r["recovered_failure_count"] else ""
-        r["flags"].append(f"FAILURES_DETECTED: {breakdown}{rec_note}")
-
     return r
 
 
@@ -942,10 +1057,25 @@ def main():
             print(f"  skill-signals: {' | '.join(lang_bits) if lang_bits else 'none'}")
         print(f"  turns {r['turns']} | user msgs {r['user_messages']} | commentary {r['commentary_msgs']} | "
               f"final answers: event {r['final_answers_event']}, transcript {r['final_answers_item']}")
-        print(f"  api calls: web_search {r['web_search_calls']} | function {r['function_calls']} records "
-              f"({r['rendered_function_calls']} rendered) {dict(r['tools']) if r['tools'] else ''}")
-        if r["rendered_function_calls"] > r["function_calls"]:
-            print(f"  rendered tools: {dict(r['rendered_tools'])}")
+        # Per-call tool table: the single source of truth for tool invocations.
+        if r["tool_call_rows"]:
+            print("  tool records:")
+            for row in r["tool_call_rows"]:
+                codex = row.codex_tool or "-"
+                js = "JS-only" if row.js_only else "-"
+                summary = row.summary
+                if len(summary) > 80:
+                    summary = summary[:77] + "..."
+                print(
+                    f"    line {row.line_no:>3}  {row.record_type:<16}  {row.name:<14}  "
+                    f"codex_tool={codex:<12}  js={js:<8}  {summary}"
+                )
+        # Anomaly flags are printed next to the tool table so they are easy to
+        # correlate with the data they summarize.
+        if r["flags"]:
+            any_flags = True
+            for fl in r["flags"]:
+                print(f"  !! {fl}")
         if r["memory_skill_fingerprints"]:
             print(f"  memory fingerprints: {', '.join(r['memory_skill_fingerprints'])}")
         print(f"  timing: duration {display_duration(r['duration_s'])} | ttft {display_duration(r['ttft_s'])} | file wallclock {display_duration(r['wallclock_s'])}")
@@ -954,11 +1084,14 @@ def main():
             print(f"  failures: {r['failure_count_total']} ({r['failure_count_error']} error, {r['failure_count_warning']} warning)")
             for idx, record in enumerate(r["failure_classes"], 1):
                 print(_format_failure_console(record, idx))
-        if r["flags"]:
-            any_flags = True
-            for fl in r["flags"]:
-                print(f"  !! {fl}")
-        else:
+        # Baseline structural sanity: duplication and post-completion drift are
+        # independent of behavioral anomaly flags, so report them last.
+        base_ok = (
+            r["final_answers_event"] <= r["turns"]
+            and r["task_completes"] <= r["turns"]
+            and r["records_after_complete"] == 0
+        )
+        if base_ok:
             print("  OK: single emission, no post-completion records, all three copies match")
 
     if args.csv and results:
@@ -969,6 +1102,7 @@ def main():
                 "skill_language", "skill_language_source",
                 "turns", "user_messages",
                 "commentary_msgs", "final_answers_event", "final_answers_item", "web_search_calls",
+                "custom_exec_records", "custom_exec_with_tools", "custom_exec_js_only",
                 "function_calls", "task_completes", "records_after_complete", "duration_s",
                 "ttft_s", "wallclock_s", "tokens_total", "flags", "failure_count_total",
                 "failure_count_error", "failure_count_warning", "failure_categories",
