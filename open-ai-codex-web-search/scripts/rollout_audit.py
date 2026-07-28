@@ -25,6 +25,7 @@ import csv
 import glob
 import hashlib
 import json
+import os
 import re
 import sys
 from collections import Counter
@@ -1018,10 +1019,36 @@ def audit_file(path: Path) -> dict:
     return r
 
 
+def _resolve_csv_path(csv_arg: str, input_files: list[Path]) -> Path:
+    """Resolve the --csv destination.
+
+    A bare filename like `audit.csv` is stored next to the audited rollouts:
+    when every input file lives under a single test directory such as
+    `.../rollouts/T3-skill-on-memories-suppressed/<model>/*.jsonl`, the CSV is
+    placed at `.../rollouts/T3-skill-on-memories-suppressed/audit.csv`. A path
+    that already contains a directory separator is used verbatim.
+    """
+    if os.path.sep in csv_arg or "/" in csv_arg:
+        return Path(csv_arg)
+    existing = [f for f in input_files if f.exists()]
+    if not existing:
+        return Path(csv_arg)
+    # Each rollout path is .../rollouts/<test>/<model>/<file>.jsonl; the test
+    # directory is two levels up from the file.
+    test_dirs = {f.parent.parent.resolve() for f in existing}
+    if len(test_dirs) == 1:
+        return next(iter(test_dirs)) / csv_arg
+    # Mixed test directories: fall back to the shared rollouts parent.
+    rollout_parents = {f.parent.parent.parent.resolve() for f in existing}
+    if len(rollout_parents) == 1:
+        return next(iter(rollout_parents)) / csv_arg
+    return Path(csv_arg)
+
+
 def main():
     ap = argparse.ArgumentParser(description="Audit Codex rollout .jsonl logs for duplicate emissions and drift")
     ap.add_argument("paths", nargs="+", help="jsonl files or globs")
-    ap.add_argument("--csv", help="also write results to this CSV path")
+    ap.add_argument("--csv", help="also write results to this CSV path; a bare filename is stored next to the audited rollouts")
     args = ap.parse_args()
 
     files = []
@@ -1109,7 +1136,9 @@ def main():
                 "recovered_failure_count", "has_failure", "first_failure_category",
                 "first_failure_detail", "unknown_error_messages", "memory_skill_fingerprints",
                 "failure_records"]
-        with open(args.csv, "w", newline="") as fh:
+        csv_path = _resolve_csv_path(args.csv, files)
+        csv_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(csv_path, "w", newline="") as fh:
             w = csv.DictWriter(fh, fieldnames=cols)
             w.writeheader()
             for r in results:
@@ -1119,7 +1148,7 @@ def main():
                 row["memory_skill_fingerprints"] = ", ".join(r["memory_skill_fingerprints"])
                 row["failure_records"] = r["failure_records"]
                 w.writerow(row)
-        print(f"\nCSV written to {args.csv}")
+        print(f"\nCSV written to {csv_path}")
 
     sys.exit(1 if any_flags else 0)
 
