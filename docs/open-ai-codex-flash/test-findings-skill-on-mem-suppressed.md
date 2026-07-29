@@ -9,25 +9,25 @@ parent: OpenAI Codex - Flash
 
 ---
 
-> _Companion conditions [`skill-off` baseline](../open-ai-codex/codex-test-findings-extension.md) and [`skill-on` opt-in](test-findings-skill-opt-in.md) are covered in their own docs.
-> Findings here are limited to whether suppressing `/memories` isolates the `docs-consumption/SKILL` effect, and what that isolation exposes about retrieval,
-> reporting outcomes when the system-injected memory confound is removed. Experiment design in [Flash Runbook](runbook.md)._
+> _Companion conditions include [`/SKILL-off` baseline](../open-ai-codex/codex-test-findings-extension.md) and [`/SKILL-on` opt-in](test-findings-skill-opt-in.md).
+> This doc's limited to whether suppressing `/memories` isolates the `docs-consumption/SKILL` effect, and what that isolation exposes about retrieval-reporting.
+> Experiment design in [Flash Runbook](runbook.md)._
 
 ---
 
 ## [Test Workflow](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/framework.py)
 
-1. Confirm that `.agents/skills/docs-consumption/SKILL.md` exists in the workspace, and that `/memories` is suppressed in the session settings before launch
+1. Confirm that `.agents/skills/docs-consumption/SKILL.md` exists in the workspace without `/memories` enabled
 2. Run `python scripts/framework.py --test EC-6 --track vscode-codex-interpreted`
 3. Review terminal output
 4. Copy the provided prompt asking the agent to report on fetch results:
    character count, token estimate,<br>truncation status, content completeness,
    Markdown formatting integrity, and tool visibility
-5. Open a new session in [VS Code Codex](https://learn.chatgpt.com/docs/codex/ide), with `/memories` disabled, and paste the prompt into the chat window
+5. Open a new session in [VS Code Codex](https://learn.chatgpt.com/docs/codex/ide), paste the prompt into the chat window
 6. Approve `curl` escalation, shell permission requests; skip requests for runs of existing workspace scripts
-7. Capture the agent's full response; observe whether the agent follows `docs-consumption/SKILL.md` without `/memories` present
+7. Capture the agent's full response; observe whether agent follows `/SKILL` protocol
 8. Log structured metadata with `python scripts/log.py --results-dir results/docs-consumption-skill-flash`
-9. Run `rollout_audit.py`, `memory_audit.py` to confirm `/memories` suppression holds and separate `/SKILL` reference from any residual memory influence
+9. Run `rollout_audit.py`, `memory_audit.py` to confirm `/memories` suppression, determine `/SKILL` influence
 
 ---
 

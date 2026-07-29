@@ -9,9 +9,9 @@ parent: OpenAI Codex - Flash
 
 ---
 
-> _Companion conditions [`skill-off` baseline](../open-ai-codex/codex-test-findings-extension.md), `skill-on`, `skill-on + memory suppressed`
-> excluded from this doc. Findings limited to whether agents discovered, followed `docs-consumption/SKILL` independently, not whether explicit
-> activation or `/memories` removal changes retrieval, reporting outcomes. Experiment design in [Flash Runbook](runbook.md)._
+> _Companion conditions include [`/SKILL-off` baseline](../open-ai-codex/codex-test-findings-extension.md) and [`/SKILL-on + /memories suppressed`](test-findings-skill-on-mem-suppressed.md).
+> This doc's limited to whether agents discovered-followed `docs-consumption/SKILL` independently, not whether explicit
+> activation or `/memories` removal changes retrieval-reporting outcomes. Experiment design in [Flash Runbook](runbook.md)._
 
 ---
 
