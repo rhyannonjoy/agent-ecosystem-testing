@@ -37,7 +37,7 @@ parent: OpenAI Codex - Flash
 | --- | --- |
 | **Hard<br>Character<br>Limit** | _None detected with `curl`_: `curl` often `Content-Length`-verified: 91,877 bytes and 91,869 characters;<br>`web`: ~25,453 characters with `L54` cutpoint defined in [`/SKILL-off`](../open-ai-codex/codex-test-findings-extension.md), absent from [`/SKILL-on` opt-in](test-findings-skill-opt-in.md) |
 | **Hard<br>Token<br>Limit** | _None detected with `curl`_: both common strategies consistently past `H2` 2,000 ceiling; <br>`curl`: ~23,000 tokens; `web`: ~6,364 tokens |
-| **`/SKILL`<br>Discovery** | _Universal_: `100%` of session rollout logs cite `docs-consumption/SKILL` loaded, `100%` of agents start session mentioning `docs-consumption` specifically, then reading-reasoning with it |
+| **`/SKILL`<br>Discovery** | _Universal_: 100% of session rollout logs cite `docs-consumption/SKILL` loaded, 100% of agents start session mentioning `docs-consumption` specifically, then reading-reasoning with it |
 | **`/SKILL`<br>Retrieval<br>Influence** | _Weak to none_: shifted towards `web` with `L54` cutpoint without explicit `/SKILL`-driven examination; `/SKILL`-phrasing didn't predict tool choice, agents often used similar language to support<br>different strategies  |
 | **`/SKILL`<br>Reporting<br>Influence** | _Surface-level_: 100% of runs produced `skill-surface-only` false positives; every rollout emitted a completeness prefix, but new _under-confidence_ variant appeared in which agents labeled standard<br>`curl` fetches `UNVERIFIABLE` or `PARTIAL` |
 | **`/memories`<br>Confound** | _Suppressed_: isolation achieved; no run included `/memories` signals in the form of rollout emissions - `system_memory_instruction`, `MEMORY.md`, `single-url-retrieval-measurement/SKILL`, `memory_mentioned` or<br>chat-rendered citations |
@@ -49,39 +49,39 @@ parent: OpenAI Codex - Flash
 | --- | --- |
 | **Track** | `T2` `GPT`-interpreted, VS Code with Codex Extension, `T3` sub-track |
 | **Test** | [`EC-6` Raw GitHub Markdown](https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md) |
-| **`/SKILL` Condition** | `on` - `docs-consumption/SKILL` present and prompt-instructed; `/memories` suppressed |
+| **`/SKILL` Condition** | `on + /memories suppressed`: `docs-consumption/SKILL` present and prompt-instructed,<br>`/memories` not enabled |
 | **LLMs Observed** | `GPT-5.4-Mini`, `GPT-5.4`, `GPT-5.5`, `GPT-5.6 Luna`, `GPT-5.6 Sol`, `GPT-5.6 Terra` |
 | **Reasoning Levels** | `Light`, `Medium`, `High`, `Extra High`, `Ultra` |
 | **Total Runs** | 26 |
-| **`/SKILL` Loaded** | `100%` of session logs cite `docs-consumption/SKILL` injected into the agent's context |
-| **`/SKILL` Path Emitted** | `12%` - `3/26` agents referenced the full `/SKILL` path in their own output |
-| **Protocol Prefix Used** | `100%` emitted a completeness label, `100%` rollout-detected; `62%` `COMPLETE`, `31%` `PARTIAL`, `8%` `UNVERIFIABLE` |
-| **`/SKILL` Language Used** | `77%` of runs contained at least one `/SKILL`-related phrase, read as a shortcut<br>rather than protocol-driven analysis |
-| **Truncation: `Yes`** | `31%` - `8/26` agents reported the `web` `L54` cutpoint after `JSON-LD metadata,` |
-| **Truncation: `Mixed`** | `15%` - `4/26` reported both a `web` limit and a full `curl` result |
-| **Truncation: `Implicit`** | `4%` - `1/26` reasoned around a limit without naming it explicitly |
-| **Truncation: `No`** | `50%` of runs had no truncation signal, largely `curl`-only runs that bypassed `web` |
-| **Completeness Accurate** | `85%` - `22/26` correctly classified the fetch state, down from the [opt-in `100%`](test-findings-skill-opt-in.md#results-snapshot) |
-| **Errors Examined** | `69%` - `18/26` accurately described their most common error, but ignored others |
-| **Execution vs. Completeness** | `85%` - `22/26` distinguished _"the tool ran"_ from _"the full content arrived"_, down from opt-in `100%` |
-| **Avoided Reframing** | `42%` - `11/26` avoided calling a partial or error-state fetch _"complete"_ or _"successful"_, down from opt-in `84%` |
-| **Fix Recommended** | `0%` genuine; only `5/26` carried a label-only recommendation that restated baseline behavior, the remaining `21/26` offered none |
-| **`/memories` Signals** | `0%` - `0/26` session logs carried any `## Memory` instruction, `MEMORY.md` citation, or competing `single-url-retrieval-measurement/SKILL` |
-| **Retrieval Method** | `50%` - `13/26` `curl`-only; `27%` - `7/26` `web`-only; `23%` - `6/26` both |
+| **`/SKILL` Loaded** | 100% of session logs cite `docs-consumption/SKILL` injected into the agent's context |
+| **`/SKILL` Path Emitted** | 12% of agents wrote the full `/SKILL` path rather than mentioning it in passing |
+| **`/SKILL` Protocol<br>Prefix Used** | 100% emitted a completeness label -<br>`COMPLETE`: 16<br>`PARTIAL`: 8<br>`UNVERIFIABLE`: 2 |
+| **`/SKILL` Language Used** | 77% of runs contained at least one `/SKILL`-related phrase, but read as a<br>shortcut rather than protocol-driven analysis |
+| **Truncation: `Yes`** | 31% of agents reported the `web` `L54` cutpoint after `JSON-LD metadata,` |
+| **Truncation: `Mixed`** | 15% of agents reported both a limited `web` window-view and a full `curl` payload |
+| **Truncation: `Implicit`** | One agent reasoned around a `web` limit without naming it explicitly |
+| **Truncation: `No`** | 50% of runs had no truncation signal, largely because these agents bypassed `web` for `curl` |
+| **Completeness Accurate** | 85% of agents correctly classified the fetch state - down from [`opt-in`'s 100%](test-findings-skill-opt-in.md#results-snapshot) |
+| **Errors Examined** | 69% of agents accurately described their most common error, but ignored others |
+| **Execution vs. Completeness** | 85% of agents distinguished _"the tool ran"_ from _"the full content arrived"_ -<br>down from `opt-in`'s 100% |
+| **Avoided Reframing** | 42% of agents avoided calling a partial or error-state fetch _"complete"_ or _"successful"_ -<br>down from `opt-in`'s 84% |
+| **Fix Recommended** | No substantial recommendations; 5 agents used a `Recommendation` label that restated<br>baseline behavior, the remaining 21 offered none |
+| **`/memories` Signals** | No session rollout or agentic self-report included `## Memory` instruction, `MEMORY.md`<br>citations, or competing `/memories/skills/single-url-retrieval-measurement/SKILL` use |
+| **Retrieval Method** | 50% of agents relied completely on `curl`, while 27% relied completely on `web`,<br>and 23% used both |
 
 ## Key Findings
 
 {: .table-findings}
 | **#** | **Finding** | **Tests** | **Observed** | **Conclusion** |
 | --- | --- | --- | --- | --- |
-| 1 | **`/memories` suppression isolates `/SKILL` cleanly** | All tests | `0/26` runs carried any memory signal across `system_memory_instruction`, `MEMORY.md`, `single-url-retrieval-measurement/SKILL`, and `memory_mentioned` | **This is the first condition where the `docs-consumption/SKILL` effect can be read without the [opt-in `/memories` confound](test-findings-skill-opt-in.md#memories-dominance)** |
-| 2 | **`/SKILL` surface uptake _improves_ without `/memories` competing** | All tests | `100%` loaded (vs opt-in `87%`), `100%` named (vs `61%`), `100%` prefix rollout-detected (vs `58%`); only `/SKILL`-like _language_ dropped (`77%` vs `100%`) | **The opt-in `/memories` confound was suppressing surface uptake of `/SKILL`, not driving it; removing it lets `/SKILL` load and surface more reliably** |
-| 3 | **Substantive compliance does _not_ improve** | All tests | `100%` - `26/26` read as `skill-surface-only` false positives; `0` genuine fix recommendations, identical to opt-in | **Removing `/memories` does not raise the compliance ceiling; shallow compliance is baseline agent behavior with the skill, not a `/memories` artifact** |
-| 4 | **Retrieval shifts back to `web`; the `L54` cutpoint returns** | `Terra`, `Luna`, `Sol`, `Mini` runs | `50%` of runs showed a truncation signal (vs opt-in `22%`); `web`-only or `web`+`curl` runs appeared in `13/26`; the `~25,453`-character `L54` clip reappeared in `8` runs | **`/memories` was the `curl`-bypass driver (its _"stop trusting the clipped rendered view"_ lesson); suppressing it lets agents revert to `web` and re-hit the `L54` ceiling** |
-| 5 | **Reporting discipline degrades; a new _under-confidence_ variant appears** | `Terra High`, `GPT-5.4 High`, `Luna Extra High` | Completeness accuracy fell to `85%` (vs `100%`), avoided-reframing to `42%` (vs `84%`); `3` runs labeled clean full `curl` fetches `UNVERIFIABLE` / `PARTIAL`, the inverse of opt-in's failure-as-success pattern | **Without `/memories` over-documenting common errors, agents swing from over-confident parroting to under-confident mislabeling; the `/SKILL` prefix becomes a stylistic label detached from the evidence** |
+| 1 | **`/memories` suppression isolates `/SKILL` cleanly** | All tests | 0/26 runs carried any memory signal across `system_memory_instruction`, `MEMORY.md`, `single-url-retrieval-measurement/SKILL`, and `memory_mentioned` | **This is the first condition where the `docs-consumption/SKILL` effect can be read without the [opt-in `/memories` confound](test-findings-skill-opt-in.md#memories-dominance)** |
+| 2 | **`/SKILL` surface uptake _improves_ without `/memories` competing** | All tests | 100% loaded (vs opt-in 87%), 100% named (vs 61%), 100% prefix rollout-detected (vs 58%); only `/SKILL`-like _language_ dropped (77% vs 100%) | **The opt-in `/memories` confound was suppressing surface uptake of `/SKILL`, not driving it; removing it lets `/SKILL` load and surface more reliably** |
+| 3 | **Substantive compliance does _not_ improve** | All tests | 100% - 26/26 read as `skill-surface-only` false positives; `0` genuine fix recommendations, identical to opt-in | **Removing `/memories` does not raise the compliance ceiling; shallow compliance is baseline agent behavior with the skill, not a `/memories` artifact** |
+| 4 | **Retrieval shifts back to `web`; the `L54` cutpoint returns** | `Terra`, `Luna`, `Sol`, `Mini` runs | 50% of runs showed a truncation signal (vs opt-in 22%); `web`-only or `web`+`curl` runs appeared in 13/26; the `~25,453`-character `L54` clip reappeared in `8` runs | **`/memories` was the `curl`-bypass driver (its _"stop trusting the clipped rendered view"_ lesson); suppressing it lets agents revert to `web` and re-hit the `L54` ceiling** |
+| 5 | **Reporting discipline degrades; a new _under-confidence_ variant appears** | `Terra High`, `GPT-5.4 High`, `Luna Extra High` | Completeness accuracy fell to 85% (vs 100%), avoided-reframing to 42% (vs 84%); `3` runs labeled clean full `curl` fetches `UNVERIFIABLE` / `PARTIAL`, the inverse of opt-in's failure-as-success pattern | **Without `/memories` over-documenting common errors, agents swing from over-confident parroting to under-confident mislabeling; the `/SKILL` prefix becomes a stylistic label detached from the evidence** |
 | 6 | **`/SKILL` phrasing doesn't predict tool choice** | `Sol High` vs `Sol Extra High` | `Sol High` (`curl`) and `Sol Extra High` (`web`) used near-identical _"the skill requires distinguishing a successful request from a complete response"_ phrasing to justify opposite retrieval choices | **`/SKILL`-derived language functions as a post-hoc narrative wrapper applied after the tool choice, not a genuine driver of retrieval strategy** |
-| 7 | **Default-agent habits persist without memory** | `Luna`, `Sol` runs | The `Luna High` `zsh` read-only-variable bug, `/private/tmp` artifact naming collisions, and invented `/SKILL` attribution (`Sol`) all recurred with `/memories` fully suppressed | **Collision-prone scripting and over-extended citation are default agent behavior, not stale memory echoes; suppression rules out `/memories` as the source** |
-| 8 | **Suppression exposes the false-positive floor** | All tests | With `/memories` removed, the `skill-surface-only` false-positive profile (`26/26`) is unchanged from opt-in; surface uptake rose while substantive compliance held flat | **This is the true control for the opt-in condition: the false-positive floor is the baseline agent + `/SKILL` compliance level, independent of `/memories`** |
+| 7 | **Default-agent habits persist without memory** | `Luna`, `Sol` runs | The `Luna High` `zsh` read-only variable bug, `/private/tmp` artifact naming collisions, and invented `/SKILL` attribution (`Sol`) all recurred with `/memories` fully suppressed | **Collision-prone scripting and over-extended citation are default agent behavior, not stale memory echoes; suppression rules out `/memories` as the source** |
+| 8 | **Suppression exposes the false-positive floor** | All tests | With `/memories` removed, the `skill-surface-only` false-positive profile (26/26) is unchanged from opt-in; surface uptake rose while substantive compliance held flat | **This is the true control for the opt-in condition: the false-positive floor is the baseline agent + `/SKILL` compliance level, independent of `/memories`** |
 
 ## Memory Suppression
 
@@ -93,11 +93,11 @@ confirm that `.codex/memories` was absent across the sub-track while
 what _can render each session_ and don't transcribe what _does render each session_, the visualizations below include a hybrid of
 rollout metadata and agent self-reports from the chat.
 
-The suppression holds cleanly: `0/26` runs carried the `## Memory` block in the `system_prompt`, and `0/26` referenced `MEMORY.md`,
+The suppression holds cleanly: 0/26 runs carried the `## Memory` block in the `system_prompt`, and 0/26 referenced `MEMORY.md`,
 the `raw_memories` file, `memory_summary.md`, or the competing `/memories/skills/single-url-retrieval-measurement/SKILL`. This is the
 first condition in the flash experiment where `docs-consumption/SKILL` can be evaluated without `/memories` overprinting the session.
 The contrast against the [opt-in sub-track](test-findings-skill-opt-in.md#memories-dominance) is stark: where opt-in sessions were
-`77%` _both_ `/docs-consumption` + `/memories`, every suppressed session is `docs-consumption` alone.
+77% _both_ `/docs-consumption` + `/memories`, every suppressed session is `docs-consumption` alone.
 
 {% raw %}
 <svg class="cdx-skill-stack" viewBox="0 0 870 130" style="max-width: 870px; margin: 1rem auto; display: block;">
@@ -148,19 +148,19 @@ The contrast against the [opt-in sub-track](test-findings-skill-opt-in.md#memori
 </svg>
 {% endraw %}
 
-Isolation, however, did not produce deeper compliance. `100%` of runs loaded `docs-consumption/SKILL`, `100%` mentioned it by name, and
-`100%` emitted a completeness prefix — surface uptake that _exceeds_ the opt-in sub-track — yet `26/26` still read as `skill-surface-only`
+Isolation, however, did not produce deeper compliance. 100% of runs loaded `docs-consumption/SKILL`, 100% mentioned it by name, and
+100% emitted a completeness prefix - surface uptake that _exceeds_ the opt-in sub-track - yet 26/26 still read as `skill-surface-only`
 false positives and `0` runs produced a genuine fix. The shallow compliance ceiling is independent of `/memories`. What suppression _did_
 change was retrieval and reporting: with `/memories`'s _"stop trusting the clipped rendered view"_ lesson gone, agents reverted to the `web`
-tool and re-hit the `L54` cutpoint (`50%` truncation signal vs opt-in `22%`), and a new _under-confidence_ variant appeared where clean full
+tool and re-hit the `L54` cutpoint (50% truncation signal vs opt-in 22%), and a new _under-confidence_ variant appeared where clean full
 fetches were labeled `UNVERIFIABLE` or `PARTIAL`. `/SKILL`-derived phrasing continued to function as a narrative wrapper rather than a strategy
-driver — `Sol High` and `Sol Extra High` used near-identical justification language to choose `curl` and `web` respectively.
+driver - `Sol High` and `Sol Extra High` used near-identical justification language to choose `curl` and `web` respectively.
 
 This heat map organizes runs by LLM-reasoning combination. Column colors group the signal type: `/SKILL` presence (green), `/SKILL` requirement
 (light green, striped cells indicate presence but shallow compliance reading as false positives), retrieval (blue/purple for method, red/orange
 for truncation), and mislabel direction. The retrieval and mislabel columns carry T3's distinctive story: `web` returns in `Terra` and `Luna`,
 the `L54` `yes`-truncation cells light up red, and the under-confidence `under` cells mark clean fetches mislabeled as unresolved. The
-`fix recs` column stays empty across every run — the `/SKILL`'s recommendation requirement went unmet even with the confound removed.
+`fix recs` column stays empty across every run - the `/SKILL`'s recommendation requirement went unmet even with the confound removed.
 
 {% raw %}
 <div id="cdx-skill-t3-root"></div>

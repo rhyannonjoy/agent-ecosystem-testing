@@ -47,7 +47,7 @@ parent: OpenAI Codex - Flash
 
 | **Metric** | **Results** |
 | --- | --- |
-| **Track** | `T2` `GPT`-interpreted, VS Code with Codex Extension |
+| **Track** | `T2` `GPT`-interpreted, VS Code with Codex Extension, `T2` sub-track |
 | **Test** | [`EC-6` Raw GitHub Markdown](https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md) |
 | **`/SKILL` Condition** | `opt-in` - `docs-consumption/SKILL` present, but the prompt never mentioned it |
 | **LLMs Observed** | `GPT-5.4-Mini`, `GPT-5.4`, `GPT-5.5`, `GPT-5.6 Luna`, `GPT-5.6 Sol`, `GPT-5.6 Terra` |
@@ -55,7 +55,7 @@ parent: OpenAI Codex - Flash
 | **Total Runs** | 31 |
 | **`/SKILL` Loaded** | ~87% of session logs cite `/docs-consumption/SKILL` injected into the agent's context |
 | **`/SKILL` Path Emitted** | One agent wrote the full `/SKILL` path in its own output rather than mentioning it in passing |
-| **Protocol Prefix Used** | ~58% of agents used `/SKILL` summarization prefix to signal completeness |
+| **`/SKILL` Protocol Prefix Used** | ~58% of agents used `/SKILL` summarization prefix to signal completeness |
 | **`/SKILL` Language Used** | 100% of runs contained at least one `/SKILL`-related phrase, but read as a shortcut<br>rather than protocol-driven analysis |
 | **Truncation: `Yes`** | One agent reported incomplete content with the familiar `T2` [`L54` `web`-window cutpoint](../open-ai-codex/codex-test-findings-extension.md#platform-limit-summary) |
 | **Truncation: `Mixed`** | Six agents reported both a `web` limit and a full `curl` result |
