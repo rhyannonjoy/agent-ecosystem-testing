@@ -156,11 +156,16 @@ tool and re-hit the `L54` cutpoint (50% truncation signal vs opt-in 22%), and a 
 fetches were labeled `UNVERIFIABLE` or `PARTIAL`. `/SKILL`-derived phrasing continued to function as a narrative wrapper rather than a strategy
 driver - `Sol High` and `Sol Extra High` used near-identical justification language to choose `curl` and `web` respectively.
 
-This heat map organizes runs by LLM-reasoning combination. Column colors group the signal type: `/SKILL` presence (green), `/SKILL` requirement
-(light green, striped cells indicate presence but shallow compliance reading as false positives), retrieval (blue/purple for method, red/orange
-for truncation), and mislabel direction. The retrieval and mislabel columns carry T3's distinctive story: `web` returns in `Terra` and `Luna`,
-the `L54` `yes`-truncation cells light up red, and the under-confidence `under` cells mark clean fetches mislabeled as unresolved. The
-`fix recs` column stays empty across every run - the `/SKILL`'s recommendation requirement went unmet even with the confound removed.
+Two heat maps split the run matrix along the semantic boundary surfaced above. **Heat map A** organizes runs by LLM-reasoning combination and
+tracks `/SKILL` protocol compliance as binary signals: `/SKILL` presence (green) and `/SKILL` requirement (light green, striped cells indicate
+presence but shallow compliance reading as false positives). The `fix recs` column stays empty across every run - the `/SKILL`'s recommendation
+requirement went unmet even with the confound removed. **Heat map B** carries the retrieval and reporting outcome - `method`, `truncation`, and
+`mislabel` direction - styled after the [extension truncation and method maps](../open-ai-codex/codex-test-findings-extension.md#content-access-x-intelligence),
+but scoped to the single page type `EC-6`. Rows are LLM version grouped by reasoning level, and each cell carries a surface-note description drawn
+from the run's log label: `web` returns in `Terra` and `Luna` re-hit the `L54` cutpoint, the `yes`-truncation cells light up red, and the
+under-confidence `under` cells mark clean `curl` fetches mislabeled `UNVERIFIABLE` or `PARTIAL`.
+
+### Heat Map A - `/SKILL` Compliance
 
 {% raw %}
 <div id="cdx-skill-t3-root"></div>
@@ -226,42 +231,14 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
     {id: 'fix_rec', label: 'fix\nrecs', full: 'fix recommendation', group: 'reqSub'}
   ];
 
-  var RETR_COLS = [
-    {id: 'method', label: 'method', full: 'retrieval method', group: 'ret', type: 'cat'},
-    {id: 'truncated', label: 'trunc', full: 'truncation signal', group: 'ret', type: 'cat'}
-  ];
-
-  var ML_COLS = [
-    {id: 'mislabel', label: 'mislabel', full: 'mislabel direction', group: 'ml', type: 'cat'}
-  ];
-
-  var ALL_COLS = PRESENCE_COLS.concat(REQ_COLS, RETR_COLS, ML_COLS);
-  var SPACER_AFTER = [PRESENCE_COLS.length, PRESENCE_COLS.length + REQ_COLS.length, PRESENCE_COLS.length + REQ_COLS.length + RETR_COLS.length];
+  var ALL_COLS = PRESENCE_COLS.concat(REQ_COLS);
+  var SPACER_AFTER = [PRESENCE_COLS.length, PRESENCE_COLS.length + REQ_COLS.length];
 
   var STRIPE_COLS = {skill_lang: true, accuracy: true, error_exam: true, exec_vs_comp: true, no_reframe: true};
 
   var GROUP_COLORS = {
     req: {dark: '#0F6E56', light: '#1D9E75'},
     reqSub: {dark: '#3BAE7C', light: '#5DC99A'}
-  };
-
-  var CAT_COLORS = {
-    method: {
-      web:   {dark: '#185FA5', light: '#378ADD', label: 'web'},
-      curl:  {dark: '#0F6E56', light: '#1D9E75', label: 'curl'},
-      both:  {dark: '#5A4A9C', light: '#7A5BC9', label: 'both'}
-    },
-    truncated: {
-      yes:      {dark: '#A03A3A', light: '#C94B4B', label: 'yes'},
-      mixed:    {dark: '#B5703A', light: '#D98A3D', label: 'mix'},
-      implicit: {dark: '#A8863A', light: '#C9A23D', label: 'impl'},
-      no:       {dark: '#6E6E66', light: '#9A9A92', label: 'no'}
-    },
-    mislabel: {
-      accurate: {dark: '#3BAE7C', light: '#5DC99A', label: 'acc'},
-      under:    {dark: '#185FA5', light: '#378ADD', label: 'under'},
-      over:     {dark: '#B5703A', light: '#D98A3D', label: 'over'}
-    }
   };
 
   function spacerClass(i) {
@@ -274,20 +251,6 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
     var val = props.val;
     var tip = props.tip;
     var mode = dark ? 'dark' : 'light';
-
-    if (col.type === 'cat') {
-      var spec = CAT_COLORS[col.id][val];
-      if (!spec) {
-        return e('div', {title: tip, className: 'cdx-skill-cell', style: {background: 'transparent', borderColor: 'transparent'}});
-      }
-      var isLightText = (val === 'no' || val === 'impl' || val === 'mix' || val === 'acc' || val === 'over');
-      var catClass = 'cdx-skill-cell cdx-skill-cat' + (isLightText ? ' cdx-skill-cat-dark' : '');
-      return e('div', {
-        title: tip,
-        className: catClass,
-        style: {background: spec[mode]}
-      }, spec.label);
-    }
 
     var baseColor = GROUP_COLORS[col.group][mode];
     var className = 'cdx-skill-cell';
@@ -330,9 +293,7 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
         var val = run[col.id];
         var isShallow = val && STRIPE_COLS[col.id];
         var label;
-        if (col.type === 'cat') {
-          label = val;
-        } else if (col.id === 'prefix' && val) {
+        if (col.id === 'prefix' && val) {
           label = 'prefix';
         } else if (isShallow) {
           label = 'false positive';
@@ -376,25 +337,6 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
           {name: 'exec comp', desc: 'flag tool ran from full content'},
           {name: 'no reframe', desc: 'no reframing error as success'},
           {name: 'fix recs', desc: 'suggest remediation'}
-        ]
-      },
-      {
-        key: 'ret',
-        label: 'retrieval',
-        color: CAT_COLORS.method.curl[mode],
-        cols: [
-          {name: 'method', desc: '<span style="color:#378ADD">web</span> / <span style="color:#1D9E75">curl</span> / <span style="color:#7A5BC9">both</span>'},
-          {name: 'trunc', desc: '<span style="color:#C94B4B">yes</span> / <span style="color:#D98A3D">mix</span> / <span style="color:#C9A23D">impl</span> / <span style="color:#9A9A92">no</span>'}
-        ]
-      },
-      {
-        key: 'ml',
-        label: 'mislabel direction',
-        color: CAT_COLORS.mislabel.under[mode],
-        cols: [
-          {name: 'accurate', desc: 'label matches evidence'},
-          {name: 'under', desc: 'clean full fetch labeled <code>UNVERIFIABLE</code>/<code>PARTIAL</code>'},
-          {name: 'over', desc: '<code>COMPLETE</code> despite truncation signal'}
         ]
       }
     ];
@@ -482,6 +424,331 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
   }
 
   var root = ReactDOM.createRoot(document.getElementById('cdx-skill-t3-root'));
+  root.render(e(App));
+})();
+</script>
+{% endraw %}
+
+### Heat Map B - Retrieval & Reporting Outcome
+
+{% raw %}
+<div id="cdx-t3b-root"></div>
+
+<style>
+.cdx-t3b-wrap { overflow-x: auto; display: flex; justify-content: center; }
+table.cdx-t3b { border-collapse: collapse; width: auto; }
+table.cdx-t3b th { font-size: 10px; font-weight: 500; padding: 3px 6px; text-align: center; white-space: nowrap; color: inherit; }
+table.cdx-t3b th.cdx-t3b-rh { text-align: left; padding-left: 0; padding-right: 6px; }
+table.cdx-t3b th .cdx-t3b-sub { font-weight: 400; font-size: 9px; opacity: 0.55; display: block; }
+table.cdx-t3b td { padding: 2px 2px; text-align: center; vertical-align: middle; }
+table.cdx-t3b td.cdx-t3b-rl { font-size: 11px; text-align: left; padding-left: 0; white-space: nowrap; font-weight: 400; padding-right: 8px; color: inherit; vertical-align: middle; }
+table.cdx-t3b td.cdx-t3b-llm { font-size: 10px; opacity: 0.7; padding-left: 10px; }
+.cdx-t3b-cell { border-radius: 3px; display: flex; align-items: center; justify-content: center; width: 46px; height: 26px; margin: 1px auto; cursor: help; font-size: 10px; font-weight: 600; }
+.cdx-t3b-banner { font-size: 10px; font-weight: 600; letter-spacing: 0.04em; opacity: 0.6; text-align: center; }
+.cdx-t3b-hint { font-size: 11px; opacity: 0.5; margin-top: 6px; cursor: pointer; }
+.cdx-t3b-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.78); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.cdx-t3b-overlay-inner { border-radius: 10px; padding: 22px 26px; max-width: 99vw; max-height: 93vh; overflow: auto; position: relative; }
+.cdx-t3b-close { position: absolute; top: 10px; right: 12px; background: none; border: none; font-size: 20px; cursor: pointer; opacity: 0.5; line-height: 1; }
+.cdx-t3b-close:hover { opacity: 1; }
+</style>
+
+<script>
+(function() {
+  var e = React.createElement;
+
+  function detectDark() {
+    var t = document.documentElement.getAttribute('data-theme');
+    if (t === 'dark') return true;
+    if (t === 'light') return false;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  // Single page type: EC-6 (Raw GitHub Markdown, ~92 KB). Columns are the three
+  // retrieval/reporting outcome signals; rows are LLM version grouped by reasoning
+  // level. Each cell carries that run's log-label surface note in its tooltip.
+  var COLS = [
+    {id: 'method',    l1: 'method',    l2: 'retrieval path',   full: 'retrieval method'},
+    {id: 'truncated', l1: 'truncation', l2: 'cutpoint signal', full: 'truncation signal'},
+    {id: 'mislabel',  l1: 'mislabel',  l2: 'label vs evidence', full: 'mislabel direction'}
+  ];
+
+  var LEVELS = [
+    {k: 'L',  label: 'Light'},
+    {k: 'M',  label: 'Medium'},
+    {k: 'H',  label: 'High'},
+    {k: 'XH', label: 'Extra High'},
+    {k: 'U',  label: 'Ultra'}
+  ];
+
+  var MODELS = [
+    {k: '5.4m',  label: 'GPT-5.4-Mini', short: '5.4m'},
+    {k: '5.4',   label: 'GPT-5.4',      short: '5.4'},
+    {k: '5.5',   label: 'GPT-5.5',      short: '5.5'},
+    {k: 'luna',  label: 'GPT-5.6 Luna', short: 'Luna'},
+    {k: 'sol',   label: 'GPT-5.6 Sol',  short: 'Sol'},
+    {k: 'terra', label: 'GPT-5.6 Terra', short: 'Terra'}
+  ];
+
+  // Ultra reasoning level only ran on Sol and Terra.
+  var LEVEL_MODELS = {
+    L: ['5.4m','5.4','5.5','luna','sol','terra'],
+    M: ['5.4m','5.4','5.5','luna','sol','terra'],
+    H: ['5.4m','5.4','5.5','luna','sol','terra'],
+    XH:['5.4m','5.4','5.5','luna','sol','terra'],
+    U: ['sol','terra']
+  };
+
+  // T3 semantic coloring: curl = complete (green), web = truncated path (blue),
+  // both = purple; truncation yes = red, no = grey; mislabel accurate = green,
+  // under = blue (success mislabeled unresolved), over = orange.
+  var COLORS = {
+    method: {
+      web:  {bgLight:'#378ADD', bgDark:'#185FA5', fg:'#fff',     label:'web'},
+      curl: {bgLight:'#1D9E75', bgDark:'#0F6E56', fg:'#fff',     label:'curl'},
+      both: {bgLight:'#7A5BC9', bgDark:'#5A4A9C', fg:'#fff',     label:'both'}
+    },
+    truncated: {
+      yes:      {bgLight:'#C94B4B', bgDark:'#A03A3A', fg:'#fff',     label:'yes'},
+      mixed:    {bgLight:'#D98A3D', bgDark:'#B5703A', fg:'#1a1a18',  label:'mix'},
+      implicit: {bgLight:'#C9A23D', bgDark:'#A8863A', fg:'#1a1a18',  label:'impl'},
+      no:       {bgLight:'#9A9A92', bgDark:'#6E6E66', fg:'#1a1a18',  label:'no'}
+    },
+    mislabel: {
+      accurate: {bgLight:'#5DC99A', bgDark:'#3BAE7C', fg:'#1a1a18',  label:'acc'},
+      under:    {bgLight:'#378ADD', bgDark:'#185FA5', fg:'#fff',     label:'under'},
+      over:     {bgLight:'#D98A3D', bgDark:'#B5703A', fg:'#1a1a18',  label:'over'}
+    }
+  };
+
+  var CATEGORY_DESC = {
+    method: {
+      web: 'web tool produced the output (rendered extraction, often L54-clipped)',
+      curl: 'curl produced the output (full Content-Length-verified body)',
+      both: 'both web and curl used, curl for the full fetch'
+    },
+    truncated: {
+      yes: 'web L54 cutpoint reported explicitly',
+      mixed: 'both a web limit and a full curl result reported',
+      implicit: 'limit reasoned around without being named',
+      no: 'no truncation signal, curl-complete'
+    },
+    mislabel: {
+      accurate: 'completeness label matches the evidence',
+      under: 'clean full curl fetch labeled UNVERIFIABLE or PARTIAL',
+      over: 'COMPLETE despite a truncation signal'
+    }
+  };
+
+  // Per-run outcome + log-label surface note, keyed model:level.
+  var RUNS = {
+    '5.4m:L':  {method:'web',  truncated:'yes',      mislabel:'accurate', note:'curl_dns_blocked + web_open_partial_only + skill_instructed_docs_consumption + 37s (FAIL)'},
+    '5.4m:M':  {method:'both', truncated:'implicit', mislabel:'over',     note:'curl_91877_bytes + web_view_truncation_undisclosed + skill_instructed_docs_consumption + 1m18s'},
+    '5.4m:H':  {method:'both', truncated:'mixed',    mislabel:'accurate', note:'curl_91869_chars + web_open_clip_l54_disclosed + skill_instructed_docs_consumption + 1m45s'},
+    '5.4m:XH': {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars + sandbox_empty_response_then_escalated + tiktoken_unavailable_undisclosed + skill_instructed_docs_consumption + 6m26s'},
+    '5.4:L':   {method:'both', truncated:'mixed',    mislabel:'accurate', note:'curl_91869_chars + web_open_windowed_l33_visible_of_l55 + skill_instructed_docs_consumption + 1m1s'},
+    '5.4:M':   {method:'both', truncated:'mixed',    mislabel:'accurate', note:'curl_91877_chars + web_open_clip_l54_undisclosed_in_report + skill_instructed_docs_consumption + 1m7s'},
+    '5.4:H':   {method:'both', truncated:'mixed',    mislabel:'under',    note:'curl_91877_chars_eof_clean + web_open_clip_l54_disclosed + self_labeled_partial_mismatch + skill_instructed_docs_consumption + 2m20s'},
+    '5.4:XH':  {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + sandbox_dns_failure_disclosed + web_not_invoked + skill_instructed_docs_consumption + 2m17s'},
+    '5.5:L':   {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + dns_failure_disclosed_3x + no_web + skill_instructed_docs_consumption + 46s'},
+    '5.5:M':   {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + headers_request_id_reuse_flagged + no_web + skill_instructed_docs_consumption + 1m0.7s'},
+    '5.5:H':   {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_byte_char_gap_reasoned + no_web + skill_instructed_docs_consumption + 1m23s'},
+    '5.5:XH':  {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + hyphenated_artifact_naming_variant + no_web + skill_instructed_docs_consumption + 1m29s'},
+    'luna:L':  {method:'web',  truncated:'yes',      mislabel:'accurate', note:'web_24884_chars_partial_L54 + curl_dns_failure_not_escalated + shell_dominant_flag + skill_instructed_docs_consumption + 29s'},
+    'luna:M':  {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + artifact_naming_collision + tool_visibility_undercount + skill_instructed_docs_consumption + 47s'},
+    'luna:H':  {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + zsh_readonly_var_undisclosed + skill_instructed_docs_consumption + 2m8s'},
+    'luna:XH': {method:'both', truncated:'yes',      mislabel:'under',    note:'web_24885_chars_partial_L54 + curl_91869_chars_verified + early_exit_partial_label + skill_instructed_docs_consumption + 3m13s'},
+    'sol:L':   {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + ruby_local_inspection + scope_overgeneralized_skill_citation + skill_instructed_docs_consumption + 57s'},
+    'sol:M':   {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + xcache_hit_zero_hits_contradiction + skill_instructed_docs_consumption + 1m7s'},
+    'sol:H':   {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + invented_skill_attribution + skill_instructed_docs_consumption + 1m16s'},
+    'sol:XH':  {method:'web',  truncated:'yes',      mislabel:'accurate', note:'web_25453_chars_partial_L54 + js_textencoder_error_disclosed + skill_instructed_docs_consumption + 1m29s'},
+    'sol:U':   {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + artifact_naming_collision + undisclosed_ui_truncation_flag + skill_instructed_docs_consumption + 2m44s'},
+    'terra:L': {method:'web',  truncated:'yes',      mislabel:'accurate', note:'web_25453_chars_partial_L54 + est_not_confirmed_char_count + skill_instructed_docs_consumption + 48s'},
+    'terra:M': {method:'web',  truncated:'yes',      mislabel:'accurate', note:'web_25453_chars_partial_L54 + tool_vs_self_report_tension + skill_instructed_docs_consumption + 32s'},
+    'terra:H': {method:'curl', truncated:'no',       mislabel:'under',    note:'curl_91869_chars_content_length_match + success_mislabeled_unverifiable + local_verification + skill_instructed_docs_consumption + 55s'},
+    'terra:XH':{method:'web',  truncated:'yes',      mislabel:'accurate', note:'web_25453_chars_partial_L54 + secondary_truncation_underreported + skill_instructed_docs_consumption + 2m1s'},
+    'terra:U': {method:'web',  truncated:'yes',      mislabel:'accurate', note:'web_25453_chars_partial_L54 + dual_web_call_reasoned_refetch + wordlim_200 + skill_instructed_docs_consumption + 3m17s'}
+  };
+
+  function modelLabel(k) {
+    for (var i = 0; i < MODELS.length; i++) if (MODELS[i].k === k) return MODELS[i].label;
+    return k;
+  }
+
+  function LegendGroup(props) {
+    var dark = props.isDark;
+    var tc = props.textColor || 'inherit';
+    var col = props.col;
+    var map = COLORS[col.id];
+    var keys = Object.keys(map);
+    return e('div', {style: {width: 250}},
+      e('div', {style: {fontWeight: 600, color: tc, marginBottom: 4, fontSize: 11}}, col.full),
+      e('table', {style: {borderCollapse: 'collapse', fontSize: 10}},
+        e('tbody', null, keys.map(function(k) {
+          var spec = map[k];
+          var bg = dark ? spec.bgDark : spec.bgLight;
+          return e('tr', {key: k},
+            e('td', {style: {paddingRight: 7, paddingBottom: 3, verticalAlign: 'middle'}},
+              e('span', {style: {
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                width: 38, height: 16, borderRadius: 3,
+                background: bg, color: spec.fg, fontSize: 9, fontWeight: 600
+              }}, spec.label)
+            ),
+            e('td', {style: {paddingBottom: 3, color: tc, opacity: 0.8}}, CATEGORY_DESC[col.id][k])
+          );
+        }))
+      )
+    );
+  }
+
+  function Legend(props) {
+    return e('div', {style: {display: 'flex', gap: 28, justifyContent: 'center', flexWrap: 'wrap', marginTop: 10}},
+      COLS.map(function(col) {
+        return e(LegendGroup, {key: col.id, isDark: props.isDark, textColor: props.textColor, col: col});
+      })
+    );
+  }
+
+  function NoteBlock(props) {
+    var tc = props.textColor || 'inherit';
+    var cs = {fontFamily: 'monospace', fontSize: 10, background: 'rgba(128,128,128,0.15)', borderRadius: 2, padding: '1px 3px'};
+    var C = function(t) { return e('code', {style: cs}, t); };
+    return e('p', {style: {fontSize: 11, marginTop: 8, lineHeight: 1.6, opacity: 0.65, color: tc, maxWidth: 720}},
+      e('i', null,
+        'Single page type ', C('EC-6'), ' (Raw GitHub Markdown, ~92 KB). Columns encode the retrieval and reporting outcome: ',
+        C('method'), ' (retrieval path), ', C('truncation'), ' (cutpoint signal), and ', C('mislabel'),
+        ' direction (label vs evidence). Rows are LLM version grouped by reasoning level; ', C('Ultra'),
+        ' ran on ', C('Sol'), ' and ', C('Terra'), ' only. Cell tooltips carry each run\'s log-label surface note. ',
+        C('web'), ' returns in ', C('Terra'), ' and ', C('Luna'), ' re-hit the ', C('L54'), ' cutpoint; the ',
+        C('under'), ' cells mark clean ', C('curl'), ' fetches mislabeled ', C('UNVERIFIABLE'), ' or ', C('PARTIAL'), '.'
+      )
+    );
+  }
+
+  function modelShort(k) {
+    for (var i = 0; i < MODELS.length; i++) if (MODELS[i].k === k) return MODELS[i].short;
+    return k;
+  }
+
+  function HeatmapTable(props) {
+    var dark = props.isDark;
+    var large = props.large;
+    var tc = props.textColor || 'inherit';
+    var labelW = large ? 110 : 92;
+    var cellW  = large ? 44  : 34;
+    var cellH  = large ? 28  : 24;
+    var fs     = large ? 11  : 9;
+
+    // Ordered columns: one per run, grouped by reasoning level.
+    var cols = [];
+    LEVELS.forEach(function(lv) {
+      (LEVEL_MODELS[lv.k] || []).forEach(function(mk) {
+        cols.push({model: mk, level: lv.k, levelLabel: lv.label, key: mk + ':' + lv.k});
+      });
+    });
+
+    return e('div', {className: 'cdx-t3b-wrap'},
+      e('table', {className: 'cdx-t3b'},
+        e('thead', null,
+          e('tr', null,
+            e('th', {className: 'cdx-t3b-rh', rowSpan: 2,
+              style: {minWidth: labelW, color: tc, fontSize: 10, fontWeight: 600, verticalAlign: 'bottom'}},
+              'EC-6 signal'),
+            LEVELS.map(function(lv) {
+              var n = (LEVEL_MODELS[lv.k] || []).length;
+              return e('th', {key: 'lv-' + lv.k, colSpan: n, title: lv.label,
+                style: {color: tc, fontSize: 9, fontWeight: 700, letterSpacing: '0.06em',
+                  opacity: 0.6, textTransform: 'uppercase', textAlign: 'center',
+                  borderLeft: '1.5px solid rgba(128,128,128,0.22)'}},
+                lv.label);
+            })
+          ),
+          e('tr', null,
+            cols.map(function(c) {
+              return e('th', {key: 'mh-' + c.key, title: modelLabel(c.model) + ' ' + c.levelLabel,
+                style: {color: tc, fontSize: 9, opacity: 0.7, fontWeight: 500,
+                  borderLeft: '1px solid rgba(128,128,128,0.10)'}},
+                modelShort(c.model));
+            })
+          )
+        ),
+        e('tbody', null,
+          COLS.map(function(col) {
+            return e('tr', {key: col.id},
+              e('td', {className: 'cdx-t3b-rl', style: {color: tc, maxWidth: labelW, width: labelW, fontWeight: 600}},
+                col.l1),
+              cols.map(function(c) {
+                var run = RUNS[c.key];
+                if (!run) {
+                  return e('td', {key: c.key, style: {borderLeft: '1px solid rgba(128,128,128,0.10)'}},
+                    e('div', {style: {width: cellW, height: cellH, margin: '1px auto', borderRadius: 3,
+                      background: dark ? '#2a2a28' : '#e0e0de'}})
+                  );
+                }
+                var val = run[col.id];
+                var spec = COLORS[col.id][val];
+                var bg = dark ? spec.bgDark : spec.bgLight;
+                var tip = 'EC-6 · ' + modelLabel(c.model) + ' ' + c.levelLabel +
+                  '\n' + col.full + ': ' + spec.label +
+                  '\n' + run.note;
+                return e('td', {key: c.key, style: {borderLeft: '1px solid rgba(128,128,128,0.10)'}},
+                  e('div', {title: tip, className: 'cdx-t3b-cell',
+                    style: {width: cellW, height: cellH, fontSize: fs, background: bg, color: spec.fg}},
+                    spec.label)
+                );
+              })
+            );
+          })
+        )
+      )
+    );
+  }
+
+  function App() {
+    var openState = React.useState(false);
+    var isOpen = openState[0];
+    var setOpen = openState[1];
+    var dark = detectDark();
+    var lbBg = dark ? '#1c1c1a' : '#ffffff';
+    var lbText = dark ? '#e8e6df' : '#1a1a18';
+
+    React.useEffect(function() {
+      function onKey(ev) { if (ev.key === 'Escape') setOpen(false); }
+      if (isOpen) {
+        document.addEventListener('keydown', onKey);
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
+      return function() {
+        document.removeEventListener('keydown', onKey);
+        document.body.style.overflow = '';
+      };
+    }, [isOpen]);
+
+    return e('div', {style: {marginTop: '1.5rem', fontFamily: 'inherit'}},
+      e('div', {onClick: function(){ setOpen(true); }, style: {cursor: 'pointer'}},
+        e(HeatmapTable, {isDark: dark, large: false}),
+        e('p', {className: 'cdx-t3b-hint'}, '↗ click to expand')
+      ),
+      e(Legend, {isDark: dark}),
+      e(NoteBlock, {isDark: dark}),
+      isOpen && e('div', {
+        className: 'cdx-t3b-overlay',
+        onClick: function(ev){ if (ev.target === ev.currentTarget) setOpen(false); }
+      },
+        e('div', {className: 'cdx-t3b-overlay-inner', style: {background: lbBg, color: lbText, width: '99vw'}},
+          e('button', {className: 'cdx-t3b-close', style: {color: lbText},
+            onClick: function(){ setOpen(false); }, 'aria-label': 'Close'}, '×'),
+          e(HeatmapTable, {isDark: dark, large: true, textColor: lbText}),
+          e(Legend, {isDark: dark, textColor: lbText}),
+          e(NoteBlock, {isDark: dark, textColor: lbText})
+        )
+      )
+    );
+  }
+
+  var root = ReactDOM.createRoot(document.getElementById('cdx-t3b-root'));
   root.render(e(App));
 })();
 </script>
