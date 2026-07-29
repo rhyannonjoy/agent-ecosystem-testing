@@ -37,11 +37,11 @@ parent: OpenAI Codex - Flash
 | --- | --- |
 | **Hard<br>Character<br>Limit** | _None detected with `curl`_: `curl` often `Content-Length`-verified: 91,877 bytes and 91,869 characters;<br>`web`: ~25,453 characters with `L54` cutpoint defined in [`/SKILL-off`](../open-ai-codex/codex-test-findings-extension.md), absent from [`/SKILL-on` opt-in](test-findings-skill-opt-in.md) |
 | **Hard<br>Token<br>Limit** | _None detected with `curl`_: both common strategies consistently past `H2` 2,000 ceiling; <br>`curl`: ~23,000 tokens; `web`: ~6,364 tokens |
-| **`/SKILL`<br>Discovery** | _Universal_: `100%` session rollout logs cite `docs-consumption/SKILL` loaded, `100%` of agents start session mentioning `docs-consumption` specifically, then reading-reasoning with it |
+| **`/SKILL`<br>Discovery** | _Universal_: `100%` of session rollout logs cite `docs-consumption/SKILL` loaded, `100%` of agents start session mentioning `docs-consumption` specifically, then reading-reasoning with it |
 | **`/SKILL`<br>Retrieval<br>Influence** | _Weak to none_: shifted towards `web` with `L54` cutpoint without explicit `/SKILL`-driven examination; `/SKILL`-phrasing didn't predict tool choice, agents often used similar language to support<br>different strategies  |
-| **`/SKILL`<br>Reporting<br>Influence** | _Surface-level_: 100% of runs produced `skill-surface-only` false positives; a completeness prefix was emitted in every run (`100%` rollout-detected), but a new _under-confidence_ variant appeared — clean fetches labeled `UNVERIFIABLE` / `PARTIAL` |
-| **`/memories`<br>Confound** | _Suppressed_: `0/26` runs carried any memory signal (`system_memory_instruction`, `MEMORY.md`, `single-url-retrieval-measurement/SKILL`, `memory_mentioned`); isolation achieved |
-| **Recommendations** | _Absent_: `0` genuine fixes across `26` runs; `23/26` carried a "recommendation" label, but every one restated the run's own pivot or named `curl` as though it weren't already common practice |
+| **`/SKILL`<br>Reporting<br>Influence** | _Surface-level_: 100% of runs produced `skill-surface-only` false positives; every rollout emitted a completeness prefix, but new _under-confidence_ variant appeared in which agents labeled standard<br>`curl` fetches `UNVERIFIABLE` or `PARTIAL` |
+| **`/memories`<br>Confound** | _Suppressed_: isolation achieved; no run included `/memories` signals in the form of rollout emissions - `system_memory_instruction`, `MEMORY.md`, `single-url-retrieval-measurement/SKILL`, `memory_mentioned` or<br>chat-rendered citations |
+| **Recommendations** | _Absent_: No run generated meaningful remediation for common failures or tips for efficiency; only 19% of agents used a `Recommendation`-like label to point to `curl`-use - as though it weren't already common practice; the remaining agents ignored the requirement completely |
 
 ## Results Snapshot
 
@@ -65,7 +65,7 @@ parent: OpenAI Codex - Flash
 | **Errors Examined** | `69%` - `18/26` accurately described their most common error, but ignored others |
 | **Execution vs. Completeness** | `85%` - `22/26` distinguished _"the tool ran"_ from _"the full content arrived"_, down from opt-in `100%` |
 | **Avoided Reframing** | `42%` - `11/26` avoided calling a partial or error-state fetch _"complete"_ or _"successful"_, down from opt-in `84%` |
-| **Fix Recommended** | `0%` genuine; `23/26` carried a label-only recommendation that restated baseline behavior |
+| **Fix Recommended** | `0%` genuine; only `5/26` carried a label-only recommendation that restated baseline behavior, the remaining `21/26` offered none |
 | **`/memories` Signals** | `0%` - `0/26` session logs carried any `## Memory` instruction, `MEMORY.md` citation, or competing `single-url-retrieval-measurement/SKILL` |
 | **Retrieval Method** | `50%` - `13/26` `curl`-only; `27%` - `7/26` `web`-only; `23%` - `6/26` both |
 
