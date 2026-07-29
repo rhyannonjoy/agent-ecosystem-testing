@@ -231,14 +231,17 @@ def parse_skills(records: list[dict]) -> list[dict]:
 
 SKILL_PATH = ".agents/skills/docs-consumption/SKILL.md"
 # SKILL.md requires the report to be prefaced with COMPLETE, PARTIAL, or UNVERIFIABLE.
-# Only count a formal protocol label at the start of the answer: optional leading
-# markdown decoration, the keyword, optional trailing decoration, then a colon,
-# newline, or end of string. This avoids false positives from sentences like
-# "Looks complete" or "Perceived completeness".
+# Count a formal protocol label at the start of any line: optional leading markdown
+# decoration, then the ALL-CAPS keyword, then a word boundary. The protocol uses
+# ALL-CAPS, so matching case-sensitively rejects prose like "Looks complete",
+# "the fetch completed", "completely", and "partial updates" without needing a strict
+# trailing delimiter. re.MULTILINE lets ^ match each line start (not just the first
+# line of the answer), so a label placed after a header/title line still counts.
+# The word boundary accepts COMPLETE:, COMPLETE,, COMPLETE., COMPLETE`, COMPLETE <prose>,
+# and COMPLETE at EOF, while rejecting COMPLETELY.
 PROTOCOL_PREFIX_RE = re.compile(
-    r"^\s*(?:\*\*|\*|__|_|#+\s*)?(COMPLETE|PARTIAL|UNVERIFIABLE)"
-    r"(?:\*\*|\*|__|_)?\s*(?::|\n|$)",
-    re.IGNORECASE,
+    r"^\s*(?:\*\*|\*|__|_|#+\s*)?(COMPLETE|PARTIAL|UNVERIFIABLE)\b",
+    re.MULTILINE,
 )
 
 # Behavioral proxies for the auto-generated Codex memory skill observed in
@@ -891,8 +894,15 @@ def audit_file(path: Path) -> dict:
         SKILL_PATH.lower() in text for text in final_texts + commentary_texts_lower
     ) else "false"
 
+    # Protocol-prefix detection runs against the original-case texts because
+    # PROTOCOL_PREFIX_RE is case-sensitive ALL-CAPS: the lowercased copies above
+    # would erase the case signal that distinguishes a formal COMPLETE/PARTIAL/
+    # UNVERIFIABLE label from prose like "complete" or "partial updates".
+    final_texts_orig = final_event_texts + final_item_texts
+    commentary_texts_orig = commentary_texts
+
     protocol_match, protocol_source = _detect_in_sources(
-        [PROTOCOL_PREFIX_RE], final_texts, commentary_texts_lower
+        [PROTOCOL_PREFIX_RE], final_texts_orig, commentary_texts_orig
     )
     r["protocol_prefix"] = (protocol_match or "").strip().upper()
     r["protocol_prefix_source"] = protocol_source
