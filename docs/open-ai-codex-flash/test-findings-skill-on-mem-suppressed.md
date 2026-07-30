@@ -166,11 +166,13 @@ driver - `Sol High` and `Sol Extra High` used near-identical justification langu
 Two heat maps split the run matrix along the semantic boundary surfaced above. **Heat map A** organizes runs by LLM-reasoning combination and
 tracks `/SKILL` protocol compliance as binary signals: `/SKILL` presence (green) and `/SKILL` requirement (light green, striped cells indicate
 presence but shallow compliance reading as false positives). The `fix recs` column stays empty across every run - the `/SKILL`'s recommendation
-requirement went unmet even with the confound removed. **Heat map B** carries the retrieval and reporting outcome - `method`, `truncation`, and
-`mislabel` direction - styled after the [extension truncation and method maps](../open-ai-codex/codex-test-findings-extension.md#content-access-x-intelligence),
-but scoped to the single page type `EC-6`. Rows are LLM version grouped by reasoning level, and each cell carries a surface-note description drawn
-from the run's log label: `web` returns in `Terra` and `Luna` re-hit the `L54` cutpoint, the `yes`-truncation cells light up red, and the
-under-confidence `under` cells mark clean `curl` fetches mislabeled `UNVERIFIABLE` or `PARTIAL`.
+requirement went unmet even with the confound removed. **Heat map B** carries the retrieval and reporting outcome as a single `EC-6` matrix - rows
+are LLM version, columns are reasoning level - styled after the [extension truncation and method maps](../open-ai-codex/codex-test-findings-extension.md#content-access-x-intelligence),
+but scoped to the single page type `EC-6`. Each cell carries one signal as its fill (`method`: `web`, `curl`, or `both`) and folds the other two
+into the cell border and overlay: the border encodes `truncation` tier (`yes` = red, `mixed` = amber, `implicit` = dashed yellow, `no` = faint),
+and a diagonal stripe marks `mislabel` cells where the completeness label diverges from the evidence. `web` returns in `Terra` and `Luna` re-hit
+the `L54` cutpoint, the `yes`-truncation cells ring red, and the under-confidence `under` cells stripe clean `curl` fetches mislabeled
+`UNVERIFIABLE` or `PARTIAL`.
 
 ### `/SKILL` Compliance
 
@@ -444,7 +446,7 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
 </script>
 {% endraw %}
 
-### Heat Map B - Retrieval & Reporting Outcome
+### Retrieval Outcomes
 
 {% raw %}
 <div id="cdx-t3b-root"></div>
@@ -458,7 +460,12 @@ table.cdx-t3b th .cdx-t3b-sub { font-weight: 400; font-size: 9px; opacity: 0.55;
 table.cdx-t3b td { padding: 2px 2px; text-align: center; vertical-align: middle; }
 table.cdx-t3b td.cdx-t3b-rl { font-size: 11px; text-align: left; padding-left: 0; white-space: nowrap; font-weight: 400; padding-right: 8px; color: inherit; vertical-align: middle; }
 table.cdx-t3b td.cdx-t3b-llm { font-size: 10px; opacity: 0.7; padding-left: 10px; }
-.cdx-t3b-cell { border-radius: 3px; display: flex; align-items: center; justify-content: center; width: 46px; height: 26px; margin: 1px auto; cursor: help; font-size: 10px; font-weight: 600; }
+.cdx-t3b-cell { border-radius: 3px; display: flex; align-items: center; justify-content: center; width: 44px; height: 24px; margin: 1px auto; cursor: help; font-size: 10px; font-weight: 600; position: relative; box-sizing: border-box; border: 2px solid rgba(128,128,128,0.22); }
+.cdx-t3b-stripe::after { content: ''; position: absolute; inset: 0; border-radius: 3px; background: repeating-linear-gradient(135deg, rgba(255,255,255,0.45), rgba(255,255,255,0.45) 3px, transparent 3px, transparent 6px); pointer-events: none; }
+html[data-theme="dark"] .cdx-t3b-stripe::after { background: repeating-linear-gradient(135deg, rgba(0,0,0,0.35), rgba(0,0,0,0.35) 3px, transparent 3px, transparent 6px); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .cdx-t3b-stripe::after { background: repeating-linear-gradient(135deg, rgba(0,0,0,0.35), rgba(0,0,0,0.35) 3px, transparent 3px, transparent 6px); }
+}
 .cdx-t3b-banner { font-size: 10px; font-weight: 600; letter-spacing: 0.04em; opacity: 0.6; text-align: center; }
 .cdx-t3b-hint { font-size: 11px; opacity: 0.5; margin-top: 6px; cursor: pointer; }
 .cdx-t3b-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.78); display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -478,14 +485,10 @@ table.cdx-t3b td.cdx-t3b-llm { font-size: 10px; opacity: 0.7; padding-left: 10px
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 
-  // Single page type: EC-6 (Raw GitHub Markdown, ~92 KB). Columns are the three
-  // retrieval/reporting outcome signals; rows are LLM version grouped by reasoning
-  // level. Each cell carries that run's log-label surface note in its tooltip.
-  var COLS = [
-    {id: 'method',    l1: 'method',    l2: 'retrieval path',   full: 'retrieval method'},
-    {id: 'truncated', l1: 'truncation', l2: 'cutpoint signal', full: 'truncation signal'},
-    {id: 'mislabel',  l1: 'mislabel',  l2: 'label vs evidence', full: 'mislabel direction'}
-  ];
+  // Single page type: EC-6 (Raw GitHub Markdown, ~92 KB). One matrix: rows are
+  // LLM version, columns are reasoning level. Each cell encodes three signals —
+  // fill = method, border = truncation tier, stripe = mislabel — and carries that
+  // run's log-label surface note in its tooltip.
 
   var LEVELS = [
     {k: 'L',  label: 'Light'},
@@ -504,23 +507,14 @@ table.cdx-t3b td.cdx-t3b-llm { font-size: 10px; opacity: 0.7; padding-left: 10px
     {k: 'terra', label: 'GPT-5.6 Terra', short: 'Terra'}
   ];
 
-  // Ultra reasoning level only ran on Sol and Terra.
-  var LEVEL_MODELS = {
-    L: ['5.4m','5.4','5.5','luna','sol','terra'],
-    M: ['5.4m','5.4','5.5','luna','sol','terra'],
-    H: ['5.4m','5.4','5.5','luna','sol','terra'],
-    XH:['5.4m','5.4','5.5','luna','sol','terra'],
-    U: ['sol','terra']
-  };
-
   // T3 semantic coloring: curl = complete (green), web = truncated path (blue),
   // both = purple; truncation yes = red, no = grey; mislabel accurate = green,
   // under = blue (success mislabeled unresolved), over = orange.
   var COLORS = {
     method: {
-      web:  {bgLight:'#378ADD', bgDark:'#185FA5', fg:'#fff',     label:'web'},
-      curl: {bgLight:'#1D9E75', bgDark:'#0F6E56', fg:'#fff',     label:'curl'},
-      both: {bgLight:'#7A5BC9', bgDark:'#5A4A9C', fg:'#fff',     label:'both'}
+      web:  {bgLight:'#378ADD', bgDark:'#185FA5', fg:'#fff',     label:'w',     full:'web'},
+      curl: {bgLight:'#1D9E75', bgDark:'#0F6E56', fg:'#fff',     label:'c',     full:'curl'},
+      both: {bgLight:'#7A5BC9', bgDark:'#5A4A9C', fg:'#fff',     label:'w + c', full:'both'}
     },
     truncated: {
       yes:      {bgLight:'#C94B4B', bgDark:'#A03A3A', fg:'#fff',     label:'yes'},
@@ -537,20 +531,20 @@ table.cdx-t3b td.cdx-t3b-llm { font-size: 10px; opacity: 0.7; padding-left: 10px
 
   var CATEGORY_DESC = {
     method: {
-      web: 'web tool produced the output (rendered extraction, often L54-clipped)',
-      curl: 'curl produced the output (full Content-Length-verified body)',
-      both: 'both web and curl used, curl for the full fetch'
+      web: 'text extraction, often L54-clipped',
+      curl: 'response, often Content-Length-verified',
+      both: 'web and curl both used'
     },
     truncated: {
       yes: 'web L54 cutpoint reported explicitly',
-      mixed: 'both a web limit and a full curl result reported',
-      implicit: 'limit reasoned around without being named',
+      mixed: 'both web limit and full curl result reported',
+      implicit: 'truncation implied but not explicitly named',
       no: 'no truncation signal, curl-complete'
     },
     mislabel: {
-      accurate: 'completeness label matches the evidence',
-      under: 'clean full curl fetch labeled UNVERIFIABLE or PARTIAL',
-      over: 'COMPLETE despite a truncation signal'
+      accurate: 'completeness label matches evidence',
+      under: 'curl-complete labeled UNVERIFIABLE or PARTIAL',
+      over: 'COMPLETE despite truncation signal'
     }
   };
 
@@ -589,37 +583,99 @@ table.cdx-t3b td.cdx-t3b-llm { font-size: 10px; opacity: 0.7; padding-left: 10px
     return k;
   }
 
+  // Truncation tier → border color + style (light/dark).
+  var TRUNC_BORDER = {
+    yes:      {cLight:'#C94B4B', cDark:'#A03A3A', style:'solid'},
+    mixed:    {cLight:'#D98A3D', cDark:'#B5703A', style:'solid'},
+    implicit: {cLight:'#C9A23D', cDark:'#A8863A', style:'dashed'},
+    no:       {cLight:'rgba(128,128,128,0.22)', cDark:'rgba(128,128,128,0.22)', style:'solid'}
+  };
+
+  function methodSwatch(dark, key, w, h) {
+    var spec = COLORS.method[key];
+    var bg = dark ? spec.bgDark : spec.bgLight;
+    return e('span', {style: {
+      display: 'inline-block', boxSizing: 'border-box', flexShrink: 0, width: w, height: h, borderRadius: 3,
+      background: bg, border: '2px solid rgba(128,128,128,0.22)'
+    }});
+  }
+
+  function truncSwatch(dark, key, w, h) {
+    var b = TRUNC_BORDER[key];
+    var bc = dark ? b.cDark : b.cLight;
+    return e('span', {style: {
+      display: 'inline-block', boxSizing: 'border-box', flexShrink: 0, width: w, height: h, borderRadius: 3,
+      background: 'transparent',
+      border: '2px ' + b.style + ' ' + bc
+    }});
+  }
+
   function LegendGroup(props) {
-    var dark = props.isDark;
     var tc = props.textColor || 'inherit';
-    var col = props.col;
-    var map = COLORS[col.id];
-    var keys = Object.keys(map);
-    return e('div', {style: {width: 250}},
-      e('div', {style: {fontWeight: 600, color: tc, marginBottom: 4, fontSize: 11}}, col.full),
-      e('table', {style: {borderCollapse: 'collapse', fontSize: 10}},
-        e('tbody', null, keys.map(function(k) {
-          var spec = map[k];
-          var bg = dark ? spec.bgDark : spec.bgLight;
-          return e('tr', {key: k},
-            e('td', {style: {paddingRight: 7, paddingBottom: 3, verticalAlign: 'middle'}},
-              e('span', {style: {
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                width: 38, height: 16, borderRadius: 3,
-                background: bg, color: spec.fg, fontSize: 9, fontWeight: 600
-              }}, spec.label)
-            ),
-            e('td', {style: {paddingBottom: 3, color: tc, opacity: 0.8}}, CATEGORY_DESC[col.id][k])
+    var group = props.group;
+    var cs = {fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace', fontSize: 10};
+    var C = function(t) { return e('code', {style: cs}, t); };
+    return e('div', {style: {width: 'fit-content', minWidth: 230}},
+      e('div', {style: {display: 'flex', flexDirection: 'column', gap: 2, color: tc, opacity: 0.8, lineHeight: 1.3, fontSize: 11}},
+        group.rows.map(function(r) {
+          return e('div', {key: r.key, style: {display: 'flex', alignItems: 'center', gap: 7}},
+            r.swatch,
+            e('span', null, r.parts ? r.parts.map(function(p, i) {
+              return p.code ? C(p.t) : e('span', {key: i}, p.t);
+            }) : r.desc)
           );
-        }))
+        })
       )
     );
   }
 
   function Legend(props) {
-    return e('div', {style: {display: 'flex', gap: 28, justifyContent: 'center', flexWrap: 'wrap', marginTop: 10}},
-      COLS.map(function(col) {
-        return e(LegendGroup, {key: col.id, isDark: props.isDark, textColor: props.textColor, col: col});
+    var dark = props.isDark;
+    var groups = [
+      {
+        key: 'method',
+        rows: [
+          {key: 'web', swatch: methodSwatch(dark, 'web', 28, 16), parts: [
+            {t: 'web', code: true}, {t: ' rendered extraction, often '}, {t: 'L33/54', code: true}, {t: '-clipped'}
+          ]},
+          {key: 'curl', swatch: methodSwatch(dark, 'curl', 28, 16), parts: [
+            {t: 'curl', code: true}, {t: ' full response, often '}, {t: 'Content-Length', code: true}, {t: '-verified'}
+          ]},
+          {key: 'both', swatch: methodSwatch(dark, 'both', 28, 16), parts: [
+            {t: 'both', code: false}, {t: ' '}, {t: 'web', code: true}, {t: ' + '}, {t: 'curl', code: true}, {t: ' use'}
+          ]}
+        ]
+      },
+      {
+        key: 'truncated',
+        rows: [
+          {key: 'yes', swatch: truncSwatch(dark, 'yes', 28, 16), parts: [
+            {t: ''}, {t: 'web', code: true}, {t: ' '}, {t: ' truncation reported explicitly'}
+          ]},
+          {key: 'mixed', swatch: truncSwatch(dark, 'mixed', 28, 16), parts: [
+            {t: 'both '}, {t: 'web', code: true}, {t: ' truncation, full '}, {t: 'curl', code: true}, {t: ' response reported'}
+          ]},
+          {key: 'implicit', swatch: truncSwatch(dark, 'implicit', 28, 16), desc: 'truncation implied, not explicitly reported'},
+          {key: 'no', swatch: truncSwatch(dark, 'no', 28, 16), parts: [
+            {t: 'no truncation signal, '}, {t: 'curl', code: true}, {t: '-complete'}
+          ]}
+        ]
+      },
+      {
+        key: 'mislabel',
+        rows: [
+          {key: 'stripe', swatch:
+            e('span', {className: 'cdx-t3b-stripe', style: {display: 'inline-block', boxSizing: 'border-box', flexShrink: 0, width: 28, height: 16, borderRadius: 3, background: dark ? '#2a2a28' : '#e0e0de', border: '2px solid rgba(128,128,128,0.22)', position: 'relative'}}),
+            desc: 'completeness label does not match evidence'},
+          {key: 'plain', swatch:
+            e('span', {style: {display: 'inline-block', boxSizing: 'border-box', flexShrink: 0, width: 28, height: 16, borderRadius: 3, background: 'transparent', border: '2px solid rgba(128,128,128,0.22)'}}),
+            desc: 'completeness label matches evidence'}
+        ]
+      }
+    ];
+    return e('div', {style: {display: 'flex', flexDirection: 'column', gap: 12, marginTop: 4}},
+      groups.map(function(g) {
+        return e(LegendGroup, {key: g.key, isDark: dark, textColor: props.textColor, group: g});
       })
     );
   }
@@ -630,86 +686,72 @@ table.cdx-t3b td.cdx-t3b-llm { font-size: 10px; opacity: 0.7; padding-left: 10px
     var C = function(t) { return e('code', {style: cs}, t); };
     return e('p', {style: {fontSize: 11, marginTop: 8, lineHeight: 1.6, opacity: 0.65, color: tc, maxWidth: 720}},
       e('i', null,
-        'Single page type ', C('EC-6'), ' (Raw GitHub Markdown, ~92 KB). Columns encode the retrieval and reporting outcome: ',
-        C('method'), ' (retrieval path), ', C('truncation'), ' (cutpoint signal), and ', C('mislabel'),
-        ' direction (label vs evidence). Rows are LLM version grouped by reasoning level; ', C('Ultra'),
-        ' ran on ', C('Sol'), ' and ', C('Terra'), ' only. Cell tooltips carry each run\'s log-label surface note. ',
-        C('web'), ' returns in ', C('Terra'), ' and ', C('Luna'), ' re-hit the ', C('L54'), ' cutpoint; the ',
+        'Single page type ', C('EC-6'), ' (Raw GitHub Markdown, ~92 KB). Rows are LLM version, columns are reasoning level; ',
+        C('Ultra'), ' ran on ', C('Sol'), ' and ', C('Terra'), ' only. Each cell folds three signals: fill = ',
+        C('method'), ' (retrieval path), border = ', C('truncation'), ' tier (red = ', C('web'), ' ', C('L54'),
+        ' cutpoint, amber = mixed, dashed yellow = implicit), and a diagonal stripe marks a ', C('mislabel'),
+        ' where the completeness label diverges from the evidence. Cell tooltips carry each run\'s log-label surface note: ',
+        C('web'), ' returns in ', C('Terra'), ' and ', C('Luna'), ' re-hit the ', C('L54'), ' cutpoint (red borders), and the striped ',
         C('under'), ' cells mark clean ', C('curl'), ' fetches mislabeled ', C('UNVERIFIABLE'), ' or ', C('PARTIAL'), '.'
       )
     );
-  }
-
-  function modelShort(k) {
-    for (var i = 0; i < MODELS.length; i++) if (MODELS[i].k === k) return MODELS[i].short;
-    return k;
   }
 
   function HeatmapTable(props) {
     var dark = props.isDark;
     var large = props.large;
     var tc = props.textColor || 'inherit';
-    var labelW = large ? 110 : 92;
-    var cellW  = large ? 44  : 34;
-    var cellH  = large ? 28  : 24;
-    var fs     = large ? 11  : 9;
-
-    // Ordered columns: one per run, grouped by reasoning level.
-    var cols = [];
-    LEVELS.forEach(function(lv) {
-      (LEVEL_MODELS[lv.k] || []).forEach(function(mk) {
-        cols.push({model: mk, level: lv.k, levelLabel: lv.label, key: mk + ':' + lv.k});
-      });
-    });
+    var labelW = large ? 170 : 130;
+    var cellW  = large ? 72  : 58;
+    var cellH  = large ? 40  : 32;
+    var fs     = large ? 14  : 12;
 
     return e('div', {className: 'cdx-t3b-wrap'},
       e('table', {className: 'cdx-t3b'},
         e('thead', null,
           e('tr', null,
-            e('th', {className: 'cdx-t3b-rh', rowSpan: 2,
-              style: {minWidth: labelW, color: tc, fontSize: 10, fontWeight: 600, verticalAlign: 'bottom'}},
-              'EC-6 signal'),
+            e('th', {className: 'cdx-t3b-rh', style: {minWidth: labelW, color: tc, fontSize: 10, fontWeight: 600, verticalAlign: 'bottom'}},
+              'LLM / Reasoning'),
             LEVELS.map(function(lv) {
-              var n = (LEVEL_MODELS[lv.k] || []).length;
-              return e('th', {key: 'lv-' + lv.k, colSpan: n, title: lv.label,
+              return e('th', {key: 'lv-' + lv.k, title: lv.label,
                 style: {color: tc, fontSize: 9, fontWeight: 700, letterSpacing: '0.06em',
                   opacity: 0.6, textTransform: 'uppercase', textAlign: 'center',
                   borderLeft: '1.5px solid rgba(128,128,128,0.22)'}},
                 lv.label);
             })
-          ),
-          e('tr', null,
-            cols.map(function(c) {
-              return e('th', {key: 'mh-' + c.key, title: modelLabel(c.model) + ' ' + c.levelLabel,
-                style: {color: tc, fontSize: 9, opacity: 0.7, fontWeight: 500,
-                  borderLeft: '1px solid rgba(128,128,128,0.10)'}},
-                modelShort(c.model));
-            })
           )
         ),
         e('tbody', null,
-          COLS.map(function(col) {
-            return e('tr', {key: col.id},
-              e('td', {className: 'cdx-t3b-rl', style: {color: tc, maxWidth: labelW, width: labelW, fontWeight: 600}},
-                col.l1),
-              cols.map(function(c) {
-                var run = RUNS[c.key];
+          MODELS.map(function(m) {
+            return e('tr', {key: 'row-' + m.k},
+              e('td', {className: 'cdx-t3b-rl', style: {color: tc, maxWidth: labelW, width: labelW, fontWeight: 400, fontSize: 11}},
+                modelLabel(m.k)),
+              LEVELS.map(function(lv) {
+                var key = m.k + ':' + lv.k;
+                var run = RUNS[key];
                 if (!run) {
-                  return e('td', {key: c.key, style: {borderLeft: '1px solid rgba(128,128,128,0.10)'}},
+                  return e('td', {key: key, style: {borderLeft: '1px solid rgba(128,128,128,0.10)'}},
                     e('div', {style: {width: cellW, height: cellH, margin: '1px auto', borderRadius: 3,
                       background: dark ? '#2a2a28' : '#e0e0de'}})
                   );
                 }
-                var val = run[col.id];
-                var spec = COLORS[col.id][val];
-                var bg = dark ? spec.bgDark : spec.bgLight;
-                var tip = 'EC-6 · ' + modelLabel(c.model) + ' ' + c.levelLabel +
-                  '\n' + col.full + ': ' + spec.label +
+                var ms = COLORS.method[run.method];
+                var tb = TRUNC_BORDER[run.truncated];
+                var bc = dark ? tb.cDark : tb.cLight;
+                var striped = run.mislabel !== 'accurate';
+                var className = 'cdx-t3b-cell';
+                if (striped) className += ' cdx-t3b-stripe';
+                var tip = 'EC-6 · ' + modelLabel(m.k) + ' ' + lv.label +
+                  '\nmethod: ' + ms.full + ' (' + CATEGORY_DESC.method[run.method] + ')' +
+                  '\ntruncation: ' + run.truncated + ' (' + CATEGORY_DESC.truncated[run.truncated] + ')' +
+                  '\nmislabel: ' + run.mislabel + ' (' + CATEGORY_DESC.mislabel[run.mislabel] + ')' +
                   '\n' + run.note;
-                return e('td', {key: c.key, style: {borderLeft: '1px solid rgba(128,128,128,0.10)'}},
-                  e('div', {title: tip, className: 'cdx-t3b-cell',
-                    style: {width: cellW, height: cellH, fontSize: fs, background: bg, color: spec.fg}},
-                    spec.label)
+                return e('td', {key: key, style: {borderLeft: '1px solid rgba(128,128,128,0.10)'}},
+                  e('div', {title: tip, className: className,
+                    style: {width: cellW, height: cellH, fontSize: fs,
+                      background: dark ? ms.bgDark : ms.bgLight, color: ms.fg,
+                      border: '2px ' + tb.style + ' ' + bc}},
+                    ms.label)
                 );
               })
             );
@@ -743,10 +785,16 @@ table.cdx-t3b td.cdx-t3b-llm { font-size: 10px; opacity: 0.7; padding-left: 10px
 
     return e('div', {style: {marginTop: '1.5rem', fontFamily: 'inherit'}},
       e('div', {onClick: function(){ setOpen(true); }, style: {cursor: 'pointer'}},
-        e(HeatmapTable, {isDark: dark, large: false}),
-        e('p', {className: 'cdx-t3b-hint'}, '↗ click to expand')
+        e('div', {style: {display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', gap: 28}},
+          e('div', null,
+            e(HeatmapTable, {isDark: dark, large: false}),
+            e('p', {className: 'cdx-t3b-hint'}, '↗ click to expand')
+          ),
+          e('div', {style: {flex: '0 0 auto', marginTop: 4}},
+            e(Legend, {isDark: dark})
+          )
+        )
       ),
-      e(Legend, {isDark: dark}),
       e(NoteBlock, {isDark: dark}),
       isOpen && e('div', {
         className: 'cdx-t3b-overlay',
@@ -755,8 +803,14 @@ table.cdx-t3b td.cdx-t3b-llm { font-size: 10px; opacity: 0.7; padding-left: 10px
         e('div', {className: 'cdx-t3b-overlay-inner', style: {background: lbBg, color: lbText, width: '99vw'}},
           e('button', {className: 'cdx-t3b-close', style: {color: lbText},
             onClick: function(){ setOpen(false); }, 'aria-label': 'Close'}, '×'),
-          e(HeatmapTable, {isDark: dark, large: true, textColor: lbText}),
-          e(Legend, {isDark: dark, textColor: lbText}),
+          e('div', {style: {display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', gap: 28}},
+            e('div', null,
+              e(HeatmapTable, {isDark: dark, large: true, textColor: lbText})
+            ),
+            e('div', {style: {flex: '0 0 auto', marginTop: 4}},
+              e(Legend, {isDark: dark, textColor: lbText})
+            )
+          ),
           e(NoteBlock, {isDark: dark, textColor: lbText})
         )
       )
