@@ -6,7 +6,7 @@
       "name": "CheapestInference",
       "options": {
         "baseURL": "https://api.cheapestinference.com/v1",
-        "apiKey": "{env:CHEAPESTINFERENCE_API_KEY}"
+        "apiKey": "{file:~/.secrets/cheapestinference-key}"
       },
       "models": {
         "kimi-k2.7": { "name": "Kimi K2.7" },
