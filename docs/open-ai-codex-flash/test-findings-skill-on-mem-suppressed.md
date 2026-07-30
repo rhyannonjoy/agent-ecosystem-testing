@@ -93,17 +93,9 @@ confirm that `.codex/memories` was absent while
 what _can render each session_ and don't transcribe what _does render each session_, the visualizations below include a hybrid of
 rollout metadata and agent self-reports from the chat.
 
-While `/memories` dominated `/SKILL opt-in`
-
-`/SKILL opt-in`'s story
-
-of common `/memories` and `/docs-consumption/SKILL` co-occurence.
-
-The suppression holds cleanly: 0/26 runs carried the `## Memory` block in the `system_prompt`, and 0/26 referenced `MEMORY.md`,
-the `raw_memories` file, `memory_summary.md`, or the competing `/memories/skills/single-url-retrieval-measurement/SKILL`. This is the
-first condition in the flash experiment where `docs-consumption/SKILL` can be evaluated without `/memories` overprinting the session.
-The contrast against the [opt-in sub-track](test-findings-skill-opt-in.md#memories-dominance) is stark: where opt-in sessions were
-77% _both_ `/docs-consumption` + `/memories`, every suppressed session is `docs-consumption` alone.
+Workspace `opt-in` conditions including `/docs-consumption/SKILL` presence - but not explicitly mentioned in the prompt - with available `/memories`,
+agent self-reports never declared a preference, mostly exhibiting a type of co-occurence. With the `/SKILL` explicitly mentioned in the
+prompt and `/memories` deactivated, agents produced `/SKILL` isolation:
 
 {% raw %}
 <svg class="cdx-skill-stack" viewBox="0 0 870 130" style="max-width: 870px; margin: 1rem auto; display: block;">
@@ -155,7 +147,7 @@ The contrast against the [opt-in sub-track](test-findings-skill-opt-in.md#memori
 </svg>
 {% endraw %}
 
-Isolation, however, did not produce deeper compliance. 100% of runs loaded `docs-consumption/SKILL`, 100% mentioned it by name, and
+`/SKILL` isolation, however, didn't produce deeper compliance. 100% of runs loaded `docs-consumption/SKILL`, 100% mentioned it by name, and
 100% emitted a completeness prefix - surface uptake that _exceeds_ the opt-in sub-track - yet 26/26 still read as `skill-surface-only`
 false positives and `0` runs produced a genuine fix. The shallow compliance ceiling is independent of `/memories`. What suppression _did_
 change was retrieval and reporting: with `/memories`'s _"stop trusting the clipped rendered view"_ lesson gone, agents reverted to the `web`
