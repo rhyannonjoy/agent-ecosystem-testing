@@ -83,15 +83,21 @@ parent: OpenAI Codex - Flash
 | 7 | **Common agent flaws persist without `/memories`** | `Luna` `Sol` | `Luna High` not reporting `zsh` read-only variable bug, artifact naming collisions, and `Sol`'s invented `/SKILL` attributions all recurred with `/memories` suppressed | **Collision-prone scripting and over-extended citation are default agent behavior; suppression rules out `/memories` as the source** |
 | 8 | **Suppression exposes the false-positive floor** | All tests | Without `/memories`, the `skill-surface-only` false-positive profile remains unchanged from `opt-in`; influence-tracking rose while substantive compliance flattened | **Compliance reduced to `/SKILL`-framing, but false-positive floor is baseline agentic performance, independent of `/memories`** |
 
-## Memory Suppression
+## False Positive Floor
 
 Together [`memory_audit`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/memory_audit.py) and
 [`memory_analyzer`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/memory_analyzer.py)
-confirm that `.codex/memories` was absent across the sub-track while
+confirm that `.codex/memories` was absent while
 [`rollout_audit`](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/open-ai-codex-web-search/scripts/rollout_audit.py) flags
-`/docs-consumption/SKILL` injection, general session shape, and agent errors from each test's rollout log. Because rollouts include
+`/docs-consumption/SKILL` loading, general session shape, and agent errors from each test's rollout log. Because rollouts include
 what _can render each session_ and don't transcribe what _does render each session_, the visualizations below include a hybrid of
 rollout metadata and agent self-reports from the chat.
+
+While `/memories` dominated `/SKILL opt-in`
+
+`/SKILL opt-in`'s story
+
+of common `/memories` and `/docs-consumption/SKILL` co-occurence.
 
 The suppression holds cleanly: 0/26 runs carried the `## Memory` block in the `system_prompt`, and 0/26 referenced `MEMORY.md`,
 the `raw_memories` file, `memory_summary.md`, or the competing `/memories/skills/single-url-retrieval-measurement/SKILL`. This is the
@@ -108,6 +114,7 @@ The contrast against the [opt-in sub-track](test-findings-skill-opt-in.md#memori
     .cdx-skill-stack .both { fill: #378ADD; }
     .cdx-skill-stack text { fill: currentColor; font-family: inherit; }
     .cdx-skill-stack .rowlabel { font-size: 12px; opacity: 0.85; }
+    .cdx-skill-stack .code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; font-size: 10px; font-weight: 400; }
     .cdx-skill-stack .inside-dark { font-size: 13px; }
     .cdx-skill-stack .inside-light { font-size: 13px; fill: #fff; }
     .cdx-skill-stack .legend { font-size: 10px; opacity: 0.8; }
@@ -123,7 +130,7 @@ The contrast against the [opt-in sub-track](test-findings-skill-opt-in.md#memori
   </style>
 
   <!-- opt-in row: 13% neither / 10% docs / 77% both -->
-  <text class="rowlabel" x="10" y="28">opt-in (31)</text>
+  <text class="rowlabel code" x="10" y="28">opt-in</text>
   <rect class="bar neither" x="86" y="14" width="100.1" height="36"/>
   <rect class="bar docs" x="186.1" y="14" width="77" height="36"/>
   <rect class="bar both" x="263.1" y="14" width="592.9" height="36"/>
@@ -132,7 +139,7 @@ The contrast against the [opt-in sub-track](test-findings-skill-opt-in.md#memori
   <text class="inside-light" x="559.6" y="37" text-anchor="middle">77% both</text>
 
   <!-- T3 suppressed row: 100% docs-only -->
-  <text class="rowlabel" x="10" y="80">T3 supp (26)</text>
+  <text class="rowlabel" x="10" y="76"><tspan class="code" x="10" dy="0">on + /mem</tspan><tspan class="code" x="10" dy="14">suppressed</tspan></text>
   <rect class="bar docs" x="86" y="66" width="770" height="36"/>
   <text class="inside-light" x="471" y="89" text-anchor="middle">100% only /docs-consumption</text>
 
@@ -165,7 +172,7 @@ but scoped to the single page type `EC-6`. Rows are LLM version grouped by reaso
 from the run's log label: `web` returns in `Terra` and `Luna` re-hit the `L54` cutpoint, the `yes`-truncation cells light up red, and the
 under-confidence `under` cells mark clean `curl` fetches mislabeled `UNVERIFIABLE` or `PARTIAL`.
 
-### Heat Map A - `/SKILL` Compliance
+### `/SKILL` Compliance
 
 {% raw %}
 <div id="cdx-skill-t3-root"></div>
@@ -340,7 +347,7 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
         ]
       }
     ];
-    return e('div', {style: {fontSize: 11, marginTop: 8, display: 'flex', gap: 28, justifyContent: 'center', flexWrap: 'wrap'}},
+    return e('div', {style: {fontSize: 11, marginTop: 8, display: 'flex', flexDirection: 'column', gap: 16}},
       sections.map(function(s) {
         return e('div', {key: s.key, style: {width: 230}},
           e('div', {style: {display: 'inline-flex', alignItems: 'center', gap: 5, color: tc, marginBottom: 4}},
@@ -399,11 +406,15 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
     return e('div', {style: {marginTop: '1.5rem', fontFamily: 'inherit'}},
       e('div', {className: 'cdx-skill-fig'},
         e('div', {onClick: function(){ setOpen(true); }, style: {cursor: 'pointer'}},
-          e(HeatmapTable, {isDark: dark, large: false}),
-          e('p', {className: 'cdx-skill-hint'}, '↗ click to expand')
-        ),
-        e('div', {style: {display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap', marginTop: 10, justifyContent: 'center'}},
-          e(Legend, {isDark: dark})
+          e('div', {style: {display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', gap: 28}},
+            e('div', null,
+              e(HeatmapTable, {isDark: dark, large: false}),
+              e('p', {className: 'cdx-skill-hint'}, '↗ click to expand')
+            ),
+            e('div', {style: {flex: '0 0 auto', marginTop: 4}},
+              e(Legend, {isDark: dark})
+            )
+          )
         )
       ),
       isOpen && e('div', {
@@ -414,9 +425,13 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
           style: {background: lbBg, color: lbText, width: '99vw'}},
           e('button', {className: 'cdx-skill-close', style: {color: lbText},
             onClick: function(){ setOpen(false); }, 'aria-label': 'Close'}, '×'),
-          e(HeatmapTable, {isDark: dark, large: true, textColor: lbText}),
-          e('div', {style: {display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap', marginTop: 10, justifyContent: 'center'}},
-            e(Legend, {isDark: dark, textColor: lbText})
+          e('div', {style: {display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', gap: 28}},
+            e('div', null,
+              e(HeatmapTable, {isDark: dark, large: true, textColor: lbText})
+            ),
+            e('div', {style: {flex: '0 0 auto', marginTop: 4}},
+              e(Legend, {isDark: dark, textColor: lbText})
+            )
           )
         )
       )
