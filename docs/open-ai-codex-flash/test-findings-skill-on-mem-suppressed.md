@@ -41,7 +41,7 @@ parent: OpenAI Codex - Flash
 | **`/SKILL`<br>Retrieval<br>Influence** | _Weak to none_: shifted towards `web` with `L54` cutpoint without explicit `/SKILL`-driven examination; `/SKILL`-phrasing didn't predict tool choice, agents often used similar language to support<br>different strategies  |
 | **`/SKILL`<br>Reporting<br>Influence** | _Surface-level_: 100% of runs produced `skill-surface-only` false positives; every rollout emitted a completeness prefix, but new _under-confidence_ variant appeared in which agents labeled standard<br>`curl` fetches `UNVERIFIABLE` or `PARTIAL` |
 | **`/memories`<br>Confound** | _Suppressed_: isolation achieved; no run included `/memories` signals in the form of rollout emissions - `system_memory_instruction`, `MEMORY.md`, `single-url-retrieval-measurement/SKILL`, `memory_mentioned` or<br>chat-rendered citations |
-| **Recommendations** | _Absent_: No run generated meaningful remediation for common failures or tips for efficiency; only 19% of agents used a `Recommendation`-like label to point to `curl`-use - as though it weren't already common practice; the remaining agents ignored the requirement completely |
+| **Recommendations** | _Absent_: No run generated meaningful remediation for common failures or tips for efficiency; 15% of agents used `Recommendation`-like label to suggest `curl`-use - as though it weren't already common practice - while 8% recycled `curl`-phrasing without the label; remaining agents ignored the requirement |
 
 ## Results Snapshot
 
@@ -65,7 +65,7 @@ parent: OpenAI Codex - Flash
 | **Errors Examined** | 69% of agents accurately described their most common error, but ignored others |
 | **Execution vs. Completeness** | 85% of agents distinguished _"the tool ran"_ from _"the full content arrived"_ -<br>down from `opt-in`'s 100% |
 | **Avoided Reframing** | 42% of agents avoided calling a partial or error-state fetch _"complete"_ or<br>_"successful"_ - down from `opt-in`'s 84% |
-| **Fix Recommended** | No substantial recommendations; 5 agents used a `Recommendation` label that<br>restated baseline behavior, the remaining 21 offered none |
+| **Fix Recommended** | No substantial remediation; 4 agents used `Recommendation`/`Recommended fix` label to restate baseline behavior, 2 recycled standard `curl` suggestion without the label, the remaining 20 offered nothing |
 | **`/memories` Signals** | No session rollout or agentic self-report included `## Memory` instruction, `MEMORY.md`<br>citations, or competing `/memories/skills/single-url-retrieval-measurement/SKILL` use |
 | **Retrieval Method** | 50% of agents relied completely on `curl`, while 27% relied completely on `web`,<br>and 23% used both |
 
@@ -149,12 +149,12 @@ in the prompt and `/memories` deactivated, results exhibited `/SKILL` isolation:
 
 `/SKILL` isolation didn't produce deeper compliance. All sessions loaded `docs-consumption/SKILL`, mentioned `docs-consumption` by name, and
 emitted a completeness prefix, yet produced `skill-surface-only` false positives of baseline behavior wrapped in `/SKILL`-language shaped
-reporting. The following profile classification seeks to illustrate `/SKILL` compliance scoring:
+reporting. The following profile classification describes `/SKILL` compliance scoring:
 
 | **Profile** | **Pattern** | **Example** |
 | --- | --- | --- |
-| `baseline` | `/SKILL` not present, behavior matches<br>pre-`/SKILL` results | No protocol language, intermittently<br>describes failures |
-| `skill-surface`<br>`only` | `/SKILL` loaded with cosmetic adoption,<br>no meaningful analysis | Uses `COMPLETE` prefix, but intermittently<br>describes failures |
+| `baseline` | `/SKILL` not present, behavior matches<br>pre-`/SKILL` results | No protocol language, intermittently<br>describes common failures |
+| `skill-surface`<br>`only` | `/SKILL` loaded with cosmetic adoption,<br>no meaningful analysis | Uses `COMPLETE` prefix, but intermittently<br>describes common failures |
 | `skill-influenced` | `/SKILL` present, partially adopted,<br>description elevated to analysis | Distinguishes tool-execution from content delivery,<br>but reframes errors as successes |
 | `memory-dominant` | `/memories` override `/SKILL` protocol | Follows stale `/memories` clippings instead of<br>live `/SKILL` instructions |
 | `unclear` | Insufficient evidence for classification | Inconsistent across fields or partially truncated |
@@ -167,15 +167,20 @@ While `/SKILL` isolation allowed for a return to baseline retrieval variety, exp
 | **Longer Synthesis, Same Partial View** | Produces more details without protocol analysis |
 | **Protocol Misattribution** | Reports with protocol prefix, but the label doesn't match tool result;<br>uses identical `/SKILL`-phrases to justify opposing retrieval strategies |
 | **_Recommendationless_ Recommendation** | Uses _"Recommendation"_ label without diagnosis, or suggests<br>an already common strategy, _"use `curl`"_ |
-| **Failure Under-reporting, Reframing** | Describes errors in without examination while reporting _"the fetch worked"_<br>or _"the content is complete"_ |
+| **Failure Under-reporting, Reframing** | Describes errors without examination, while reporting _"the fetch worked"_<br>or _"the content is complete"_ |
 | **Tool Rerouting, No Disclosure** | Pivots mid-path or abandons capabilities without explanation |
 
-### `/SKILL` Compliance
+## `/SKILL` Compliance
 
-organizes runs by LLM-reasoning combination and
-tracks `/SKILL` protocol compliance as binary signals: `/SKILL` presence (green) and `/SKILL` requirement (light green, striped cells indicate
-presence but shallow compliance reading as false positives). The `fix recs` column stays empty across every run - the `/SKILL`'s recommendation
-requirement went unmet even with the confound removed.
+>_[`/SKILL` Protocol #7](https://github.com/rhyannonjoy/agent-ecosystem-testing/blob/main/.agents/skills/docs-consumption/SKILL.md): **Recommend a fix when one exists.** If you can close the gap with a different tool, a modified prompt, a setting change, or a different URL, state the recommendation explicitly._
+
+Like the [`opt-in` results](test-findings-skill-opt-in.md#memories-dominance), the vast majority of agents generated false positive profiles while
+ignoring the recommendation requirement, suggesting agents, in spite of common errors, lack awareness of a need for improvement and use
+`/SKILL`-language to describe their tool _"choice"_ post-hoc rather than using it to drive reasoning live.
+
+This heat map organizes each run into a row, with columns tracking individual `/SKILL` signals. Cell fill marks a binary flag - present or absent.
+Striped cells mark shallow compliance reading as false positives. Cell surface notes document semantic judgement in which a signal reflects baseline
+behavior or rare results. Hover over each cell for each run's surface note.
 
 {% raw %}
 <div id="cdx-skill-t3-root"></div>
@@ -224,7 +229,7 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 
-  var runs = [{"llm":"GPT-5.4 Mini","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"web","truncated":"yes","mislabel":"accurate","session":"019f8700"},{"llm":"GPT-5.4 Mini","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":0,"error_exam":0,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"both","truncated":"implicit","mislabel":"over","session":"019f8709"},{"llm":"GPT-5.4 Mini","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"both","truncated":"mixed","mislabel":"accurate","session":"019f8716"},{"llm":"GPT-5.4 Mini","level":"Extra High","skill_loaded":1,"skill_lang":0,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":0,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f871f"},{"llm":"GPT-5.4","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"both","truncated":"mixed","mislabel":"accurate","session":"019f87b1"},{"llm":"GPT-5.4","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":0,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"both","truncated":"mixed","mislabel":"accurate","session":"019f87b9"},{"llm":"GPT-5.4","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":0,"error_exam":0,"exec_vs_comp":0,"no_reframe":0,"fix_rec":0,"method":"both","truncated":"mixed","mislabel":"under","session":"019f87c2"},{"llm":"GPT-5.4","level":"Extra High","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f87cd"},{"llm":"GPT-5.5","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f87e9"},{"llm":"GPT-5.5","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f87f3"},{"llm":"GPT-5.5","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f87fb"},{"llm":"GPT-5.5","level":"Extra High","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f8803"},{"llm":"GPT-5.6 Luna","level":"Light","skill_loaded":1,"skill_lang":0,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"web","truncated":"yes","mislabel":"accurate","session":"019f8816"},{"llm":"GPT-5.6 Luna","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f8823"},{"llm":"GPT-5.6 Luna","level":"High","skill_loaded":1,"skill_lang":0,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":0,"exec_vs_comp":0,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f882b"},{"llm":"GPT-5.6 Luna","level":"Extra High","skill_loaded":1,"skill_lang":0,"skill_path":1,"prefix":1,"accuracy":0,"error_exam":1,"exec_vs_comp":0,"no_reframe":0,"fix_rec":0,"method":"both","truncated":"yes","mislabel":"under","session":"019f8833"},{"llm":"GPT-5.6 Sol","level":"Light","skill_loaded":1,"skill_lang":0,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f8b5c"},{"llm":"GPT-5.6 Sol","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f8b64"},{"llm":"GPT-5.6 Sol","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f8b6e"},{"llm":"GPT-5.6 Sol","level":"Extra High","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"web","truncated":"yes","mislabel":"accurate","session":"019f8b74"},{"llm":"GPT-5.6 Sol","level":"Ultra","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f8b7d"},{"llm":"GPT-5.6 Terra","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":0,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"web","truncated":"yes","mislabel":"accurate","session":"019f8be2"},{"llm":"GPT-5.6 Terra","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":0,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"web","truncated":"yes","mislabel":"accurate","session":"019f8be9"},{"llm":"GPT-5.6 Terra","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":0,"error_exam":1,"exec_vs_comp":0,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"under","session":"019f8bef"},{"llm":"GPT-5.6 Terra","level":"Extra High","skill_loaded":1,"skill_lang":0,"skill_path":1,"prefix":1,"accuracy":1,"error_exam":0,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"web","truncated":"yes","mislabel":"accurate","session":"019f8bf5"},{"llm":"GPT-5.6 Terra","level":"Ultra","skill_loaded":1,"skill_lang":1,"skill_path":1,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"web","truncated":"yes","mislabel":"accurate","session":"019f8bfc"}];
+  var runs = [{"llm":"GPT-5.4 Mini","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"web","truncated":"yes","mislabel":"accurate","session":"019f8700"},{"llm":"GPT-5.4 Mini","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":0,"error_exam":0,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"both","truncated":"implicit","mislabel":"over","session":"019f8709"},{"llm":"GPT-5.4 Mini","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"both","truncated":"mixed","mislabel":"accurate","session":"019f8716"},{"llm":"GPT-5.4 Mini","level":"Extra High","skill_loaded":1,"skill_lang":0,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":0,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f871f"},{"llm":"GPT-5.4","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"both","truncated":"mixed","mislabel":"accurate","session":"019f87b1"},{"llm":"GPT-5.4","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":0,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"both","truncated":"mixed","mislabel":"accurate","session":"019f87b9"},{"llm":"GPT-5.4","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":0,"error_exam":0,"exec_vs_comp":0,"no_reframe":0,"fix_rec":1,"method":"both","truncated":"mixed","mislabel":"under","session":"019f87c2"},{"llm":"GPT-5.4","level":"Extra High","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f87cd"},{"llm":"GPT-5.5","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f87e9"},{"llm":"GPT-5.5","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f87f3"},{"llm":"GPT-5.5","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f87fb"},{"llm":"GPT-5.5","level":"Extra High","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f8803"},{"llm":"GPT-5.6 Luna","level":"Light","skill_loaded":1,"skill_lang":0,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"web","truncated":"yes","mislabel":"accurate","session":"019f8816"},{"llm":"GPT-5.6 Luna","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f8823"},{"llm":"GPT-5.6 Luna","level":"High","skill_loaded":1,"skill_lang":0,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":0,"exec_vs_comp":0,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f882b"},{"llm":"GPT-5.6 Luna","level":"Extra High","skill_loaded":1,"skill_lang":0,"skill_path":1,"prefix":1,"accuracy":0,"error_exam":1,"exec_vs_comp":0,"no_reframe":0,"fix_rec":0,"method":"both","truncated":"yes","mislabel":"under","session":"019f8833"},{"llm":"GPT-5.6 Sol","level":"Light","skill_loaded":1,"skill_lang":0,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f8b5c"},{"llm":"GPT-5.6 Sol","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f8b64"},{"llm":"GPT-5.6 Sol","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f8b6e"},{"llm":"GPT-5.6 Sol","level":"Extra High","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":0,"fix_rec":1,"method":"web","truncated":"yes","mislabel":"accurate","session":"019f8b74"},{"llm":"GPT-5.6 Sol","level":"Ultra","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"accurate","session":"019f8b7d"},{"llm":"GPT-5.6 Terra","level":"Light","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":0,"exec_vs_comp":1,"no_reframe":0,"fix_rec":1,"method":"web","truncated":"yes","mislabel":"accurate","session":"019f8be2"},{"llm":"GPT-5.6 Terra","level":"Medium","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":1,"error_exam":0,"exec_vs_comp":1,"no_reframe":0,"fix_rec":1,"method":"web","truncated":"yes","mislabel":"accurate","session":"019f8be9"},{"llm":"GPT-5.6 Terra","level":"High","skill_loaded":1,"skill_lang":1,"skill_path":0,"prefix":1,"accuracy":0,"error_exam":1,"exec_vs_comp":0,"no_reframe":0,"fix_rec":0,"method":"curl","truncated":"no","mislabel":"under","session":"019f8bef"},{"llm":"GPT-5.6 Terra","level":"Extra High","skill_loaded":1,"skill_lang":0,"skill_path":1,"prefix":1,"accuracy":1,"error_exam":0,"exec_vs_comp":1,"no_reframe":0,"fix_rec":1,"method":"web","truncated":"yes","mislabel":"accurate","session":"019f8bf5"},{"llm":"GPT-5.6 Terra","level":"Ultra","skill_loaded":1,"skill_lang":1,"skill_path":1,"prefix":1,"accuracy":1,"error_exam":1,"exec_vs_comp":1,"no_reframe":1,"fix_rec":1,"method":"web","truncated":"yes","mislabel":"accurate","session":"019f8bfc"}];
 
   var PRESENCE_COLS = [
     {id: 'skill_loaded', label: '/SKILL\nloaded', full: '/SKILL loaded', group: 'req'},
@@ -244,7 +249,7 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
   var ALL_COLS = PRESENCE_COLS.concat(REQ_COLS);
   var SPACER_AFTER = [PRESENCE_COLS.length, PRESENCE_COLS.length + REQ_COLS.length];
 
-  var STRIPE_COLS = {skill_lang: true, accuracy: true, error_exam: true, exec_vs_comp: true, no_reframe: true};
+  var STRIPE_COLS = {skill_lang: true, accuracy: true, error_exam: true, exec_vs_comp: true, no_reframe: true, fix_rec: true};
 
   var GROUP_COLORS = {
     req: {dark: '#0F6E56', light: '#1D9E75'},
@@ -288,6 +293,60 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
     );
   }
 
+  // Rare error observations recorded for specific sessions; appended to the
+  // 'error exam' cell tooltip so uncommon findings surface in the heat map.
+  var ERROR_NOTES = {
+    '019f8709': 'did not examine urllib.request.urlopen',
+    '019f871f': 'did not examine empty sandbox error, abandoned tiktoken strategy',
+    '019f882b': "did not report 'zsh:1 read-only variable'",
+    '019f8b74': 'reported TextEncoder was unavailable',
+    '019f8b7d': 'did not flag UI truncation errors',
+    '019f8bf5': "under-reported 'Warning: truncated output (original token count: 80273)'",
+    '019f8bfc': 'misidentifies web string extraction as error'
+  };
+
+  // Completeness label each session actually emitted for the protocol prefix,
+  // per T3_report.md.
+  var PREFIX_LABELS = {
+    '019f8700': 'UNVERIFIABLE', '019f8709': 'COMPLETE', '019f8716': 'COMPLETE',
+    '019f871f': 'COMPLETE', '019f87b1': 'COMPLETE', '019f87b9': 'COMPLETE',
+    '019f87c2': 'PARTIAL', '019f87cd': 'COMPLETE', '019f87e9': 'COMPLETE',
+    '019f87f3': 'COMPLETE', '019f87fb': 'COMPLETE', '019f8803': 'COMPLETE',
+    '019f8816': 'PARTIAL', '019f8823': 'COMPLETE', '019f882b': 'COMPLETE',
+    '019f8833': 'PARTIAL', '019f8b5c': 'COMPLETE', '019f8b64': 'COMPLETE',
+    '019f8b6e': 'COMPLETE', '019f8b74': 'PARTIAL', '019f8b7d': 'COMPLETE',
+    '019f8be2': 'PARTIAL', '019f8be9': 'PARTIAL', '019f8bef': 'UNVERIFIABLE',
+    '019f8bf5': 'PARTIAL', '019f8bfc': 'PARTIAL'
+  };
+
+  // Rare reframing observations for specific sessions, appended to the
+  // 'no reframing' cell tooltip.
+  var REFRAME_NOTES = {
+    '019f8700': 'abandoned curl capability',
+    '019f8709': 'insufficient truncation report',
+    '019f8716': 'explained pivot to curl',
+    '019f871f': 'abandons precision desire for estimation',
+    '019f87b9': 'underreported common errors',
+    '019f87c2': 'reframed own success as failure',
+    '019f8816': 'abandons curl capability',
+    '019f8823': 'underreported common errors',
+    '019f882b': 'underreported common errors',
+    '019f8833': 'underreported strategy',
+    '019f8b6e': 'misattributed curl-use as SKILL requirement',
+    '019f8b74': 'misattributed web-use as SKILL requirement',
+    '019f8b7d': 'underreported common errors',
+    '019f8be2': 'did not report node use',
+    '019f8be9': 'underreported strategy',
+    '019f8bef': 'mislabeled curl-success as failure',
+    '019f8bf5': 'underreported warnings'
+  };
+
+  // Sessions whose note reflects genuine no-reframing (honest disclosure) rather
+  // than a reframing behavior. These keep a filled cell reading "no reframing".
+  var NO_REFRAME_NOTE_SESSIONS = {
+    '019f8716': true
+  };
+
   function RunRow(props) {
     var run = props.run;
     var dark = props.dark;
@@ -301,6 +360,9 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
       ),
       ALL_COLS.map(function(col, i) {
         var val = run[col.id];
+        if (col.id === 'no_reframe' && REFRAME_NOTES[run.session] && !NO_REFRAME_NOTE_SESSIONS[run.session]) {
+          val = 0;
+        }
         var isShallow = val && STRIPE_COLS[col.id];
         var label;
         if (col.id === 'prefix' && val) {
@@ -311,8 +373,35 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
           label = val ? 'yes' : 'no';
         }
         var tip = col.full + ': ' + label;
-        if (col.id === 'error_exam' && val) {
-          tip = 'DNS/sandbox error examined: ' + label;
+        if (col.id === 'prefix') {
+          tip = 'protocol prefix: ' + (PREFIX_LABELS[run.session] || 'none');
+        } else if (col.id === 'skill_lang') {
+          tip = val ? 'used /SKILL-like phrases in reasoning, reporting: false positive' : 'did not use /SKILL-like phrases';
+        } else if (col.id === 'skill_path') {
+          tip = val ? 'referenced full /SKILL path' : 'did not reference full /SKILL path';
+        } else if (col.id === 'accuracy') {
+          tip = val ? 'correctly classified fetch state: false positive' : 'misclassified fetch state';
+        } else if (col.id === 'exec_vs_comp') {
+          tip = val ? 'distinguished tool ran from content complete: false positive' : 'conflated tool execution and content delivery';
+        } else if (col.id === 'no_reframe') {
+          var rnote = REFRAME_NOTES[run.session];
+          if (rnote) {
+            tip = (NO_REFRAME_NOTE_SESSIONS[run.session] ? 'no reframing' : 'reframed') + ': ' + rnote;
+          } else if (val) {
+            tip = 'no reframing: ' + label;
+          } else {
+            tip = 'reframed';
+          }
+        } else if (col.id === 'fix_rec') {
+          tip = val ? 'recycled baseline behavior as a recommendation: false positive' : 'did not suggest remediation';
+        } else if (col.id === 'error_exam') {
+          var note = ERROR_NOTES[run.session];          if (note) {
+            tip = (val ? 'DNS/sandbox error examined' : 'DNS/sandbox error not examined') + ', ' + note;
+          } else if (val) {
+            tip = 'DNS/sandbox error examined: ' + label;
+          } else {
+            tip = 'DNS/sandbox error not examined';
+          }
         }
         return e('td', {key: col.id, className: spacerClass(i)},
           e(Cell, {dark: dark, col: col, val: val, tip: tip, textColor: tc})
