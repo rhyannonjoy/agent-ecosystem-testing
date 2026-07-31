@@ -93,9 +93,9 @@ confirm that `.codex/memories` was absent while
 what _can render each session_ and don't transcribe what _does render each session_, the visualizations below include a hybrid of
 rollout metadata and agent self-reports from the chat.
 
-Workspace `opt-in` conditions including `/docs-consumption/SKILL` presence - but not explicitly mentioned in the prompt - with available `/memories`,
-agent self-reports never declared a preference, mostly exhibiting a type of co-occurence. With the `/SKILL` explicitly mentioned in the
-prompt and `/memories` deactivated, agents produced `/SKILL` isolation:
+With `opt-in` conditions including `/docs-consumption/SKILL` presence - but not explicitly mentioned in the prompt - and available
+`/memories`, most agents never declared a preference, and the results exhibited a type of co-occurence. With the `/SKILL` explicitly mentioned
+in the prompt and `/memories` deactivated, results exhibited `/SKILL` isolation:
 
 {% raw %}
 <svg class="cdx-skill-stack" viewBox="0 0 870 130" style="max-width: 870px; margin: 1rem auto; display: block;">
@@ -147,26 +147,35 @@ prompt and `/memories` deactivated, agents produced `/SKILL` isolation:
 </svg>
 {% endraw %}
 
-`/SKILL` isolation, however, didn't produce deeper compliance. 100% of runs loaded `docs-consumption/SKILL`, 100% mentioned it by name, and
-100% emitted a completeness prefix - surface uptake that _exceeds_ the opt-in sub-track - yet 26/26 still read as `skill-surface-only`
-false positives and `0` runs produced a genuine fix. The shallow compliance ceiling is independent of `/memories`. What suppression _did_
-change was retrieval and reporting: with `/memories`'s _"stop trusting the clipped rendered view"_ lesson gone, agents reverted to the `web`
-tool and re-hit the `L54` cutpoint (50% truncation signal vs opt-in 22%), and a new _under-confidence_ variant appeared where clean full
-fetches were labeled `UNVERIFIABLE` or `PARTIAL`. `/SKILL`-derived phrasing continued to function as a narrative wrapper rather than a strategy
-driver - `Sol High` and `Sol Extra High` used near-identical justification language to choose `curl` and `web` respectively.
+`/SKILL` isolation didn't produce deeper compliance. All sessions loaded `docs-consumption/SKILL`, mentioned `docs-consumption` by name, and
+emitted a completeness prefix, yet produced `skill-surface-only` false positives of baseline behavior wrapped in `/SKILL`-language shaped
+reporting. The following profile classification seeks to illustrate `/SKILL` compliance scoring:
 
-Two heat maps split the run matrix along the semantic boundary surfaced above. **Heat map A** organizes runs by LLM-reasoning combination and
-tracks `/SKILL` protocol compliance as binary signals: `/SKILL` presence (green) and `/SKILL` requirement (light green, striped cells indicate
-presence but shallow compliance reading as false positives). The `fix recs` column stays empty across every run - the `/SKILL`'s recommendation
-requirement went unmet even with the confound removed. **Heat map B** carries the retrieval and reporting outcome as a single `EC-6` matrix - rows
-are LLM version, columns are reasoning level - styled after the [extension truncation and method maps](../open-ai-codex/codex-test-findings-extension.md#content-access-x-intelligence),
-but scoped to the single page type `EC-6`. Each cell carries one signal as its fill (`method`: `web`, `curl`, or `both`) and folds the other two
-into the cell border and overlay: the border encodes `truncation` tier (`yes` = red, `mixed` = amber, `implicit` = dashed yellow, `no` = faint),
-and a diagonal stripe marks `mislabel` cells where the completeness label diverges from the evidence. `web` returns in `Terra` and `Luna` re-hit
-the `L54` cutpoint, the `yes`-truncation cells ring red, and the under-confidence `under` cells stripe clean `curl` fetches mislabeled
-`UNVERIFIABLE` or `PARTIAL`.
+| **Profile** | **Pattern** | **Example** |
+| --- | --- | --- |
+| `baseline` | `/SKILL` not present, behavior matches<br>pre-`/SKILL` results | No protocol language, intermittently<br>describes failures |
+| `skill-surface`<br>`only` | `/SKILL` loaded with cosmetic adoption,<br>no meaningful analysis | Uses `COMPLETE` prefix, but intermittently<br>describes failures |
+| `skill-influenced` | `/SKILL` present, partially adopted,<br>description elevated to analysis | Distinguishes tool-execution from content delivery,<br>but reframes errors as successes |
+| `memory-dominant` | `/memories` override `/SKILL` protocol | Follows stale `/memories` clippings instead of<br>live `/SKILL` instructions |
+| `unclear` | Insufficient evidence for classification | Inconsistent across fields or partially truncated |
+
+While `/SKILL` isolation allowed for a return to baseline retrieval variety, expanding from `/memories`' choice `curl` to include
+`web`, or a combination of both, the `/SKILL` failed to improve report depth, defining a false positive floor:
+
+| **Behavior** | **Observation** |
+| --- | --- |
+| **Longer Synthesis, Same Partial View** | Produces more details without protocol analysis |
+| **Protocol Misattribution** | Reports with protocol prefix, but the label doesn't match tool result;<br>uses identical `/SKILL`-phrases to justify opposing retrieval strategies |
+| **_Recommendationless_ Recommendation** | Uses _"Recommendation"_ label without diagnosis, or suggests<br>an already common strategy, _"use `curl`"_ |
+| **Failure Under-reporting, Reframing** | Describes errors in without examination while reporting _"the fetch worked"_<br>or _"the content is complete"_ |
+| **Tool Rerouting, No Disclosure** | Pivots mid-path or abandons capabilities without explanation |
 
 ### `/SKILL` Compliance
+
+organizes runs by LLM-reasoning combination and
+tracks `/SKILL` protocol compliance as binary signals: `/SKILL` presence (green) and `/SKILL` requirement (light green, striped cells indicate
+presence but shallow compliance reading as false positives). The `fix recs` column stays empty across every run - the `/SKILL`'s recommendation
+requirement went unmet even with the confound removed.
 
 {% raw %}
 <div id="cdx-skill-t3-root"></div>
@@ -439,6 +448,12 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
 {% endraw %}
 
 ### Retrieval Outcomes
+
+Each cell carries one signal as its fill (`method`: `web`, `curl`, or `both`) and folds the other two
+into the cell border and overlay: the border encodes `truncation` tier (`yes` = red, `mixed` = amber, `implicit` = dashed yellow, `no` = faint),
+and a diagonal stripe marks `mislabel` cells where the completeness label diverges from the evidence. `web` returns in `Terra` and `Luna` re-hit
+the `L54` cutpoint, the `yes`-truncation cells ring red, and the under-confidence `under` cells stripe clean `curl` fetches mislabeled
+`UNVERIFIABLE` or `PARTIAL`.
 
 {% raw %}
 <div id="cdx-t3b-root"></div>

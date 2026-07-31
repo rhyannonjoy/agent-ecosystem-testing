@@ -160,5 +160,4 @@ More polished agentic reporting may look like an improvement while obscuring the
 - **Longer Synthesis, Same Partial View**: produces more details without protocol analysis
 - **Loud, Wrong**: uses `COMPLETE`,`PARTIAL`,`UNVERIFIABLE`, but label doesn't match tool result
 - **Reframing Failures**: describes errors while reporting _"the fetch worked"_ or _"the content is complete"_
-- **`/SKILL` Ignored**: doesn't use report completion prefix or show any protocol-aligned behavior
 - **Tool Rerouting, No Disclosure**: bypass `web` for `curl` without explanation
