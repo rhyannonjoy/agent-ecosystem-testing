@@ -536,13 +536,40 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
 </script>
 {% endraw %}
 
-### Retrieval Outcomes
+## Retrieval Outcomes
 
-Each cell carries one signal as its fill (`method`: `web`, `curl`, or `both`) and folds the other two
-into the cell border and overlay: the border encodes `truncation` tier (`yes` = red, `mixed` = amber, `implicit` = dashed yellow, `no` = faint),
-and a diagonal stripe marks `mislabel` cells where the completeness label diverges from the evidence. `web` returns in `Terra` and `Luna` re-hit
-the `L54` cutpoint, the `yes`-truncation cells ring red, and the under-confidence `under` cells stripe clean `curl` fetches mislabeled
-`UNVERIFIABLE` or `PARTIAL`.
+Without `/memories` competing for context and with `docs-consumption/SKILL` isolated as the only signal in play, retrieval reverts
+to baseline tool-choice variety rather than a single dominant path: 50% of runs used `curl` alone, 27% used `web` alone, and 23%
+used both. That variety matters because `curl` returns the complete `Content-Length`-verified payload, while `web` returns a
+windowed extraction — lossy and truncated by design.
+
+Every truncated `web` run cuts at the same point — mid-sentence, right after `JSON-LD metadata,` — self-reported across runs as
+the `L54` cutpoint. That number describes the `web` tool's own internal line count, not the source document: `EC-6`'s raw file
+is 1,722 lines long, and the `JSON-LD metadata,` string sits at raw line 510, or 29.6% of the page. The character counts
+corroborate it independently — `web`'s ~25,453 characters against `curl`'s 91,869 is a 27.7% share. By either measure, an agent
+that retrieves through `web` sees under a third of the actual document before the tool's own windowing closes it, and only 31%
+of runs disclosed that a cutoff had happened at all. The heat map below is the run-by-run evidence for that split: which
+retrieval path each run took, whether the cutoff was disclosed, and whether the completeness label that followed matched what
+was actually retrieved.
+
+[Content Access x Intelligence](../open-ai-codex/codex-test-findings-desktop.md#content-access-x-intelligence) frames traversal
+as a proxy for reading, not just retrieval: agents that use `web` long enough to reach the end of a page's prose access something
+closer to semantic context, while agents that pivot to `curl` retrieve a raw HTTP body they may never process as text. None of
+this test's `web` runs meet that bar — every one stops at the same ~29.6%/27.7% mark before the tool's own window closes, and
+the 50% of runs that skipped `web` for `curl` alone fetched the full 91,869-character payload with no signal they read any of
+it as prose; `curl`'s completeness is a byte count, not a reading one. [Retrieval Paths](../open-ai-codex/codex-test-findings-extension.md#retrieval-paths)
+explains why the pivot happens anyway: paginating through `web`'s text-extraction slices to reach full coverage costs materially
+more calls than one `curl` request returning `Content-Length` up front. That cost calculus holds even here, with
+`docs-consumption/SKILL` present in the workspace and `/memories` suppressed — agents still rediscover the same `web` ceiling
+each session and still reach for `curl` as the cheaper path, not the more thorough one.
+
+Single page type `EC-6` (Raw GitHub Markdown, ~92 KB). Rows are LLM version, columns are reasoning level;
+`Ultra` ran on `Sol` and `Terra` only. Each cell carries one signal as its fill (`method`: `web`, `curl`, or `both`)
+and folds the other two into the cell border and overlay: the border encodes `truncation` tier (`yes` = red, `mixed` = amber,
+`implicit` = dashed yellow, `no` = faint), and a diagonal stripe marks `mislabel` cells where the completeness label diverges
+from the evidence. Cell tooltips carry each run's log-label surface note: `web` returns in `Terra` and `Luna` re-hit the `L54`
+cutpoint, the `yes`-truncation cells ring red, and the striped `under` cells mark clean `curl` fetches mislabeled `UNVERIFIABLE`
+or `PARTIAL`.
 
 {% raw %}
 <div id="cdx-t3b-root"></div>
@@ -625,53 +652,45 @@ html[data-theme="dark"] .cdx-t3b-stripe::after { background: repeating-linear-gr
     }
   };
 
-  var CATEGORY_DESC = {
-    method: {
-      web: 'text extraction, often L54-clipped',
-      curl: 'response, often Content-Length-verified',
-      both: 'web and curl both used'
-    },
-    truncated: {
-      yes: 'web L54 cutpoint reported explicitly',
-      mixed: 'both web limit and full curl result reported',
-      implicit: 'truncation implied but not explicitly named',
-      no: 'no truncation signal, curl-complete'
-    },
-    mislabel: {
-      accurate: 'completeness label matches evidence',
-      under: 'curl-complete labeled UNVERIFIABLE or PARTIAL',
-      over: 'COMPLETE despite truncation signal'
-    }
+  // Verb phrase for the tooltip's completeness line — paired with the run's actual
+  // protocol label (COMPLETE/PARTIAL/UNVERIFIABLE) so the line reads e.g. "PARTIAL
+  // label matches evidence" instead of just echoing the mislabel code word.
+  var COMPLETENESS_VERB = {
+    accurate: 'matches evidence',
+    under: 'under-reports evidence',
+    over: 'over-reports evidence'
   };
 
-  // Per-run outcome + log-label surface note, keyed model:level.
+  // Per-run outcome + log-label surface note, keyed model:level. `label` is the
+  // agent's self-reported /SKILL protocol prefix (COMPLETE/PARTIAL/UNVERIFIABLE),
+  // sourced from open-ai-codex-web-search/results/docs-consumption-skill-flash/T3_report.md.
   var RUNS = {
-    '5.4m:L':  {method:'web',  truncated:'yes',      mislabel:'accurate', note:'curl_dns_blocked + web_open_partial_only + skill_instructed_docs_consumption + 37s (FAIL)'},
-    '5.4m:M':  {method:'both', truncated:'implicit', mislabel:'over',     note:'curl_91877_bytes + web_view_truncation_undisclosed + skill_instructed_docs_consumption + 1m18s'},
-    '5.4m:H':  {method:'both', truncated:'mixed',    mislabel:'accurate', note:'curl_91869_chars + web_open_clip_l54_disclosed + skill_instructed_docs_consumption + 1m45s'},
-    '5.4m:XH': {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars + sandbox_empty_response_then_escalated + tiktoken_unavailable_undisclosed + skill_instructed_docs_consumption + 6m26s'},
-    '5.4:L':   {method:'both', truncated:'mixed',    mislabel:'accurate', note:'curl_91869_chars + web_open_windowed_l33_visible_of_l55 + skill_instructed_docs_consumption + 1m1s'},
-    '5.4:M':   {method:'both', truncated:'mixed',    mislabel:'accurate', note:'curl_91877_chars + web_open_clip_l54_undisclosed_in_report + skill_instructed_docs_consumption + 1m7s'},
-    '5.4:H':   {method:'both', truncated:'mixed',    mislabel:'under',    note:'curl_91877_chars_eof_clean + web_open_clip_l54_disclosed + self_labeled_partial_mismatch + skill_instructed_docs_consumption + 2m20s'},
-    '5.4:XH':  {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + sandbox_dns_failure_disclosed + web_not_invoked + skill_instructed_docs_consumption + 2m17s'},
-    '5.5:L':   {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + dns_failure_disclosed_3x + no_web + skill_instructed_docs_consumption + 46s'},
-    '5.5:M':   {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + headers_request_id_reuse_flagged + no_web + skill_instructed_docs_consumption + 1m0.7s'},
-    '5.5:H':   {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_byte_char_gap_reasoned + no_web + skill_instructed_docs_consumption + 1m23s'},
-    '5.5:XH':  {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + hyphenated_artifact_naming_variant + no_web + skill_instructed_docs_consumption + 1m29s'},
-    'luna:L':  {method:'web',  truncated:'yes',      mislabel:'accurate', note:'web_24884_chars_partial_L54 + curl_dns_failure_not_escalated + shell_dominant_flag + skill_instructed_docs_consumption + 29s'},
-    'luna:M':  {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + artifact_naming_collision + tool_visibility_undercount + skill_instructed_docs_consumption + 47s'},
-    'luna:H':  {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + zsh_readonly_var_undisclosed + skill_instructed_docs_consumption + 2m8s'},
-    'luna:XH': {method:'both', truncated:'yes',      mislabel:'under',    note:'web_24885_chars_partial_L54 + curl_91869_chars_verified + early_exit_partial_label + skill_instructed_docs_consumption + 3m13s'},
-    'sol:L':   {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + ruby_local_inspection + scope_overgeneralized_skill_citation + skill_instructed_docs_consumption + 57s'},
-    'sol:M':   {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + xcache_hit_zero_hits_contradiction + skill_instructed_docs_consumption + 1m7s'},
-    'sol:H':   {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + invented_skill_attribution + skill_instructed_docs_consumption + 1m16s'},
-    'sol:XH':  {method:'web',  truncated:'yes',      mislabel:'accurate', note:'web_25453_chars_partial_L54 + js_textencoder_error_disclosed + skill_instructed_docs_consumption + 1m29s'},
-    'sol:U':   {method:'curl', truncated:'no',       mislabel:'accurate', note:'curl_91869_chars_content_length_match + artifact_naming_collision + undisclosed_ui_truncation_flag + skill_instructed_docs_consumption + 2m44s'},
-    'terra:L': {method:'web',  truncated:'yes',      mislabel:'accurate', note:'web_25453_chars_partial_L54 + est_not_confirmed_char_count + skill_instructed_docs_consumption + 48s'},
-    'terra:M': {method:'web',  truncated:'yes',      mislabel:'accurate', note:'web_25453_chars_partial_L54 + tool_vs_self_report_tension + skill_instructed_docs_consumption + 32s'},
-    'terra:H': {method:'curl', truncated:'no',       mislabel:'under',    note:'curl_91869_chars_content_length_match + success_mislabeled_unverifiable + local_verification + skill_instructed_docs_consumption + 55s'},
-    'terra:XH':{method:'web',  truncated:'yes',      mislabel:'accurate', note:'web_25453_chars_partial_L54 + secondary_truncation_underreported + skill_instructed_docs_consumption + 2m1s'},
-    'terra:U': {method:'web',  truncated:'yes',      mislabel:'accurate', note:'web_25453_chars_partial_L54 + dual_web_call_reasoned_refetch + wordlim_200 + skill_instructed_docs_consumption + 3m17s'}
+    '5.4m:L':  {method:'web',  truncated:'yes',      mislabel:'accurate', label:'UNVERIFIABLE', note:'DNS blocked curl-use, web L54 cutpoint implied, test duration 37s'},
+    '5.4m:M':  {method:'both', truncated:'implicit', mislabel:'over',     label:'COMPLETE',     note:'91,877 bytes via curl, web truncation not reported, test duration 1m18s'},
+    '5.4m:H':  {method:'both', truncated:'mixed',    mislabel:'accurate', label:'COMPLETE',     note:'91,869 chars via curl, web L54 cutpoint reported, test duration 1m45s'},
+    '5.4m:XH': {method:'curl', truncated:'no',       mislabel:'accurate', label:'COMPLETE',     note:'91,869 chars via curl, sandbox returned empty then escalated, tiktoken unavailability not reported, test duration 6m26s'},
+    '5.4:L':   {method:'both', truncated:'mixed',    mislabel:'accurate', label:'COMPLETE',     note:'91,869 chars via curl, web cutpoint L33 of Total lines: 55, test duration 1m1s'},
+    '5.4:M':   {method:'both', truncated:'mixed',    mislabel:'accurate', label:'COMPLETE',     note:'91,877 chars via curl, web L54 cutpoint not reported, test duration 1m7s'},
+    '5.4:H':   {method:'both', truncated:'mixed',    mislabel:'under',    label:'PARTIAL',      note:'91,877 chars via curl, web L54 cutpoint reported, self-label mismatch, test duration 2m20s'},
+    '5.4:XH':  {method:'curl', truncated:'no',       mislabel:'accurate', label:'COMPLETE',     note:'91,869 chars via curl, sandbox DNS failure reported, test duration 2m17s'},
+    '5.5:L':   {method:'curl', truncated:'no',       mislabel:'accurate', label:'COMPLETE',     note:'91,869 chars via curl, DNS failure reported 3x, test duration 46s'},
+    '5.5:M':   {method:'curl', truncated:'no',       mislabel:'accurate', label:'COMPLETE',     note:'91,869 chars via curl, header request-ID reuse flagged, test duration 1m0.7s'},
+    '5.5:H':   {method:'curl', truncated:'no',       mislabel:'accurate', label:'COMPLETE',     note:'91,869 chars via curl, byte/char gap explicitly reasoned through, test duration 1m23s'},
+    '5.5:XH':  {method:'curl', truncated:'no',       mislabel:'accurate', label:'COMPLETE',     note:'91,869 chars via curl, test duration 1m29s'},
+    'luna:L':  {method:'web',  truncated:'yes',      mislabel:'accurate', label:'PARTIAL',      note:'24,884 chars via web, cutpoint L54 reported, curl DNS failure not escalated, test duration 29s'},
+    'luna:M':  {method:'curl', truncated:'no',       mislabel:'accurate', label:'COMPLETE',     note:'91,869 chars via curl, artifact-naming collision, tool undercount, test duration 47s'},
+    'luna:H':  {method:'curl', truncated:'no',       mislabel:'accurate', label:'COMPLETE',     note:'91,869 chars via curl, zsh read-only error not reported, test duration 2m8s'},
+    'luna:XH': {method:'both', truncated:'yes',      mislabel:'under',    label:'PARTIAL',      note:'24,885 chars via web, cutpoint L54 reported, 91,869 chars via curl, early-exit PARTIAL label, test duration 3m13s'},
+    'sol:L':   {method:'curl', truncated:'no',       mislabel:'accurate', label:'COMPLETE',     note:'91,869 chars via curl, Ruby inspection, over-generalized /SKILL citation scope, test duration 57s'},
+    'sol:M':   {method:'curl', truncated:'no',       mislabel:'accurate', label:'COMPLETE',     note:'91,869 chars via curl, X-Cache hit vs zero-hits contradiction, test duration 1m7s'},
+    'sol:H':   {method:'curl', truncated:'no',       mislabel:'accurate', label:'COMPLETE',     note:'91,869 chars via curl, invented /SKILL attribution, test duration 1m16s'},
+    'sol:XH':  {method:'web',  truncated:'yes',      mislabel:'accurate', label:'PARTIAL',      note:'25,453 chars via web, cutpoint L54 reported, JS TextEncoder error reported, test duration 1m29s'},
+    'sol:U':   {method:'curl', truncated:'no',       mislabel:'accurate', label:'COMPLETE',     note:'91,869 chars via curl, artifact-naming collision, UI truncation not reported, test duration 2m44s'},
+    'terra:L': {method:'web',  truncated:'yes',      mislabel:'accurate', label:'PARTIAL',      note:'25,453 chars via web, char count estimated not confirmed, cutpoint L54 reported, test duration 48s'},
+    'terra:M': {method:'web',  truncated:'yes',      mislabel:'accurate', label:'PARTIAL',      note:'25,453 chars via web, cutpoint L54 reported, tool output vs self-report mismatch, test duration 32s'},
+    'terra:H': {method:'curl', truncated:'no',       mislabel:'under',    label:'UNVERIFIABLE', note:'91,869 chars via curl, success mislabeled UNVERIFIABLE, local verification performed, test duration 55s'},
+    'terra:XH':{method:'web',  truncated:'yes',      mislabel:'accurate', label:'PARTIAL',      note:'25,453 chars via web, cutpoint L54 reported, secondary truncation underreported, test duration 2m1s'},
+    'terra:U': {method:'web',  truncated:'yes',      mislabel:'accurate', label:'PARTIAL',      note:'25,453 chars via web, cutpoint L54 reported, dual web call with reasoned refetch, [wordlim: 200], test duration 3m17s'}
   };
 
   function modelLabel(k) {
@@ -684,7 +703,7 @@ html[data-theme="dark"] .cdx-t3b-stripe::after { background: repeating-linear-gr
     yes:      {cLight:'#C94B4B', cDark:'#A03A3A', style:'solid'},
     mixed:    {cLight:'#D98A3D', cDark:'#B5703A', style:'solid'},
     implicit: {cLight:'#C9A23D', cDark:'#A8863A', style:'dashed'},
-    no:       {cLight:'rgba(128,128,128,0.22)', cDark:'rgba(128,128,128,0.22)', style:'solid'}
+    no:       {cLight:'#6F6D64', cDark:'#A3A196', style:'solid'}
   };
 
   function methodSwatch(dark, key, w, h) {
@@ -761,10 +780,10 @@ html[data-theme="dark"] .cdx-t3b-stripe::after { background: repeating-linear-gr
         key: 'mislabel',
         rows: [
           {key: 'stripe', swatch:
-            e('span', {className: 'cdx-t3b-stripe', style: {display: 'inline-block', boxSizing: 'border-box', flexShrink: 0, width: 28, height: 16, borderRadius: 3, background: dark ? '#2a2a28' : '#e0e0de', border: '2px solid rgba(128,128,128,0.22)', position: 'relative'}}),
+            e('span', {className: 'cdx-t3b-stripe', style: {display: 'inline-block', boxSizing: 'border-box', flexShrink: 0, width: 28, height: 16, borderRadius: 3, background: dark ? '#4A4945' : '#C4C2B8', border: '2px solid ' + (dark ? '#A3A196' : '#6F6D64'), position: 'relative'}}),
             desc: 'completeness label does not match evidence'},
           {key: 'plain', swatch:
-            e('span', {style: {display: 'inline-block', boxSizing: 'border-box', flexShrink: 0, width: 28, height: 16, borderRadius: 3, background: 'transparent', border: '2px solid rgba(128,128,128,0.22)'}}),
+            e('span', {style: {display: 'inline-block', boxSizing: 'border-box', flexShrink: 0, width: 28, height: 16, borderRadius: 3, background: 'transparent', border: '2px solid ' + (dark ? '#A3A196' : '#6F6D64')}}),
             desc: 'completeness label matches evidence'}
         ]
       }
@@ -773,23 +792,6 @@ html[data-theme="dark"] .cdx-t3b-stripe::after { background: repeating-linear-gr
       groups.map(function(g) {
         return e(LegendGroup, {key: g.key, isDark: dark, textColor: props.textColor, group: g});
       })
-    );
-  }
-
-  function NoteBlock(props) {
-    var tc = props.textColor || 'inherit';
-    var cs = {fontFamily: 'monospace', fontSize: 10, background: 'rgba(128,128,128,0.15)', borderRadius: 2, padding: '1px 3px'};
-    var C = function(t) { return e('code', {style: cs}, t); };
-    return e('p', {style: {fontSize: 11, marginTop: 8, lineHeight: 1.6, opacity: 0.65, color: tc, maxWidth: 720}},
-      e('i', null,
-        'Single page type ', C('EC-6'), ' (Raw GitHub Markdown, ~92 KB). Rows are LLM version, columns are reasoning level; ',
-        C('Ultra'), ' ran on ', C('Sol'), ' and ', C('Terra'), ' only. Each cell folds three signals: fill = ',
-        C('method'), ' (retrieval path), border = ', C('truncation'), ' tier (red = ', C('web'), ' ', C('L54'),
-        ' cutpoint, amber = mixed, dashed yellow = implicit), and a diagonal stripe marks a ', C('mislabel'),
-        ' where the completeness label diverges from the evidence. Cell tooltips carry each run\'s log-label surface note: ',
-        C('web'), ' returns in ', C('Terra'), ' and ', C('Luna'), ' re-hit the ', C('L54'), ' cutpoint (red borders), and the striped ',
-        C('under'), ' cells mark clean ', C('curl'), ' fetches mislabeled ', C('UNVERIFIABLE'), ' or ', C('PARTIAL'), '.'
-      )
     );
   }
 
@@ -838,9 +840,9 @@ html[data-theme="dark"] .cdx-t3b-stripe::after { background: repeating-linear-gr
                 var className = 'cdx-t3b-cell';
                 if (striped) className += ' cdx-t3b-stripe';
                 var tip = 'EC-6 · ' + modelLabel(m.k) + ' ' + lv.label +
-                  '\nmethod: ' + ms.full + ' (' + CATEGORY_DESC.method[run.method] + ')' +
-                  '\ntruncation: ' + run.truncated + ' (' + CATEGORY_DESC.truncated[run.truncated] + ')' +
-                  '\nmislabel: ' + run.mislabel + ' (' + CATEGORY_DESC.mislabel[run.mislabel] + ')' +
+                  '\nmethod: ' + ms.full +
+                  '\ntruncation: ' + run.truncated +
+                  '\n' + run.label + ' label ' + COMPLETENESS_VERB[run.mislabel] +
                   '\n' + run.note;
                 return e('td', {key: key, style: {borderLeft: '1px solid rgba(128,128,128,0.10)'}},
                   e('div', {title: tip, className: className,
@@ -891,7 +893,6 @@ html[data-theme="dark"] .cdx-t3b-stripe::after { background: repeating-linear-gr
           )
         )
       ),
-      e(NoteBlock, {isDark: dark}),
       isOpen && e('div', {
         className: 'cdx-t3b-overlay',
         onClick: function(ev){ if (ev.target === ev.currentTarget) setOpen(false); }
@@ -906,8 +907,7 @@ html[data-theme="dark"] .cdx-t3b-stripe::after { background: repeating-linear-gr
             e('div', {style: {flex: '0 0 auto', marginTop: 4}},
               e(Legend, {isDark: dark, textColor: lbText})
             )
-          ),
-          e(NoteBlock, {isDark: dark, textColor: lbText})
+          )
         )
       )
     );
