@@ -25,6 +25,7 @@ import csv
 import glob
 import hashlib
 import json
+import os
 import re
 import sys
 from collections import Counter
@@ -230,14 +231,17 @@ def parse_skills(records: list[dict]) -> list[dict]:
 
 SKILL_PATH = ".agents/skills/docs-consumption/SKILL.md"
 # SKILL.md requires the report to be prefaced with COMPLETE, PARTIAL, or UNVERIFIABLE.
-# Only count a formal protocol label at the start of the answer: optional leading
-# markdown decoration, the keyword, optional trailing decoration, then a colon,
-# newline, or end of string. This avoids false positives from sentences like
-# "Looks complete" or "Perceived completeness".
+# Count a formal protocol label at the start of any line: optional leading markdown
+# decoration, then the ALL-CAPS keyword, then a word boundary. The protocol uses
+# ALL-CAPS, so matching case-sensitively rejects prose like "Looks complete",
+# "the fetch completed", "completely", and "partial updates" without needing a strict
+# trailing delimiter. re.MULTILINE lets ^ match each line start (not just the first
+# line of the answer), so a label placed after a header/title line still counts.
+# The word boundary accepts COMPLETE:, COMPLETE,, COMPLETE., COMPLETE`, COMPLETE <prose>,
+# and COMPLETE at EOF, while rejecting COMPLETELY.
 PROTOCOL_PREFIX_RE = re.compile(
-    r"^\s*(?:\*\*|\*|__|_|#+\s*)?(COMPLETE|PARTIAL|UNVERIFIABLE)"
-    r"(?:\*\*|\*|__|_)?\s*(?::|\n|$)",
-    re.IGNORECASE,
+    r"^\s*(?:\*\*|\*|__|_|#+\s*)?(COMPLETE|PARTIAL|UNVERIFIABLE)\b",
+    re.MULTILINE,
 )
 
 # Behavioral proxies for the auto-generated Codex memory skill observed in
@@ -890,8 +894,15 @@ def audit_file(path: Path) -> dict:
         SKILL_PATH.lower() in text for text in final_texts + commentary_texts_lower
     ) else "false"
 
+    # Protocol-prefix detection runs against the original-case texts because
+    # PROTOCOL_PREFIX_RE is case-sensitive ALL-CAPS: the lowercased copies above
+    # would erase the case signal that distinguishes a formal COMPLETE/PARTIAL/
+    # UNVERIFIABLE label from prose like "complete" or "partial updates".
+    final_texts_orig = final_event_texts + final_item_texts
+    commentary_texts_orig = commentary_texts
+
     protocol_match, protocol_source = _detect_in_sources(
-        [PROTOCOL_PREFIX_RE], final_texts, commentary_texts_lower
+        [PROTOCOL_PREFIX_RE], final_texts_orig, commentary_texts_orig
     )
     r["protocol_prefix"] = (protocol_match or "").strip().upper()
     r["protocol_prefix_source"] = protocol_source
@@ -1018,10 +1029,36 @@ def audit_file(path: Path) -> dict:
     return r
 
 
+def _resolve_csv_path(csv_arg: str, input_files: list[Path]) -> Path:
+    """Resolve the --csv destination.
+
+    A bare filename like `audit.csv` is stored next to the audited rollouts:
+    when every input file lives under a single test directory such as
+    `.../rollouts/T3-skill-on-memories-suppressed/<model>/*.jsonl`, the CSV is
+    placed at `.../rollouts/T3-skill-on-memories-suppressed/audit.csv`. A path
+    that already contains a directory separator is used verbatim.
+    """
+    if os.path.sep in csv_arg or "/" in csv_arg:
+        return Path(csv_arg)
+    existing = [f for f in input_files if f.exists()]
+    if not existing:
+        return Path(csv_arg)
+    # Each rollout path is .../rollouts/<test>/<model>/<file>.jsonl; the test
+    # directory is two levels up from the file.
+    test_dirs = {f.parent.parent.resolve() for f in existing}
+    if len(test_dirs) == 1:
+        return next(iter(test_dirs)) / csv_arg
+    # Mixed test directories: fall back to the shared rollouts parent.
+    rollout_parents = {f.parent.parent.parent.resolve() for f in existing}
+    if len(rollout_parents) == 1:
+        return next(iter(rollout_parents)) / csv_arg
+    return Path(csv_arg)
+
+
 def main():
     ap = argparse.ArgumentParser(description="Audit Codex rollout .jsonl logs for duplicate emissions and drift")
     ap.add_argument("paths", nargs="+", help="jsonl files or globs")
-    ap.add_argument("--csv", help="also write results to this CSV path")
+    ap.add_argument("--csv", help="also write results to this CSV path; a bare filename is stored next to the audited rollouts")
     args = ap.parse_args()
 
     files = []
@@ -1109,7 +1146,9 @@ def main():
                 "recovered_failure_count", "has_failure", "first_failure_category",
                 "first_failure_detail", "unknown_error_messages", "memory_skill_fingerprints",
                 "failure_records"]
-        with open(args.csv, "w", newline="") as fh:
+        csv_path = _resolve_csv_path(args.csv, files)
+        csv_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(csv_path, "w", newline="") as fh:
             w = csv.DictWriter(fh, fieldnames=cols)
             w.writeheader()
             for r in results:
@@ -1119,7 +1158,7 @@ def main():
                 row["memory_skill_fingerprints"] = ", ".join(r["memory_skill_fingerprints"])
                 row["failure_records"] = r["failure_records"]
                 w.writerow(row)
-        print(f"\nCSV written to {args.csv}")
+        print(f"\nCSV written to {csv_path}")
 
     sys.exit(1 if any_flags else 0)
 

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "cheapestinference": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "CheapestInference",
+      "options": {
+        "baseURL": "https://api.cheapestinference.com/v1",
+        "apiKey": "{file:~/.secrets/cheapestinference-key}"
+      },
+      "models": {
+        "kimi-k2.7": { "name": "Kimi K2.7" },
+        "glm-5.2": { "name": "GLM 5.2" },
+        "deepseek-v4-flash": { "name": "DeepSeek V4 Flash" },
+        "mimo-v2.5": { "name": "Mimo V2.5" }
+      }
+    }
+  }
+}

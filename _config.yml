@@ -139,6 +139,8 @@ navigation:
     sections:
       - title: "Findings: /SKILL opt-in"
         url: "/docs/open-ai-codex-flash/test-findings-skill-opt-in"
+      - title: "Findings: /SKILL on + /mem suppressed"
+        url: "/docs/open-ai-codex-flash/test-findings-skill-on-mem-suppressed"
       - title: "Runbook"
         url: "/docs/open-ai-codex-flash/runbook"
 

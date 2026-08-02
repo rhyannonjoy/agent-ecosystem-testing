@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Read a memory_audit.csv and print a readable memory-vs-skill comparison.
+"""Read a memory_audit.csv and write a readable memory-vs-skill comparison.
 
 Usage:
     python3 scripts/memory_analyzer.py \
-        results/docs-consumption-skill-flash/artifacts/memory_audit.csv
+        results/docs-consumption-skill-flash/artifacts/rollouts/T3-skill-on-memories-suppressed/memory-analysis/T3_memory_audit.csv
 
-Output is a plain-text / Markdown friendly report sent to stdout.
+Writes a Markdown report next to the input CSV (e.g. T3_memory_analyzer_report.md).
+Pass --output to override the destination. The report is also printed to stdout.
 """
 
 import argparse
@@ -85,9 +86,10 @@ def _model_display(model: str) -> str:
 
 
 def _pct(num: int, denom: int) -> str:
+    # Percentage first, then the raw fraction. No em dashes.
     if denom == 0:
-        return "—"
-    return f"{num}/{denom} — {round(100 * num / denom)}%"
+        return "0% 0/0"
+    return f"{round(100 * num / denom)}% {num}/{denom}"
 
 
 REPORT_MEMORY_CITATIONS_RE = re.compile(
@@ -134,6 +136,20 @@ def _load_notes_by_group(notes_csv: Path) -> dict[tuple[str, str], list[str]]:
     return sorted_groups
 
 
+def _default_output(csv_path: Path) -> Path:
+    """Derive a Markdown report path next to the input CSV.
+
+    T3_memory_audit.csv -> T3_memory_analyzer_report.md
+    memory.csv          -> memory_analyzer_report.md
+    """
+    stem = csv_path.stem
+    if stem.endswith("_audit"):
+        stem = stem[: -len("_audit")] + "_analyzer_report"
+    else:
+        stem = stem + "_analyzer_report"
+    return csv_path.with_name(stem + ".md")
+
+
 def main():
     ap = argparse.ArgumentParser(
         description="Summarize a memory_audit.csv as a readable comparison"
@@ -142,6 +158,10 @@ def main():
     ap.add_argument(
         "--notes-csv",
         help="Path to results.csv containing observer notes; used to derive report_memory_citations",
+    )
+    ap.add_argument(
+        "-o", "--output",
+        help="Path to write the Markdown report. Defaults to <csv_stem>_analyzer_report.md next to the CSV.",
     )
     args = ap.parse_args()
 
@@ -212,37 +232,43 @@ def main():
     memory_any = sum(1 for r in rows if r["memory_positive"])
     skill_any = sum(1 for r in rows if r["skill_positive"])
 
-    print("# Memory vs. Workspace Docs-Consumption Skill Audit")
-    print(f"\nTotal sessions: **{total}**")
-    print()
-    print(
-        "*Memory* = any `.codex/memories` content, including the competing "
+    out: list[str] = []
+
+    def emit(s: str = "") -> None:
+        out.append(s)
+
+    emit("# Memory vs. Workspace Docs-Consumption Skill Audit")
+    emit(f"\nTotal sessions: **{total}**")
+    emit()
+    emit(
+        "_Memory_ = any `.codex/memories` content, including the competing "
         "`single-url-retrieval-measurement` skill."
     )
-    print(
-        "*Workspace skill* = the repository's `.agents/skills/docs-consumption/SKILL.md`. "
+    emit(
+        "_Workspace skill_ = the repository's `.agents/skills/docs-consumption/SKILL.md`. "
         "The agent loads it through the developer `<skills_instructions>` block, names it, "
-        "mentions its path, or uses a COMPLETE/PARTIAL/UNVERIFIABLE prefix."
+        "mentions its path, or uses a `COMPLETE/PARTIAL/UNVERIFIABLE` prefix."
     )
-    print(
-        "*Memory skill delivery* = Codex doesn't list the `single-url-retrieval-measurement` "
+    emit(
+        "_Memory skill delivery_ = Codex doesn't list the `single-url-retrieval-measurement` "
         "skill in the `<skills_instructions>` block. Instead, it delivers that skill through "
         "the separate system `## Memory` instruction, which tells the agent it has access to a "
         "memory folder and should use it by default."
     )
-    print("\n## Overall Co-occurrence")
-    print()
-    print(f"- Memory signals: {_pct(memory_any, total)}")
-    print(f"- Workspace skill signals: {_pct(skill_any, total)}")
-    print(f"- Both memory and workspace skill: {_pct(both, total)}")
-    print(f"- Memory only: {_pct(memory_only, total)}")
-    print(f"- Workspace skill only, no `.codex/memories` detected: {_pct(skill_only, total)}")
-    print(f"- Neither: {_pct(neither, total)}")
+
+    emit("\n## Overall Co-occurrence")
+    emit()
+    emit(f"- Memory signals: {_pct(memory_any, total)}")
+    emit(f"- Workspace skill signals: {_pct(skill_any, total)}")
+    emit(f"- Both memory and workspace skill: {_pct(both, total)}")
+    emit(f"- Memory only: {_pct(memory_only, total)}")
+    emit(f"- Workspace skill only, no `.codex/memories` detected: {_pct(skill_only, total)}")
+    emit(f"- Neither: {_pct(neither, total)}")
 
     # ---- Memory sources ----------------------------------------------------
-    print("\n## Memory Sources")
-    print()
-    print(
+    emit("\n## Memory Sources")
+    emit()
+    emit(
         "This table shows where memory-related content appeared in memory-positive runs. "
         "`system_memory_instruction` marks the separate `## Memory` system prompt. "
         "`system_prompt` marks the same block where a concrete path like `.codex/memories` "
@@ -253,35 +279,35 @@ def main():
     for r in rows:
         if r["memory_positive"]:
             memory_source_counts.update(r["memory_sources_list"])
-    print(f"\n| Source | Count | % of memory-positive — {memory_any}")
-    print("| --- | --- | ---")
+    emit(f"\n| Source | Count | % of memory-positive: {memory_any} |")
+    emit("| --- | --- | --- |")
     for source, count in memory_source_counts.most_common():
         label = MEMORY_SOURCE_LABELS.get(source, source)
-        print(f"| {label} | {count} | {round(100 * count / memory_any)}%")
+        emit(f"| {label} | {count} | {round(100 * count / memory_any)}% |")
     if args.notes_csv:
         report_mem_cits = sum(1 for r in rows if r["memory_positive"] and r["report_memory_citations"])
-        print(f"| report notes — memory citations | {report_mem_cits} | {round(100 * report_mem_cits / memory_any)}%")
+        emit(f"| report notes: memory citations | {report_mem_cits} | {round(100 * report_mem_cits / memory_any)}% |")
 
     # ---- Skill signals -----------------------------------------------------
-    print("\n## Workspace Docs-Consumption Skill Signal Breakdown")
-    print()
-    print(f"| Signal | Count | % of all runs")
-    print("| --- | --- | ---")
+    emit("\n## Workspace Docs-Consumption Skill Signal Breakdown")
+    emit()
+    emit("| Signal | Count | % of all runs |")
+    emit("| --- | --- | --- |")
     skill_counts = {
-        "docs-consumption loaded": sum(1 for r in rows if r["docs_consumption_loaded"]),
+        "`docs-consumption` loaded": sum(1 for r in rows if r["docs_consumption_loaded"]),
         "name mentioned by agent": sum(1 for r in rows if r["docs_consumption_name_mentioned"]),
         "path mentioned by agent": sum(1 for r in rows if r["docs_consumption_path_mentioned"]),
         "protocol prefix used": sum(1 for r in rows if bool(r.get("protocol_prefix"))),
         "skill language used": sum(1 for r in rows if r["skill_language"]),
     }
     for label, count in skill_counts.items():
-        print(f"| {label} | {count} | {round(100 * count / total)}%")
+        emit(f"| {label} | {count} | {round(100 * count / total)}% |")
 
     # ---- Per-model comparison ----------------------------------------------
-    print("\n## Per-Model Comparison")
-    print()
-    print(f"| Model | Runs | Memory+ | Workspace Skill+ | Both | Memory-only | Workspace-only | Neither |")
-    print("| --- | --- | --- | --- | --- | --- | --- | --- |")
+    emit("\n## Per-Model Comparison")
+    emit()
+    emit("| Model | Runs | Memory+ | Workspace Skill+ | Both | Memory-only | Workspace-only | Neither |")
+    emit("| --- | --- | --- | --- | --- | --- | --- | --- |")
     by_model = defaultdict(list)
     for r in rows:
         by_model[r["model"]].append(r)
@@ -295,15 +321,15 @@ def main():
         m_mem_only = sum(1 for r in m_rows if r["memory_positive"] and not r["skill_positive"])
         m_skill_only = sum(1 for r in m_rows if r["skill_positive"] and not r["memory_positive"])
         m_neither = sum(1 for r in m_rows if not r["memory_positive"] and not r["skill_positive"])
-        print(
-            f"| {_model_display(model)} | {m_total} | {m_mem} | {m_skill} | {m_both} | "
+        emit(
+            f"| `{_model_display(model)}` | {m_total} | {m_mem} | {m_skill} | {m_both} | "
             f"{m_mem_only} | {m_skill_only} | {m_neither} |"
         )
 
     # ---- Competing skills: skills block vs. system memory instruction -----
-    print("\n## Competing Skills: System Skills Block vs. System Memory Instruction")
-    print()
-    print(
+    emit("\n## Competing Skills: System Skills Block vs. System Memory Instruction")
+    emit()
+    emit(
         "Codex loads the workspace `docs-consumption` skill through the developer "
         "`<skills_instructions>` block. It doesn't list the `single-url-retrieval-measurement` "
         "skill there. Instead, it delivers that skill through the separate system `## Memory` "
@@ -311,8 +337,8 @@ def main():
         "by default. The 'referenced' row counts runs where that instruction was present **and** "
         "the agent read or cited the memory skill or folder."
     )
-    print(f"\n| Condition | Count | % of all runs")
-    print("| --- | --- | ---")
+    emit("\n| Condition | Count | % of all runs |")
+    emit("| --- | --- | --- |")
     docs_loaded = sum(1 for r in rows if r["docs_consumption_loaded"])
     memory_instr_present = sum(1 for r in rows if r[SYSTEM_MEMORY_INSTRUCTION_COL])
     memory_skill_referenced = sum(
@@ -327,79 +353,61 @@ def main():
     memory_instr_only = sum(
         1 for r in rows if r[SYSTEM_MEMORY_INSTRUCTION_COL] and not r["docs_consumption_loaded"]
     )
-    print(f"| docs-consumption loaded — system skills block | {docs_loaded} | {round(100 * docs_loaded / total)}%")
-    print(f"| system `## Memory` instruction present | {memory_instr_present} | {round(100 * memory_instr_present / total)}%")
-    print(f"| single-url-retrieval-measurement referenced — system-instructed and agent-read | {memory_skill_referenced} | {round(100 * memory_skill_referenced / total)}%")
-    print(f"| Both present | {both_present} | {round(100 * both_present / total)}%")
-    print(f"| docs-consumption only | {docs_only} | {round(100 * docs_only / total)}%")
-    print(f"| memory-instructed only | {memory_instr_only} | {round(100 * memory_instr_only / total)}%")
-
-    # ---- GPT-5.4 Mini early vs late split ----------------------------------
-    mini_rows = [r for r in rows if r["model"] == "gpt-5.4-mini"]
-    if mini_rows:
-        mini_rows_sorted = sorted(mini_rows, key=lambda r: r["datetime"] or "")
-        print("\n## GPT-5.4 Mini Early vs. Late Split")
-        print()
-        print(
-            "The first four Mini rollouts, from the morning of 2026-07-09, show no memory "
-            "signals. The later five load the workspace skill consistently, but memory "
-            "references appear only in the last two — 18:51 and 19:06."
-        )
-        print(f"\n| Period | Runs | Memory+ | Workspace Skill+ | Both | Memory-only | Workspace-only | Neither |")
-        print("| --- | --- | --- | --- | --- | --- | --- | --- |")
-        for label, subset in [("Early", mini_rows_sorted[:4]), ("Late", mini_rows_sorted[4:])]:
-            s_total = len(subset)
-            s_mem = sum(1 for r in subset if r["memory_positive"])
-            s_skill = sum(1 for r in subset if r["skill_positive"])
-            s_both = sum(1 for r in subset if r["memory_positive"] and r["skill_positive"])
-            s_mem_only = sum(1 for r in subset if r["memory_positive"] and not r["skill_positive"])
-            s_skill_only = sum(1 for r in subset if r["skill_positive"] and not r["memory_positive"])
-            s_neither = sum(1 for r in subset if not r["memory_positive"] and not r["skill_positive"])
-            print(
-                f"| {label} | {s_total} | {s_mem} | {s_skill} | {s_both} | "
-                f"{s_mem_only} | {s_skill_only} | {s_neither} |"
-            )
+    emit(f"| `docs-consumption` loaded: system skills block | {docs_loaded} | {round(100 * docs_loaded / total)}% |")
+    emit(f"| system `## Memory` instruction present | {memory_instr_present} | {round(100 * memory_instr_present / total)}% |")
+    emit(f"| `single-url-retrieval-measurement` referenced: system-instructed, agent-read | {memory_skill_referenced} | {round(100 * memory_skill_referenced / total)}% |")
+    emit(f"| Both present | {both_present} | {round(100 * both_present / total)}% |")
+    emit(f"| `docs-consumption` only | {docs_only} | {round(100 * docs_only / total)}% |")
+    emit(f"| memory-instructed only | {memory_instr_only} | {round(100 * memory_instr_only / total)}% |")
 
     # ---- Notable edge cases ------------------------------------------------
-    print("\n## Edge Cases")
-    print()
+    emit("\n## Edge Cases")
+    emit()
 
     def _row_label(r):
         effort = r["effort"]
         if effort == "xhigh":
             effort = "extra-high"
-        return f"{_model_display(r['model'])} — {effort}"
+        return f"`{_model_display(r['model'])}`, {effort}"
 
     memory_only_rows = [r for r in rows if r["memory_positive"] and not r["skill_positive"]]
     if memory_only_rows:
-        print("\n### Memory-only sessions — no workspace docs-consumption signal")
-        print()
+        emit("\n### Memory-only sessions: no workspace `docs-consumption` signal")
+        emit()
         for r in memory_only_rows:
-            print(f"- `{r['file']}` — {_row_label(r)}")
+            emit(f"- `{r['file']}` {_row_label(r)}")
     else:
-        print("\n### Memory-only sessions")
-        print()
-        print("- None")
+        emit("\n### Memory-only sessions")
+        emit()
+        emit("- None")
 
     skill_only_rows = [r for r in rows if r["skill_positive"] and not r["memory_positive"]]
     if skill_only_rows:
-        print("\n### Workspace-skill-only sessions — no `.codex/memories` detected")
-        print()
+        emit("\n### Workspace-skill-only sessions: no `.codex/memories` detected")
+        emit()
         for r in skill_only_rows:
-            print(f"- `{r['file']}` — {_row_label(r)}")
+            emit(f"- `{r['file']}` {_row_label(r)}")
     else:
-        print("\n### Workspace-skill-only sessions")
-        print()
-        print("- None")
+        emit("\n### Workspace-skill-only sessions")
+        emit()
+        emit("- None")
 
     no_prefix_rows = [r for r in rows if r["docs_consumption_loaded"] and not r.get("protocol_prefix")]
     if no_prefix_rows:
-        print(f"\n### Sessions where docs-consumption loaded but no COMPLETE/PARTIAL/UNVERIFIABLE prefix: {len(no_prefix_rows)}")
-        print()
+        emit(f"\n### Sessions where `docs-consumption` loaded but no `COMPLETE/PARTIAL/UNVERIFIABLE` prefix: {len(no_prefix_rows)}")
+        emit()
         for r in no_prefix_rows:
-            print(f"- `{r['file']}` — {_row_label(r)}")
+            emit(f"- `{r['file']}` {_row_label(r)}")
 
-    print()
+    emit()
+
+    # ---- Write report -------------------------------------------------------
+    report = "".join(line + "\n" for line in out)
+    print(report, end="")
+    out_path = Path(args.output) if args.output else _default_output(path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(report)
+    print(f"Report written to {out_path}", file=sys.stderr)
 
 
 if __name__ == "__main__":
