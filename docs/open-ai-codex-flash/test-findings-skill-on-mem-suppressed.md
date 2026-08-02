@@ -180,7 +180,7 @@ ignoring the recommendation requirement, suggesting agents, in spite of common e
 
 This heat map organizes each run into a row, with columns tracking individual `/SKILL` signals. Cell fill marks a binary flag - present or absent.
 Striped cells mark shallow compliance reading as false positives. Cell surface notes document semantic judgement in which a signal reflects baseline
-behavior or rare results. Hover over each cell for each run's surface note.
+behavior or rare results. Hover over each cell to review surface notes.
 
 {% raw %}
 <div id="cdx-skill-t3-root"></div>
@@ -538,38 +538,31 @@ table.cdx-skill td.cdx-skill-llm { font-weight: 400; }
 
 ## Retrieval Outcomes
 
-Without `/memories` competing for context and with `docs-consumption/SKILL` isolated as the only signal in play, retrieval reverts
-to baseline tool-choice variety rather than a single dominant path: 50% of runs used `curl` alone, 27% used `web` alone, and 23%
-used both. That variety matters because `curl` returns the complete `Content-Length`-verified payload, while `web` returns a
-windowed extraction — lossy and truncated by design.
+Rather than the `/memories`-determined, `curl`-dominated `opt-in` retrieval pattern, `docs-consumption/SKILL` isolation
+produced a revert to baseline variety in which half of the agents relied on `curl`, nearly a third relied on `web`, and the
+remainder used a mix. While `curl`-only agents verified with `Content-Length`, those with `web` often reported without
+explicit verification, as `web` returns windowed text extractions - truncated by design.
 
-Every truncated `web` run cuts at the same point — mid-sentence, right after `JSON-LD metadata,` — self-reported across runs as
-the `L54` cutpoint. That number describes the `web` tool's own internal line count, not the source document: `EC-6`'s raw file
-is 1,722 lines long, and the `JSON-LD metadata,` string sits at raw line 510, or 29.6% of the page. The character counts
-corroborate it independently — `web`'s ~25,453 characters against `curl`'s 91,869 is a 27.7% share. By either measure, an agent
-that retrieves through `web` sees under a third of the actual document before the tool's own windowing closes it, and only 31%
-of runs disclosed that a cutoff had happened at all. The heat map below is the run-by-run evidence for that split: which
-retrieval path each run took, whether the cutoff was disclosed, and whether the completeness label that followed matched what
-was actually retrieved.
+With the exception of `GPT-5.4 Light`, all `web` windows truncated on `L54` mid-sentence, after `JSON-LD metadata`.
+`L54` describes `web`'s internal line count and not
+[`EC-6`'s raw Markdown file that's 1,722 lines long](https://raw.githubusercontent.com/agent-ecosystem/agent-docs-spec/main/SPEC.md).
+The `JSON-LD metadata` string sits at line 510 at about 29.6% of the page. The character counts corroborate it independently:
+`web`'s ~25,453 characters against `curl`'s 91,869 is about 27.7%. `web` consistently limited agents' view to a third of the text
+before closing it, intermittently reviewing for metrics, and in spite of viewing multiple times in the form of calls including
+`turn0view0`, `turn1view0`, didn't traverse past this cutpoint.
 
 [Content Access x Intelligence](../open-ai-codex/codex-test-findings-desktop.md#content-access-x-intelligence) frames traversal
-as a proxy for reading, not just retrieval: agents that use `web` long enough to reach the end of a page's prose access something
-closer to semantic context, while agents that pivot to `curl` retrieve a raw HTTP body they may never process as text. None of
-this test's `web` runs meet that bar — every one stops at the same ~29.6%/27.7% mark before the tool's own window closes, and
-the 50% of runs that skipped `web` for `curl` alone fetched the full 91,869-character payload with no signal they read any of
-it as prose; `curl`'s completeness is a byte count, not a reading one. [Retrieval Paths](../open-ai-codex/codex-test-findings-extension.md#retrieval-paths)
-explains why the pivot happens anyway: paginating through `web`'s text-extraction slices to reach full coverage costs materially
-more calls than one `curl` request returning `Content-Length` up front. That cost calculus holds even here, with
-`docs-consumption/SKILL` present in the workspace and `/memories` suppressed — agents still rediscover the same `web` ceiling
-each session and still reach for `curl` as the cheaper path, not the more thorough one.
+as a proxy for agentic reading beyond retrieval. Agents that use `web` long enough to reach the end of a page's prose access something
+closer to semantic context, while agents that rely on `curl` retrieve a raw HTTP body they may never process as text. While
+no agents on this sub-track used `web` to traverse through `EC-6`'s entire prose, those that relied on `curl` reduced the test
+to a retrieval-measurement task. [Retrieval Paths](../open-ai-codex/codex-test-findings-extension.md#retrieval-paths) explores
+why that reduction happens more often - `curl` is cheaper. Even with `/SKILL` isolation requiring retrieval analysis,
+agents consistently sought early exits, often reached for the cheaper path, and not the more thorough one.
 
-Single page type `EC-6` (Raw GitHub Markdown, ~92 KB). Rows are LLM version, columns are reasoning level;
-`Ultra` ran on `Sol` and `Terra` only. Each cell carries one signal as its fill (`method`: `web`, `curl`, or `both`)
-and folds the other two into the cell border and overlay: the border encodes `truncation` tier (`yes` = red, `mixed` = amber,
-`implicit` = dashed yellow, `no` = faint), and a diagonal stripe marks `mislabel` cells where the completeness label diverges
-from the evidence. Cell tooltips carry each run's log-label surface note: `web` returns in `Terra` and `Luna` re-hit the `L54`
-cutpoint, the `yes`-truncation cells ring red, and the striped `under` cells mark clean `curl` fetches mislabeled `UNVERIFIABLE`
-or `PARTIAL`.
+The heat map below includes each agent's retrieval path, truncation report, and self-scoring accuracy. Rows define
+LLM version while columns specify reasoning level. `Ultra` reasoning level exclusive to `Sol` and `Terra`. Each cell's fill
+represent retrieval strategy, while their border encodes truncation reports. Diagonal stripes depict completeness label mismatching.
+Hover over each cell for performance details.
 
 {% raw %}
 <div id="cdx-t3b-root"></div>
